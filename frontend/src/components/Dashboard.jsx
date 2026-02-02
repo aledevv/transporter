@@ -6,6 +6,7 @@ import AddressAutocomplete from './AddressAutocomplete';
 import SchoolEditor from './SchoolEditor';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import API_BASE_URL from '../config';
 
 const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
     const [destination, setDestination] = useState('');
@@ -54,7 +55,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
                 start_time: startTime
             };
 
-            const response = await axios.post('http://localhost:5001/api/optimize', payload);
+            const response = await axios.post(`${API_BASE_URL}/api/optimize`, payload);
             setResults(response.data);
 
         } catch (err) {

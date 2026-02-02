@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import axios from 'axios';
 import { Upload, FileType, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import API_BASE_URL from '../config';
 
 const FileUpload = ({ onUploadSuccess }) => {
     const [dragActive, setDragActive] = useState(false);
@@ -48,7 +49,7 @@ const FileUpload = ({ onUploadSuccess }) => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5001/api/upload', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
