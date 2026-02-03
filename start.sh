@@ -18,6 +18,16 @@ pkill -f "vite" 2>/dev/null
 # Avvia il backend Flask
 echo -e "${GREEN}🔧 Avvio Backend Flask (porta 5001)...${NC}"
 cd "$(dirname "$0")"
+
+# Attiva virtual environment se esiste
+if [ -d "venv" ]; then
+    echo "🐍 Attivazione virtual environment..."
+    source venv/bin/activate
+elif [ -d ".venv" ]; then
+    echo "🐍 Attivazione virtual environment..."
+    source .venv/bin/activate
+fi
+
 python3 app.py &
 BACKEND_PID=$!
 

@@ -128,7 +128,7 @@ const SchoolEditor = ({ schools, onSave }) => {
 
             <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
                 <div className="text-xs text-gray-500 italic">
-                    * Controlla attentamente gli indirizzi per un routing accurato.
+                    * Controlla attentamente gli indirizzi per una pianificazione più accurata.
                 </div>
                 <button
                     onClick={handleSave}

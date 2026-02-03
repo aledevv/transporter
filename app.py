@@ -17,6 +17,27 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 geocoder = GeocodingService()
 
+def format_time_from_minutes(total_minutes):
+    """Format minutes to HH:MM, handling times past midnight."""
+    hours = int(total_minutes // 60)
+    minutes = int(total_minutes % 60)
+    
+    if hours >= 24:
+        # Time goes into next day
+        days = hours // 24
+        hours = hours % 24
+        return f"{hours:02d}:{minutes:02d} (+{days}g)"
+    else:
+        return f"{hours:02d}:{minutes:02d}"
+
+def parse_time_to_minutes(time_str):
+    """Parse a time string (HH:MM or HH:MM (+Ng)) to total minutes."""
+    # Remove any day suffix like (+1g)
+    clean_time = time_str.split(' ')[0] if ' ' in time_str else time_str
+    h, m = map(int, clean_time.split(':'))
+    return h * 60 + m
+
+
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -223,7 +244,7 @@ def optimize():
                 cumulative_minutes = start_hour * 60 + start_min
                 
                 for i, stop in enumerate(pickup_stops):
-                    stop['departure_time'] = f"{int(cumulative_minutes // 60):02d}:{int(cumulative_minutes % 60):02d}"
+                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
                     
                     # Calculate travel time to next stop (or destination)
                     if i < len(pickup_stops) - 1:
@@ -239,7 +260,7 @@ def optimize():
                 # Destination arrival time
                 for stop in stops_data:
                     if stop['type'] == 'destination':
-                        stop['arrival_time'] = f"{int(cumulative_minutes // 60):02d}:{int(cumulative_minutes % 60):02d}"
+                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
             
             formatted_routes.append({
                 'vehicle_id': current_vehicle_id,
@@ -263,11 +284,11 @@ def optimize():
                         school_times[original_name] = []
                     # Parse the departure time
                     if 'departure_time' in stop:
-                        h, m = map(int, stop['departure_time'].split(':'))
+                        minutes = parse_time_to_minutes(stop['departure_time'])
                         school_times[original_name].append({
                             'route_idx': route_idx,
                             'stop_idx': stop_idx,
-                            'minutes': h * 60 + m
+                            'minutes': minutes
                         })
         
         # For schools with multiple entries, synchronize to the LATEST time
@@ -275,7 +296,7 @@ def optimize():
             if len(times) > 1:
                 # Find the latest departure time
                 latest_minutes = max(t['minutes'] for t in times)
-                latest_time_str = f"{int(latest_minutes // 60):02d}:{int(latest_minutes % 60):02d}"
+                latest_time_str = format_time_from_minutes(latest_minutes)
                 
                 # Update all stops for this school to use synchronized time
                 for t in times:
@@ -291,8 +312,8 @@ def optimize():
         for route in formatted_routes:
             for stop in route['outbound']['stops']:
                 if stop['type'] == 'destination' and 'arrival_time' in stop:
-                    h, m = map(int, stop['arrival_time'].split(':'))
-                    arrival_times_minutes.append(h * 60 + m)
+                    minutes = parse_time_to_minutes(stop['arrival_time'])
+                    arrival_times_minutes.append(minutes)
         
         if arrival_times_minutes:
             earliest_arrival = min(arrival_times_minutes)
@@ -318,37 +339,36 @@ def optimize():
                         break
                 
                 if dest_stop and 'arrival_time' in dest_stop:
-                    h, m = map(int, dest_stop['arrival_time'].split(':'))
-                    current_arrival = h * 60 + m
+                    current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
                     delay_minutes = target_arrival - current_arrival
                     
                     if delay_minutes > 0:
                         # Shift all times for this route forward
                         for stop in stops:
                             if stop['type'] == 'pickup' and 'departure_time' in stop:
-                                old_h, old_m = map(int, stop['departure_time'].split(':'))
-                                new_minutes = old_h * 60 + old_m + delay_minutes
-                                stop['departure_time'] = f"{int(new_minutes // 60):02d}:{int(new_minutes % 60):02d}"
+                                old_minutes = parse_time_to_minutes(stop['departure_time'])
+                                new_minutes = old_minutes + delay_minutes
+                                stop['departure_time'] = format_time_from_minutes(new_minutes)
                             elif stop['type'] == 'destination' and 'arrival_time' in stop:
-                                old_h, old_m = map(int, stop['arrival_time'].split(':'))
-                                new_minutes = old_h * 60 + old_m + delay_minutes
-                                stop['arrival_time'] = f"{int(new_minutes // 60):02d}:{int(new_minutes % 60):02d}"
+                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
+                                new_minutes = old_minutes + delay_minutes
+                                stop['arrival_time'] = format_time_from_minutes(new_minutes)
             
             # Recalculate spread after synchronization
             final_arrival_times = []
             for route in formatted_routes:
                 for stop in route['outbound']['stops']:
                     if stop['type'] == 'destination' and 'arrival_time' in stop:
-                        h, m = map(int, stop['arrival_time'].split(':'))
-                        final_arrival_times.append(h * 60 + m)
+                        minutes = parse_time_to_minutes(stop['arrival_time'])
+                        final_arrival_times.append(minutes)
             
             final_earliest = min(final_arrival_times) if final_arrival_times else 0
             final_latest = max(final_arrival_times) if final_arrival_times else 0
             final_spread = final_latest - final_earliest
             
             arrival_window = {
-                'earliest': f"{int(final_earliest // 60):02d}:{int(final_earliest % 60):02d}",
-                'latest': f"{int(final_latest // 60):02d}:{int(final_latest % 60):02d}",
+                'earliest': format_time_from_minutes(final_earliest),
+                'latest': format_time_from_minutes(final_latest),
                 'spread_minutes': final_spread
             }
         else:
