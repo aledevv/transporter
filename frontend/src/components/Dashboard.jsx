@@ -35,6 +35,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
         }
     }, [results]);
 
+    // Reset results if schools change (new upload)
+    useEffect(() => {
+        setResults(null);
+    }, [schools]);
+
     const handleOptimize = async () => {
         if (!destination) {
             setError("Inserisci un indirizzo di destinazione.");

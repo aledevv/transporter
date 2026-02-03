@@ -5,6 +5,15 @@ import Dashboard from './components/Dashboard';
 function App() {
     const [schools, setSchools] = useState([]);
     const [message, setMessage] = useState('');
+    const [showDetails, setShowDetails] = useState(false);
+    const [resetKey, setResetKey] = useState(0);
+
+    const handleReset = () => {
+        setSchools([]);
+        setMessage('');
+        setShowDetails(false);
+        setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
+    };
 
     // Auto-scroll refs
     const dashboardRef = useRef(null);
@@ -23,11 +32,19 @@ function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
             <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
                         🚌 Transporter
                         <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
                     </h1>
+                    {schools.length > 0 && (
+                        <button
+                            onClick={handleReset}
+                            className="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            🔄 Reset / Nuovo Progetto
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -38,21 +55,74 @@ function App() {
                     <section ref={uploadRef} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">1. Importazione Dati</h2>
                         <FileUpload
+                            key={resetKey}
                             onUploadSuccess={(data) => {
                                 setSchools(data);
                                 setMessage('File caricato con successo! Procedi alla configurazione.');
                             }}
                         />
                         {message && (
-                            <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100">
-                                {message}
+                            <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100 flex items-center gap-2">
+                                <span className="text-xl">✅</span> {message}
                             </div>
                         )}
+
                         {schools.length > 0 && (
-                            <div className="mt-4 text-sm text-gray-600">
-                                Caricate {schools.length} posizioni dal file.
+                            <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-gray-200">
+                                <h3 className="font-semibold text-gray-700 mb-3 flex justify-between items-center">
+                                    <span>Riepilogo Dati Caricati</span>
+                                    <button
+                                        onClick={() => setShowDetails(!showDetails)}
+                                        className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                                    >
+                                        {showDetails ? 'Nascondi Dettagli' : 'Mostra Dettagli'}
+                                    </button>
+                                </h3>
+
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                        <div className="text-gray-500 text-xs uppercase font-bold tracking-wide">Fermate</div>
+                                        <div className="text-2xl font-bold text-gray-800">{schools.length}</div>
+                                    </div>
+                                    <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                        <div className="text-gray-500 text-xs uppercase font-bold tracking-wide">Passeggeri Totali</div>
+                                        <div className="text-2xl font-bold text-blue-600">
+                                            {schools.reduce((sum, s) => sum + (parseInt(s.demand) || 0), 0)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {showDetails && (
+                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-fade-in mt-4">
+                                        <div className="max-h-60 overflow-y-auto">
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50 sticky top-0">
+                                                    <tr>
+                                                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indirizzo</th>
+                                                        <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pax</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {schools.map((school) => (
+                                                        <tr key={school.id} className="hover:bg-gray-50">
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{school.name}</td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[200px]" title={school.address}>
+                                                                {school.address.split(',')[0]} {/* Show just street part if comma separated */}
+                                                            </td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
+                                                                {school.demand}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        )
+                        }
 
                         {/* Manual Entry Option */}
                         <div className="mt-6 pt-6 border-t border-gray-100">
