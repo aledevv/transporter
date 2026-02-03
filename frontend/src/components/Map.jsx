@@ -3,18 +3,33 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import { X } from 'lucide-react';
 
-// Fix for default marker icons
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { MapPin, Flag, Building2 } from 'lucide-react';
 
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
+const createCustomIcon = (color, IconComponent) => {
+    const iconHtml = renderToStaticMarkup(
+        <div className="relative flex items-center justify-center w-full h-full">
+            <IconComponent
+                className={`w-8 h-8 drop-shadow-md filter`}
+                style={{ fill: color, color: 'white', strokeWidth: 1.5 }}
+            />
+            <div
+                className="absolute -bottom-1 w-2 h-2 bg-black opacity-20 rounded-full blur-[1px]"
+            ></div>
+        </div>
+    );
 
-L.Marker.prototype.options.icon = DefaultIcon;
+    return L.divIcon({
+        html: iconHtml,
+        className: 'custom-marker-icon', // Empty cleanup
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+};
+
+const schoolIcon = createCustomIcon('#3b82f6', MapPin); // Blue
+const destinationIcon = createCustomIcon('#ef4444', Flag); // Red
 
 // Inner component to handle Map updates via props
 const MapController = ({ schools, destination, focusBounds }) => {
@@ -85,17 +100,26 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                 />
 
                 {destination && (
-                    <Marker position={[destination.lat, destination.lon]}>
-                        <Popup><strong>🏁 Destinazione</strong><br />{destination.address}</Popup>
+                    <Marker position={[destination.lat, destination.lon]} icon={destinationIcon}>
+                        <Popup className="custom-popup">
+                            <div className="text-center">
+                                <strong className="text-red-600 block text-lg mb-1">🏁 Destinazione</strong>
+                                <span className="text-gray-600 text-sm">{destination.address}</span>
+                            </div>
+                        </Popup>
                     </Marker>
                 )}
 
                 {schools.map((school) => (
-                    <Marker key={school.id} position={[school.lat, school.lon]}>
-                        <Popup>
-                            <strong>🏫 {school.name}</strong><br />
-                            {school.address}<br />
-                            Passeggeri: {school.demand}
+                    <Marker key={school.id} position={[school.lat, school.lon]} icon={schoolIcon}>
+                        <Popup className="custom-popup">
+                            <div className="min-w-[150px]">
+                                <strong className="text-blue-600 block text-base mb-1 border-b pb-1">🏫 {school.name}</strong>
+                                <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
+                                <div className="bg-blue-50 text-blue-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
+                                    👥 {school.demand} passeggeri
+                                </div>
+                            </div>
                         </Popup>
                     </Marker>
                 ))}

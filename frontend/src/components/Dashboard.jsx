@@ -80,7 +80,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
 
         doc.setFontSize(11);
         doc.text(`Destinazione: ${destination}`, 14, 32);
-        doc.text(`Strategia: ${strategy === 'distance' ? 'Percorso più breve' : 'Minimo Veicoli'}`, 14, 38);
+        doc.text(`Strategia: ${strategy === 'distance' ? 'Percorso più breve' : strategy === 'balanced' ? 'Bilanciato' : 'Minimo Veicoli'}`, 14, 38);
 
         // Overview Stats
         const stats = [
@@ -231,6 +231,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
                                         onChange={(e) => setStrategy(e.target.value)}
                                     >
                                         <option value="distance">Percorso Breve</option>
+                                        <option value="balanced">Bilanciato</option>
                                         <option value="vehicles">Minimo Bus</option>
                                     </select>
                                 </div>

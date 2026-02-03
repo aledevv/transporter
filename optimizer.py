@@ -3,25 +3,35 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 
 class VRPSolver:
-    def __init__(self, distance_matrix, demands, vehicle_capacity, num_vehicles, depot_index=0, fixed_vehicle_cost=0):
+    def __init__(self, distance_matrix, demands, vehicle_capacity, num_vehicles, depot_index=0, fixed_vehicle_cost=0, search_strategy='PATH_CHEAPEST_ARC', starts=None, ends=None):
         self.distance_matrix = distance_matrix
         self.demands = demands
         self.vehicle_capacity = vehicle_capacity
         self.num_vehicles = num_vehicles
         self.depot_index = depot_index
         self.fixed_vehicle_cost = fixed_vehicle_cost
+        self.search_strategy = search_strategy
+        self.starts = starts
+        self.ends = ends
         
     def solve(self):
         """
         Solves the Vehicle Routing Problem.
         Returns a dictionary with routes and metrics.
         """
-        # Create the routing index manager.
-        manager = pywrapcp.RoutingIndexManager(
-            len(self.distance_matrix),
-            self.num_vehicles,
-            self.depot_index
-        )
+        if self.starts and self.ends:
+            manager = pywrapcp.RoutingIndexManager(
+                len(self.distance_matrix),
+                self.num_vehicles,
+                self.starts,
+                self.ends
+            )
+        else:
+            manager = pywrapcp.RoutingIndexManager(
+                len(self.distance_matrix),
+                self.num_vehicles,
+                self.depot_index
+            )
 
         # Create Routing Model.
         routing = pywrapcp.RoutingModel(manager)
@@ -56,8 +66,16 @@ class VRPSolver:
 
         # Setting first solution heuristic.
         search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-        search_parameters.first_solution_strategy = (
-            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+        
+        if self.search_strategy == 'SAVINGS':
+            search_parameters.first_solution_strategy = (
+                routing_enums_pb2.FirstSolutionStrategy.SAVINGS)
+        elif self.search_strategy == 'AUTOMATIC':
+             search_parameters.first_solution_strategy = (
+                routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
+        else:
+            search_parameters.first_solution_strategy = (
+                routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
         
         # Solve the problem.
         solution = routing.SolveWithParameters(search_parameters)

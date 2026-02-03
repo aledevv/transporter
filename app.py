@@ -80,10 +80,23 @@ def optimize():
     
     # Split Delivery: Pre-split ALL schools into smaller chunks to allow
     # passengers from different schools to share a bus.
-    SPLIT_CHUNK_SIZE = 15  # Max passengers per "node" for flexible assignment
+    # Split Delivery: Pre-split ALL schools into smaller chunks to allow
+    # passengers from different schools to share a bus.
+    # For "Minimize Buses", we need fine granularity (1) to perfectly pack buses (Liquid Filling).
+    # For others, coarser chunks (e.g. 5-15) are fine to keep solve time low and avoid fragmentation.
+    
+    if strategy == 'vehicles':
+         SPLIT_CHUNK_SIZE = 1
+    else:
+         SPLIT_CHUNK_SIZE = 5 # Reduced from 15 to allow slightly better mixing in Balanced/Distance
+         
     processed_schools = []
     for school in schools:
         demand = school['demand']
+        
+        # Optimization: If demand is huge, don't split into 1s blindly even for vehicles
+        # unless necessary. But for now, let's trust the solver for <500 items.
+        
         if demand > SPLIT_CHUNK_SIZE:
             part_idx = 1
             while demand > 0:
@@ -125,14 +138,47 @@ def optimize():
                 'name': school['name'],
                 'address': school['address'],
                 'participants': school['demand'],
-                'lat': school.get('lat', 0),
-                'lon': school.get('lon', 0)
+                'lat': float(school.get('lat', 0)),
+                'lon': float(school.get('lon', 0))
             })
             index_to_school[i + 1] = school 
+        
+        # Add DUMMY START NODE (Index = len(all_nodes))
+        # This node represents an "Anywhere" start point with 0 cost to all other nodes.
+        dummy_node_index = len(all_nodes)
+        all_nodes.append({
+            'id': 'DUMMY_START',
+            'name': 'Start',
+            'address': '',
+            'participants': 0,
+            'lat': 0,
+            'lon': 0
+        })
             
         # 2. Distance Matrix (Real OSRM)
-        locations = [(n['lat'], n['lon']) for n in all_nodes]
-        distance_matrix = geocoder.get_distance_matrix(locations)
+        # We process N real nodes. The matrix needs to be (N+1)x(N+1)
+        real_node_count = len(all_nodes) - 1
+        locations = [(n['lat'], n['lon']) for n in all_nodes[:real_node_count]]
+        real_matrix = geocoder.get_distance_matrix(locations)
+        
+        # Extend matrix for Dummy Node
+        # Rows: Real nodes -> Real nodes (Keep)
+        # Row: Dummy -> Real nodes (0 distance)
+        # Col: Real nodes -> Dummy (Infinity? Or 0? Usually maximize to prevent using as shortcut, but it's start node so it only has outgoing)
+        
+        full_matrix = []
+        for row in real_matrix:
+            # Add distance TO dummy (End -> Dummy). We don't want to go TO dummy.
+            # Make it 0 or huge? If we use different start/end, we won't go back to start.
+            row.append(0) 
+            full_matrix.append(row)
+            
+        # Add Dummy Row (Dummy -> Others)
+        # We want Dummy -> First School = 0 cost
+        dummy_row = [0] * (real_node_count + 1)
+        full_matrix.append(dummy_row)
+        
+        distance_matrix = full_matrix
         
         # 3. Demands & Solve
         demands = [n['participants'] for n in all_nodes]
@@ -147,13 +193,30 @@ def optimize():
             calculated_vehicles = min_needed + 2  # Buffer for solver flexibility
             print(f"[DEBUG] Auto-calculated {calculated_vehicles} buses (min needed: {min_needed})")
 
-        # Determine Fixed Cost based on Strategy
+        # Determine Fixed Cost & Strategy based on User Input
         fixed_cost = 0
+        search_strategy = 'PATH_CHEAPEST_ARC'
+        
         if strategy == 'vehicles':
-            # High cost to penalize using a vehicle
-            # Heuristic: Cost > max possible route distance ensures we prioritize saving a vehicle
-            # Max possible dist approx: Total Distance. Let's say 1,000,000 (1000km)
+            # "Minimize Buses"
+            # High cost to penalize using a vehicle + SAVINGS heuristic
             fixed_cost = 1000000 
+            search_strategy = 'SAVINGS'
+            
+            # If user didn't force a bus count, let's try to squeeze more
+            # by not inflating the calculated_vehicles too much, but solver will decide usage.
+            
+        elif strategy == 'balanced':
+            # "Balanced"
+            # Medium cost (e.g., 20km) to discourage empty buses but not at all costs
+            fixed_cost = 20000 # 20km equivalent
+            search_strategy = 'PATH_CHEAPEST_ARC' 
+            
+        else: # 'distance' or default
+            # "Shortest Path"
+            # Low cost to just avoid completely empty buses if possible, but prioritization is distance
+            fixed_cost = 1000 # 1km equivalent
+            search_strategy = 'PATH_CHEAPEST_ARC'
 
         solver = VRPSolver(
             distance_matrix=distance_matrix,
@@ -161,7 +224,10 @@ def optimize():
             vehicle_capacity=bus_capacity,
             num_vehicles=calculated_vehicles,
             depot_index=0,
-            fixed_vehicle_cost=fixed_cost
+            fixed_vehicle_cost=fixed_cost,
+            search_strategy=search_strategy,
+            starts=[dummy_node_index] * calculated_vehicles,
+            ends=[0] * calculated_vehicles # 0 is Destination
         )
         
         solution = solver.solve()
@@ -193,6 +259,11 @@ def optimize():
             stops_data = []
             for node_obj in route['stops']:
                 node_idx = node_obj['node']
+                
+                # Skip Dummy Start Node in output
+                if node_idx == dummy_node_index:
+                    continue
+                    
                 if node_idx == 0:
                     stops_data.append({
                         'type': 'destination',

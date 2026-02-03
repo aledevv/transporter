@@ -9,6 +9,8 @@ const AddressAutocomplete = ({ value, onChange, onSelect }) => {
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
+    const lastSelectedValueRef = useRef(null);
+
     // Create a debounced search function
     const searchAddress = React.useCallback(
         debounce(async (query) => {
@@ -35,6 +37,10 @@ const AddressAutocomplete = ({ value, onChange, onSelect }) => {
     );
 
     useEffect(() => {
+        // If the current value matches what we just selected, don't search/reopen
+        if (value === lastSelectedValueRef.current) {
+            return;
+        }
         searchAddress(value);
     }, [value, searchAddress]);
 
@@ -56,6 +62,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect }) => {
         setIsOpen(false);
         // Display name is often too long, maybe take first part?
         // Let's use display_name for now.
+        lastSelectedValueRef.current = suggestion.display_name;
         onChange(suggestion.display_name);
 
         // Pass parent the full object (lat/lon)
