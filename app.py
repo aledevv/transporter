@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 import os
@@ -9,7 +9,8 @@ from data_loader import DataLoader
 from geocoder import GeocodingService
 from optimizer import VRPSolver
 
-app = Flask(__name__)
+# Setup static folder to point to frontend/dist
+app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
 CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
@@ -62,6 +63,9 @@ def upload_file():
             return jsonify({'message': 'File elaborato con successo', 'schools': schools}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+        finally:
+            if os.path.exists(filepath):
+                os.remove(filepath)
 
 @app.route('/api/optimize', methods=['POST'])
 def optimize():
@@ -464,5 +468,14 @@ def optimize():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=True, host='0.0.0.0', port=port)

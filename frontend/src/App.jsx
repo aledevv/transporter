@@ -32,9 +32,10 @@ function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
             <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <div className="container mx-auto py-6 px-4 flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        🚌 Transporter
+                        <img src="/favicon.svg" alt="BusPlan Logo" className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+                        BusPlan
                         <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
                     </h1>
                     {schools.length > 0 && (
@@ -166,7 +167,7 @@ function App() {
             {/* Footer */}
             <footer className="bg-white border-t border-gray-200 mt-auto">
                 <div className="max-w-7xl mx-auto py-6 px-4 text-center text-gray-500">
-                    Transporter Project - Pianificazione trasporti
+                    BusPlan - Pianificazione trasporti
                 </div>
             </footer>
         </div>

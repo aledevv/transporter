@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "site": "busplan",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "transporter",
+          "region": "europe-west6"
+        },
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

@@ -4,3 +4,4 @@ openpyxl
 flask-cors
 ortools
 requests
+gunicorn
