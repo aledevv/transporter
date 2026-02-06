@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "bus-plan-6d002"
-  }
+    "default": "bus-plan-6d002",
+    "bus-plan": "bus-plan-6d002"
+  },
+  "targets": {},
+  "etags": {}
 }
