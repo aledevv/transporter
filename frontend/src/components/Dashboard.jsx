@@ -1,12 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock } from 'lucide-react';
+import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2 } from 'lucide-react';
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
 import SchoolEditor from './SchoolEditor';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import API_BASE_URL from '../config';
+
+// Route colors (must match Map.jsx COLORS array)
+const ROUTE_COLORS = [
+    '#3b82f6', '#ef4444', '#22c55e', '#eab308',
+    '#a855f7', '#f97316', '#ec4899', '#14b8a6'
+];
 
 const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {} }) => {
     const [destination, setDestination] = useState('');
@@ -367,7 +373,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                     <div key={idx} className="bg-gray-50 rounded-lg p-5 border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all">
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="font-bold text-gray-800 flex items-center gap-2">
-                                                <Bus className="w-4 h-4 text-blue-500" /> Bus #{route.vehicle_id + 1}
+                                                <Bus className="w-4 h-4" style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }} />
+                                                <span style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }}>Bus #{route.vehicle_id + 1}</span>
                                             </span>
                                             <div className="flex flex-col items-end">
                                                 <span className="text-xs font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
@@ -408,7 +415,23 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                             <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold font-mono">
                                                                 {sIdx}
                                                             </span>
-                                                            <span className="font-medium text-gray-700 text-sm leading-tight" style={{ wordBreak: 'break-word' }}>{stop.name}</span>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className="font-medium text-gray-700 text-sm leading-tight" style={{ wordBreak: 'break-word' }}>{stop.name}</span>
+                                                                {/* Institute indicator if school has institute */}
+                                                                {(() => {
+                                                                    const school = schools.find(s => s.name === stop.name || s.address === stop.address);
+                                                                    if (school && school.institute) {
+                                                                        const instituteColor = instituteColorMap[school.institute] || '#3b82f6';
+                                                                        return (
+                                                                            <div className="flex items-center gap-1" title={school.institute}>
+                                                                                <Building2 className="w-3 h-3" style={{ color: instituteColor }} />
+                                                                                <span className="text-[10px] font-medium" style={{ color: instituteColor }}>{school.institute}</span>
+                                                                            </div>
+                                                                        );
+                                                                    }
+                                                                    return null;
+                                                                })()}
+                                                            </div>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <span className="text-[10px] text-gray-400 font-mono">
