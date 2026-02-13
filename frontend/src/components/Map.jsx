@@ -6,6 +6,9 @@ import { X } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapPin, Flag, Building2 } from 'lucide-react';
 
+// import { stringToColor } from '../utils/colors'; // Unused
+import { getInstituteColorMap } from '../utils/colors'; // Not strictly needed here but good for ref
+
 const createCustomIcon = (color, IconComponent) => {
     const iconHtml = renderToStaticMarkup(
         <div className="relative flex items-center justify-center w-full h-full">
@@ -28,7 +31,7 @@ const createCustomIcon = (color, IconComponent) => {
     });
 };
 
-const schoolIcon = createCustomIcon('#3b82f6', MapPin); // Blue
+// const schoolIcon = createCustomIcon('#3b82f6', MapPin); // Removed static icon
 const destinationIcon = createCustomIcon('#ef4444', Flag); // Red
 
 // Inner component to handle Map updates via props
@@ -64,7 +67,7 @@ const COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
-const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus }) => {
+const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
     const defaultCenter = [46.0697, 11.1211]; // Trento
 
     const getPositions = (routeData) => {
@@ -110,19 +113,27 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     </Marker>
                 )}
 
-                {schools.map((school) => (
-                    <Marker key={school.id} position={[school.lat, school.lon]} icon={schoolIcon}>
-                        <Popup className="custom-popup">
-                            <div className="min-w-[150px]">
-                                <strong className="text-blue-600 block text-base mb-1 border-b pb-1">🏫 {school.name}</strong>
-                                <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
-                                <div className="bg-blue-50 text-blue-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
-                                    👥 {school.demand} passeggeri
+                {schools.map((school) => {
+                    const color = school.institute ? (instituteColorMap[school.institute] || '#3b82f6') : '#3b82f6'; // Blue fallback
+                    const icon = createCustomIcon(color, school.institute ? Building2 : MapPin); // Use Building if institute known
+
+                    return (
+                        <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
+                            <Popup className="custom-popup">
+                                <div className="min-w-[150px]">
+                                    <strong className="block text-base mb-1 border-b pb-1" style={{ color: color }}>
+                                        {school.institute ? `🏛️ ${school.institute}` : '🏫 Scuola'}
+                                    </strong>
+                                    <div className="font-semibold text-gray-800">{school.name}</div>
+                                    <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
+                                    <div className="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
+                                        👥 {school.demand} passeggeri
+                                    </div>
                                 </div>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                            </Popup>
+                        </Marker>
+                    );
+                })}
 
                 {routes && routes.map((route, idx) => {
                     const isHighlighted = highlightedRouteId === route.vehicle_id;

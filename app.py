@@ -13,6 +13,10 @@ from optimizer import VRPSolver
 app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
 CORS(app)
 
+tasks = {}
+
+import random
+
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -39,6 +43,124 @@ def parse_time_to_minutes(time_str):
     return h * 60 + m
 
 
+import threading
+import time
+
+import re
+
+# Trento Center Fallback (Matches geocoder.py)
+FALLBACK_COORDS = (46.0697, 11.1211)
+
+def smart_geocode(address, city_context="Trento"):
+    """
+    Attempts to geocode the address using multiple cleaning heuristics.
+    Returns (lat, lon) and a boolean indicating if it was successful (True) or fallback (False).
+    """
+    # 1. Try Original
+    queries = [address]
+    
+    # 2. Clean parentheses and hyphens
+    # "Balbido 1 - 38071 Bleggio (Note)" -> "Balbido 1, 38071 Bleggio"
+    cleaned = re.sub(r'\(.*?\)', '', address) # Remove (...)
+    cleaned = cleaned.replace(' - ', ', ')
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    if cleaned != address:
+        queries.append(cleaned)
+        
+    # 3. Extract Street Address (heuristic for Italian addresses)
+    # "Scuola Elem. Zivignago Via Spiazzi, 2" -> "Via Spiazzi, 2"
+    match = re.search(r'(Via|Viale|Piazza|Corso|Largo|Vicolo|Strada|Frazione|Località)\s+.*', cleaned, re.IGNORECASE)
+    if match:
+        street_only = match.group(0)
+        if street_only != cleaned:
+            queries.append(street_only)
+
+    for q in queries:
+        full_query = f"{q}, {city_context}"
+        # If the query already contains the city context, don't double add (simple check)
+        if city_context.lower() in q.lower():
+            full_query = q
+            
+        lat, lon = geocoder.get_coordinates(full_query)
+        
+        # Check if we got a real result (not the fallback)
+        # Note: We rely on checking exact float equality with the fallback definition. 
+        # Ideally geocoder should return None, but we work with what we have.
+        if abs(lat - FALLBACK_COORDS[0]) > 0.0001 or abs(lon - FALLBACK_COORDS[1]) > 0.0001:
+            return lat, lon, True
+            
+    return FALLBACK_COORDS[0], FALLBACK_COORDS[1], False
+
+def process_file_task(task_id, filepath):
+    """
+    Background task to process the uploaded Excel file.
+    Updates the tasks global dict with progress.
+    """
+    try:
+        tasks[task_id] = {'status': 'processing', 'progress': 0, 'message': 'Inizializzazione...'}
+        
+        # 1. Load Data
+        time.sleep(0.5) # UX Delay
+        tasks[task_id].update({'progress': 10, 'message': 'Lettura file Excel...'})
+        
+        schools = DataLoader.load_data(filepath)
+        total_schools = len(schools)
+        
+        tasks[task_id].update({'progress': 20, 'message': f'Trovate {total_schools} scuole. Inizio geocoding...'})
+        
+        # 2. Geocoding with progress tracking
+        processed_schools = []
+        used_coordinates = set() # Track used coordinates for jittering
+        
+        for i, school in enumerate(schools):
+            # Calculate progress from 20% to 90%
+            current_progress = 20 + int((i / total_schools) * 70)
+            tasks[task_id].update({
+                'progress': current_progress, 
+                'message': f'Geocoding {i+1}/{total_schools}: {school["name"]}'
+            })
+            
+            raw_address = school['address']
+            lat, lon, success = smart_geocode(raw_address)
+            
+            if not success:
+                print(f"Failed to geocode: {raw_address} - Using Fallback")
+            
+            # Simple Jitter to avoid exact overlap (even for fallback)
+            coord_key = (round(lat, 6), round(lon, 6))
+            if coord_key in used_coordinates:
+                # Add ~15-30 meters offset (increased for visibility)
+                lat += random.uniform(-0.0002, 0.0002)
+                lon += random.uniform(-0.0002, 0.0002)
+            
+            used_coordinates.add(coord_key)
+            
+            school['lat'] = lat
+            school['lon'] = lon
+            processed_schools.append(school)
+            
+        tasks[task_id].update({'progress': 95, 'message': 'Finalizzazione dati...'})
+        
+        # Cleanup
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            
+        tasks[task_id] = {
+            'status': 'completed', 
+            'progress': 100, 
+            'message': 'Completato!', 
+            'result': processed_schools
+        }
+        
+    except Exception as e:
+        tasks[task_id] = {
+            'status': 'error', 
+            'progress': 0, 
+            'message': f'Errore: {str(e)}'
+        }
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -52,20 +174,22 @@ def upload_file():
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
         
-        try:
-            schools = DataLoader.load_data(filepath)
-            # Add coordinates immediately (Nominatim)
-            for school in schools:
-                lat, lon = geocoder.get_coordinates(school['address'] + ", Trento") # Helper assumption for demo
-                school['lat'] = lat
-                school['lon'] = lon
-                
-            return jsonify({'message': 'File elaborato con successo', 'schools': schools}), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-        finally:
-            if os.path.exists(filepath):
-                os.remove(filepath)
+        # Create Task ID
+        task_id = str(uuid.uuid4())
+        
+        # Start background thread
+        thread = threading.Thread(target=process_file_task, args=(task_id, filepath))
+        thread.daemon = True
+        thread.start()
+        
+        return jsonify({'task_id': task_id, 'message': 'Elaborazione iniziata'}), 202
+
+@app.route('/api/status/<task_id>', methods=['GET'])
+def get_task_status(task_id):
+    task = tasks.get(task_id)
+    if not task:
+        return jsonify({'error': 'Task not found'}), 404
+    return jsonify(task)
 
 @app.route('/api/optimize', methods=['POST'])
 def optimize():
@@ -82,33 +206,31 @@ def optimize():
     if not schools or not destination_address:
         return jsonify({'error': 'Scuole o destinazione mancanti'}), 400
     
-    # Split Delivery: Pre-split ALL schools into smaller chunks to allow
-    # passengers from different schools to share a bus.
-    # Split Delivery: Pre-split ALL schools into smaller chunks to allow
-    # passengers from different schools to share a bus.
-    # For "Minimize Buses", we need fine granularity (1) to perfectly pack buses (Liquid Filling).
-    # For others, coarser chunks (e.g. 5-15) are fine to keep solve time low and avoid fragmentation.
-    
-    if strategy == 'vehicles':
-         SPLIT_CHUNK_SIZE = 1
-    else:
-         SPLIT_CHUNK_SIZE = 5 # Reduced from 15 to allow slightly better mixing in Balanced/Distance
-         
+    # New Logic: Only split if demand > capacity
     processed_schools = []
+    
+    # Assign unique institute to schools without one to prevent mixing
+    import uuid
+    
     for school in schools:
         demand = school['demand']
+        institute = school.get('institute')
         
-        # Optimization: If demand is huge, don't split into 1s blindly even for vehicles
-        # unless necessary. But for now, let's trust the solver for <500 items.
-        
-        if demand > SPLIT_CHUNK_SIZE:
+        # If no institute, assign unique one
+        if not institute:
+            institute = f"SINGLETON_{uuid.uuid4()}"
+            school['institute'] = institute
+            
+        if demand > bus_capacity:
+            # Must split
             part_idx = 1
             while demand > 0:
-                chunk = min(demand, SPLIT_CHUNK_SIZE)
+                chunk = min(demand, bus_capacity)
                 new_school = school.copy()
                 new_school['demand'] = chunk
                 new_school['name'] = f"{school['name']} (Gruppo {part_idx})"
                 new_school['original_name'] = school['name']
+                new_school['institute'] = institute # Inherit institute
                 processed_schools.append(new_school)
                 demand -= chunk
                 part_idx += 1
@@ -126,13 +248,15 @@ def optimize():
             dest_lat, dest_lon = geocoder.get_coordinates(destination_address)
         
         all_nodes = []
+        # Destination Node (Index 0)
         all_nodes.append({
             'id': 'DEST',
             'name': 'Destination',
             'address': destination_address,
             'participants': 0,
             'lat': dest_lat,
-            'lon': dest_lon
+            'lon': dest_lon,
+            'institute': 'UNIVERSAL' # Compatible with all
         })
         
         index_to_school = {} 
@@ -143,7 +267,8 @@ def optimize():
                 'address': school['address'],
                 'participants': school['demand'],
                 'lat': float(school.get('lat', 0)),
-                'lon': float(school.get('lon', 0))
+                'lon': float(school.get('lon', 0)),
+                'institute': school['institute']
             })
             index_to_school[i + 1] = school 
         
@@ -156,7 +281,8 @@ def optimize():
             'address': '',
             'participants': 0,
             'lat': 0,
-            'lon': 0
+            'lon': 0,
+            'institute': 'UNIVERSAL'
         })
             
         # 2. Distance Matrix (Real OSRM)
@@ -231,7 +357,8 @@ def optimize():
             fixed_vehicle_cost=fixed_cost,
             search_strategy=search_strategy,
             starts=[dummy_node_index] * calculated_vehicles,
-            ends=[0] * calculated_vehicles # 0 is Destination
+            ends=[0] * calculated_vehicles, # 0 is Destination
+            institutes=[n.get('institute') for n in all_nodes] + ['UNIVERSAL'] # +1 for Dummy Node
         )
         
         solution = solver.solve()

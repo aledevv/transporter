@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Save, X, Trash2, PlusCircle } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
+import { getColorForIndex } from '../utils/colors';
 
-const SchoolEditor = ({ schools, onSave }) => {
+const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
     const [editedSchools, setEditedSchools] = useState(schools);
+
+    // Compute a local color map that includes new institutes typed by user
+    // ensuring they get a stable, distinct color immediately
+    const localColorMap = React.useMemo(() => {
+        const map = { ...instituteColorMap };
+        const usedCount = Object.keys(map).length;
+        let nextIndex = usedCount;
+
+        editedSchools.forEach(s => {
+            if (s.institute && !map[s.institute]) {
+                map[s.institute] = getColorForIndex(nextIndex);
+                nextIndex++;
+            }
+        });
+        return map;
+    }, [editedSchools, instituteColorMap]);
 
     // Sync if props change
     useEffect(() => {
@@ -60,6 +77,7 @@ const SchoolEditor = ({ schools, onSave }) => {
                         <tr>
                             <th className="text-left py-3 px-3 rounded-l-lg">Nome</th>
                             <th className="text-left py-3 px-3">Indirizzo</th>
+                            <th className="text-left py-3 px-3">Istituto</th>
                             <th className="text-center py-3 px-3">Pax</th>
                             <th className="text-right py-3 px-3 rounded-r-lg">Azioni</th>
                         </tr>
@@ -86,6 +104,22 @@ const SchoolEditor = ({ schools, onSave }) => {
                                                 handleUpdate(school.id, 'lat', data.lat);
                                                 handleUpdate(school.id, 'lon', data.lon);
                                             }}
+                                        />
+                                    </div>
+                                </td>
+                                <td className="p-2 border-b border-gray-50">
+                                    <div className="flex items-center gap-2">
+                                        <div
+                                            className="w-3 h-3 rounded-full flex-shrink-0"
+                                            style={{ backgroundColor: school.institute ? (localColorMap[school.institute] || '#e5e7eb') : '#e5e7eb' }}
+                                            title="Colore Istituto"
+                                        ></div>
+                                        <input
+                                            type="text"
+                                            className="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none px-2 py-1.5 focus:bg-white rounded"
+                                            value={school.institute || ''}
+                                            onChange={(e) => handleUpdate(school.id, 'institute', e.target.value)}
+                                            placeholder="Istituto (Opzionale)"
                                         />
                                     </div>
                                 </td>

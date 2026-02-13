@@ -29,7 +29,8 @@ class DataLoader:
                         'id': index,
                         'name': str(row['Nome']),
                         'address': str(row['Indirizzo']),
-                        'demand': int(row['Partecipanti']) if pd.notna(row['Partecipanti']) else 0
+                        'demand': int(row['Partecipanti']) if pd.notna(row['Partecipanti']) else 0,
+                        'institute': str(row['Istituto']) if 'Istituto' in row and pd.notna(row['Istituto']) else None
                     })
                 except ValueError:
                     continue # Skip bad rows

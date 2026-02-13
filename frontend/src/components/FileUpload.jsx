@@ -3,9 +3,9 @@ import axios from 'axios';
 import { Upload, FileType, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import API_BASE_URL from '../config';
 
-const FileUpload = ({ onUploadSuccess }) => {
+const FileUpload = ({ onUploadSuccess, onLoadStart, onLoadProgress, onLoadEnd }) => {
     const [dragActive, setDragActive] = useState(false);
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false); // Using parent state
     const [error, setError] = useState(null);
 
     const handleDrag = useCallback((e) => {
@@ -36,12 +36,12 @@ const FileUpload = ({ onUploadSuccess }) => {
 
     const handleFiles = async (file) => {
         setError(null);
-        setLoading(true);
+        if (onLoadStart) onLoadStart();
 
         // Validations
         if (!file.name.endsWith('.xlsx')) {
             setError("Sono ammessi solo file .xlsx");
-            setLoading(false);
+            if (onLoadEnd) onLoadEnd();
             return;
         }
 
@@ -49,17 +49,40 @@ const FileUpload = ({ onUploadSuccess }) => {
         formData.append('file', file);
 
         try {
+            // 1. Start Upload
             const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            onUploadSuccess(response.data.schools);
+
+            const taskId = response.data.task_id;
+
+            // 2. Poll Status
+            const pollInterval = setInterval(async () => {
+                try {
+                    const statusRes = await axios.get(`${API_BASE_URL}/api/status/${taskId}`);
+                    const { status, progress, message, result, error: taskError } = statusRes.data;
+
+                    if (onLoadProgress) onLoadProgress({ progress, message });
+
+                    if (status === 'completed') {
+                        clearInterval(pollInterval);
+                        onUploadSuccess(result);
+                        if (onLoadEnd) onLoadEnd();
+                    } else if (status === 'error') {
+                        clearInterval(pollInterval);
+                        setError(taskError || "Errore durante l'elaborazione");
+                        if (onLoadEnd) onLoadEnd();
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                    // Don't clear interval immediately on network blip, but maybe handle max retries
+                }
+            }, 1000);
+
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.error || "Caricamento fallito. Il server backend è attivo?");
-        } finally {
-            setLoading(false);
+            setError(err.response?.data?.error || "Caricamento fallito.");
+            if (onLoadEnd) onLoadEnd();
         }
     };
 
@@ -80,22 +103,13 @@ const FileUpload = ({ onUploadSuccess }) => {
                     accept=".xlsx"
                 />
 
-                {loading ? (
-                    <div className="flex flex-col items-center gap-2 text-blue-600">
-                        <Loader2 className="w-10 h-10 animate-spin" />
-                        <p className="font-medium">Caricamento ed elaborazione...</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="p-4 bg-white rounded-full shadow-sm">
-                            <Upload className="w-8 h-8 text-blue-500" />
-                        </div>
-                        <div className="text-center">
-                            <p className="text-lg font-medium text-gray-700">Clicca per caricare o trascina il file</p>
-                            <p className="text-sm text-gray-500">File Excel (.xlsx)</p>
-                        </div>
-                    </>
-                )}
+                <div className="p-4 bg-white rounded-full shadow-sm">
+                    <Upload className="w-8 h-8 text-blue-500" />
+                </div>
+                <div className="text-center">
+                    <p className="text-lg font-medium text-gray-700">Clicca per caricare o trascina il file</p>
+                    <p className="text-sm text-gray-500">File Excel (.xlsx)</p>
+                </div>
             </div>
 
             {error && (

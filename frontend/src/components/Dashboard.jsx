@@ -8,7 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import API_BASE_URL from '../config';
 
-const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {} }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(50);
@@ -176,7 +176,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
     if (showEditor) {
         return (
             <div className="h-[calc(100vh-100px)]">
-                <SchoolEditor schools={schools} onSave={handleDataSave} />
+                <SchoolEditor schools={schools} onSave={handleDataSave} instituteColorMap={instituteColorMap} />
             </div>
         )
     }
@@ -320,6 +320,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false }) => {
                             focusBounds={focusBounds}
                             highlightedRouteId={highlightedRouteId}
                             onResetFocus={handleResetFocus}
+                            instituteColorMap={instituteColorMap}
                         />
                     </div>
                 </div>
