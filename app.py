@@ -661,9 +661,9 @@ def optimize():
                     stop['departure_time'] = latest_time_str
                     stop['synchronized'] = True  # Mark as synchronized
 
-        # POST-PROCESSING: Synchronize arrival times (max 10 minute spread)
+        # POST-PROCESSING: Synchronize arrival times (ONLY in arrival mode)
         # Collect all arrival times
-        MAX_ARRIVAL_SPREAD_MINUTES = 10
+        time_mode = data.get('time_mode', 'arrival')  # 'departure' or 'arrival'
         arrival_times_minutes = []
         
         for route in formatted_routes:
@@ -677,56 +677,33 @@ def optimize():
             latest_arrival = max(arrival_times_minutes)
             current_spread = latest_arrival - earliest_arrival
             
-            # Target arrival: all buses should arrive at the latest time (within 10 min window)
-            # This means earlier buses need to delay their departure
-            
-            # --- NEW: Time Mode Logic ---
-            time_mode = data.get('time_mode', 'departure') # 'departure' or 'arrival'
-            target_arrival_minutes = None
-            
+            # ONLY synchronize arrivals if in ARRIVAL mode
             if time_mode == 'arrival':
-                # User specified ARRIVAL time.
-                # We want ALL buses to arrive at this time (or slightly before, but ideally AT this time for JIT)
-                # Parse target time
+                # User specified ARRIVAL time - all buses should arrive at this time
                 target_time_str = data.get('start_time', '08:00')
                 try:
                     th, tm = map(int, target_time_str.split(':'))
                     target_arrival_minutes = th * 60 + tm
                 except:
-                    target_arrival_minutes = 8 * 60 # Default 08:00
+                    target_arrival_minutes = 8 * 60  # Default 08:00
                 
-                # In Arrival Mode, we force the target to be the user's time
-                target_arrival = target_arrival_minutes
-            elif current_spread > MAX_ARRIVAL_SPREAD_MINUTES:
-                # Make all buses arrive at the latest_arrival time
-                target_arrival = latest_arrival
-            else:
-                # Already within bounds, just track the window
-                target_arrival = latest_arrival
-            
-            # Recalculate departure times to synchronize arrivals
-            for route in formatted_routes:
-                stops = route['outbound']['stops']
-                dest_stop = None
-                for stop in stops:
-                    if stop['type'] == 'destination':
-                        dest_stop = stop
-                        break
-                
-                if dest_stop and 'arrival_time' in dest_stop:
-                    current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
+                # Recalculate departure times to synchronize arrivals to target time
+                for route in formatted_routes:
+                    stops = route['outbound']['stops']
+                    dest_stop = None
+                    for stop in stops:
+                        if stop['type'] == 'destination':
+                            dest_stop = stop
+                            break
                     
-                    if time_mode == 'arrival':
-                         # Shift essential: Target - Current
-                         # If Current is 08:15 and Target is 08:00 -> Delay is -15 (Shift backwards)
-                         # If Current is 07:45 and Target is 08:00 -> Delay is +15 (Shift forwards)
-                         delay_minutes = target_arrival - current_arrival
-                    else:
-                        # Departure mode: only shift forward (delay)
-                        delay_minutes = target_arrival - current_arrival
-                        if delay_minutes < 0: delay_minutes = 0 # Should not happen if target is max
-                    
-                    if delay_minutes != 0:
+                    if dest_stop and 'arrival_time' in dest_stop:
+                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
+                        
+                        # Calculate time shift needed to hit target arrival
+                        # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
+                        # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
+                        delay_minutes = target_arrival_minutes - current_arrival
+                        
                         # Shift all times for this route
                         for stop in stops:
                             if stop['type'] == 'pickup' and 'departure_time' in stop:
@@ -737,18 +714,23 @@ def optimize():
                                 old_minutes = parse_time_to_minutes(stop['arrival_time'])
                                 new_minutes = old_minutes + delay_minutes
                                 stop['arrival_time'] = format_time_from_minutes(new_minutes)
-            
-            # Recalculate spread after synchronization
-            final_arrival_times = []
-            for route in formatted_routes:
-                for stop in route['outbound']['stops']:
-                    if stop['type'] == 'destination' and 'arrival_time' in stop:
-                        minutes = parse_time_to_minutes(stop['arrival_time'])
-                        final_arrival_times.append(minutes)
-            
-            final_earliest = min(final_arrival_times) if final_arrival_times else 0
-            final_latest = max(final_arrival_times) if final_arrival_times else 0
-            final_spread = final_latest - final_earliest
+                
+                # Recalculate arrival times after synchronization
+                final_arrival_times = []
+                for route in formatted_routes:
+                    for stop in route['outbound']['stops']:
+                        if stop['type'] == 'destination' and 'arrival_time' in stop:
+                            minutes = parse_time_to_minutes(stop['arrival_time'])
+                            final_arrival_times.append(minutes)
+                
+                final_earliest = min(final_arrival_times) if final_arrival_times else 0
+                final_latest = max(final_arrival_times) if final_arrival_times else 0
+                final_spread = final_latest - final_earliest
+            else:
+                # DEPARTURE mode: No arrival synchronization, buses arrive naturally
+                final_earliest = earliest_arrival
+                final_latest = latest_arrival
+                final_spread = current_spread
             
             arrival_window = {
                 'earliest': format_time_from_minutes(final_earliest),

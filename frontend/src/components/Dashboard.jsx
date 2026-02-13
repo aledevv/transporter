@@ -23,7 +23,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [startTime, setStartTime] = useState('08:00');
     // 'departure' implies startTime is when buses leave.
     // 'arrival' implies startTime is when buses must ARRIVE.
-    const [timeMode, setTimeMode] = useState('departure');
+    const [timeMode, setTimeMode] = useState('arrival');
 
     // UI State
     const [showEditor, setShowEditor] = useState(startInEditMode);
@@ -413,7 +413,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                     <div key={sIdx} className="flex items-center justify-between text-sm">
                                                         <div className="flex items-center gap-2">
                                                             <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold font-mono">
-                                                                {sIdx}
+                                                                {sIdx + 1}
                                                             </span>
                                                             <div className="flex items-center gap-1.5">
                                                                 <span className="font-medium text-gray-700 text-sm leading-tight" style={{ wordBreak: 'break-word' }}>{stop.name}</span>
