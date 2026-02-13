@@ -595,7 +595,7 @@ def optimize():
                 # User specified ARRIVAL time.
                 # We want ALL buses to arrive at this time (or slightly before, but ideally AT this time for JIT)
                 # Parse target time
-                target_time_str = data.get('time', '08:00')
+                target_time_str = data.get('start_time', '08:00')
                 try:
                     th, tm = map(int, target_time_str.split(':'))
                     target_arrival_minutes = th * 60 + tm

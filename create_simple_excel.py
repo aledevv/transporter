@@ -8,6 +8,4 @@ data = {
 }
 
 df = pd.DataFrame(data)
-df.to_excel('simple_test.xlsx', index=False)
-print("Created simple_test.xlsx")
-print(df)
+df.to_excel('test_simple.xlsx', index=False)
