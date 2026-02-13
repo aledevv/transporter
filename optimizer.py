@@ -37,26 +37,72 @@ class VRPSolver:
         # Create Routing Model.
         routing = pywrapcp.RoutingModel(manager)
 
-        # 1. Distance Callback
+        # 1. Distance Callback with Institute Tracking
         def distance_callback(from_index, to_index):
             from_node = manager.IndexToNode(from_index)
             to_node = manager.IndexToNode(to_index)
-            
-            # Institute Compatibility Check
-            if self.institutes:
-                inst_from = self.institutes[from_node]
-                inst_to = self.institutes[to_node]
-                
-                # If either is UNIVERSAL (Depot/Dummy), it's compatible.
-                # If neither is UNIVERSAL, they MUST match.
-                if inst_from != 'UNIVERSAL' and inst_to != 'UNIVERSAL' and inst_from != inst_to:
-                    return 100000000 # Return Infinity (Large Penalty)
-
             return self.distance_matrix[from_node][to_node]
 
         transit_callback_index = routing.RegisterTransitCallback(distance_callback)
-        transit_callback_index = routing.RegisterTransitCallback(distance_callback)
         routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+        
+        # 2. Institute Dimension - tracks institute "changes" as cumulative cost
+        # When a vehicle picks up a school from institute X, it adds that institute to its "state"
+        # Picking up a different institute later adds a high penalty
+        def institute_cost_callback(from_index):
+            from_node = manager.IndexToNode(from_index)
+            if self.institutes and from_node != 0:  # Not depot
+                inst = self.institutes[from_node]
+                if inst != 'UNIVERSAL':
+                    # Return a unique "cost" for this institute (we'll use ord of first char as simple hash)
+                    # This isn't perfect but creates differentiation
+                    return ord(inst[0]) if inst else 0
+            return 0
+        
+        institute_callback_index = routing.RegisterUnaryTransitCallback(institute_cost_callback)
+        
+        # Add dimension to track institute "diversity" on each vehicle
+        # The dimension accumulates institute markers
+        routing.AddDimension(
+            institute_callback_index,
+            0,  # no slack
+            1000000,  # large max (we're using this as a tracker, not hard limit)
+            True,  # start cumul to zero
+            'InstituteTracker'
+        )
+        
+        # Now add arc-level costs that penalize mixing institutes
+        # We need a callback that can see which vehicle this is for and track state
+        def arc_cost_callback(from_index, to_index):
+            from_node = manager.IndexToNode(from_index)
+            to_node = manager.IndexToNode(to_index)
+            
+            base_distance = self.distance_matrix[from_node][to_node]
+            
+            if not self.institutes:
+                return base_distance
+                
+            inst_from = self.institutes[from_node]
+            inst_to = self.institutes[to_node]
+            
+            # HARD CONSTRAINT: Different institutes cannot be on same route
+            # (unless going through depot)
+            if (inst_from != 'UNIVERSAL' and inst_to != 'UNIVERSAL' and 
+                inst_from != inst_to):
+                # Only allow if going back to depot (which resets)
+                # This should never happen in properly constrained model
+                return base_distance + 100000000
+            
+            # SOFT CONSTRAINT: Bonus for keeping same institute together
+            if (inst_from != 'UNIVERSAL' and inst_to != 'UNIVERSAL' and 
+                inst_from == inst_to and from_node != to_node):
+                # Same institute, different nodes -> give bonus
+                return base_distance - 5000
+            
+            return base_distance
+        
+        arc_callback_index = routing.RegisterTransitCallback(arc_cost_callback)
+        routing.SetArcCostEvaluatorOfAllVehicles(arc_callback_index)
         
         # Add Fixed Cost per Vehicle to prioritize minimizing fleet size
         if self.fixed_vehicle_cost > 0:

@@ -268,37 +268,101 @@ def optimize():
     if not schools or not destination_address:
         return jsonify({'error': 'Scuole o destinazione mancanti'}), 400
     
-    # New Logic: Only split if demand > capacity
-    processed_schools = []
-    
-    # Assign unique institute to schools without one to prevent mixing
+    # PRE-GROUPING: Group schools by institute before optimization
+    # This ensures schools from the same institute are on the same bus when feasible
+    from collections import defaultdict
     import uuid
     
+    # Step 1: Group schools by institute
+    institute_groups = defaultdict(list)
     for school in schools:
-        demand = school['demand']
         institute = school.get('institute')
-        
-        # If no institute, assign unique one
         if not institute:
+            # Schools without institute get unique singleton groups
             institute = f"SINGLETON_{uuid.uuid4()}"
             school['institute'] = institute
+        institute_groups[institute].append(school)
+    
+    # Step 2: Create meta-nodes for each institute group
+    processed_schools = []
+    meta_node_mapping = {}  # Maps meta-node index to list of component schools
+    
+    for institute, group_schools in institute_groups.items():
+        # Calculate total demand for this institute
+        total_demand = sum(s['demand'] for s in group_schools)
+        
+        if total_demand > bus_capacity:
+            # Institute group doesn't fit in one bus - must split
+            # Strategy: Try to keep as many together as possible, split only when necessary
             
-        if demand > bus_capacity:
-            # Must split
-            part_idx = 1
-            while demand > 0:
-                chunk = min(demand, bus_capacity)
-                new_school = school.copy()
-                new_school['demand'] = chunk
-                new_school['name'] = f"{school['name']} (Gruppo {part_idx})"
-                new_school['original_name'] = school['name']
-                new_school['institute'] = institute # Inherit institute
-                processed_schools.append(new_school)
-                demand -= chunk
-                part_idx += 1
+            # Sort by demand (largest first) for better bin packing
+            sorted_schools = sorted(group_schools, key=lambda x: x['demand'], reverse=True)
+            
+            current_batch = []
+            current_batch_demand = 0
+            batch_idx = 1
+            
+            for school in sorted_schools:
+                school_demand = school['demand']
+                
+                # Check if adding this school exceeds capacity
+                if current_batch_demand + school_demand > bus_capacity:
+                    # Save current batch as a meta-node (if not empty)
+                    if current_batch:
+                        meta_node = {
+                            'id': f"{institute}_META_{batch_idx}",
+                            'name': f"{institute} (Gruppo {batch_idx})",
+                            'original_name': institute,
+                            'address': current_batch[0]['address'],  # Use first school's address
+                            'demand': current_batch_demand,
+                            'lat': sum(s['lat'] for s in current_batch) / len(current_batch),  # Average coords
+                            'lon': sum(s['lon'] for s in current_batch) / len(current_batch),
+                            'institute': institute,
+                            'is_meta': True,
+                            'component_schools': current_batch.copy()
+                        }
+                        processed_schools.append(meta_node)
+                        batch_idx += 1
+                    
+                    # Start new batch with current school
+                    current_batch = [school]
+                    current_batch_demand = school_demand
+                else:
+                    # Add to current batch
+                    current_batch.append(school)
+                    current_batch_demand += school_demand
+            
+            # Don't forget the last batch
+            if current_batch:
+                meta_node = {
+                    'id': f"{institute}_META_{batch_idx}",
+                    'name': f"{institute} (Gruppo {batch_idx})" if batch_idx > 1 else institute,
+                    'original_name': institute,
+                    'address': current_batch[0]['address'],
+                    'demand': current_batch_demand,
+                    'lat': sum(s['lat'] for s in current_batch) / len(current_batch),
+                    'lon': sum(s['lon'] for s in current_batch) / len(current_batch),
+                    'institute': institute,
+                    'is_meta': True,
+                    'component_schools': current_batch.copy()
+                }
+                processed_schools.append(meta_node)
+        
         else:
-            school['original_name'] = school['name']
-            processed_schools.append(school)
+            # Entire institute fits in one bus - create single meta-node
+            meta_node = {
+                'id': f"{institute}_META",
+                'name': institute,
+                'original_name': institute,
+                'address': group_schools[0]['address'],  # Use first school's address
+                'demand': total_demand,
+                'lat': sum(s['lat'] for s in group_schools) / len(group_schools),  # Average coords
+                'lon': sum(s['lon'] for s in group_schools) / len(group_schools),
+                'institute': institute,
+                'is_meta': True,
+                'component_schools': group_schools.copy()
+            }
+            processed_schools.append(meta_node)
     
     schools = processed_schools
 
@@ -474,7 +538,9 @@ def optimize():
                         'address': original_school['address'],
                         'count': original_school['demand'],
                         'lat': original_school['lat'],
-                        'lon': original_school['lon']
+                        'lon': original_school['lon'],
+                        'is_meta': original_school.get('is_meta', False),
+                        'component_schools': original_school.get('component_schools', [])
                     })
             
             # Agglomerate: Merge consecutive stops from the same original school
@@ -493,6 +559,33 @@ def optimize():
                     agglomerated_stops.append(merged_stop)
             
             stops_data = agglomerated_stops
+            
+            # EXPAND META-NODES: Convert meta-nodes back to individual schools
+            expanded_stops = []
+            for stop in stops_data:
+                if stop['type'] == 'pickup' and stop.get('is_meta'):
+                    # This is a meta-node, expand it into component schools
+                    component_schools = stop['component_schools']
+                    for comp_school in component_schools:
+                        expanded_stop = {
+                            'type': 'pickup',
+                            'name': comp_school['name'],
+                            'original_name': comp_school.get('original_name', comp_school['name']),
+                            'address': comp_school['address'],
+                            'count': comp_school['demand'],
+                            'lat': comp_school['lat'],
+                            'lon': comp_school['lon'],
+                            'from_meta': True  # Mark that this came from a meta-node
+                        }
+                        # Inherit timing from meta-node (all schools in meta-node share same time)
+                        if 'departure_time' in stop:
+                            expanded_stop['departure_time'] = stop['departure_time']
+                        expanded_stops.append(expanded_stop)
+                else:
+                    # Regular stop (destination or non-meta school)
+                    expanded_stops.append(stop)
+            
+            stops_data = expanded_stops
             
             # Fetch geometry for Outbound
             geo_data = geocoder.get_route_geometry(stops_data)
