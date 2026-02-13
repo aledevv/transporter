@@ -51,21 +51,73 @@ import re
 # Trento Center Fallback (Matches geocoder.py)
 FALLBACK_COORDS = (46.0697, 11.1211)
 
-def smart_geocode(address, city_context="Trento"):
+# Common Trentino Municipalities for Context Extraction
+TRENTINO_MUNICIPALITIES = [
+    "Rovereto", "Pergine", "Arco", "Riva", "Mori", "Ala", "Lavis", "Levico", 
+    "Cles", "Borgo", "Mezzolombardo", "Fiemme", "Fassa", "Primiero", "Rendena",
+    "Giudicarie", "Chiese", "Cembra", "Non", "Sole", "Ledro", "Grigno", "Tesino",
+    "Valsugana", "Bondone", "Bleggio", "Comano", "Storo", "Tione", "Pinzolo",
+    "Andalo", "Molveno", "Fai", "San Michele", "Mezzocorona", "Romagnano", "Aldeno",
+    "Mattarello", "Ravina", "Povo", "Villazzano", "Gardolo", "Cognola", "Argentario"
+]
+
+def extract_city_context(text):
+    """
+    Extracts a likely city/area from text (e.g. school name) based on a known list.
+    Returns the city name if found, else None.
+    """
+    if not text:
+        return None
+    
+    text_lower = text.lower()
+    for city in TRENTINO_MUNICIPALITIES:
+        if city.lower() in text_lower:
+            # Special case for "Non" or "Sole" to avoid false positives if they appear in other words?
+            # For now simple substring check is okay for this specific domain
+            return city
+            
+    return None
+
+def smart_geocode(address, school_name=None, default_city="Trento"):
     """
     Attempts to geocode the address using multiple cleaning heuristics.
     Returns (lat, lon) and a boolean indicating if it was successful (True) or fallback (False).
     """
+    # Determine Context
+    city_context = default_city
+    
+    # 1. Try to extract city from School Name
+    extracted_city = extract_city_context(school_name)
+    if extracted_city:
+        city_context = extracted_city
+    
+    # 2. Try to extract city from Address itself (last part usually)
+    # If address contains "Rovereto", use it.
+    extracted_from_addr = extract_city_context(address)
+    if extracted_from_addr:
+        city_context = extracted_from_addr
+
     # 1. Try Original
     queries = [address]
     
-    # 2. Clean parentheses and hyphens
+    # 2. Clean parentheses, hyphens, and common noise words
     # "Balbido 1 - 38071 Bleggio (Note)" -> "Balbido 1, 38071 Bleggio"
     cleaned = re.sub(r'\(.*?\)', '', address) # Remove (...)
     cleaned = cleaned.replace(' - ', ', ')
+    # Remove "fermata bus", "presso", "scuola", etc. case insensitive
+    cleaned = re.sub(r'(?i)\b(fermata bus|fermata|presso|scuola|elementare|media|superiore|istituto)\b', '', cleaned)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    if cleaned != address:
+    cleaned = cleaned.strip(', ') # Remove leading/trailing commas
+    
+    if cleaned and cleaned != address:
         queries.append(cleaned)
+        
+    # 2b. Try to just use the first part before a comma if it looks like a street
+    # "Viale Trento, bivio Brione" -> "Viale Trento"
+    if ',' in cleaned:
+        first_part = cleaned.split(',')[0].strip()
+        if first_part and first_part != cleaned:
+             queries.append(first_part)
         
     # 3. Extract Street Address (heuristic for Italian addresses)
     # "Scuola Elem. Zivignago Via Spiazzi, 2" -> "Via Spiazzi, 2"
@@ -110,7 +162,7 @@ def process_file_task(task_id, filepath):
         
         # 2. Geocoding with progress tracking
         processed_schools = []
-        used_coordinates = set() # Track used coordinates for jittering
+        used_coordinates = {} # Track used coordinates for jittering: {(lat, lon): count}
         
         for i, school in enumerate(schools):
             # Calculate progress from 20% to 90%
@@ -121,19 +173,29 @@ def process_file_task(task_id, filepath):
             })
             
             raw_address = school['address']
-            lat, lon, success = smart_geocode(raw_address)
+            lat, lon, success = smart_geocode(raw_address, school_name=school['name'])
             
             if not success:
                 print(f"Failed to geocode: {raw_address} - Using Fallback")
             
-            # Simple Jitter to avoid exact overlap (even for fallback)
+            # Deterministic Spiral Jitter for Overlapping Coordinates
             coord_key = (round(lat, 6), round(lon, 6))
-            if coord_key in used_coordinates:
-                # Add ~15-30 meters offset (increased for visibility)
-                lat += random.uniform(-0.0002, 0.0002)
-                lon += random.uniform(-0.0002, 0.0002)
             
-            used_coordinates.add(coord_key)
+            # Count how many times we've seen this exact coordinate
+            count = used_coordinates.get(coord_key, 0)
+            
+            if count > 0:
+                # Apply Spiral Jitter
+                # angle = count * (Golden Angle ~ 2.4 radians)
+                # radius = base_step * sqrt(count)
+                import math
+                angle = count * 2.4
+                radius = 0.0003 * math.sqrt(count) # ~30-40 meters radius expansion
+                
+                lat += radius * math.sin(angle)
+                lon += radius * math.cos(angle)
+                
+            used_coordinates[coord_key] = count + 1
             
             school['lat'] = lat
             school['lon'] = lon
@@ -524,7 +586,25 @@ def optimize():
             
             # Target arrival: all buses should arrive at the latest time (within 10 min window)
             # This means earlier buses need to delay their departure
-            if current_spread > MAX_ARRIVAL_SPREAD_MINUTES:
+            
+            # --- NEW: Time Mode Logic ---
+            time_mode = data.get('time_mode', 'departure') # 'departure' or 'arrival'
+            target_arrival_minutes = None
+            
+            if time_mode == 'arrival':
+                # User specified ARRIVAL time.
+                # We want ALL buses to arrive at this time (or slightly before, but ideally AT this time for JIT)
+                # Parse target time
+                target_time_str = data.get('time', '08:00')
+                try:
+                    th, tm = map(int, target_time_str.split(':'))
+                    target_arrival_minutes = th * 60 + tm
+                except:
+                    target_arrival_minutes = 8 * 60 # Default 08:00
+                
+                # In Arrival Mode, we force the target to be the user's time
+                target_arrival = target_arrival_minutes
+            elif current_spread > MAX_ARRIVAL_SPREAD_MINUTES:
                 # Make all buses arrive at the latest_arrival time
                 target_arrival = latest_arrival
             else:
@@ -542,10 +622,19 @@ def optimize():
                 
                 if dest_stop and 'arrival_time' in dest_stop:
                     current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
-                    delay_minutes = target_arrival - current_arrival
                     
-                    if delay_minutes > 0:
-                        # Shift all times for this route forward
+                    if time_mode == 'arrival':
+                         # Shift essential: Target - Current
+                         # If Current is 08:15 and Target is 08:00 -> Delay is -15 (Shift backwards)
+                         # If Current is 07:45 and Target is 08:00 -> Delay is +15 (Shift forwards)
+                         delay_minutes = target_arrival - current_arrival
+                    else:
+                        # Departure mode: only shift forward (delay)
+                        delay_minutes = target_arrival - current_arrival
+                        if delay_minutes < 0: delay_minutes = 0 # Should not happen if target is max
+                    
+                    if delay_minutes != 0:
+                        # Shift all times for this route
                         for stop in stops:
                             if stop['type'] == 'pickup' and 'departure_time' in stop:
                                 old_minutes = parse_time_to_minutes(stop['departure_time'])

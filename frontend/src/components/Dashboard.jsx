@@ -15,6 +15,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [strategy, setStrategy] = useState('distance');
 
     const [startTime, setStartTime] = useState('08:00');
+    // 'departure' implies startTime is when buses leave.
+    // 'arrival' implies startTime is when buses must ARRIVE.
+    const [timeMode, setTimeMode] = useState('departure');
 
     // UI State
     const [showEditor, setShowEditor] = useState(startInEditMode);
@@ -57,7 +60,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 dest_lat: destCoords?.lat,
                 dest_lon: destCoords?.lon,
                 strategy: strategy,
-                start_time: startTime
+                start_time: startTime,
+                time_mode: timeMode // Send mode to backend
             };
 
             const response = await axios.post(`${API_BASE_URL}/api/optimize`, payload);
@@ -241,7 +245,23 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                     </select>
                                 </div>
                                 <div className="col-span-2">
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">Orario Partenza</label>
+                                    {/* Time Mode Selection */}
+                                    <label className="block text-sm font-medium text-gray-600 mb-1">Modalità Orario</label>
+                                    <div className="flex bg-gray-200 p-1 rounded-lg mb-2">
+                                        <button
+                                            onClick={() => setTimeMode('departure')}
+                                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeMode === 'departure' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                        >
+                                            Partenza
+                                        </button>
+                                        <button
+                                            onClick={() => setTimeMode('arrival')}
+                                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeMode === 'arrival' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                        >
+                                            Arrivo
+                                        </button>
+                                    </div>
+
                                     <div className="relative">
                                         <Clock className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
                                         <input
@@ -251,7 +271,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                             onChange={(e) => setStartTime(e.target.value)}
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1">Orario in cui i bus partono dalla prima scuola.</p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {timeMode === 'departure'
+                                            ? "Orario in cui i bus partono dalla prima scuola."
+                                            : "Orario in cui TUTTI i bus devono essere a destinazione."
+                                        }
+                                    </p>
                                 </div>
                             </div>
 
