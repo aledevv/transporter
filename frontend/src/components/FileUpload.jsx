@@ -66,7 +66,12 @@ const FileUpload = ({ onUploadSuccess, onLoadStart, onLoadProgress, onLoadEnd })
 
                     if (status === 'completed') {
                         clearInterval(pollInterval);
-                        onUploadSuccess(result);
+                        onUploadSuccess({
+                            schools: result,
+                            correctedFile: statusRes.data.corrected_file,
+                            addressCorrections: statusRes.data.address_corrections ?? [],
+                            correctionStatus: statusRes.data.correction_status,
+                        });
                         if (onLoadEnd) onLoadEnd();
                     } else if (status === 'error') {
                         clearInterval(pollInterval);

@@ -5,3 +5,6 @@ flask-cors
 ortools
 requests
 gunicorn
+datapizza-ai
+datapizza-ai-clients-google
+pytest

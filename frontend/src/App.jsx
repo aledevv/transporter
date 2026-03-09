@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
+import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import { getInstituteColorMap } from './utils/colors';
 
 // Simple Loading Overlay Component
@@ -34,11 +35,13 @@ function App() {
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
+    const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile }
 
     const handleReset = () => {
         setSchools([]);
         setMessage('');
         setShowDetails(false);
+        setCorrectionInfo(null);
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
     };
 
@@ -113,9 +116,14 @@ function App() {
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">1. Importazione Dati</h2>
                         <FileUpload
                             key={resetKey}
-                            onUploadSuccess={(data) => {
+                            onUploadSuccess={({ schools: data, correctedFile, addressCorrections, correctionStatus }) => {
                                 setSchools(data);
                                 setMessage('File caricato con successo! Procedi alla configurazione.');
+                                setCorrectionInfo({
+                                    corrections: addressCorrections ?? [],
+                                    correctedFile,
+                                    status: correctionStatus,
+                                });
                             }}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
                             onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
@@ -125,6 +133,14 @@ function App() {
                             <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100 flex items-center gap-2">
                                 <span className="text-xl">✅</span> {message}
                             </div>
+                        )}
+
+                        {correctionInfo && (correctionInfo.corrections.length > 0 || correctionInfo.status === 'rate_limit' || correctionInfo.status === 'error') && (
+                            <AddressCorrectionBanner
+                                corrections={correctionInfo.corrections}
+                                correctedFile={correctionInfo.correctedFile}
+                                correctionStatus={correctionInfo.status}
+                            />
                         )}
 
                         {schools.length > 0 && (

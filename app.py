@@ -8,6 +8,9 @@ import copy
 from data_loader import DataLoader
 from geocoder import GeocodingService
 from optimizer import VRPSolver
+from address_corrector import AddressCorrector
+
+address_corrector = AddressCorrector()
 
 # Setup static folder to point to frontend/dist
 app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
@@ -143,21 +146,41 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
             
     return FALLBACK_COORDS[0], FALLBACK_COORDS[1], False
 
-def process_file_task(task_id, filepath):
+def process_file_task(task_id, filepath, original_filename):
     """
     Background task to process the uploaded Excel file.
     Updates the tasks global dict with progress.
     """
     try:
         tasks[task_id] = {'status': 'processing', 'progress': 0, 'message': 'Inizializzazione...'}
-        
+
         # 1. Load Data
         time.sleep(0.5) # UX Delay
-        tasks[task_id].update({'progress': 10, 'message': 'Lettura file Excel...'})
-        
-        schools = DataLoader.load_data(filepath)
-        total_schools = len(schools)
-        
+        tasks[task_id].update({'progress': 5, 'message': 'Lettura file Excel...'})
+
+        original_schools = DataLoader.load_data(filepath)
+        total_schools = len(original_schools)
+
+        # 2. Address correction via LLM
+        base, ext = os.path.splitext(original_filename)
+        corrected_filename = f"{base}_corretto{ext}"
+        corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
+
+        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...'})
+        schools, correction_status = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
+
+        # Build a human-readable log of what changed
+        original_map = {s['id']: s for s in original_schools}
+        address_corrections = [
+            {
+                'name': s['name'],
+                'original': original_map[s['id']]['address'],
+                'corrected': s['address'],
+            }
+            for s in schools
+            if s['address'] != original_map[s['id']]['address']
+        ]
+
         tasks[task_id].update({'progress': 20, 'message': f'Trovate {total_schools} scuole. Inizio geocoding...'})
         
         # 2. Geocoding with progress tracking
@@ -208,10 +231,13 @@ def process_file_task(task_id, filepath):
             os.remove(filepath)
             
         tasks[task_id] = {
-            'status': 'completed', 
-            'progress': 100, 
-            'message': 'Completato!', 
-            'result': processed_schools
+            'status': 'completed',
+            'progress': 100,
+            'message': 'Completato!',
+            'result': processed_schools,
+            'corrected_file': corrected_filename if address_corrections else None,
+            'address_corrections': address_corrections,  # [] if nothing changed or LLM disabled
+            'correction_status': correction_status,
         }
         
     except Exception as e:
@@ -240,7 +266,7 @@ def upload_file():
         task_id = str(uuid.uuid4())
         
         # Start background thread
-        thread = threading.Thread(target=process_file_task, args=(task_id, filepath))
+        thread = threading.Thread(target=process_file_task, args=(task_id, filepath, file.filename))
         thread.daemon = True
         thread.start()
         
@@ -758,6 +784,15 @@ def optimize():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/download/<path:filename>', methods=['GET'])
+def download_corrected_file(filename):
+    """Serves a corrected Excel file from the uploads folder."""
+    safe_path = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(safe_path):
+        return jsonify({'error': 'File non trovato'}), 404
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
