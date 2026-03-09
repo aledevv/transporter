@@ -1,4 +1,7 @@
 #!/bin/bash
+# Incrementa versione
+python3 bump_version.py
+
 echo "🚀 Deploy su Cloud Run (progetto bus-plan-6d002)..."
 gcloud run deploy transporter \
   --source . \

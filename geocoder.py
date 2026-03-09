@@ -11,18 +11,27 @@ class GeocodingService:
             'User-Agent': 'TransporterApp/1.0 (edu-demo)'
         }
 
+    # Trentino-Alto Adige bounding box for Nominatim viewbox bias.
+    # Format: lon_min, lat_max, lon_max, lat_min  (Nominatim convention)
+    # Not used with bounded=1 so destinations outside the region still resolve.
+    _TRENTINO_VIEWBOX = "10.4,46.95,12.2,45.6"
+
     def get_coordinates(self, address):
         """
         Geocodes address using OpenStreetMap Nominatim API.
         Returns (lat, lon)
         """
         try:
-            # Respect Nominatim usage policy (1 sec delay if heavy usage, but here strictly sequential)
-            time.sleep(1) 
+            # Respect Nominatim usage policy (1 sec delay between requests)
+            time.sleep(1)
             params = {
                 'q': address,
                 'format': 'json',
-                'limit': 1
+                'limit': 1,
+                'countrycodes': 'it',          # Italy only — avoids false matches abroad
+                'viewbox': self._TRENTINO_VIEWBOX,  # Bias results toward Trentino
+                # bounded=0 (default): viewbox is a preference, not a hard constraint,
+                # so destinations outside Trentino still resolve correctly.
             }
             response = requests.get(self.nominatim_base_url, params=params, headers=self.headers)
             if response.status_code == 200 and response.json():

@@ -11,45 +11,39 @@ from pydantic import BaseModel
 
 load_dotenv()
 
-# Google Gemini
-client = GoogleClient(
-    api_key=os.getenv("GOOGLE_API_KEY"),
-    model = "gemini-flash-latest",
-    system_prompt = SYSTEM_PROMPT,
-)
+from datapizza.tools.duckduckgo import DuckDuckGoSearchTool
 
 class Address(BaseModel):
     id: int
     address: str
-    
-    
-# def call_llm(user_input):
-#     """
-#     Sends *prompt* to Gemini and returns the raw text response.
 
-#     To use the datapizza-ai framework instead, replace this method body:
 
-#         from datapizza_ai import Agent   # or whatever the import looks like
-#         agent = Agent(model="gemini-1.5-flash")
-#         return agent.run(prompt)
-#     """
-#     response = client.structured_response(input=user_input, output_cls=Address)
-#     return response
+# Module-level default agent (used only by call_agent).
+# Wrapped in try-except so that a missing/invalid GOOGLE_API_KEY at startup
+# does NOT prevent the module from being imported — call_agent_with_key creates
+# its own fresh client on every call and is unaffected by this block.
+_default_agent = None
+try:
+    _default_client = GoogleClient(
+        api_key=os.getenv("GOOGLE_API_KEY"),
+        model="gemini-flash-latest",
+        system_prompt=SYSTEM_PROMPT,
+    )
+    _default_agent = Agent(
+        name="web_search_agent",
+        client=_default_client,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[DuckDuckGoSearchTool()],
+    )
+except Exception as _e:
+    print(f"[gemini_agent] Default agent init failed (key missing or invalid?): {_e}")
 
-from datapizza.tools.duckduckgo import DuckDuckGoSearchTool
-
-web_search_agent = Agent(
-    name="web_search_agent",
-    client=client,
-    system_prompt=SYSTEM_PROMPT,
-    tools=[DuckDuckGoSearchTool()],
-)
 
 def call_agent(user_input):
-    """
-    Sends *prompt* to Gemini and returns the raw text response.
-    """
-    response = web_search_agent.run(user_input)
+    """Sends *prompt* to the default Gemini agent."""
+    if _default_agent is None:
+        raise RuntimeError("Default agent not initialised — check GOOGLE_API_KEY")
+    response = _default_agent.run(user_input)
     return response.text
 
 

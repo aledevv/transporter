@@ -7,10 +7,11 @@ import pandas as pd
 try:
     from gemini_agent import call_agent_with_key
     _AGENT_AVAILABLE = True
+    print("[AddressCorrector] gemini_agent imported successfully.")
 except Exception as _err:
     call_agent_with_key = None
     _AGENT_AVAILABLE = False
-    print(f"[AddressCorrector] gemini_agent not available: {_err}")
+    print(f"[AddressCorrector] gemini_agent import FAILED — correction disabled. Reason: {_err}")
 
 # Names of env vars tried in order when rate-limit errors occur.
 _API_KEY_NAMES = ["GOOGLE_API_KEY", "GOOGLE_API_KEY2", "GOOGLE_API_KEY3"]
