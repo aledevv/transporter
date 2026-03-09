@@ -1,33 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import { getInstituteColorMap } from './utils/colors';
 
 // Simple Loading Overlay Component
-const LoadingOverlay = ({ progress, message }) => (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center animate-fade-in">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full mx-4">
-            <div className="relative w-16 h-16">
-                <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-            </div>
-            <div className="text-center w-full">
-                <h3 className="text-lg font-bold text-gray-800">Elaborazione in corso...</h3>
-                <p className="text-sm text-gray-500 mt-1 mb-3">{message || 'Preparazione dati...'}</p>
-
-                {/* Progress Bar */}
-                <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                    <div
-                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                        style={{ width: `${Math.max(5, progress || 0)}%` }}
-                    ></div>
+const LoadingOverlay = ({ progress, message }) => {
+    const isAI = message?.includes('AI');
+    return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center animate-fade-in">
+            <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full mx-4">
+                <div className="relative w-16 h-16">
+                    <div className={`absolute inset-0 border-4 ${isAI ? 'border-orange-100' : 'border-blue-100'} rounded-full`}></div>
+                    <div className={`absolute inset-0 border-4 ${isAI ? 'border-orange-500' : 'border-blue-600'} rounded-full border-t-transparent animate-spin`}></div>
                 </div>
-                <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
+                <div className="text-center w-full">
+                    <h3 className={`text-lg font-bold ${isAI ? 'text-orange-600' : 'text-gray-800'} flex items-center justify-center gap-2`}>
+                        {isAI && <Sparkles className="w-5 h-5" />}
+                        {isAI ? 'Intelligenza Artificiale al lavoro...' : 'Elaborazione in corso...'}
+                    </h3>
+                    <p className={`text-sm ${isAI ? 'text-orange-500 font-medium' : 'text-gray-500'} mt-1 mb-3`}>{message || 'Preparazione dati...'}</p>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                        <div
+                            className={`${isAI ? 'bg-orange-500' : 'bg-blue-600'} h-2.5 rounded-full transition-all duration-300 ease-out`}
+                            style={{ width: `${Math.max(5, progress || 0)}%` }}
+                        ></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 function App() {
     const [schools, setSchools] = useState([]);
@@ -36,6 +43,14 @@ function App() {
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile }
+    const [version, setVersion] = useState('');
+
+    useEffect(() => {
+        fetch('/version.txt')
+            .then(res => res.text())
+            .then(text => setVersion(text.trim()))
+            .catch(err => console.error('Error fetching version:', err));
+    }, []);
 
     const handleReset = () => {
         setSchools([]);
@@ -258,8 +273,9 @@ function App() {
 
             {/* Footer */}
             <footer className="bg-white border-t border-gray-200 mt-auto">
-                <div className="max-w-7xl mx-auto py-6 px-4 text-center text-gray-500">
-                    BusPlan - Pianificazione trasporti
+                <div className="max-w-7xl mx-auto py-6 px-4 flex flex-col items-center gap-1 text-gray-500">
+                    <div>BusPlan - Pianificazione trasporti</div>
+                    {version && <div className="text-[10px] text-gray-400 font-mono">{version}</div>}
                 </div>
             </footer>
         </div>
