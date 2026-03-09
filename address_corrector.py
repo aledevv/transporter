@@ -3,6 +3,9 @@ import os
 import re
 
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()  # Load .env locally; on Cloud Run env vars come from the service config and are already set.
 
 try:
     from gemini_agent import call_agent_with_key

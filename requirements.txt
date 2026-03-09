@@ -1,4 +1,5 @@
 flask
+python-dotenv
 pandas
 openpyxl
 flask-cors
@@ -7,4 +8,5 @@ requests
 gunicorn
 datapizza-ai
 datapizza-ai-clients-google
+datapizza-ai-tools-duckduckgo
 pytest
