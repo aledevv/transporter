@@ -72,7 +72,7 @@ const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventName
 );
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, tripToRestore }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, onTripRenamed, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(50);
@@ -91,6 +91,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     // Trip name for saving (editable by user)
     const [tripName, setTripName] = useState('');
+    const [currentTripId, setCurrentTripId] = useState(null);
 
     // Download dialog (persisted fields)
     const [downloadDialog, setDownloadDialog] = useState(null); // null | 'pdf' | 'docx'
@@ -105,7 +106,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         }
     }, [results]);
 
-    useEffect(() => { setResults(null); setRouteShifts({}); setTripName(''); }, [schools]);
+    useEffect(() => { setResults(null); setRouteShifts({}); setTripName(''); setCurrentTripId(null); }, [schools]);
     useEffect(() => { setRouteShifts({}); }, [results]);
 
     // Restore a saved trip
@@ -118,7 +119,16 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         setStartTime(tripToRestore.startTime);
         setTimeMode(tripToRestore.timeMode);
         setResults(tripToRestore.results);
+        setTripName(tripToRestore.label || '');
+        setCurrentTripId(tripToRestore.id || null);
     }, [tripToRestore]);
+
+    // Debounce tripName changes → rename on Firestore
+    useEffect(() => {
+        if (!currentTripId || !tripName) return;
+        const t = setTimeout(() => { onTripRenamed?.(currentTripId, tripName); }, 700);
+        return () => clearTimeout(t);
+    }, [tripName, currentTripId]);
 
     // ── helpers ────────────────────────────────────────────────────────────────
     const shiftTime = (timeStr, deltaMin) => {
@@ -168,9 +178,10 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             });
             setResults(response.data);
             const defaultName = `${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
-            setTripName(prev => prev || defaultName);
+            const resolvedName = tripName || defaultName;
+            setTripName(resolvedName);
             if (onTripSaved) {
-                onTripSaved({
+                const newId = await onTripSaved({
                     destination,
                     capacity: parseInt(capacity),
                     strategy,
@@ -178,9 +189,10 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     timeMode,
                     schools,
                     results: response.data,
-                    label: tripName || defaultName,
+                    label: resolvedName,
                     savedAt: serverTimestamp(),
                 });
+                if (newId) setCurrentTripId(newId);
             }
         } catch (err) {
             setError(err.response?.data?.error || "Ottimizzazione fallita.");

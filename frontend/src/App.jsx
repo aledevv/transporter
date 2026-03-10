@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
@@ -66,7 +66,14 @@ function App() {
     useEffect(() => {
         const q = query(collection(db, 'trips'), orderBy('savedAt', 'desc'), limit(50));
         const unsub = onSnapshot(q, snap => {
-            setTrips(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            setTrips(snap.docs.map(d => {
+                const data = d.data();
+                return {
+                    id: d.id,
+                    ...data,
+                    results: typeof data.results === 'string' ? JSON.parse(data.results) : data.results,
+                };
+            }));
         }, err => {
             console.warn('Firestore unavailable:', err.message);
         });
@@ -89,14 +96,22 @@ function App() {
 
     const handleTripSaved = async (tripData) => {
         try {
-            // Firestore doesn't support nested arrays (e.g. geometry coordinates).
-            // Serialize results to a JSON string and restore on read.
-            await addDoc(collection(db, 'trips'), {
+            const docRef = await addDoc(collection(db, 'trips'), {
                 ...tripData,
                 results: JSON.stringify(tripData.results),
             });
+            return docRef.id;
         } catch (err) {
             console.warn('Failed to save trip:', err.message);
+            return null;
+        }
+    };
+
+    const handleTripRenamed = async (tripId, newName) => {
+        try {
+            await updateDoc(doc(db, 'trips', tripId), { label: newName });
+        } catch (err) {
+            console.warn('Failed to rename trip:', err.message);
         }
     };
 
@@ -381,6 +396,7 @@ function App() {
                                 mapsKey={mapsKey}
                                 startInEditMode={schools.length === 1 && schools[0].name === 'La mia prima fermata'}
                                 onTripSaved={handleTripSaved}
+                                onTripRenamed={handleTripRenamed}
                                 tripToRestore={tripToRestore}
                             />
                         </section>
