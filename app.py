@@ -83,70 +83,37 @@ def extract_city_context(text):
 
 def smart_geocode(address, school_name=None, default_city="Trento"):
     """
-    Attempts to geocode the address using multiple cleaning heuristics.
-    Returns (lat, lon) and a boolean indicating if it was successful (True) or fallback (False).
+    Attempts to geocode the address using Google Geocoding API.
+    Returns (lat, lon, success).
     """
-    # Determine Context
-    city_context = default_city
-    
-    # 1. Try to extract city from School Name
-    extracted_city = extract_city_context(school_name)
-    if extracted_city:
-        city_context = extracted_city
-    
-    # 2. Try to extract city from Address itself (last part usually)
-    # If address contains "Rovereto", use it.
-    extracted_from_addr = extract_city_context(address)
-    if extracted_from_addr:
-        city_context = extracted_from_addr
-
     def is_fallback(lat, lon):
         return abs(lat - FALLBACK_COORDS[0]) <= 0.0001 and abs(lon - FALLBACK_COORDS[1]) <= 0.0001
 
-    # Phase 1: try raw address and strip AI-added country/province suffixes
-    raw_queries = [address]
-    stripped = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
-    if stripped != address:
-        raw_queries.append(stripped)
-        stripped2 = re.sub(r',\s*[Tt]rento\s*$', '', stripped).strip()
-        if stripped2 != stripped:
-            raw_queries.append(stripped2)
+    # Build variants from most-specific-clean to less-clean.
+    # AI agent produces full Italian postal format:
+    #   "Via X, Locality, City, TN, Italia"
+    # Google prefers: "Via X, Locality, City" — strip province code + country.
+    queries = [address]
 
-    for q in raw_queries:
+    # Strip ", Italia/Italy" from the end
+    no_country = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
+    if no_country != address:
+        # Strip ", XX" province abbreviation (e.g. ", TN") now at the end
+        no_province = re.sub(r',\s*[A-Z]{2}\s*$', '', no_country).strip()
+        if no_province != no_country:
+            queries.insert(0, no_province)   # try cleanest form first
+        queries.append(no_country)
+
+    for q in queries:
         lat, lon = geocoder.get_coordinates(q)
         if not is_fallback(lat, lon):
             return lat, lon, True
 
-    # Phase 2: clean + city_context variants
-    cleaned = re.sub(r'\(.*?\)', '', address)  # Remove (...)
-    cleaned = cleaned.replace(' - ', ', ')
-    # Remove "fermata bus", "presso", "scuola", etc. case insensitive
-    cleaned = re.sub(r'(?i)\b(fermata bus|fermata|presso|scuola|elementare|media|superiore|istituto)\b', '', cleaned)
-    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    cleaned = cleaned.strip(', ')
-
-    queries = []
-    if cleaned and cleaned != address:
-        queries.append(cleaned)
-
-    # Try first part before comma: "Viale Trento, bivio Brione" -> "Viale Trento"
-    if ',' in cleaned:
-        first_part = cleaned.split(',')[0].strip()
-        if first_part and first_part != cleaned:
-            queries.append(first_part)
-
-    # Extract street address heuristic: "Scuola Elem. Via Spiazzi, 2" -> "Via Spiazzi, 2"
-    match = re.search(r'(Via|Viale|Piazza|Corso|Largo|Vicolo|Strada|Frazione|Località)\s+.*', cleaned, re.IGNORECASE)
-    if match:
-        street_only = match.group(0)
-        if street_only != cleaned:
-            queries.append(street_only)
-
-    for q in queries:
-        full_query = f"{q}, {city_context}" if city_context.lower() not in q.lower() else q
-        lat, lon = geocoder.get_coordinates(full_query)
-        if not is_fallback(lat, lon):
-            return lat, lon, True
+    # Phase 2: help Google with ambiguous locality names by adding region context
+    clean_base = queries[0]  # already stripped province+country
+    lat, lon = geocoder.get_coordinates(f"{clean_base}, Trentino, Italy")
+    if not is_fallback(lat, lon):
+        return lat, lon, True
 
     return FALLBACK_COORDS[0], FALLBACK_COORDS[1], False
 
@@ -846,6 +813,11 @@ def download_corrected_file(filename):
     if not os.path.exists(safe_path):
         return jsonify({'error': 'File non trovato'}), 404
     return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+
+
+@app.route('/api/config')
+def get_config():
+    return jsonify({'maps_key': os.environ.get('GOOGLE_MAPS_API_KEY', '')})
 
 
 @app.route('/', defaults={'path': ''})

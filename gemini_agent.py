@@ -112,5 +112,5 @@ def call_agent_with_key(user_input, api_key):
 
 
 if __name__ == "__main__":
-    address_data = [{"id": "Scuola Primaria Taio", "address": "Via della Credenza, Taio"}]
+    address_data = [{"id": "IC Levico terme", "address": "Tenna , Via Albere 2"},{"id": "IC Cles", "address": "PIAZZA FIERA - CLES"}]
     print(call_agent(str(address_data)))

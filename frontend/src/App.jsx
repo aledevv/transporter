@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import { getInstituteColorMap } from './utils/colors';
+import API_BASE_URL from './config';
 
 // Simple Loading Overlay Component
 const LoadingOverlay = ({ progress, message }) => {
@@ -46,12 +47,21 @@ function App() {
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
+    // null = not yet fetched (Map must not render until this is set)
+    const [mapsKey, setMapsKey] = useState(null);
 
     useEffect(() => {
         fetch('/version.txt')
             .then(res => res.text())
             .then(text => setVersion(text.trim()))
             .catch(err => console.error('Error fetching version:', err));
+        fetch(`${API_BASE_URL}/api/config`)
+            .then(r => r.json())
+            .then(d => setMapsKey(d.maps_key || ''))
+            .catch(err => {
+                console.error('Error fetching config:', err);
+                setMapsKey(''); // unblock Map even if config fails
+            });
     }, []);
 
     const handleReset = () => {
@@ -285,6 +295,7 @@ function App() {
                                 schools={schools}
                                 setSchools={setSchools}
                                 instituteColorMap={instituteColorMap}
+                                mapsKey={mapsKey}
                                 // Simple heuristic: if we have 1 school called "My First Stop" (created by the button), it's likely a manual start
                                 // Or we could add a state "isManual" to App
                                 startInEditMode={schools.length === 1 && schools[0].name === 'La mia prima fermata'}

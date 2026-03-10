@@ -7,31 +7,3 @@
     @apply bg-gray-50 text-gray-900;
   }
 }
-
-/* Custom Map Markers */
-.custom-marker-icon {
-  background: transparent !important;
-  border: none !important;
-}
-
-.custom-marker-icon svg {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.custom-marker-icon:hover svg {
-  transform: scale(1.2) translateY(-5px);
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-}
-
-/* Custom Popups */
-.leaflet-popup-content-wrapper {
-  @apply rounded-xl shadow-xl border-none p-0 overflow-hidden;
-}
-
-.leaflet-popup-content {
-  @apply m-0 p-3;
-}
-
-.leaflet-popup-tip {
-  @apply shadow-xl;
-}

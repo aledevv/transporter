@@ -14,7 +14,7 @@ const ROUTE_COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {} }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '' }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(50);
@@ -344,15 +344,22 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 {/* Map Column */}
                 <div className="w-full lg:w-2/3">
                     <div className="relative h-[500px] lg:h-full min-h-[400px]">
-                        <Map
-                            schools={schools}
-                            routes={mapRoutes}
-                            destination={mapDestination}
-                            focusBounds={focusBounds}
-                            highlightedRouteId={highlightedRouteId}
-                            onResetFocus={handleResetFocus}
-                            instituteColorMap={instituteColorMap}
-                        />
+                        {mapsKey !== null ? (
+                            <Map
+                                schools={schools}
+                                routes={mapRoutes}
+                                destination={mapDestination}
+                                focusBounds={focusBounds}
+                                highlightedRouteId={highlightedRouteId}
+                                onResetFocus={handleResetFocus}
+                                instituteColorMap={instituteColorMap}
+                                mapsKey={mapsKey}
+                            />
+                        ) : (
+                            <div className="h-[600px] w-full rounded-xl border border-gray-200 flex items-center justify-center bg-gray-50">
+                                <span className="text-gray-400 text-sm">Caricamento mappa...</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

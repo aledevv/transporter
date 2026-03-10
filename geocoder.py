@@ -1,109 +1,176 @@
 
 import requests
-import json
-import time
+import os
 
 class GeocodingService:
     def __init__(self):
-        self.osrm_base_url = "http://router.project-osrm.org"
-        self.nominatim_base_url = "https://nominatim.openstreetmap.org/search"
-        self.headers = {
-            'User-Agent': 'TransporterApp/1.0 (edu-demo)'
-        }
-
-    # Trentino-Alto Adige bounding box for Nominatim viewbox bias.
-    # Format: lon_min, lat_max, lon_max, lat_min  (Nominatim convention)
-    # Not used with bounded=1 so destinations outside the region still resolve.
-    _TRENTINO_VIEWBOX = "10.4,46.95,12.2,45.6"
+        self.api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
 
     def get_coordinates(self, address):
         """
-        Geocodes address using OpenStreetMap Nominatim API.
+        Geocodes address using Google Geocoding API.
         Returns (lat, lon)
         """
-        try:
-            # Respect Nominatim usage policy (1 sec delay between requests)
-            time.sleep(1)
-            params = {
-                'q': address,
-                'format': 'json',
-                'limit': 1,
-                'countrycodes': 'it',          # Italy only — avoids false matches abroad
-                'viewbox': self._TRENTINO_VIEWBOX,  # Bias results toward Trentino
-                # bounded=0 (default): viewbox is a preference, not a hard constraint,
-                # so destinations outside Trentino still resolve correctly.
-            }
-            response = requests.get(self.nominatim_base_url, params=params, headers=self.headers)
-            if response.status_code == 200 and response.json():
-                data = response.json()[0]
-                return float(data['lat']), float(data['lon'])
+        if not self.api_key:
+            print("Warning: GOOGLE_MAPS_API_KEY not set. Using Trento fallback.")
+            return 46.0697, 11.1211
 
-            # Retry without country/viewbox restriction as a last-resort fallback
-            time.sleep(1)
-            params.pop('countrycodes')
-            params.pop('viewbox')
-            response = requests.get(self.nominatim_base_url, params=params, headers=self.headers)
-            if response.status_code == 200 and response.json():
-                data = response.json()[0]
-                return float(data['lat']), float(data['lon'])
+        try:
+            params = {
+                'address': address,
+                'key': self.api_key,
+                'language': 'it',
+                'region': 'it',
+                'bounds': '45.6,10.4|46.95,12.2',
+            }
+            response = requests.get(
+                'https://maps.googleapis.com/maps/api/geocode/json',
+                params=params,
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                status = data.get('status')
+                if data.get('results'):
+                    loc = data['results'][0]['geometry']['location']
+                    return float(loc['lat']), float(loc['lng'])
+                if status not in ('ZERO_RESULTS', 'OK'):
+                    print(f"Geocoding API error for '{address}': status={status}, msg={data.get('error_message', '')}")
 
             print(f"Warning: Address '{address}' not found. Using Trento fallback.")
-            return 46.0697, 11.1211 # Fallback Trento
+            return 46.0697, 11.1211
         except Exception as e:
             print(f"Geocoding error for '{address}': {e}")
             return 46.0697, 11.1211
 
     def get_distance_matrix(self, locations):
         """
-        Returns distance matrix (meters) using OSRM Table API.
+        Returns distance matrix (meters) using Google Distance Matrix API.
         locations: list of (lat, lon) tuples.
+        Batches requests in chunks of 25 (Google limit: 25x25 per request).
         """
-        # OSRM format: lon,lat;lon,lat;...
-        coords_str = ";".join([f"{lon},{lat}" for lat, lon in locations])
-        url = f"{self.osrm_base_url}/table/v1/driving/{coords_str}"
-        
-        try:
-            params = {'annotations': 'distance'}
-            response = requests.get(url, params=params)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if 'distances' in data:
-                    # OSRM returns floats, cast to int
-                    return [[int(d) for d in row] for row in data['distances']]
-            
-            print("OSRM Table failed, falling back to Euclidean.")
+        if not self.api_key:
             return self._euclidean_matrix(locations)
-            
+
+        n = len(locations)
+        matrix = [[0] * n for _ in range(n)]
+        chunk_size = 25
+
+        try:
+            for i_start in range(0, n, chunk_size):
+                i_end = min(i_start + chunk_size, n)
+                origins = '|'.join(f"{lat},{lon}" for lat, lon in locations[i_start:i_end])
+
+                for j_start in range(0, n, chunk_size):
+                    j_end = min(j_start + chunk_size, n)
+                    destinations = '|'.join(f"{lat},{lon}" for lat, lon in locations[j_start:j_end])
+
+                    params = {
+                        'origins': origins,
+                        'destinations': destinations,
+                        'key': self.api_key,
+                        'mode': 'driving',
+                        'language': 'it',
+                    }
+                    response = requests.get(
+                        'https://maps.googleapis.com/maps/api/distancematrix/json',
+                        params=params,
+                        timeout=15
+                    )
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        rows = data.get('rows', [])
+                        for ri, row in enumerate(rows):
+                            for rj, element in enumerate(row.get('elements', [])):
+                                if element.get('status') == 'OK':
+                                    matrix[i_start + ri][j_start + rj] = element['distance']['value']
+                                else:
+                                    # Fallback for this element
+                                    lat1, lon1 = locations[i_start + ri]
+                                    lat2, lon2 = locations[j_start + rj]
+                                    matrix[i_start + ri][j_start + rj] = int(
+                                        ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
+                                    )
+                    else:
+                        print(f"Google Distance Matrix HTTP error: {response.status_code}")
+                        return self._euclidean_matrix(locations)
+
+            return matrix
+
         except Exception as e:
-            print(f"OSRM Error: {e}")
+            print(f"Google Distance Matrix error: {e}")
             return self._euclidean_matrix(locations)
 
     def get_route_geometry(self, stops):
         """
-        Get real route geometry visiting stops in order.
-        Returns: { 'geometry': 'polyline_string', 'distance': meters, 'duration': seconds }
+        Get real route geometry visiting stops in order using Google Directions API.
+        Returns: { 'geometry': {'type': 'LineString', 'coordinates': [[lon,lat],...]},
+                   'distance': meters, 'duration': seconds }
         """
         if not stops or len(stops) < 2:
             return None
-            
-        coords_str = ";".join([f"{stop['lon']},{stop['lat']}" for stop in stops])
-        url = f"{self.osrm_base_url}/route/v1/driving/{coords_str}"
-        
+        if not self.api_key:
+            return None
+
+        origin = f"{stops[0]['lat']},{stops[0]['lon']}"
+        destination = f"{stops[-1]['lat']},{stops[-1]['lon']}"
+
+        params = {
+            'origin': origin,
+            'destination': destination,
+            'key': self.api_key,
+            'mode': 'driving',
+            'language': 'it',
+        }
+
+        if len(stops) > 2:
+            waypoints = '|'.join(f"{s['lat']},{s['lon']}" for s in stops[1:-1])
+            params['waypoints'] = waypoints
+
         try:
-            params = {
-                'overview': 'full',
-                'geometries': 'geojson'
-            }
-            response = requests.get(url, params=params)
+            response = requests.get(
+                'https://maps.googleapis.com/maps/api/directions/json',
+                params=params,
+                timeout=15
+            )
             if response.status_code == 200:
-                routes = response.json().get('routes', [])
+                data = response.json()
+                routes = data.get('routes', [])
                 if routes:
-                    return routes[0] # Best route
+                    route = routes[0]
+                    encoded = route['overview_polyline']['points']
+                    coords = self._decode_polyline(encoded)
+                    distance = sum(leg['distance']['value'] for leg in route['legs'])
+                    duration = sum(leg['duration']['value'] for leg in route['legs'])
+                    return {
+                        'geometry': {'type': 'LineString', 'coordinates': coords},
+                        'distance': distance,
+                        'duration': duration,
+                    }
             return None
         except Exception as e:
             print(f"Routing error: {e}")
             return None
+
+    def _decode_polyline(self, encoded):
+        """Decode a Google encoded polyline string to [[lon, lat], ...] for GeoJSON."""
+        coords, index, lat, lng = [], 0, 0, 0
+        while index < len(encoded):
+            for is_lat in (True, False):
+                result, shift, b = 0, 0, 0x20
+                while b >= 0x20:
+                    b = ord(encoded[index]) - 63
+                    index += 1
+                    result |= (b & 0x1F) << shift
+                    shift += 5
+                delta = ~(result >> 1) if result & 1 else result >> 1
+                if is_lat:
+                    lat += delta
+                else:
+                    lng += delta
+            coords.append([lng / 1e5, lat / 1e5])  # GeoJSON: [lon, lat]
+        return coords
 
     def haversine_distance(self, lat1, lon1, lat2, lon2):
         """
@@ -111,14 +178,14 @@ class GeocodingService:
         """
         from math import radians, cos, sin, asin, sqrt
         R = 6371000  # Earth radius in meters
-        
+
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        
+
         a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
         c = 2 * asin(sqrt(a))
-        
+
         return R * c
 
     def _euclidean_matrix(self, locations):
