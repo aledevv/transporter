@@ -100,9 +100,11 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
     if no_country != address:
         # Strip ", XX" province abbreviation (e.g. ", TN") now at the end
         no_province = re.sub(r',\s*[A-Z]{2}\s*$', '', no_country).strip()
+        # Try with province code first (e.g. "Via Roma, Ospedaletto, TN") — keeps regional
+        # context so Google doesn't pick a same-named street in another region.
+        queries.insert(0, no_country)
         if no_province != no_country:
-            queries.insert(0, no_province)   # try cleanest form first
-        queries.append(no_country)
+            queries.append(no_province)   # no-province variant as last resort
 
     for q in queries:
         lat, lon = geocoder.get_coordinates(q)
@@ -244,6 +246,16 @@ def get_task_status(task_id):
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     return jsonify(task)
+
+@app.route('/api/geocode', methods=['POST'])
+def geocode_single():
+    """Geocode a single address. Used by the frontend address correction UI."""
+    data = request.json or {}
+    address = data.get('address', '').strip()
+    if not address:
+        return jsonify({'error': 'address required'}), 400
+    lat, lon, success = smart_geocode(address)
+    return jsonify({'lat': lat, 'lon': lon, 'success': success})
 
 @app.route('/api/optimize', methods=['POST'])
 def optimize():
@@ -587,25 +599,33 @@ def optimize():
             # Calculate times FORWARD from first school departure
             # start_time = when bus departs from FIRST school
             pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
-            
+
             if pickup_stops:
-                # First stop departs at start_time
+                # Pre-compute haversine distance for each segment
+                seg_distances_m = []
+                for i, stop in enumerate(pickup_stops):
+                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
+                    seg_distances_m.append(
+                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
+                    )
+                total_haversine_m = sum(seg_distances_m) or 1
+
+                # Use Google Directions total duration if available, else fall back to speed estimate
+                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
+
                 cumulative_minutes = start_hour * 60 + start_min
-                
+
                 for i, stop in enumerate(pickup_stops):
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
-                    
-                    # Calculate travel time to next stop (or destination)
-                    if i < len(pickup_stops) - 1:
-                        next_stop = pickup_stops[i + 1]
+                    stop['dist_to_next_km'] = round(seg_distances_m[i] / 1000, 2)
+
+                    if total_drive_min:
+                        seg_drive_min = total_drive_min * (seg_distances_m[i] / total_haversine_m)
                     else:
-                        # Last pickup -> destination
-                        next_stop = {'lat': dest_lat, 'lon': dest_lon}
-                    
-                    dist_km = geocoder.haversine_distance(stop['lat'], stop['lon'], next_stop['lat'], next_stop['lon']) / 1000
-                    travel_time_min = (dist_km / AVERAGE_SPEED_KMH) * 60
-                    cumulative_minutes += STOP_DWELL_TIME_MIN + travel_time_min  # Dwell + travel
-                
+                        seg_drive_min = (seg_distances_m[i] / 1000 / AVERAGE_SPEED_KMH) * 60
+
+                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
                 # Destination arrival time
                 for stop in stops_data:
                     if stop['type'] == 'destination':

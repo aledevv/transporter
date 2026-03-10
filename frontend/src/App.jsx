@@ -26,12 +26,16 @@ const LoadingOverlay = ({ progress, message }) => {
 
                     {/* Progress Bar */}
                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                        <div
-                            className={`${isAI ? 'bg-orange-500' : 'bg-blue-600'} h-2.5 rounded-full transition-all duration-300 ease-out`}
-                            style={{ width: `${Math.max(5, progress || 0)}%` }}
-                        ></div>
+                        {isAI ? (
+                            <div className="h-2.5 rounded-full bg-orange-400 animate-pulse" style={{ width: '100%' }} />
+                        ) : (
+                            <div
+                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                                style={{ width: `${Math.max(5, progress || 0)}%` }}
+                            />
+                        )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
+                    {!isAI && <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>}
                 </div>
             </div>
         </div>
@@ -82,6 +86,18 @@ function App() {
             return { ...s, lat: parseFloat(fix.lat), lon: parseFloat(fix.lon), geocoding_failed: false };
         }));
         setGeocodingFailures(null);
+    };
+
+    const handleManualAddressCorrect = async (schoolName, newAddress) => {
+        const resp = await fetch(`${API_BASE_URL}/api/geocode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: newAddress }),
+        });
+        const { lat, lon } = await resp.json();
+        setSchools(prev => prev.map(s =>
+            s.name === schoolName ? { ...s, address: newAddress, lat: parseFloat(lat), lon: parseFloat(lon), geocoding_failed: false } : s
+        ));
     };
 
     // Auto-scroll refs
@@ -188,6 +204,7 @@ function App() {
                                 corrections={correctionInfo.corrections}
                                 correctedFile={correctionInfo.correctedFile}
                                 correctionStatus={correctionInfo.status}
+                                onManualCorrect={handleManualAddressCorrect}
                             />
                         )}
 

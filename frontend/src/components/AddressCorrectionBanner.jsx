@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, ChevronDown, ChevronUp, Download, ArrowRight, AlertTriangle } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, Download, ArrowRight, AlertTriangle, Pencil, Check, X } from 'lucide-react';
 import API_BASE_URL from '../config';
 
 /**
@@ -9,17 +9,42 @@ import API_BASE_URL from '../config';
  *   corrections      – [{ name, original, corrected }]  (success case)
  *   correctedFile    – filename for /api/download/<file> (success case)
  *   correctionStatus – string from backend: 'ok' | 'rate_limit' | 'error' | 'skipped_*'
+ *   onManualCorrect  – (schoolName, newAddress) => Promise<void>
  */
-const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionStatus }) => {
+const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionStatus, onManualCorrect }) => {
     const [expanded, setExpanded] = useState(false);
+    // { [schoolName]: { editing: bool, value: string, saving: bool, saved: bool } }
+    const [editState, setEditState] = useState({});
 
     const isRateLimit = correctionStatus === 'rate_limit';
     const isError     = correctionStatus === 'error';
     const isWarning   = isRateLimit || isError;
     const isSuccess   = corrections.length > 0;
 
-    // Nothing to show for skipped/disabled states
     if (!isSuccess && !isWarning) return null;
+
+    const startEdit = (c) => {
+        setEditState(prev => ({
+            ...prev,
+            [c.name]: { editing: true, value: c.corrected, saving: false, saved: false }
+        }));
+    };
+
+    const cancelEdit = (name) => {
+        setEditState(prev => ({ ...prev, [name]: { ...prev[name], editing: false } }));
+    };
+
+    const saveEdit = async (name) => {
+        const entry = editState[name];
+        if (!entry || !entry.value.trim()) return;
+        setEditState(prev => ({ ...prev, [name]: { ...prev[name], saving: true } }));
+        try {
+            await onManualCorrect?.(name, entry.value.trim());
+            setEditState(prev => ({ ...prev, [name]: { editing: false, value: entry.value.trim(), saving: false, saved: true } }));
+        } catch {
+            setEditState(prev => ({ ...prev, [name]: { ...prev[name], saving: false } }));
+        }
+    };
 
     // ----------------------------------------------------------------
     // Warning banner (rate limit or generic error)
@@ -90,35 +115,64 @@ const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionSt
                     <table className="min-w-full text-sm">
                         <thead className="bg-green-100">
                             <tr>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide w-1/4">
-                                    Scuola
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide w-[37.5%]">
-                                    Indirizzo originale
-                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide w-1/4">Scuola</th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide w-[30%]">Originale</th>
                                 <th className="px-1 py-2 w-6" />
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide w-[37.5%]">
-                                    Indirizzo corretto
-                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-green-700 uppercase tracking-wide">Indirizzo corretto (modificabile)</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-green-100 bg-white">
-                            {corrections.map((c, i) => (
-                                <tr key={i} className="hover:bg-green-50">
-                                    <td className="px-4 py-2 text-gray-700 font-medium align-top">
-                                        {c.name}
-                                    </td>
-                                    <td className="px-4 py-2 text-gray-400 align-top line-through">
-                                        {c.original}
-                                    </td>
-                                    <td className="px-1 py-2 align-top">
-                                        <ArrowRight className="w-3.5 h-3.5 text-green-500 mt-0.5" />
-                                    </td>
-                                    <td className="px-4 py-2 text-green-800 font-medium align-top">
-                                        {c.corrected}
-                                    </td>
-                                </tr>
-                            ))}
+                            {corrections.map((c, i) => {
+                                const es = editState[c.name] || {};
+                                const displayedAddress = es.saved ? es.value : c.corrected;
+                                return (
+                                    <tr key={i} className="hover:bg-green-50">
+                                        <td className="px-4 py-2 text-gray-700 font-medium align-middle">{c.name}</td>
+                                        <td className="px-4 py-2 text-gray-400 align-middle line-through text-xs">{c.original}</td>
+                                        <td className="px-1 py-2 align-middle">
+                                            <ArrowRight className="w-3.5 h-3.5 text-green-500" />
+                                        </td>
+                                        <td className="px-4 py-2 align-middle">
+                                            {es.editing ? (
+                                                <div className="flex items-center gap-1">
+                                                    <input
+                                                        type="text"
+                                                        value={es.value}
+                                                        onChange={e => setEditState(prev => ({
+                                                            ...prev,
+                                                            [c.name]: { ...prev[c.name], value: e.target.value }
+                                                        }))}
+                                                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(c.name); if (e.key === 'Escape') cancelEdit(c.name); }}
+                                                        className="flex-1 text-xs px-2 py-1 border border-green-400 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                        autoFocus
+                                                        disabled={es.saving}
+                                                    />
+                                                    <button onClick={() => saveEdit(c.name)} disabled={es.saving} className="p-1 text-green-600 hover:text-green-800" title="Salva">
+                                                        <Check className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => cancelEdit(c.name)} disabled={es.saving} className="p-1 text-gray-400 hover:text-gray-600" title="Annulla">
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-sm font-medium ${es.saved ? 'text-blue-700' : 'text-green-800'}`}>
+                                                        {displayedAddress}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => startEdit(c)}
+                                                        className="p-1 text-gray-400 hover:text-green-700 transition-colors"
+                                                        title="Modifica indirizzo"
+                                                    >
+                                                        <Pencil className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    {es.saved && <span className="text-[10px] text-blue-500 font-medium">aggiornato</span>}
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

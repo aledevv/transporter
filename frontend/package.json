@@ -12,13 +12,16 @@
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
     "axios": "^1.6.7",
+    "docx": "^9.6.1",
     "firebase": "^12.8.0",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
+    "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.330.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
