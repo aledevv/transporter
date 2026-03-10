@@ -48,8 +48,9 @@ const MapController = ({ schools, destination, focusBounds }) => {
 
     // 2. Handle Initial Data Load (Fit All)
     useEffect(() => {
-        if (!focusBounds && schools.length > 0) {
-            const bounds = L.latLngBounds(schools.map(s => [s.lat, s.lon]));
+        const geocodedSchools = schools.filter(s => s.lat != null && s.lon != null);
+        if (!focusBounds && geocodedSchools.length > 0) {
+            const bounds = L.latLngBounds(geocodedSchools.map(s => [s.lat, s.lon]));
             if (destination) {
                 bounds.extend([destination.lat, destination.lon]);
             }
@@ -113,7 +114,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     </Marker>
                 )}
 
-                {schools.map((school) => {
+                {schools.filter(s => s.lat != null && s.lon != null).map((school) => {
                     const color = school.institute ? (instituteColorMap[school.institute] || '#3b82f6') : '#3b82f6'; // Blue fallback
                     const icon = createCustomIcon(color, school.institute ? Building2 : MapPin); // Use Building if institute known
 

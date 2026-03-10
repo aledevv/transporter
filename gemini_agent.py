@@ -1,4 +1,5 @@
 import os
+import requests as req
 from dotenv import load_dotenv
 
 # Clients
@@ -12,16 +13,59 @@ from pydantic import BaseModel
 load_dotenv()
 
 from datapizza.tools.duckduckgo import DuckDuckGoSearchTool
+from datapizza.tools import tool
 
 class Address(BaseModel):
     id: int
     address: str
 
 
+@tool
+def googleMapsTool(location: str) -> str:
+    """
+    Search Google Maps Places for address suggestions in Italy (Trentino region).
+    Use this tool for every address to find the best real-world match.
+    Returns up to 5 candidate addresses — you must pick the most appropriate one.
+
+    Args:
+        location: the raw address string to search for
+
+    Returns:
+        A numbered list of up to 5 candidate addresses from Google Maps, or an error message.
+    """
+    api_key = os.getenv('GOOGLE_MAPS_API_KEY')
+    if not api_key:
+        return "Error: GOOGLE_MAPS_API_KEY not configured."
+
+    try:
+        resp = req.get(
+            'https://maps.googleapis.com/maps/api/place/autocomplete/json',
+            params={
+                'input': location,
+                'key': api_key,
+                'language': 'it',
+                'components': 'country:it',
+                'location': '46.0697,11.1211',   # Trentino bias
+                'radius': 80000,
+            },
+            timeout=5
+        )
+        data = resp.json()
+        predictions = data.get('predictions', [])
+
+        if not predictions:
+            return f"No results found for: {location}"
+
+        lines = [f"{i}. {p['description']}" for i, p in enumerate(predictions[:5], 1)]
+        return "\n".join(lines)
+
+    except Exception as e:
+        return f"Tool error: {e}"
+
+
 # Module-level default agent (used only by call_agent).
 # Wrapped in try-except so that a missing/invalid GOOGLE_API_KEY at startup
-# does NOT prevent the module from being imported — call_agent_with_key creates
-# its own fresh client on every call and is unaffected by this block.
+# does NOT prevent the module from being imported.
 _default_agent = None
 try:
     _default_client = GoogleClient(
@@ -30,10 +74,10 @@ try:
         system_prompt=SYSTEM_PROMPT,
     )
     _default_agent = Agent(
-        name="web_search_agent",
+        name="address_resolver_agent",
         client=_default_client,
         system_prompt=SYSTEM_PROMPT,
-        tools=[DuckDuckGoSearchTool()],
+        tools=[googleMapsTool],
     )
 except Exception as _e:
     print(f"[gemini_agent] Default agent init failed (key missing or invalid?): {_e}")
@@ -58,17 +102,15 @@ def call_agent_with_key(user_input, api_key):
         system_prompt=SYSTEM_PROMPT,
     )
     temp_agent = Agent(
-        name="web_search_agent",
+        name="address_resolver_agent",
         client=temp_client,
         system_prompt=SYSTEM_PROMPT,
-        tools=[DuckDuckGoSearchTool()],
+        tools=[googleMapsTool],
     )
     response = temp_agent.run(user_input)
     return response.text
 
-if __name__ == "__main__":
 
-    address_data = {"id": "scuola1","address": "Via Biasi, 1 - 38010 SAN MICHELE ALL'ADIGE" }
-    
-    # print(call_llm(str(address_data)).structured_data[0])
+if __name__ == "__main__":
+    address_data = [{"id": "Scuola Primaria Taio", "address": "Via della Credenza, Taio"}]
     print(call_agent(str(address_data)))

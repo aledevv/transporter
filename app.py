@@ -100,30 +100,42 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
     if extracted_from_addr:
         city_context = extracted_from_addr
 
-    # 1. Try Original
-    queries = [address]
-    
-    # 2. Clean parentheses, hyphens, and common noise words
-    # "Balbido 1 - 38071 Bleggio (Note)" -> "Balbido 1, 38071 Bleggio"
-    cleaned = re.sub(r'\(.*?\)', '', address) # Remove (...)
+    def is_fallback(lat, lon):
+        return abs(lat - FALLBACK_COORDS[0]) <= 0.0001 and abs(lon - FALLBACK_COORDS[1]) <= 0.0001
+
+    # Phase 1: try raw address and strip AI-added country/province suffixes
+    raw_queries = [address]
+    stripped = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
+    if stripped != address:
+        raw_queries.append(stripped)
+        stripped2 = re.sub(r',\s*[Tt]rento\s*$', '', stripped).strip()
+        if stripped2 != stripped:
+            raw_queries.append(stripped2)
+
+    for q in raw_queries:
+        lat, lon = geocoder.get_coordinates(q)
+        if not is_fallback(lat, lon):
+            return lat, lon, True
+
+    # Phase 2: clean + city_context variants
+    cleaned = re.sub(r'\(.*?\)', '', address)  # Remove (...)
     cleaned = cleaned.replace(' - ', ', ')
     # Remove "fermata bus", "presso", "scuola", etc. case insensitive
     cleaned = re.sub(r'(?i)\b(fermata bus|fermata|presso|scuola|elementare|media|superiore|istituto)\b', '', cleaned)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    cleaned = cleaned.strip(', ') # Remove leading/trailing commas
-    
+    cleaned = cleaned.strip(', ')
+
+    queries = []
     if cleaned and cleaned != address:
         queries.append(cleaned)
-        
-    # 2b. Try to just use the first part before a comma if it looks like a street
-    # "Viale Trento, bivio Brione" -> "Viale Trento"
+
+    # Try first part before comma: "Viale Trento, bivio Brione" -> "Viale Trento"
     if ',' in cleaned:
         first_part = cleaned.split(',')[0].strip()
         if first_part and first_part != cleaned:
-             queries.append(first_part)
-        
-    # 3. Extract Street Address (heuristic for Italian addresses)
-    # "Scuola Elem. Zivignago Via Spiazzi, 2" -> "Via Spiazzi, 2"
+            queries.append(first_part)
+
+    # Extract street address heuristic: "Scuola Elem. Via Spiazzi, 2" -> "Via Spiazzi, 2"
     match = re.search(r'(Via|Viale|Piazza|Corso|Largo|Vicolo|Strada|Frazione|Località)\s+.*', cleaned, re.IGNORECASE)
     if match:
         street_only = match.group(0)
@@ -131,19 +143,11 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
             queries.append(street_only)
 
     for q in queries:
-        full_query = f"{q}, {city_context}"
-        # If the query already contains the city context, don't double add (simple check)
-        if city_context.lower() in q.lower():
-            full_query = q
-            
+        full_query = f"{q}, {city_context}" if city_context.lower() not in q.lower() else q
         lat, lon = geocoder.get_coordinates(full_query)
-        
-        # Check if we got a real result (not the fallback)
-        # Note: We rely on checking exact float equality with the fallback definition. 
-        # Ideally geocoder should return None, but we work with what we have.
-        if abs(lat - FALLBACK_COORDS[0]) > 0.0001 or abs(lon - FALLBACK_COORDS[1]) > 0.0001:
+        if not is_fallback(lat, lon):
             return lat, lon, True
-            
+
     return FALLBACK_COORDS[0], FALLBACK_COORDS[1], False
 
 def process_file_task(task_id, filepath, original_filename):
@@ -197,31 +201,26 @@ def process_file_task(task_id, filepath, original_filename):
             
             raw_address = school['address']
             lat, lon, success = smart_geocode(raw_address, school_name=school['name'])
-            
+
             if not success:
-                print(f"Failed to geocode: {raw_address} - Using Fallback")
-            
-            # Deterministic Spiral Jitter for Overlapping Coordinates
-            coord_key = (round(lat, 6), round(lon, 6))
-            
-            # Count how many times we've seen this exact coordinate
-            count = used_coordinates.get(coord_key, 0)
-            
-            if count > 0:
-                # Apply Spiral Jitter
-                # angle = count * (Golden Angle ~ 2.4 radians)
-                # radius = base_step * sqrt(count)
-                import math
-                angle = count * 2.4
-                radius = 0.0003 * math.sqrt(count) # ~30-40 meters radius expansion
-                
-                lat += radius * math.sin(angle)
-                lon += radius * math.cos(angle)
-                
-            used_coordinates[coord_key] = count + 1
-            
-            school['lat'] = lat
-            school['lon'] = lon
+                print(f"Failed to geocode: {raw_address} - Marking as unresolved")
+                school['lat'] = None
+                school['lon'] = None
+                school['geocoding_failed'] = True
+            else:
+                # Deterministic Spiral Jitter for Overlapping Coordinates
+                coord_key = (round(lat, 6), round(lon, 6))
+                count = used_coordinates.get(coord_key, 0)
+                if count > 0:
+                    import math
+                    angle = count * 2.4
+                    radius = 0.0003 * math.sqrt(count)
+                    lat += radius * math.sin(angle)
+                    lon += radius * math.cos(angle)
+                used_coordinates[coord_key] = count + 1
+                school['lat'] = lat
+                school['lon'] = lon
+
             processed_schools.append(school)
             
         tasks[task_id].update({'progress': 95, 'message': 'Finalizzazione dati...'})
@@ -784,6 +783,61 @@ def optimize():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/places/autocomplete', methods=['GET'])
+def places_autocomplete():
+    """Proxy to Google Places API autocomplete. Keeps the key server-side."""
+    query = request.args.get('q', '').strip()
+    if len(query) < 2:
+        return jsonify({'predictions': [], 'status': 'OK'})
+
+    api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
+    if not api_key:
+        return jsonify({'error': 'GOOGLE_MAPS_API_KEY not configured'}), 500
+
+    import requests as req
+    resp = req.get(
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json',
+        params={
+            'input': query,
+            'key': api_key,
+            'language': 'it',
+            'components': 'country:it',
+            'location': '46.0697,11.1211',
+            'radius': 80000,
+        },
+        timeout=5
+    )
+    data = resp.json()
+    if data.get('status') not in ('OK', 'ZERO_RESULTS'):
+        print(f"[Places Autocomplete] Google error: {data.get('status')} — {data.get('error_message', '')}")
+    return jsonify(data), 200
+
+
+@app.route('/api/places/details', methods=['GET'])
+def places_details():
+    """Proxy to Google Places API — fetch lat/lon for a place_id."""
+    place_id = request.args.get('place_id', '').strip()
+    if not place_id:
+        return jsonify({'error': 'place_id required'}), 400
+
+    api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
+    if not api_key:
+        return jsonify({'error': 'GOOGLE_MAPS_API_KEY not configured'}), 500
+
+    import requests as req
+    resp = req.get(
+        'https://maps.googleapis.com/maps/api/place/details/json',
+        params={
+            'place_id': place_id,
+            'key': api_key,
+            'fields': 'geometry,formatted_address,name',
+            'language': 'it',
+        },
+        timeout=5
+    )
+    return jsonify(resp.json()), 200
+
 
 @app.route('/api/download/<path:filename>', methods=['GET'])
 def download_corrected_file(filename):

@@ -37,9 +37,18 @@ class GeocodingService:
             if response.status_code == 200 and response.json():
                 data = response.json()[0]
                 return float(data['lat']), float(data['lon'])
-            else:
-                print(f"Warning: Address '{address}' not found. Using Trento fallback.")
-                return 46.0697, 11.1211 # Fallback Trento
+
+            # Retry without country/viewbox restriction as a last-resort fallback
+            time.sleep(1)
+            params.pop('countrycodes')
+            params.pop('viewbox')
+            response = requests.get(self.nominatim_base_url, params=params, headers=self.headers)
+            if response.status_code == 200 and response.json():
+                data = response.json()[0]
+                return float(data['lat']), float(data['lon'])
+
+            print(f"Warning: Address '{address}' not found. Using Trento fallback.")
+            return 46.0697, 11.1211 # Fallback Trento
         except Exception as e:
             print(f"Geocoding error for '{address}': {e}")
             return 46.0697, 11.1211

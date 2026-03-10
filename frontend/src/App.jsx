@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
+import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import { getInstituteColorMap } from './utils/colors';
 
 // Simple Loading Overlay Component
@@ -43,6 +44,7 @@ function App() {
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile }
+    const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
 
     useEffect(() => {
@@ -57,7 +59,19 @@ function App() {
         setMessage('');
         setShowDetails(false);
         setCorrectionInfo(null);
+        setGeocodingFailures(null);
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
+    };
+
+    // Called when user resolves failed addresses in the modal
+    const handleGeocodingResolved = (corrections) => {
+        // corrections: { [id]: { lat, lon } }
+        setSchools(prev => prev.map(s => {
+            const fix = corrections[s.id];
+            if (!fix) return s;
+            return { ...s, lat: parseFloat(fix.lat), lon: parseFloat(fix.lon), geocoding_failed: false };
+        }));
+        setGeocodingFailures(null);
     };
 
     // Auto-scroll refs
@@ -103,6 +117,12 @@ function App() {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} />}
+            {geocodingFailures && (
+                <GeocodingFailuresModal
+                    failures={geocodingFailures}
+                    onResolve={handleGeocodingResolved}
+                />
+            )}
 
             {/* Header */}
             <header className="bg-white shadow">
@@ -139,6 +159,9 @@ function App() {
                                     correctedFile,
                                     status: correctionStatus,
                                 });
+                                // Show modal for any addresses that couldn't be geocoded
+                                const failed = data.filter(s => s.geocoding_failed);
+                                if (failed.length > 0) setGeocodingFailures(failed);
                             }}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
                             onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
