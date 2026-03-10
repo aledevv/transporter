@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu } from 'lucide-react';
 import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
@@ -58,12 +58,35 @@ function App() {
     const [mapsKey, setMapsKey] = useState(null);
 
     // Trip history (Firestore)
+    const [db, setDb] = useState(null);
     const [trips, setTrips] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [tripToRestore, setTripToRestore] = useState(null);
 
-    // Subscribe to Firestore trip history
     useEffect(() => {
+        fetch('/version.txt')
+            .then(res => res.text())
+            .then(text => setVersion(text.trim()))
+            .catch(err => console.error('Error fetching version:', err));
+        fetch(`${API_BASE_URL}/api/config`)
+            .then(r => r.json())
+            .then(d => {
+                setMapsKey(d.maps_key || '');
+                if (d.firebase?.projectId) {
+                    setDb(initFirebase(d.firebase));
+                } else {
+                    setMapsKey(d.maps_key || '');
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching config:', err);
+                setMapsKey('');
+            });
+    }, []);
+
+    // Subscribe to Firestore trip history once db is ready
+    useEffect(() => {
+        if (!db) return;
         const q = query(collection(db, 'trips'), orderBy('savedAt', 'desc'), limit(50));
         const unsub = onSnapshot(q, snap => {
             setTrips(snap.docs.map(d => {
@@ -78,23 +101,10 @@ function App() {
             console.warn('Firestore unavailable:', err.message);
         });
         return unsub;
-    }, []);
-
-    useEffect(() => {
-        fetch('/version.txt')
-            .then(res => res.text())
-            .then(text => setVersion(text.trim()))
-            .catch(err => console.error('Error fetching version:', err));
-        fetch(`${API_BASE_URL}/api/config`)
-            .then(r => r.json())
-            .then(d => setMapsKey(d.maps_key || ''))
-            .catch(err => {
-                console.error('Error fetching config:', err);
-                setMapsKey(''); // unblock Map even if config fails
-            });
-    }, []);
+    }, [db]);
 
     const handleTripSaved = async (tripData) => {
+        if (!db) return null;
         try {
             const docRef = await addDoc(collection(db, 'trips'), {
                 ...tripData,
@@ -108,6 +118,7 @@ function App() {
     };
 
     const handleTripRenamed = async (tripId, newName) => {
+        if (!db) return;
         try {
             await updateDoc(doc(db, 'trips', tripId), { label: newName });
         } catch (err) {
@@ -126,6 +137,7 @@ function App() {
     };
 
     const handleTripDelete = async (tripId) => {
+        if (!db) return;
         try {
             await deleteDoc(doc(db, 'trips', tripId));
         } catch (err) {

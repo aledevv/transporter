@@ -852,7 +852,17 @@ def download_corrected_file(filename):
 
 @app.route('/api/config')
 def get_config():
-    return jsonify({'maps_key': os.environ.get('GOOGLE_MAPS_API_KEY', '')})
+    return jsonify({
+        'maps_key': os.environ.get('GOOGLE_MAPS_API_KEY', ''),
+        'firebase': {
+            'apiKey':            os.environ.get('FIREBASE_API_KEY', ''),
+            'authDomain':        os.environ.get('FIREBASE_AUTH_DOMAIN', ''),
+            'projectId':         os.environ.get('FIREBASE_PROJECT_ID', ''),
+            'storageBucket':     os.environ.get('FIREBASE_STORAGE_BUCKET', ''),
+            'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID', ''),
+            'appId':             os.environ.get('FIREBASE_APP_ID', ''),
+        }
+    })
 
 
 @app.route('/', defaults={'path': ''})

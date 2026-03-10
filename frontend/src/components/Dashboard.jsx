@@ -87,7 +87,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     // Post-planning adjustments
     // routeShifts: { [vehicle_id]: number[] } — per-pickup-display-index extra minutes
     const [routeShifts, setRouteShifts] = useState({});
-    const [extraKmPerBus, setExtraKmPerBus] = useState(0);
 
     // Trip name for saving (editable by user)
     const [tripName, setTripName] = useState('');
@@ -233,7 +232,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     // ── PDF generation ─────────────────────────────────────────────────────────
     const generatePdf = () => {
         const doc = new jsPDF();
-        const totalKm = (results.stats.total_distance / 1000 + results.routes.length * Number(extraKmPerBus || 0)).toFixed(1);
+        const totalKm = (results.stats.total_distance / 1000).toFixed(1);
+        const totalKmRT = (results.stats.total_distance / 1000 * 2).toFixed(1);
 
         doc.setFontSize(20);
         doc.text("Pianificazione Viaggio", 14, 22);
@@ -250,7 +250,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             body: [
                 ['Bus Totali', results.stats.total_buses],
                 ['Passeggeri Totali', results.stats.total_passengers],
-                ['Distanza Totale (solo andata)', `${totalKm} km`]
+                ['Distanza Totale (solo andata)', `${totalKm} km`],
+                ['Distanza Totale (andata e ritorno)', `${totalKmRT} km`]
             ],
             theme: 'striped',
             headStyles: { fillColor: [41, 128, 185] }
@@ -259,7 +260,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         let finalY = doc.lastAutoTable.finalY + 10;
 
         results.routes.forEach((route) => {
-            const routeDistKm = (route.outbound.distance / 1000 + Number(extraKmPerBus || 0)).toFixed(1);
+            const routeDistKm = (route.outbound.distance / 1000).toFixed(1);
             if (finalY > 250) { doc.addPage(); finalY = 20; }
             doc.setFontSize(11);
             doc.text(`Bus #${route.vehicle_id + 1} — ${route.total_load}/${capacity} pax — ${routeDistKm} km`, 14, finalY);
@@ -284,7 +285,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     // ── DOCX generation ────────────────────────────────────────────────────────
     const generateDocx = async () => {
-        const totalKm = (results.stats.total_distance / 1000 + results.routes.length * Number(extraKmPerBus || 0)).toFixed(1);
+        const totalKm = (results.stats.total_distance / 1000).toFixed(1);
+        const totalKmRT = (results.stats.total_distance / 1000 * 2).toFixed(1);
 
         const noBorder = { top: { style: BorderStyle.NONE, size: 0 }, bottom: { style: BorderStyle.NONE, size: 0 }, left: { style: BorderStyle.NONE, size: 0 }, right: { style: BorderStyle.NONE, size: 0 } };
 
@@ -302,12 +304,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         if (docEventName) sections.push(new Paragraph({ children: [new TextRun({ text: `Evento: ${docEventName}`, size: 22 })] }));
         sections.push(new Paragraph({ children: [new TextRun({ text: `Destinazione: ${destination}`, size: 22 })] }));
         sections.push(new Paragraph({ children: [new TextRun({ text: `Strategia: ${strategy === 'distance' ? 'Percorso più breve' : strategy === 'balanced' ? 'Bilanciato' : 'Minimo Veicoli'}`, size: 22 })] }));
-        sections.push(new Paragraph({ children: [new TextRun({ text: `Bus totali: ${results.stats.total_buses} — Passeggeri: ${results.stats.total_passengers} — Distanza: ${totalKm} km`, size: 22 })] }));
+        sections.push(new Paragraph({ children: [new TextRun({ text: `Bus totali: ${results.stats.total_buses} — Passeggeri: ${results.stats.total_passengers} — Distanza (andata): ${totalKm} km — Distanza (A/R): ${totalKmRT} km`, size: 22 })] }));
         sections.push(new Paragraph({ text: '' }));
 
         // Routes
         results.routes.forEach((route) => {
-            const routeDistKm = (route.outbound.distance / 1000 + Number(extraKmPerBus || 0)).toFixed(1);
+            const routeDistKm = (route.outbound.distance / 1000).toFixed(1);
             sections.push(new Paragraph({
                 children: [new TextRun({ text: `Bus #${route.vehicle_id + 1} — ${route.total_load}/${capacity} pax — ${routeDistKm} km`, bold: true, size: 24 })]
             }));
@@ -459,16 +461,18 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                     <div className="text-purple-600 text-xs font-medium uppercase">Passeggeri</div>
                                     <div className="text-xl font-bold text-gray-800">{results.stats.total_passengers}</div>
                                 </div>
-                                <div className="col-span-2 bg-green-50 p-3 rounded-lg">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <div className="text-green-600 text-xs font-medium uppercase">Distanza Totale (solo andata)</div>
+                                <div className="col-span-2 bg-green-50 p-3 rounded-lg space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-green-600 text-xs font-medium uppercase">Distanza Totale (andata)</div>
                                         <div className="text-lg font-bold text-green-700">
-                                            {(results.stats.total_distance / 1000 + results.routes.length * Number(extraKmPerBus || 0)).toFixed(1)} km
+                                            {(results.stats.total_distance / 1000).toFixed(1)} km
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <label className="text-xs text-green-700 whitespace-nowrap">+ km extra/bus:</label>
-                                        <input type="number" min="0" step="1" value={extraKmPerBus} onChange={e => setExtraKmPerBus(e.target.value)} className="w-20 text-xs px-2 py-1 rounded border border-green-300 bg-white focus:ring-1 focus:ring-green-400 outline-none" />
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-green-600 text-xs font-medium uppercase">Distanza Totale (A/R)</div>
+                                        <div className="text-lg font-bold text-green-700">
+                                            {(results.stats.total_distance / 1000 * 2).toFixed(1)} km
+                                        </div>
                                     </div>
                                 </div>
                                 {results.stats.arrival_window && (
@@ -524,7 +528,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                             </span>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{route.total_load}/{capacity} pax</span>
-                                                <span className="text-[10px] text-gray-500 font-mono">{(distKm + Number(extraKmPerBus || 0)).toFixed(1)} km</span>
+                                                <span className="text-[10px] text-gray-500 font-mono">{distKm.toFixed(1)} km</span>
                                                 {totalShiftForBus > 0 && (
                                                     <div className="flex items-center gap-1">
                                                         <span className="text-[10px] text-orange-500 font-mono">+{totalShiftForBus}′</span>
