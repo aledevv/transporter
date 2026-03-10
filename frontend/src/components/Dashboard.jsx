@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays } from 'lucide-react';
+import { serverTimestamp } from 'firebase/firestore';
+import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays, Bookmark } from 'lucide-react';
 import { Document, Paragraph, TextRun, Table, TableRow, TableCell, Packer, WidthType, AlignmentType, HeadingLevel, BorderStyle } from 'docx';
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
@@ -71,7 +72,7 @@ const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventName
 );
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '' }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(50);
@@ -88,6 +89,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [routeShifts, setRouteShifts] = useState({});
     const [extraKmPerBus, setExtraKmPerBus] = useState(0);
 
+    // Trip name for saving (editable by user)
+    const [tripName, setTripName] = useState('');
+
     // Download dialog (persisted fields)
     const [downloadDialog, setDownloadDialog] = useState(null); // null | 'pdf' | 'docx'
     const [docDate, setDocDate] = useState('');
@@ -101,8 +105,20 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         }
     }, [results]);
 
-    useEffect(() => { setResults(null); setRouteShifts({}); }, [schools]);
+    useEffect(() => { setResults(null); setRouteShifts({}); setTripName(''); }, [schools]);
     useEffect(() => { setRouteShifts({}); }, [results]);
+
+    // Restore a saved trip
+    useEffect(() => {
+        if (!tripToRestore) return;
+        setDestination(tripToRestore.destination);
+        setDestCoords(null);
+        setCapacity(tripToRestore.capacity);
+        setStrategy(tripToRestore.strategy);
+        setStartTime(tripToRestore.startTime);
+        setTimeMode(tripToRestore.timeMode);
+        setResults(tripToRestore.results);
+    }, [tripToRestore]);
 
     // ── helpers ────────────────────────────────────────────────────────────────
     const shiftTime = (timeStr, deltaMin) => {
@@ -115,11 +131,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
     };
 
-    // Sum shifts from display index 1 up to (and including) upToIdx
+    // Sum shifts from display index 0 up to (and including) upToIdx
     const getCumulativeShift = (vehicleId, upToIdx) => {
         const shifts = routeShifts[vehicleId] || [];
         let total = 0;
-        for (let i = 1; i <= upToIdx; i++) total += (shifts[i] || 0);
+        for (let i = 0; i <= upToIdx; i++) total += (shifts[i] || 0);
         return total;
     };
 
@@ -127,9 +143,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const getTotalShift = (vehicleId, numPickups) =>
         getCumulativeShift(vehicleId, numPickups - 1);
 
-    // Add buffer at a specific pickup display index (from 2nd stop, idx >= 1)
+    // Add buffer at a specific pickup display index
     const addStopShift = (vehicleId, displayIdx, prevDistKm) => {
-        const increment = (prevDistKm != null && prevDistKm < 10) ? 5 : 10;
+        const increment = (prevDistKm == null || prevDistKm < 10) ? 5 : 10;
         setRouteShifts(prev => {
             const cur = [...(prev[vehicleId] || [])];
             cur[displayIdx] = (cur[displayIdx] || 0) + increment;
@@ -151,6 +167,21 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 strategy, start_time: startTime, time_mode: timeMode
             });
             setResults(response.data);
+            const defaultName = `${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+            setTripName(prev => prev || defaultName);
+            if (onTripSaved) {
+                onTripSaved({
+                    destination,
+                    capacity: parseInt(capacity),
+                    strategy,
+                    startTime,
+                    timeMode,
+                    schools,
+                    results: response.data,
+                    label: tripName || defaultName,
+                    savedAt: serverTimestamp(),
+                });
+            }
         } catch (err) {
             setError(err.response?.data?.error || "Ottimizzazione fallita.");
         } finally {
@@ -552,8 +583,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                 </div>
                                                             </div>
                                                             <div className="flex-shrink-0 flex items-center gap-1 mt-0.5">
-                                                                {/* Per-stop shift button (from 2nd stop onwards) */}
-                                                                {curIdx >= 1 && (
+                                                                {/* Per-stop shift button (all pickup stops) */}
+                                                                {curIdx >= 0 && (
                                                                     <button
                                                                         onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
                                                                         title={`+${bufIncrement} min a questa e alle successive fermate`}
@@ -580,8 +611,22 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             })}
                         </div>
 
-                        {/* Export buttons */}
-                        <div className="border-t border-gray-100 p-4 bg-gray-50 flex gap-3">
+                        {/* Trip name + Export */}
+                        <div className="border-t border-gray-100 p-4 bg-gray-50 space-y-3">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1.5 flex items-center gap-1.5">
+                                <Bookmark className="w-3.5 h-3.5 text-blue-400" />
+                                Nome viaggio (salvato nello storico)
+                            </label>
+                            <input
+                                type="text"
+                                value={tripName}
+                                onChange={e => setTripName(e.target.value)}
+                                placeholder={`${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
+                                className="w-full text-sm px-3 py-1.5 rounded-lg border border-gray-200 bg-white focus:ring-2 focus:ring-blue-300 outline-none text-gray-700 placeholder:text-gray-400"
+                            />
+                        </div>
+                        <div className="flex gap-3">
                             <button
                                 onClick={() => handleOpenDownload('pdf')}
                                 className="flex-1 py-3 rounded-lg font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 flex items-center justify-center gap-2 shadow-md transition-all"
@@ -594,6 +639,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             >
                                 <FileText className="w-5 h-5" /> Esporta Word
                             </button>
+                        </div>
                         </div>
                     </div>
                 </div>

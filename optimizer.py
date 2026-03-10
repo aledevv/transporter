@@ -124,7 +124,7 @@ class VRPSolver:
 
         # Setting first solution heuristic.
         search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-        
+
         if self.search_strategy == 'SAVINGS':
             search_parameters.first_solution_strategy = (
                 routing_enums_pb2.FirstSolutionStrategy.SAVINGS)
@@ -134,7 +134,13 @@ class VRPSolver:
         else:
             search_parameters.first_solution_strategy = (
                 routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-        
+
+        # Local search improvement phase (escapes local optima via arc penalisation)
+        search_parameters.local_search_metaheuristic = (
+            routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+        search_parameters.time_limit.seconds = 15
+        search_parameters.log_search = False
+
         # Solve the problem.
         solution = routing.SolveWithParameters(search_parameters)
 

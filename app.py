@@ -23,6 +23,13 @@ import random
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Clean uploads folder on every startup (remove leftover files from previous sessions)
+for _f in os.listdir(UPLOAD_FOLDER):
+    try:
+        os.remove(os.path.join(UPLOAD_FOLDER, _f))
+    except OSError:
+        pass
+
 geocoder = GeocodingService()
 
 def format_time_from_minutes(total_minutes):
@@ -828,11 +835,19 @@ def places_details():
 
 @app.route('/api/download/<path:filename>', methods=['GET'])
 def download_corrected_file(filename):
-    """Serves a corrected Excel file from the uploads folder."""
+    """Serves a corrected Excel file from the uploads folder, then deletes it."""
     safe_path = os.path.join(UPLOAD_FOLDER, filename)
     if not os.path.exists(safe_path):
         return jsonify({'error': 'File non trovato'}), 404
-    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    response = send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    # Delete after sending so the folder stays clean
+    @response.call_on_close
+    def _cleanup():
+        try:
+            os.remove(safe_path)
+        except OSError:
+            pass
+    return response
 
 
 @app.route('/api/config')

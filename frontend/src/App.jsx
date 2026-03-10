@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Menu } from 'lucide-react';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
+import TripSidebar from './components/TripSidebar';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -54,6 +57,22 @@ function App() {
     // null = not yet fetched (Map must not render until this is set)
     const [mapsKey, setMapsKey] = useState(null);
 
+    // Trip history (Firestore)
+    const [trips, setTrips] = useState([]);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [tripToRestore, setTripToRestore] = useState(null);
+
+    // Subscribe to Firestore trip history
+    useEffect(() => {
+        const q = query(collection(db, 'trips'), orderBy('savedAt', 'desc'), limit(50));
+        const unsub = onSnapshot(q, snap => {
+            setTrips(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, err => {
+            console.warn('Firestore unavailable:', err.message);
+        });
+        return unsub;
+    }, []);
+
     useEffect(() => {
         fetch('/version.txt')
             .then(res => res.text())
@@ -67,6 +86,37 @@ function App() {
                 setMapsKey(''); // unblock Map even if config fails
             });
     }, []);
+
+    const handleTripSaved = async (tripData) => {
+        try {
+            // Firestore doesn't support nested arrays (e.g. geometry coordinates).
+            // Serialize results to a JSON string and restore on read.
+            await addDoc(collection(db, 'trips'), {
+                ...tripData,
+                results: JSON.stringify(tripData.results),
+            });
+        } catch (err) {
+            console.warn('Failed to save trip:', err.message);
+        }
+    };
+
+    const handleTripRestore = (trip) => {
+        const restored = {
+            ...trip,
+            results: typeof trip.results === 'string' ? JSON.parse(trip.results) : trip.results,
+        };
+        setSchools(restored.schools);
+        setTripToRestore(restored);
+        setSidebarOpen(false);
+    };
+
+    const handleTripDelete = async (tripId) => {
+        try {
+            await deleteDoc(doc(db, 'trips', tripId));
+        } catch (err) {
+            console.warn('Failed to delete trip:', err.message);
+        }
+    };
 
     const handleReset = () => {
         setSchools([]);
@@ -142,6 +192,13 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
+            <TripSidebar
+                open={sidebarOpen}
+                trips={trips}
+                onRestore={handleTripRestore}
+                onDelete={handleTripDelete}
+                onClose={() => setSidebarOpen(false)}
+            />
             {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} />}
             {geocodingFailures && (
                 <GeocodingFailuresModal
@@ -153,11 +210,20 @@ function App() {
             {/* Header */}
             <header className="bg-white shadow">
                 <div className="container mx-auto py-6 px-4 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        <img src="/favicon.svg" alt="BusPlan Logo" className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
-                        BusPlan
-                        <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setSidebarOpen(prev => !prev)}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            title="Storico viaggi"
+                        >
+                            <Menu className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                            <img src="/favicon.svg" alt="BusPlan Logo" className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+                            BusPlan
+                            <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
+                        </h1>
+                    </div>
                     {schools.length > 0 && (
                         <button
                             onClick={handleReset}
@@ -313,9 +379,9 @@ function App() {
                                 setSchools={setSchools}
                                 instituteColorMap={instituteColorMap}
                                 mapsKey={mapsKey}
-                                // Simple heuristic: if we have 1 school called "My First Stop" (created by the button), it's likely a manual start
-                                // Or we could add a state "isManual" to App
                                 startInEditMode={schools.length === 1 && schools[0].name === 'La mia prima fermata'}
+                                onTripSaved={handleTripSaved}
+                                tripToRestore={tripToRestore}
                             />
                         </section>
                     )}
