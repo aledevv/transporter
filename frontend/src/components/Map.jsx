@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X } from 'lucide-react';
+import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapPin, Flag, Building2 } from 'lucide-react';
 
@@ -50,6 +50,15 @@ const MapController = ({ schools, destination, focusBounds }) => {
     return null;
 };
 
+// Invalidate map size when container changes (e.g. fullscreen)
+const MapResizer = () => {
+    const map = useMap();
+    useEffect(() => {
+        setTimeout(() => map.invalidateSize(), 100);
+    });
+    return null;
+};
+
 const COLORS = [
     '#3b82f6', '#ef4444', '#22c55e', '#eab308',
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
@@ -57,6 +66,33 @@ const COLORS = [
 
 const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
     const defaultCenter = [46.0697, 11.1211];
+    const containerRef = useRef(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Listen for native fullscreen change (Esc key exits fullscreen)
+    useEffect(() => {
+        const handleFsChange = () => {
+            if (!document.fullscreenElement) {
+                setIsFullscreen(false);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFsChange);
+        return () => document.removeEventListener('fullscreenchange', handleFsChange);
+    }, []);
+
+    const toggleFullscreen = useCallback(async () => {
+        if (!isFullscreen) {
+            try {
+                await containerRef.current.requestFullscreen();
+                setIsFullscreen(true);
+            } catch (e) {
+                console.warn('Fullscreen not supported', e);
+            }
+        } else {
+            await document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    }, [isFullscreen]);
 
     const getPositions = (routeData) => {
         if (routeData.geometry && routeData.geometry.coordinates) {
@@ -68,22 +104,41 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     };
 
     return (
-        <div className="h-[600px] w-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0">
-            {highlightedRouteId !== null && onResetFocus && (
+        <div
+            ref={containerRef}
+            className="w-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
+            style={{ height: isFullscreen ? '100vh' : '100%' }}
+        >
+            {/* Top-right control buttons */}
+            <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
+                {highlightedRouteId !== null && onResetFocus && (
+                    <button
+                        onClick={onResetFocus}
+                        className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
+                        title="Reimposta vista mappa"
+                    >
+                        <X className="w-4 h-4 text-gray-600" />
+                    </button>
+                )}
                 <button
-                    onClick={onResetFocus}
-                    className="absolute top-3 right-3 z-[1000] bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
-                    title="Reimposta vista mappa"
+                    onClick={toggleFullscreen}
+                    className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
+                    title={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
                 >
-                    <X className="w-5 h-5 text-gray-600" />
+                    {isFullscreen
+                        ? <Minimize2 className="w-4 h-4 text-gray-600" />
+                        : <Maximize2 className="w-4 h-4 text-gray-600" />
+                    }
                 </button>
-            )}
+            </div>
 
             <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; OpenStreetMap contributors'
                 />
+
+                <MapResizer />
 
                 <MapController
                     schools={schools}
