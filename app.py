@@ -264,17 +264,94 @@ def geocode_single():
     lat, lon, success = smart_geocode(address)
     return jsonify({'lat': lat, 'lon': lon, 'success': success})
 
+def _make_sub_route(school_nodes, original_route, time_matrix, demands, dest_idx, dummy_idx):
+    """Create a route dict from a subset of school node indices."""
+    stops = [{'node': dummy_idx, 'load': 0}]
+    for node in school_nodes:
+        stops.append({'node': node, 'load': demands[node]})
+    stops.append({'node': dest_idx, 'load': 0})
+    route_time = 0
+    if school_nodes:
+        for j in range(len(school_nodes) - 1):
+            route_time += time_matrix[school_nodes[j]][school_nodes[j + 1]]
+        route_time += time_matrix[school_nodes[-1]][dest_idx]
+    return {
+        'vehicle_id': original_route['vehicle_id'],
+        'stops': stops,
+        'distance': route_time,
+        'load': sum(demands[n] for n in school_nodes),
+    }
+
+
+def _find_split_point(school_nodes, time_matrix, dest_idx, max_extra_sec):
+    """Return largest k such that school_nodes[:k] satisfies the 20-min constraint."""
+    for k in range(len(school_nodes) - 1, 0, -1):
+        prefix = school_nodes[:k]
+        if len(prefix) == 1:
+            return k
+        route_time = sum(time_matrix[prefix[j]][prefix[j + 1]] for j in range(len(prefix) - 1))
+        route_time += time_matrix[prefix[-1]][dest_idx]
+        direct_time = time_matrix[prefix[0]][dest_idx]
+        if route_time - direct_time <= max_extra_sec:
+            return k
+    return 1  # fallback: split after first stop
+
+
+def _validate_and_split_routes(solution_routes, time_matrix, dest_idx, dummy_idx, demands, max_extra_sec=1200):
+    """
+    For each route, check if the first stop has extra_time > 20 min (1200 s).
+    If so, split at the best point. Recursive.
+    """
+    validated = []
+    for route in solution_routes:
+        school_nodes = [s['node'] for s in route['stops']
+                        if s['node'] not in (dummy_idx, dest_idx)]
+        
+        # If there's 1 or 0 schools, automatically valid
+        if len(school_nodes) <= 1:
+            validated.append(route)
+            continue
+            
+        # Requisito Committente:
+        # Se 1 + somma(i=2, N) < 1 + 20min 
+        # (ovvero: Tempo da 1 con N fermate <= Tempo 1 diretto + 20min)
+        # Calcoliamo questo accumulando scuola per scuola
+        
+        valid = True
+        direct_time = time_matrix[school_nodes[0]][dest_idx]
+        cum_time = 0
+        
+        for i in range(1, len(school_nodes)):
+            cum_time += time_matrix[school_nodes[i-1]][school_nodes[i]]
+            total_time = cum_time + time_matrix[school_nodes[i]][dest_idx]
+            diff_sec = total_time - direct_time
+            if diff_sec > max_extra_sec:
+                valid = False
+                break
+                
+        if valid:
+            validated.append(route)
+        else:
+            split_idx = _find_split_point(school_nodes, time_matrix, dest_idx, max_extra_sec)
+            sub_routes = [
+                _make_sub_route(school_nodes[:split_idx], route, time_matrix, demands, dest_idx, dummy_idx),
+                _make_sub_route(school_nodes[split_idx:], route, time_matrix, demands, dest_idx, dummy_idx),
+            ]
+            validated.extend(_validate_and_split_routes(sub_routes, time_matrix, dest_idx, dummy_idx, demands, max_extra_sec))
+    return validated
+    return validated
+
+
 @app.route('/api/optimize', methods=['POST'])
 def optimize():
     data = request.json
     schools = data.get('schools', [])
     destination_address = data.get('destination', '')
     bus_capacity = int(data.get('capacity', 50))
-    max_buses = data.get('max_buses', None) 
-    
+    max_buses = data.get('max_buses', None)
+
     dest_lat_param = data.get('dest_lat')
     dest_lon_param = data.get('dest_lon')
-    strategy = data.get('strategy', 'distance') # 'distance' or 'vehicles'
     
     if not schools or not destination_address:
         return jsonify({'error': 'Scuole o destinazione mancanti'}), 400
@@ -422,11 +499,11 @@ def optimize():
             'institute': 'UNIVERSAL'
         })
             
-        # 2. Distance Matrix (Real OSRM)
+        # 2. Time Matrix (seconds) — primary optimization objective
         # We process N real nodes. The matrix needs to be (N+1)x(N+1)
         real_node_count = len(all_nodes) - 1
         locations = [(n['lat'], n['lon']) for n in all_nodes[:real_node_count]]
-        real_matrix = geocoder.get_distance_matrix(locations)
+        real_matrix = geocoder.get_time_matrix(locations)
         
         # Extend matrix for Dummy Node
         # Rows: Real nodes -> Real nodes (Keep)
@@ -435,22 +512,18 @@ def optimize():
         
         full_matrix = []
         for row in real_matrix:
-            # Add distance TO dummy (End -> Dummy). We don't want to go TO dummy.
-            # Make it 0 or huge? If we use different start/end, we won't go back to start.
             row.append(0) 
             full_matrix.append(row)
             
-        # Add Dummy Row (Dummy -> Others)
-        # We want Dummy -> First School = 0 cost
         dummy_row = [0] * (real_node_count + 1)
         full_matrix.append(dummy_row)
         
         distance_matrix = full_matrix
-        
+
         # 3. Demands & Solve
         demands = [n['participants'] for n in all_nodes]
         total_demand = sum(demands)
-        
+
         # Calculate vehicles: use forced count if provided, otherwise estimate
         if max_buses is not None and int(max_buses) > 0:
             calculated_vehicles = int(max_buses)
@@ -460,45 +533,33 @@ def optimize():
             calculated_vehicles = min_needed + 2  # Buffer for solver flexibility
             print(f"[DEBUG] Auto-calculated {calculated_vehicles} buses (min needed: {min_needed})")
 
-        # Determine Fixed Cost & Strategy based on User Input
-        fixed_cost = 0
-        search_strategy = 'PATH_CHEAPEST_ARC'
-        
-        if strategy == 'vehicles':
-            # "Minimize Buses"
-            # High cost to penalize using a vehicle + SAVINGS heuristic
-            fixed_cost = 1000000 
-            search_strategy = 'SAVINGS'
-            
-            # If user didn't force a bus count, let's try to squeeze more
-            # by not inflating the calculated_vehicles too much, but solver will decide usage.
-            
-        elif strategy == 'balanced':
-            # "Balanced"
-            # Medium cost (e.g., 20km) to discourage empty buses but not at all costs
-            fixed_cost = 20000 # 20km equivalent
-            search_strategy = 'PATH_CHEAPEST_ARC' 
-            
-        else: # 'distance' or default
-            # "Shortest Path"
-            # Low cost to just avoid completely empty buses if possible, but prioritization is distance
-            fixed_cost = 1000 # 1km equivalent
-            search_strategy = 'PATH_CHEAPEST_ARC'
+        # Single mode: minimize travel time (primary) + minimize buses (secondary)
+        # fixed_cost = 1 hour equivalent → solver merges routes when time savings > 1h overhead
+        fixed_cost = 3600
 
         solver = VRPSolver(
-            distance_matrix=distance_matrix,
+            time_matrix=distance_matrix,
             demands=demands,
             vehicle_capacity=bus_capacity,
             num_vehicles=calculated_vehicles,
             depot_index=0,
             fixed_vehicle_cost=fixed_cost,
-            search_strategy=search_strategy,
             starts=[dummy_node_index] * calculated_vehicles,
-            ends=[0] * calculated_vehicles, # 0 is Destination
-            institutes=[n.get('institute') for n in all_nodes] + ['UNIVERSAL'] # +1 for Dummy Node
+            ends=[0] * calculated_vehicles,  # 0 is Destination
+            institutes=[n.get('institute') for n in all_nodes] + ['UNIVERSAL']  # +1 for Dummy Node
         )
-        
+
         solution = solver.solve()
+
+        if solution:
+            # Post-VRP: validate 20-min extra-time constraint and split routes if needed
+            validated_routes = _validate_and_split_routes(
+                solution['routes'], distance_matrix, 0, dummy_node_index, demands
+            )
+            for i, r in enumerate(validated_routes):
+                r['vehicle_id'] = i
+            solution['routes'] = validated_routes
+            solution['used_vehicles'] = len(validated_routes)
         
         if not solution:
              msg = "Nessuna soluzione trovata. Prova ad aumentare il numero di bus o la capacità, oppure verifica che la destinazione sia raggiungibile."
@@ -598,23 +659,24 @@ def optimize():
             
             stops_data = expanded_stops
             
-            # Fetch geometry for Outbound
-            geo_data = geocoder.get_route_geometry(stops_data)
-            outbound_geometry = geo_data['geometry'] if geo_data else None
-            outbound_dist = geo_data['distance'] if geo_data else route['distance']
-            
-            # Calculate times FORWARD from first school departure
-            # start_time = when bus departs from FIRST school
+            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
             pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
-
+            seg_distances_m = []
             if pickup_stops:
-                # Pre-compute haversine distance for each segment
-                seg_distances_m = []
                 for i, stop in enumerate(pickup_stops):
                     ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
                     seg_distances_m.append(
                         geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
                     )
+
+            # Fetch geometry for Outbound
+            geo_data = geocoder.get_route_geometry(stops_data)
+            outbound_geometry = geo_data['geometry'] if geo_data else None
+            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
+
+            # Calculate times FORWARD from first school departure
+            # start_time = when bus departs from FIRST school
+            if pickup_stops:
                 total_haversine_m = sum(seg_distances_m) or 1
 
                 # Use Google Directions total duration if available, else fall back to speed estimate

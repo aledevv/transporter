@@ -1,4 +1,4 @@
-"""Tests for VRPSolver (migrated from test_optimizer.py + test_strategies.py)."""
+"""Tests for VRPSolver."""
 import pytest
 
 from optimizer import VRPSolver
@@ -8,15 +8,14 @@ from optimizer import VRPSolver
 # Helpers
 # ---------------------------------------------------------------------------
 
-def make_solver(matrix, demands, capacity, num_vehicles, fixed_cost=0, strategy="PATH_CHEAPEST_ARC"):
+def make_solver(matrix, demands, capacity, num_vehicles, fixed_cost=0):
     return VRPSolver(
-        distance_matrix=matrix,
+        time_matrix=matrix,
         demands=demands,
         vehicle_capacity=capacity,
         num_vehicles=num_vehicles,
         depot_index=0,
         fixed_vehicle_cost=fixed_cost,
-        search_strategy=strategy,
     )
 
 
@@ -67,14 +66,14 @@ class TestBasicRouting:
 
 
 # ---------------------------------------------------------------------------
-# Strategy behaviour
+# Fixed-cost behaviour (replaces multi-strategy tests)
 # ---------------------------------------------------------------------------
 
 class TestStrategies:
     """
     Topology: depot (0) is close to A (1) and B (2), but A and B are far apart.
-    - Shortest-path strategy: prefers 2 buses (0→1→0, 0→2→0) to avoid the A↔B gap.
-    - Min-buses strategy: prefers 1 bus (0→1→2→0) despite longer total distance.
+    - Low fixed_cost: SAVINGS won't merge A+B (negative savings) → 2 buses
+    - High fixed_cost: penalty for extra bus outweighs detour → 1 bus
     """
 
     MATRIX = [
@@ -85,32 +84,34 @@ class TestStrategies:
     DEMANDS = [0, 25, 25]
     CAPACITY = 50
 
-    def test_distance_strategy_uses_two_buses(self):
+    def test_low_fixed_cost_uses_two_buses(self):
+        # Savings(A,B) = 10+10-80 = -60 (negative) → SAVINGS won't merge → 2 buses
         solver = make_solver(
             self.MATRIX, self.DEMANDS, self.CAPACITY,
-            num_vehicles=5, fixed_cost=0, strategy="PATH_CHEAPEST_ARC",
+            num_vehicles=5, fixed_cost=0,
         )
         sol = solver.solve()
         assert sol["used_vehicles"] == 2
 
-    def test_vehicles_strategy_uses_one_bus(self):
+    def test_high_fixed_cost_uses_one_bus(self):
+        # High fixed cost makes 1 bus cheaper despite detour
         solver = make_solver(
             self.MATRIX, self.DEMANDS, self.CAPACITY,
-            num_vehicles=5, fixed_cost=1_000_000, strategy="SAVINGS",
+            num_vehicles=5, fixed_cost=1_000_000,
         )
         sol = solver.solve()
         assert sol["used_vehicles"] == 1
 
-    def test_strategies_produce_different_vehicle_counts(self):
-        sol_dist = make_solver(
+    def test_fixed_cost_controls_vehicle_count(self):
+        sol_low = make_solver(
             self.MATRIX, self.DEMANDS, self.CAPACITY,
             num_vehicles=5, fixed_cost=0,
         ).solve()
-        sol_bus = make_solver(
+        sol_high = make_solver(
             self.MATRIX, self.DEMANDS, self.CAPACITY,
-            num_vehicles=5, fixed_cost=1_000_000, strategy="SAVINGS",
+            num_vehicles=5, fixed_cost=1_000_000,
         ).solve()
-        assert sol_dist["used_vehicles"] != sol_bus["used_vehicles"]
+        assert sol_low["used_vehicles"] != sol_high["used_vehicles"]
 
 
 # ---------------------------------------------------------------------------

@@ -102,6 +102,76 @@ class GeocodingService:
             print(f"Google Distance Matrix error: {e}")
             return self._euclidean_matrix(locations)
 
+    def get_time_matrix(self, locations):
+        """
+        Returns travel time matrix (seconds) using Google Distance Matrix API.
+        Same structure as get_distance_matrix() but returns durations instead of distances.
+        """
+        if not self.api_key:
+            return self._euclidean_time_matrix(locations)
+
+        n = len(locations)
+        matrix = [[0] * n for _ in range(n)]
+        chunk_size = 10  # Max 10 origins x 10 dests = 100 elements to avoid MAX_ELEMENTS_EXCEEDED
+
+        try:
+            for i_start in range(0, n, chunk_size):
+                i_end = min(i_start + chunk_size, n)
+                origins = '|'.join(f"{lat},{lon}" for lat, lon in locations[i_start:i_end])
+
+                for j_start in range(0, n, chunk_size):
+                    j_end = min(j_start + chunk_size, n)
+                    destinations = '|'.join(f"{lat},{lon}" for lat, lon in locations[j_start:j_end])
+
+                    params = {
+                        'origins': origins,
+                        'destinations': destinations,
+                        'key': self.api_key,
+                        'mode': 'driving',
+                        'language': 'it',
+                    }
+                    response = requests.get(
+                        'https://maps.googleapis.com/maps/api/distancematrix/json',
+                        params=params,
+                        timeout=15
+                    )
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        api_status = data.get('status', 'OK')
+                        
+                        if api_status != 'OK':
+                            print(f"[ERROR] API Google Maps restituisce status: {api_status}. Uso fallback parziale.")
+                            # Fallback geometrico per questa porzione
+                            for ri in range(i_end - i_start):
+                                for rj in range(j_end - j_start):
+                                    lat1, lon1 = locations[i_start + ri]
+                                    lat2, lon2 = locations[j_start + rj]
+                                    dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
+                                    matrix[i_start + ri][j_start + rj] = int(dist_m / (30 / 3.6))
+                            continue
+
+                        rows = data.get('rows', [])
+                        for ri, row in enumerate(rows):
+                            for rj, element in enumerate(row.get('elements', [])):
+                                if element.get('status') == 'OK':
+                                    matrix[i_start + ri][j_start + rj] = element['duration']['value']
+                                else:
+                                    # Fallback: haversine / 30 km/h
+                                    lat1, lon1 = locations[i_start + ri]
+                                    lat2, lon2 = locations[j_start + rj]
+                                    dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
+                                    matrix[i_start + ri][j_start + rj] = int(dist_m / (30 / 3.6))
+                    else:
+                        print(f"Google Distance Matrix HTTP error: {response.status_code}")
+                        return self._euclidean_time_matrix(locations)
+
+            return matrix
+
+        except Exception as e:
+            print(f"Google Distance Matrix error: {e}")
+            return self._euclidean_time_matrix(locations)
+
     def get_route_geometry(self, stops):
         """
         Get real route geometry visiting stops in order using Google Directions API.
@@ -199,4 +269,17 @@ class GeocodingService:
                 # Approx conversion
                 dist = ((lat1 - lat2)**2 + (lon1 - lon2)**2)**0.5 * 111000
                 matrix[i][j] = int(dist)
+        return matrix
+
+    def _euclidean_time_matrix(self, locations):
+        """Fallback time matrix using haversine distance / 30 km/h (seconds)."""
+        n = len(locations)
+        matrix = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                if i == j: continue
+                lat1, lon1 = locations[i]
+                lat2, lon2 = locations[j]
+                dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
+                matrix[i][j] = int(dist_m / (30 / 3.6))  # 30 km/h → m/s = 8.333
         return matrix

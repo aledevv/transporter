@@ -76,7 +76,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(50);
-    const [strategy, setStrategy] = useState('distance');
     const [startTime, setStartTime] = useState('08:00');
     const [timeMode, setTimeMode] = useState('arrival');
     const [showEditor, setShowEditor] = useState(startInEditMode);
@@ -114,7 +113,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         setDestination(tripToRestore.destination);
         setDestCoords(null);
         setCapacity(tripToRestore.capacity);
-        setStrategy(tripToRestore.strategy);
         setStartTime(tripToRestore.startTime);
         setTimeMode(tripToRestore.timeMode);
         setResults(tripToRestore.results);
@@ -173,7 +171,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             const response = await axios.post(`${API_BASE_URL}/api/optimize`, {
                 schools, destination, capacity: parseInt(capacity),
                 dest_lat: destCoords?.lat, dest_lon: destCoords?.lon,
-                strategy, start_time: startTime, time_mode: timeMode
+                start_time: startTime, time_mode: timeMode
             });
             setResults(response.data);
             const defaultName = `${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
@@ -183,7 +181,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 const newId = await onTripSaved({
                     destination,
                     capacity: parseInt(capacity),
-                    strategy,
                     startTime,
                     timeMode,
                     schools,
@@ -242,10 +239,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         if (docEventName) doc.text(`Evento: ${docEventName}`, 14, docDate ? 36 : 30);
         const headerEnd = docDate && docEventName ? 42 : (docDate || docEventName ? 36 : 30);
         doc.text(`Destinazione: ${destination}`, 14, headerEnd);
-        doc.text(`Strategia: ${strategy === 'distance' ? 'Percorso più breve' : strategy === 'balanced' ? 'Bilanciato' : 'Minimo Veicoli'}`, 14, headerEnd + 6);
 
         autoTable(doc, {
-            startY: headerEnd + 12,
+            startY: headerEnd + 6,
             head: [['Metrica', 'Valore']],
             body: [
                 ['Bus Totali', results.stats.total_buses],
@@ -303,7 +299,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         if (docDate) sections.push(new Paragraph({ children: [new TextRun({ text: `Data: ${docDate}`, size: 22 })] }));
         if (docEventName) sections.push(new Paragraph({ children: [new TextRun({ text: `Evento: ${docEventName}`, size: 22 })] }));
         sections.push(new Paragraph({ children: [new TextRun({ text: `Destinazione: ${destination}`, size: 22 })] }));
-        sections.push(new Paragraph({ children: [new TextRun({ text: `Strategia: ${strategy === 'distance' ? 'Percorso più breve' : strategy === 'balanced' ? 'Bilanciato' : 'Minimo Veicoli'}`, size: 22 })] }));
         sections.push(new Paragraph({ children: [new TextRun({ text: `Bus totali: ${results.stats.total_buses} — Passeggeri: ${results.stats.total_passengers} — Distanza (andata): ${totalKm} km — Distanza (A/R): ${totalKmRT} km`, size: 22 })] }));
         sections.push(new Paragraph({ text: '' }));
 
@@ -412,20 +407,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
+                                <div className="col-span-2">
                                     <label className="block text-sm font-medium text-gray-600 mb-1">Capienza Bus</label>
                                     <div className="relative">
                                         <Users className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
                                         <input type="number" className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={capacity} onChange={e => setCapacity(e.target.value)} min="1" />
                                     </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">Strategia</label>
-                                    <select className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white" value={strategy} onChange={e => setStrategy(e.target.value)}>
-                                        <option value="distance">Percorso Breve</option>
-                                        <option value="balanced">Bilanciato</option>
-                                        <option value="vehicles">Minimo Bus</option>
-                                    </select>
                                 </div>
                                 <div className="col-span-2">
                                     <label className="block text-sm font-medium text-gray-600 mb-1">Modalità Orario</label>
