@@ -400,11 +400,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 />
             )}
 
-            {/* Top Row */}
-            <div className="flex flex-col lg:flex-row gap-6">
-                {/* Configuration + Stats */}
-                <div className="w-full lg:w-1/3 min-w-0 overflow-x-hidden space-y-6">
-                    <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+            {/* Top Row: Config (left, full height) | Map (right) */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
+                {/* Configuration box */}
+                <div className="w-full lg:w-1/3 min-w-0 flex flex-col">
+                    <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 flex flex-col flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="flex items-center gap-2 font-semibold text-gray-700">
                                 <Settings className="w-5 h-5" /> Configurazione
@@ -414,7 +414,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             </button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-4 flex-1">
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Indirizzo Destinazione</label>
                                 <AddressAutocomplete
@@ -455,50 +455,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
                         </div>
                     </div>
-
-                    {/* Results Stats */}
-                    {results && (
-                        <div ref={resultsRef} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
-                            <h3 className="font-semibold text-gray-700 mb-4">Risultati</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-blue-50 p-3 rounded-lg">
-                                    <div className="text-blue-500 text-xs font-medium uppercase">Bus Totali</div>
-                                    <div className="text-xl font-bold text-gray-800">{results.stats.total_buses}</div>
-                                </div>
-                                <div className="bg-purple-50 p-3 rounded-lg">
-                                    <div className="text-purple-600 text-xs font-medium uppercase">Passeggeri</div>
-                                    <div className="text-xl font-bold text-gray-800">{results.stats.total_passengers}</div>
-                                </div>
-                                <div className="col-span-2 bg-green-50 p-3 rounded-lg space-y-1">
-                                    <div className="flex justify-between items-center">
-                                        <div className="text-green-600 text-xs font-medium uppercase">Distanza Totale (andata)</div>
-                                        <div className="text-lg font-bold text-green-700">
-                                            {(results.stats.total_distance / 1000).toFixed(1)} km
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <div className="text-green-600 text-xs font-medium uppercase">Distanza Totale (A/R)</div>
-                                        <div className="text-lg font-bold text-green-700">
-                                            {(results.stats.total_distance / 1000 * 2).toFixed(1)} km
-                                        </div>
-                                    </div>
-                                </div>
-                                {results.stats.arrival_window && (
-                                    <div className="col-span-2 bg-orange-50 p-3 rounded-lg">
-                                        <div className="flex justify-between items-center">
-                                            <div className="text-orange-600 text-xs font-medium uppercase">Arrivo a Destinazione</div>
-                                            <div className="text-sm font-bold text-orange-700">
-                                                {results.stats.arrival_window.spread_minutes === 0
-                                                    ? <span>Tutti alle {results.stats.arrival_window.earliest}</span>
-                                                    : <span>Da {results.stats.arrival_window.earliest} a {results.stats.arrival_window.latest} <span className="text-xs font-normal ml-1">({results.stats.arrival_window.spread_minutes} min)</span></span>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Map */}
@@ -508,6 +464,70 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     </div>
                 </div>
             </div>
+
+            {/* Results Riepilogo — full width, below config+map */}
+            {results && (
+                <div ref={resultsRef} className="bg-white rounded-xl border border-gray-200 shadow-sm animate-fade-in overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-center gap-2">
+                        <div className="w-1 h-4 rounded-full bg-indigo-500"></div>
+                        <h3 className="font-semibold text-sm text-gray-700">Riepilogo</h3>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:divide-x sm:divide-gray-100">
+                        {/* Bus + Passengers */}
+                        <div className="flex divide-x divide-gray-100 flex-1">
+                            <div className="flex-1 p-4 flex flex-col items-center justify-center gap-0.5">
+                                <Bus className="w-5 h-5 text-blue-400 mb-1" />
+                                <div className="text-2xl font-extrabold text-blue-600 leading-none">{results.stats.total_buses}</div>
+                                <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Bus attivi</div>
+                            </div>
+                            <div className="flex-1 p-4 flex flex-col items-center justify-center gap-0.5">
+                                <Users className="w-5 h-5 text-purple-400 mb-1" />
+                                <div className="text-2xl font-extrabold text-purple-600 leading-none">{results.stats.total_passengers}</div>
+                                <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Passeggeri</div>
+                            </div>
+                        </div>
+
+                        {/* Distances */}
+                        <div className="flex-1 border-t sm:border-t-0 px-5 py-4 flex flex-col justify-center gap-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                    <Navigation className="w-3.5 h-3.5 text-green-500" />
+                                    <span>Distanza andata</span>
+                                </div>
+                                <span className="text-sm font-bold text-green-700">{(results.stats.total_distance / 1000).toFixed(1)} km</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                    <ArrowRight className="w-3.5 h-3.5 text-green-400" />
+                                    <span>Andata + ritorno</span>
+                                </div>
+                                <span className="text-sm font-bold text-green-600">{(results.stats.total_distance / 1000 * 2).toFixed(1)} km</span>
+                            </div>
+                        </div>
+
+                        {/* Arrival window */}
+                        {results.stats.arrival_window && (
+                            <div className="flex-1 border-t sm:border-t-0 bg-orange-50 px-5 py-4 flex flex-col justify-center">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-orange-500" />
+                                    <span className="text-[10px] font-semibold text-orange-600 uppercase tracking-wide">Arrivo a destinazione</span>
+                                </div>
+                                {results.stats.arrival_window.spread_minutes === 0
+                                    ? <div className="text-base font-bold text-orange-700">Tutti alle {results.stats.arrival_window.earliest}</div>
+                                    : <div className="flex items-baseline gap-1 flex-wrap">
+                                        <span className="text-base font-bold text-orange-700">{results.stats.arrival_window.earliest}</span>
+                                        <span className="text-xs text-orange-400">→</span>
+                                        <span className="text-base font-bold text-orange-700">{results.stats.arrival_window.latest}</span>
+                                        <span className="text-[11px] text-orange-400 ml-1">({results.stats.arrival_window.spread_minutes} min di scarto)</span>
+                                    </div>
+                                }
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Route Details */}
             {results && (
@@ -534,13 +554,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 const advance = getRouteAdvance(route.vehicle_id);
                                 let pickupDisplayIdx = 0;
 
-                                // Compute total trip duration
-                                const firstPickup = pickupStops[0];
+                                // Compute total trip duration as sum of segment drive times
+                                // (matches the sum of ~Xmin pills shown between stops)
                                 const tripDurationMin = (() => {
-                                    if (!firstPickup?.departure_time || !destStop?.arrival_time) return null;
-                                    const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-                                    const base = toMin(destStop.arrival_time) - toMin(firstPickup.departure_time) + totalShiftForBus;
-                                    return base > 0 ? base : null;
+                                    const driveMin = pickupStops.reduce((sum, s) => sum + (s.time_to_next_min || 0), 0);
+                                    const total = driveMin + totalShiftForBus;
+                                    return total > 0 ? total : null;
                                 })();
 
                                 return (
