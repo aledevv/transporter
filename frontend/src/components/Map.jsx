@@ -6,6 +6,9 @@ import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapPin, Flag, Building2 } from 'lucide-react';
 
+const ANIM_MS = 420;
+const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
 const createCustomIcon = (color, IconComponent) => {
     const iconHtml = renderToStaticMarkup(
         <div className="relative flex items-center justify-center w-full h-full">
@@ -50,12 +53,13 @@ const MapController = ({ schools, destination, focusBounds }) => {
     return null;
 };
 
-// Invalidate map size when container changes (e.g. fullscreen)
-const MapResizer = () => {
+// Forces Leaflet to recalculate tile grid after resize/animation
+const MapResizer = ({ trigger }) => {
     const map = useMap();
     useEffect(() => {
-        setTimeout(() => map.invalidateSize(), 100);
-    });
+        const t = setTimeout(() => map.invalidateSize({ animate: false }), ANIM_MS + 50);
+        return () => clearTimeout(t);
+    }, [trigger, map]);
     return null;
 };
 
@@ -66,33 +70,97 @@ const COLORS = [
 
 const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
     const defaultCenter = [46.0697, 11.1211];
-    const containerRef = useRef(null);
+    const placeholderRef = useRef(null); // the div that holds the natural-flow space
+    const containerRef = useRef(null);   // the actual map div we animate
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [resizerTick, setResizerTick] = useState(0);
 
-    // Listen for native fullscreen change (Esc key exits fullscreen)
-    useEffect(() => {
-        const handleFsChange = () => {
-            if (!document.fullscreenElement) {
-                setIsFullscreen(false);
-            }
-        };
-        document.addEventListener('fullscreenchange', handleFsChange);
-        return () => document.removeEventListener('fullscreenchange', handleFsChange);
+    // --- FLIP animation helpers ---
+    const enterFullscreen = useCallback(() => {
+        const placeholder = placeholderRef.current;
+        const container = containerRef.current;
+        if (!placeholder || !container) return;
+
+        const rect = placeholder.getBoundingClientRect();
+
+        // Step 1: pin the container *exactly* over the placeholder (no visual jump)
+        Object.assign(container.style, {
+            position: 'fixed',
+            top: `${rect.top}px`,
+            left: `${rect.left}px`,
+            width: `${rect.width}px`,
+            height: `${rect.height}px`,
+            borderRadius: '12px',
+            zIndex: '9999',
+            margin: '0',
+            transition: 'none',
+        });
+
+        // Step 2: force browser to register the "from" state
+        container.getBoundingClientRect();
+
+        // Step 3: animate to fullscreen
+        Object.assign(container.style, {
+            transition: `top ${ANIM_MS}ms ${EASING}, left ${ANIM_MS}ms ${EASING}, width ${ANIM_MS}ms ${EASING}, height ${ANIM_MS}ms ${EASING}, border-radius ${ANIM_MS}ms ${EASING}`,
+            top: '0',
+            left: '0',
+            width: '100vw',
+            height: '100vh',
+            borderRadius: '0',
+        });
+
+        setIsFullscreen(true);
+        setResizerTick(t => t + 1);
     }, []);
 
-    const toggleFullscreen = useCallback(async () => {
-        if (!isFullscreen) {
-            try {
-                await containerRef.current.requestFullscreen();
-                setIsFullscreen(true);
-            } catch (e) {
-                console.warn('Fullscreen not supported', e);
-            }
-        } else {
-            await document.exitFullscreen();
+    const exitFullscreen = useCallback(() => {
+        const placeholder = placeholderRef.current;
+        const container = containerRef.current;
+        if (!placeholder || !container) return;
+
+        // The placeholder hasn't moved — use its current rect as the target
+        const rect = placeholder.getBoundingClientRect();
+
+        Object.assign(container.style, {
+            transition: `top ${ANIM_MS}ms ${EASING}, left ${ANIM_MS}ms ${EASING}, width ${ANIM_MS}ms ${EASING}, height ${ANIM_MS}ms ${EASING}, border-radius ${ANIM_MS}ms ${EASING}`,
+            top: `${rect.top}px`,
+            left: `${rect.left}px`,
+            width: `${rect.width}px`,
+            height: `${rect.height}px`,
+            borderRadius: '12px',
+        });
+
+        // After the animation, restore natural-flow positioning
+        setTimeout(() => {
+            Object.assign(container.style, {
+                position: '',
+                top: '',
+                left: '',
+                width: '',
+                height: '',
+                borderRadius: '',
+                zIndex: '',
+                transition: '',
+            });
             setIsFullscreen(false);
+            setResizerTick(t => t + 1);
+        }, ANIM_MS);
+    }, []);
+
+    const toggleFullscreen = useCallback(() => {
+        if (!isFullscreen) {
+            enterFullscreen();
+        } else {
+            exitFullscreen();
         }
-    }, [isFullscreen]);
+    }, [isFullscreen, enterFullscreen, exitFullscreen]);
+
+    // Esc key exits fullscreen
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape' && isFullscreen) exitFullscreen(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [isFullscreen, exitFullscreen]);
 
     const getPositions = (routeData) => {
         if (routeData.geometry && routeData.geometry.coordinates) {
@@ -104,109 +172,112 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     };
 
     return (
-        <div
-            ref={containerRef}
-            className="w-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
-            style={{ height: isFullscreen ? '100vh' : '100%' }}
-        >
-            {/* Top-right control buttons */}
-            <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
-                {highlightedRouteId !== null && onResetFocus && (
+        // The placeholder always stays in the normal document flow
+        // and defines the space the map occupies when not fullscreen
+        <div ref={placeholderRef} className="w-full h-full rounded-xl">
+            <div
+                ref={containerRef}
+                className="w-full h-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
+            >
+                {/* Top-right buttons */}
+                <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
+                    {highlightedRouteId !== null && onResetFocus && (
+                        <button
+                            onClick={onResetFocus}
+                            className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
+                            title="Reimposta vista mappa"
+                        >
+                            <X className="w-4 h-4 text-gray-600" />
+                        </button>
+                    )}
                     <button
-                        onClick={onResetFocus}
+                        onClick={toggleFullscreen}
                         className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
-                        title="Reimposta vista mappa"
+                        title={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
                     >
-                        <X className="w-4 h-4 text-gray-600" />
+                        {isFullscreen
+                            ? <Minimize2 className="w-4 h-4 text-gray-600" />
+                            : <Maximize2 className="w-4 h-4 text-gray-600" />
+                        }
                     </button>
-                )}
-                <button
-                    onClick={toggleFullscreen}
-                    className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
-                    title={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
-                >
-                    {isFullscreen
-                        ? <Minimize2 className="w-4 h-4 text-gray-600" />
-                        : <Maximize2 className="w-4 h-4 text-gray-600" />
-                    }
-                </button>
-            </div>
+                </div>
 
-            <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; OpenStreetMap contributors'
-                />
+                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; OpenStreetMap contributors'
+                    />
 
-                <MapResizer />
+                    <MapResizer trigger={resizerTick} />
 
-                <MapController
-                    schools={schools}
-                    destination={destination}
-                    focusBounds={focusBounds}
-                />
+                    <MapController
+                        schools={schools}
+                        destination={destination}
+                        focusBounds={focusBounds}
+                    />
 
-                {destination && (
-                    <Marker position={[destination.lat, destination.lon]} icon={destinationIcon}>
-                        <Popup>
-                            <div className="text-center">
-                                <strong className="text-red-600 block text-lg mb-1">Destinazione</strong>
-                                <span className="text-gray-600 text-sm">{destination.address}</span>
-                            </div>
-                        </Popup>
-                    </Marker>
-                )}
-
-                {schools.filter(s => s.lat != null && s.lon != null).map((school) => {
-                    const color = school.institute
-                        ? (instituteColorMap[school.institute] || '#3b82f6')
-                        : '#3b82f6';
-                    const icon = createCustomIcon(color, school.institute ? Building2 : MapPin);
-                    return (
-                        <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
+                    {destination && (
+                        <Marker position={[destination.lat, destination.lon]} icon={destinationIcon}>
                             <Popup>
-                                <div className="min-w-[150px]">
-                                    <strong className="block text-base mb-1 border-b pb-1" style={{ color }}>
-                                        {school.institute ? school.institute : 'Fermata'}
-                                    </strong>
-                                    <div className="font-semibold text-gray-800">{school.name}</div>
-                                    <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
-                                    <div className="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
-                                        {school.demand} passeggeri
-                                    </div>
+                                <div className="text-center">
+                                    <strong className="text-red-600 block text-lg mb-1">Destinazione</strong>
+                                    <span className="text-gray-600 text-sm">{destination.address}</span>
                                 </div>
                             </Popup>
                         </Marker>
-                    );
-                })}
+                    )}
 
-                {routes && routes.map((route, idx) => {
-                    const isHighlighted = highlightedRouteId === route.vehicle_id;
-                    const color = COLORS[idx % COLORS.length];
-                    const positions = getPositions(route.outbound || route);
-                    return (
+                    {schools.filter(s => s.lat != null && s.lon != null).map((school) => {
+                        const color = school.institute
+                            ? (instituteColorMap[school.institute] || '#3b82f6')
+                            : '#3b82f6';
+                        const icon = createCustomIcon(color, school.institute ? Building2 : MapPin);
+                        return (
+                            <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
+                                <Popup>
+                                    <div className="min-w-[150px]">
+                                        <strong className="block text-base mb-1 border-b pb-1" style={{ color }}>
+                                            {school.institute ? school.institute : 'Fermata'}
+                                        </strong>
+                                        <div className="font-semibold text-gray-800">{school.name}</div>
+                                        <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
+                                        <div className="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
+                                            {school.demand} passeggeri
+                                        </div>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        );
+                    })}
+
+                    {routes && routes.map((route, idx) => {
+                        const isHighlighted = highlightedRouteId === route.vehicle_id;
+                        const color = COLORS[idx % COLORS.length];
+                        const positions = getPositions(route.outbound || route);
+                        return (
+                            <Polyline
+                                key={route.vehicle_id}
+                                positions={positions}
+                                pathOptions={{
+                                    color: isHighlighted ? '#f97316' : color,
+                                    weight: isHighlighted ? 10 : 5,
+                                    opacity: isHighlighted ? 1 : (highlightedRouteId !== null ? 0.3 : 0.8),
+                                    lineJoin: 'round',
+                                }}
+                            >
+                                <Popup>Bus #{route.vehicle_id + 1}</Popup>
+                            </Polyline>
+                        );
+                    })}
+
+                    {focusBounds && (
                         <Polyline
-                            key={route.vehicle_id}
-                            positions={positions}
-                            pathOptions={{
-                                color: isHighlighted ? '#f97316' : color,
-                                weight: isHighlighted ? 10 : 5,
-                                opacity: isHighlighted ? 1 : (highlightedRouteId !== null ? 0.3 : 0.8),
-                                lineJoin: 'round',
-                            }}
-                        >
-                            <Popup>Bus #{route.vehicle_id + 1}</Popup>
-                        </Polyline>
-                    );
-                })}
-
-                {focusBounds && (
-                    <Polyline
-                        positions={focusBounds}
-                        pathOptions={{ color: 'black', weight: 3, dashArray: '8, 8', opacity: 0.7 }}
-                    />
-                )}
-            </MapContainer>
+                            positions={focusBounds}
+                            pathOptions={{ color: 'black', weight: 3, dashArray: '8, 8', opacity: 0.7 }}
+                        />
+                    )}
+                </MapContainer>
+            </div>
         </div>
     );
 };
