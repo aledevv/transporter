@@ -4,7 +4,7 @@ import json
 payload = {
     'schools': [{'name': 'Test', 'address': 'Via', 'demand': 10, 'lat': 46.0, 'lon': 11.0, 'institute': 'Inst'}],
     'destination': 'Trento',
-    'capacity': 50
+    'capacity': 53
 }
 
 import sys, traceback

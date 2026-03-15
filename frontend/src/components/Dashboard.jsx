@@ -75,7 +75,7 @@ const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventName
 const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, onTripRenamed, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
-    const [capacity, setCapacity] = useState(50);
+    const [capacity, setCapacity] = useState(53);
     const [startTime, setStartTime] = useState('08:00');
     const [timeMode, setTimeMode] = useState('arrival');
     const [showEditor, setShowEditor] = useState(startInEditMode);
@@ -86,6 +86,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     // Post-planning adjustments
     // routeShifts: { [vehicle_id]: number[] } — per-pickup-display-index extra minutes
     const [routeShifts, setRouteShifts] = useState({});
+    // routeAdvances: { [vehicle_id]: number } — whole-bus departure advance in minutes (negative = earlier)
+    const [routeAdvances, setRouteAdvances] = useState({});
 
     // Trip name for saving (editable by user)
     const [tripName, setTripName] = useState('');
@@ -104,8 +106,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         }
     }, [results]);
 
-    useEffect(() => { setResults(null); setRouteShifts({}); setTripName(''); setCurrentTripId(null); }, [schools]);
-    useEffect(() => { setRouteShifts({}); }, [results]);
+    useEffect(() => { setResults(null); setRouteShifts({}); setRouteAdvances({}); setTripName(''); setCurrentTripId(null); }, [schools]);
+    useEffect(() => { setRouteShifts({}); setRouteAdvances({}); }, [results]);
 
     // Restore a saved trip
     useEffect(() => {
@@ -163,6 +165,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const resetRouteShift = (vehicleId) =>
         setRouteShifts(prev => { const n = { ...prev }; delete n[vehicleId]; return n; });
 
+    // Advance (negative shift) for whole bus departure
+    const getRouteAdvance = (vehicleId) => routeAdvances[vehicleId] || 0;
+
+    const addRouteAdvance = (vehicleId) =>
+        setRouteAdvances(prev => ({ ...prev, [vehicleId]: (prev[vehicleId] || 0) - 5 }));
+
+    const resetRouteAdvance = (vehicleId) =>
+        setRouteAdvances(prev => { const n = { ...prev }; delete n[vehicleId]; return n; });
+
     // ── optimize ───────────────────────────────────────────────────────────────
     const handleOptimize = async () => {
         if (!destination) { setError("Inserisci un indirizzo di destinazione."); return; }
@@ -205,14 +216,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         const pickupStops = stops.filter(s => s.type === 'pickup');
         const numPickups = pickupStops.length;
         const totalShift = getTotalShift(route.vehicle_id, numPickups);
+        const advance = getRouteAdvance(route.vehicle_id);
         let pickupIdx = 0;
         const rows = [];
         stops.forEach((stop, i) => {
             if (i === 0 && stop.type === 'destination') return;
             if (stop.type === 'destination') {
-                rows.push({ label: '>>> ARRIVO', address: '', count: '-', time: shiftTime(stop.arrival_time, totalShift) || '-', isDest: true });
+                rows.push({ label: '>>> ARRIVO', address: '', count: '-', time: shiftTime(stop.arrival_time, totalShift + advance) || '-', isDest: true });
             } else {
-                const cumShift = getCumulativeShift(route.vehicle_id, pickupIdx);
+                const cumShift = getCumulativeShift(route.vehicle_id, pickupIdx) + advance;
                 rows.push({
                     label: stop.name,
                     address: stop.address || '',
@@ -220,6 +232,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     time: shiftTime(stop.departure_time, cumShift) || '-',
                     isDest: false
                 });
+                if (stop.dist_to_next_km != null) {
+                    rows.push({
+                        label: `   ↳ ${stop.dist_to_next_km} km (~${stop.time_to_next_min || 0} min)`,
+                        address: '',
+                        count: '',
+                        time: '',
+                        isDest: false
+                    });
+                }
                 pickupIdx++;
             }
         });
@@ -502,8 +523,19 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 const activeData = route.outbound;
                                 const distKm = activeData.distance / 1000;
                                 const pickupStops = activeData.stops.filter(s => s.type === 'pickup');
+                                const destStop = activeData.stops.find(s => s.type === 'destination');
                                 const totalShiftForBus = getTotalShift(route.vehicle_id, pickupStops.length);
+                                const advance = getRouteAdvance(route.vehicle_id);
                                 let pickupDisplayIdx = 0;
+
+                                // Compute total trip duration
+                                const firstPickup = pickupStops[0];
+                                const tripDurationMin = (() => {
+                                    if (!firstPickup?.departure_time || !destStop?.arrival_time) return null;
+                                    const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+                                    const base = toMin(destStop.arrival_time) - toMin(firstPickup.departure_time) + totalShiftForBus;
+                                    return base > 0 ? base : null;
+                                })();
 
                                 return (
                                     <div key={idx} className="bg-gray-50 rounded-lg p-5 border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all">
@@ -513,17 +545,38 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                 <Bus className="w-4 h-4" style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }} />
                                                 <span style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }}>Bus #{route.vehicle_id + 1}</span>
                                             </span>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap justify-end">
                                                 <span className="text-xs font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{route.total_load}/{capacity} pax</span>
                                                 <span className="text-[10px] text-gray-500 font-mono">{distKm.toFixed(1)} km</span>
+                                                {tripDurationMin != null && (
+                                                    <span className="text-[10px] text-purple-600 font-mono bg-purple-50 px-1.5 py-0.5 rounded">{tripDurationMin}′ totali</span>
+                                                )}
                                                 {totalShiftForBus > 0 && (
                                                     <div className="flex items-center gap-1">
                                                         <span className="text-[10px] text-orange-500 font-mono">+{totalShiftForBus}′</span>
-                                                        <button onClick={() => resetRouteShift(route.vehicle_id)} title="Reset buffer" className="p-0.5">
+                                                        <button onClick={() => resetRouteShift(route.vehicle_id)} title="Reset ritardi" className="p-0.5">
                                                             <RotateCcw className="w-3 h-3 text-gray-400 hover:text-gray-600" />
                                                         </button>
                                                     </div>
                                                 )}
+                                                {/* Advance departure */}
+                                                <div className="flex items-center gap-1 border-l border-gray-200 pl-2 ml-1">
+                                                    <button
+                                                        onClick={() => addRouteAdvance(route.vehicle_id)}
+                                                        title="Anticipa partenza di 5 min"
+                                                        className="flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 font-medium px-1 py-0.5 rounded hover:bg-blue-50"
+                                                    >
+                                                        <Clock className="w-3 h-3" />-5′
+                                                    </button>
+                                                    {advance < 0 && (
+                                                        <>
+                                                            <span className="text-[10px] text-blue-600 font-mono">{advance}′</span>
+                                                            <button onClick={() => resetRouteAdvance(route.vehicle_id)} title="Reset anticipo" className="p-0.5">
+                                                                <RotateCcw className="w-3 h-3 text-blue-300 hover:text-blue-500" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -541,7 +594,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                     <span className="font-bold text-sm text-gray-800">Arrivo</span>
                                                                 </div>
                                                                 <span className="text-xs text-green-600 font-mono font-bold">
-                                                                    {shiftTime(stop.arrival_time, totalShiftForBus)}
+                                                                    {shiftTime(stop.arrival_time, totalShiftForBus + advance)}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -551,15 +604,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                 // Pickup stop
                                                 const curIdx = pickupDisplayIdx;
                                                 pickupDisplayIdx++;
-                                                const cumShift = getCumulativeShift(route.vehicle_id, curIdx);
+                                                const cumShift = getCumulativeShift(route.vehicle_id, curIdx) + advance;
                                                 const displayedTime = shiftTime(stop.departure_time, cumShift);
                                                 // Previous stop's dist_to_next_km = segment that led to this stop
                                                 const prevStop = curIdx > 0 ? pickupStops[curIdx - 1] : null;
                                                 const prevDist = prevStop?.dist_to_next_km;
-                                                const bufIncrement = (prevDist != null && prevDist < 10) ? 5 : 10;
+                                                const bufIncrement = (prevDist == null || prevDist < 10) ? 5 : 10;
 
                                                 return (
-                                                    <div key={sIdx} className="text-sm">
+                                                    <div key={sIdx} className="text-sm flex flex-col">
                                                         <div className="flex items-start justify-between gap-2">
                                                             <div className="flex items-start gap-2 min-w-0 flex-1">
                                                                 <span className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold font-mono mt-0.5">
@@ -605,6 +658,13 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                 </span>
                                                             </div>
                                                         </div>
+                                                        {stop.dist_to_next_km != null && (
+                                                            <div className="ml-[9px] mt-1 mb-1 pl-[15px] border-l-2 border-dashed border-blue-200 flex items-center gap-2 text-[10px] text-gray-500 font-mono py-1">
+                                                                <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">{stop.dist_to_next_km} km</span>
+                                                                <span className="text-gray-400">•</span>
+                                                                <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">~{stop.time_to_next_min || 0} min</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

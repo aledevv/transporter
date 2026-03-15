@@ -347,7 +347,7 @@ def optimize():
     data = request.json
     schools = data.get('schools', [])
     destination_address = data.get('destination', '')
-    bus_capacity = int(data.get('capacity', 50))
+    bus_capacity = int(data.get('capacity', 53))
     max_buses = data.get('max_buses', None)
 
     dest_lat_param = data.get('dest_lat')
@@ -693,6 +693,7 @@ def optimize():
                     else:
                         seg_drive_min = (seg_distances_m[i] / 1000 / AVERAGE_SPEED_KMH) * 60
 
+                    stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
 
                 # Destination arrival time

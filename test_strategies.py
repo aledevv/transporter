@@ -13,7 +13,7 @@ def test_strategies():
     # Nodes: 0: Depot, 1: A, 2: B
     # Demands: 1: 25, 2: 25. Total 50. Cap 50.
     demands = [0, 25, 25]
-    capacity = 50
+    capacity = 53
     
     # Distance Matrix
     # 0->1: 10

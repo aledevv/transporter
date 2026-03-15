@@ -24,7 +24,7 @@ def test():
     payload = {
         'schools': schools_input,
         'destination': 'Trento Fiere, Trento',
-        'capacity': 50,
+        'capacity': 53,
         'time_mode': 'arrival',
         'start_time': '08:00'
     }
