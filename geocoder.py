@@ -211,12 +211,17 @@ class GeocodingService:
                     route = routes[0]
                     encoded = route['overview_polyline']['points']
                     coords = self._decode_polyline(encoded)
-                    distance = sum(leg['distance']['value'] for leg in route['legs'])
-                    duration = sum(leg['duration']['value'] for leg in route['legs'])
+                    legs = route['legs']
+                    distance = sum(leg['distance']['value'] for leg in legs)
+                    duration = sum(leg['duration']['value'] for leg in legs)
+                    leg_distances = [leg['distance']['value'] for leg in legs]
+                    leg_durations = [leg['duration']['value'] for leg in legs]
                     return {
                         'geometry': {'type': 'LineString', 'coordinates': coords},
                         'distance': distance,
                         'duration': duration,
+                        'leg_distances': leg_distances,   # meters per segment
+                        'leg_durations': leg_durations,   # seconds per segment
                     }
             return None
         except Exception as e:

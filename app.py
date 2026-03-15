@@ -669,10 +669,15 @@ def optimize():
                         geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
                     )
 
-            # Fetch geometry for Outbound
+            # Fetch geometry for Outbound (includes real road leg distances + durations)
             geo_data = geocoder.get_route_geometry(stops_data)
             outbound_geometry = geo_data['geometry'] if geo_data else None
             outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
+
+            # Real per-leg distances from Google Directions (leg i = segment stop i → stop i+1)
+            # Using these ensures sum(dist_to_next_km) == total bus distance in the header.
+            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
+            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
 
             # Calculate times FORWARD from first school departure
             # start_time = when bus departs from FIRST school
@@ -686,13 +691,19 @@ def optimize():
 
                 for i, stop in enumerate(pickup_stops):
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
-                    stop['dist_to_next_km'] = round(seg_distances_m[i] / 1000, 2)
 
-                    if total_drive_min:
-                        seg_drive_min = total_drive_min * (seg_distances_m[i] / total_haversine_m)
+                    # Use real road leg distance/duration from Google when available (fallback: haversine)
+                    if leg_distances_m and i < len(leg_distances_m):
+                        seg_dist_m = leg_distances_m[i]
+                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
                     else:
-                        seg_drive_min = (seg_distances_m[i] / 1000 / AVERAGE_SPEED_KMH) * 60
+                        seg_dist_m = seg_distances_m[i]
+                        if total_drive_min:
+                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
+                        else:
+                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
 
+                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
 

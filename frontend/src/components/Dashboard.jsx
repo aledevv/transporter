@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { serverTimestamp } from 'firebase/firestore';
-import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays, Bookmark } from 'lucide-react';
+import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays, Bookmark, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
 import { Document, Paragraph, TextRun, Table, TableRow, TableCell, Packer, WidthType, AlignmentType, HeadingLevel, BorderStyle } from 'docx';
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
@@ -513,13 +513,19 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             {results && (
                 <div className="w-full mt-6">
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
-                            <span className="text-sm font-medium text-gray-600">Dettagli Percorsi</span>
-                            <span className="text-xs text-gray-400">{results.routes.length} bus attivi</span>
+                        {/* Section header */}
+                        <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-1 h-5 rounded-full bg-blue-500"></div>
+                                <Bus className="w-4 h-4 text-blue-500" />
+                                <span className="text-sm font-semibold text-gray-700">Dettagli Percorsi</span>
+                            </div>
+                            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{results.routes.length} bus attivi</span>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
                             {results.routes.map((route, idx) => {
+                                const routeColor = ROUTE_COLORS[idx % ROUTE_COLORS.length];
                                 const activeData = route.outbound;
                                 const distKm = activeData.distance / 1000;
                                 const pickupStops = activeData.stops.filter(s => s.type === 'pickup');
@@ -538,136 +544,169 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 })();
 
                                 return (
-                                    <div key={idx} className="bg-gray-50 rounded-lg p-5 border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all">
+                                    <div
+                                        key={idx}
+                                        className="bg-white rounded-xl border border-gray-150 shadow-sm overflow-hidden hover:shadow-md transition-all"
+                                        style={{ borderLeft: `4px solid ${routeColor}` }}
+                                    >
                                         {/* Bus header */}
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="font-bold text-gray-800 flex items-center gap-2">
-                                                <Bus className="w-4 h-4" style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }} />
-                                                <span style={{ color: ROUTE_COLORS[idx % ROUTE_COLORS.length] }}>Bus #{route.vehicle_id + 1}</span>
-                                            </span>
-                                            <div className="flex items-center gap-2 flex-wrap justify-end">
-                                                <span className="text-xs font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{route.total_load}/{capacity} pax</span>
-                                                <span className="text-[10px] text-gray-500 font-mono">{distKm.toFixed(1)} km</span>
+                                        <div className="px-4 pt-4 pb-3" style={{ background: `linear-gradient(135deg, ${routeColor}0d 0%, transparent 60%)` }}>
+                                            {/* Row 1: bus name + load */}
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Bus className="w-4 h-4" style={{ color: routeColor }} />
+                                                    <span className="font-bold text-base" style={{ color: routeColor }}>Bus #{route.vehicle_id + 1}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+                                                        <Users className="w-3 h-3" />{route.total_load}/{capacity} pax
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {/* Row 2: stats + controls */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                    <MapPin className="w-3 h-3" />{distKm.toFixed(1)} km
+                                                </span>
                                                 {tripDurationMin != null && (
-                                                    <span className="text-[10px] text-purple-600 font-mono bg-purple-50 px-1.5 py-0.5 rounded">{tripDurationMin}′ totali</span>
+                                                    <span className="flex items-center gap-1 text-[11px] text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
+                                                        <Clock className="w-3 h-3" />{tripDurationMin}′ totali
+                                                    </span>
                                                 )}
                                                 {totalShiftForBus > 0 && (
                                                     <div className="flex items-center gap-1">
-                                                        <span className="text-[10px] text-orange-500 font-mono">+{totalShiftForBus}′</span>
-                                                        <button onClick={() => resetRouteShift(route.vehicle_id)} title="Reset ritardi" className="p-0.5">
+                                                        <span className="text-[11px] text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100 font-medium">+{totalShiftForBus}′ ritardo</span>
+                                                        <button onClick={() => resetRouteShift(route.vehicle_id)} title="Reset ritardi" className="p-0.5 rounded hover:bg-gray-100">
                                                             <RotateCcw className="w-3 h-3 text-gray-400 hover:text-gray-600" />
                                                         </button>
                                                     </div>
                                                 )}
                                                 {/* Advance departure */}
-                                                <div className="flex items-center gap-1 border-l border-gray-200 pl-2 ml-1">
+                                                <div className="ml-auto flex items-center gap-1">
                                                     <button
                                                         onClick={() => addRouteAdvance(route.vehicle_id)}
-                                                        title="Anticipa partenza di 5 min"
-                                                        className="flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 font-medium px-1 py-0.5 rounded hover:bg-blue-50"
+                                                        title="Anticipa partenza del bus di 5 min"
+                                                        className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-medium px-2 py-0.5 rounded-full border border-blue-200 hover:bg-blue-50 transition-colors"
                                                     >
-                                                        <Clock className="w-3 h-3" />-5′
+                                                        <Clock className="w-3 h-3" />−5′
                                                     </button>
                                                     {advance < 0 && (
-                                                        <>
-                                                            <span className="text-[10px] text-blue-600 font-mono">{advance}′</span>
-                                                            <button onClick={() => resetRouteAdvance(route.vehicle_id)} title="Reset anticipo" className="p-0.5">
+                                                        <div className="flex items-center gap-1">
+                                                            <span className="text-[11px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-medium border border-blue-100">{advance}′</span>
+                                                            <button onClick={() => resetRouteAdvance(route.vehicle_id)} title="Reset anticipo" className="p-0.5 rounded hover:bg-gray-100">
                                                                 <RotateCcw className="w-3 h-3 text-blue-300 hover:text-blue-500" />
                                                             </button>
-                                                        </>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Stops */}
-                                        <div className="ml-2 pl-3 border-l-2 border-gray-200 space-y-3">
-                                            {activeData.stops.map((stop, sIdx) => {
-                                                if (sIdx === 0 && stop.type === 'destination') return null;
+                                        <div className="px-4 pb-4 pt-2">
+                                            <div className="relative ml-2.5 pl-4 border-l-2 border-gray-200 space-y-0">
+                                                {activeData.stops.map((stop, sIdx) => {
+                                                    if (sIdx === 0 && stop.type === 'destination') return null;
 
-                                                if (stop.type === 'destination') {
-                                                    return (
-                                                        <div key={sIdx} className="pt-2 border-t border-dashed border-gray-200 mt-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Navigation className="w-4 h-4 text-green-600" />
-                                                                    <span className="font-bold text-sm text-gray-800">Arrivo</span>
+                                                    if (stop.type === 'destination') {
+                                                        return (
+                                                            <div key={sIdx} className="relative -ml-4 pl-4 pt-3">
+                                                                {/* Dot on the timeline */}
+                                                                <div className="absolute left-0 top-3 -translate-x-[9px] w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow-sm flex items-center justify-center">
+                                                                    <Navigation className="w-2 h-2 text-white" />
                                                                 </div>
-                                                                <span className="text-xs text-green-600 font-mono font-bold">
-                                                                    {shiftTime(stop.arrival_time, totalShiftForBus + advance)}
-                                                                </span>
+                                                                <div className="ml-3 flex items-center justify-between bg-green-50 rounded-lg px-3 py-2 border border-green-100">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm font-semibold text-green-800">Arrivo a destinazione</span>
+                                                                    </div>
+                                                                    <span className="text-sm font-bold text-green-700 font-mono tabular-nums">
+                                                                        {shiftTime(stop.arrival_time, totalShiftForBus + advance)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    // Pickup stop
+                                                    const curIdx = pickupDisplayIdx;
+                                                    pickupDisplayIdx++;
+                                                    const cumShift = getCumulativeShift(route.vehicle_id, curIdx) + advance;
+                                                    const displayedTime = shiftTime(stop.departure_time, cumShift);
+                                                    const prevStop = curIdx > 0 ? pickupStops[curIdx - 1] : null;
+                                                    const prevDist = prevStop?.dist_to_next_km;
+                                                    const bufIncrement = (prevDist == null || prevDist < 10) ? 5 : 10;
+
+                                                    return (
+                                                        <div key={sIdx} className="relative -ml-4 pl-4 pt-3">
+                                                            {/* Dot on timeline */}
+                                                            <div
+                                                                className="absolute left-0 top-3 -translate-x-[9px] w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[8px] font-bold"
+                                                                style={{ background: routeColor }}
+                                                            >
+                                                                {curIdx + 1}
+                                                            </div>
+
+                                                            {/* Stop card */}
+                                                            <div className="ml-3 mb-0.5">
+                                                                <div className="flex items-start justify-between gap-2">
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <div className="font-semibold text-sm text-gray-800 leading-tight break-words">{stop.name}</div>
+                                                                        {stop.address && (
+                                                                            <div className="text-[11px] text-gray-400 leading-tight mt-0.5 break-words">{stop.address}</div>
+                                                                        )}
+                                                                        {(() => {
+                                                                            const school = schools.find(s => s.name === stop.name || s.address === stop.address);
+                                                                            if (school?.institute) {
+                                                                                const col = instituteColorMap[school.institute] || '#3b82f6';
+                                                                                return (
+                                                                                    <div className="flex items-center gap-1 mt-0.5">
+                                                                                        <Building2 className="w-3 h-3 flex-shrink-0" style={{ color: col }} />
+                                                                                        <span className="text-[10px] font-medium" style={{ color: col }}>{school.institute}</span>
+                                                                                    </div>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })()}
+                                                                    </div>
+                                                                    {/* Right side: time + pax + delay btn */}
+                                                                    <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                                                                        <div className="flex items-center gap-1.5">
+                                                                            <span className={`text-xs font-mono tabular-nums font-semibold ${
+                                                                                cumShift > 0 ? 'text-orange-500' : 'text-gray-600'
+                                                                            }`}>
+                                                                                {displayedTime}
+                                                                            </span>
+                                                                            <span className="flex items-center gap-0.5 text-[11px] font-semibold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                                                                                <Users className="w-2.5 h-2.5 text-gray-400" />{stop.count}
+                                                                            </span>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
+                                                                            title={`+${bufIncrement} min a questa e alle successive fermate`}
+                                                                            className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1.5 py-0.5 rounded-full border border-orange-200 hover:bg-orange-50 transition-colors"
+                                                                        >
+                                                                            <PlusCircle className="w-2.5 h-2.5" />+{bufIncrement}′
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Segment connector pill */}
+                                                                {stop.dist_to_next_km != null && (
+                                                                    <div className="mt-2 mb-1 flex items-center gap-1.5">
+                                                                        <div className="flex-1 h-px bg-gray-200"></div>
+                                                                        <div className="flex items-center gap-1 text-[10px] text-gray-500 font-mono bg-gray-50 border border-gray-200 rounded-full px-2 py-0.5">
+                                                                            <span>{stop.dist_to_next_km} km</span>
+                                                                            <span className="text-gray-300">·</span>
+                                                                            <span>~{stop.time_to_next_min || 0} min</span>
+                                                                        </div>
+                                                                        <ChevronDown className="w-2.5 h-2.5 text-gray-300" />
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     );
-                                                }
-
-                                                // Pickup stop
-                                                const curIdx = pickupDisplayIdx;
-                                                pickupDisplayIdx++;
-                                                const cumShift = getCumulativeShift(route.vehicle_id, curIdx) + advance;
-                                                const displayedTime = shiftTime(stop.departure_time, cumShift);
-                                                // Previous stop's dist_to_next_km = segment that led to this stop
-                                                const prevStop = curIdx > 0 ? pickupStops[curIdx - 1] : null;
-                                                const prevDist = prevStop?.dist_to_next_km;
-                                                const bufIncrement = (prevDist == null || prevDist < 10) ? 5 : 10;
-
-                                                return (
-                                                    <div key={sIdx} className="text-sm flex flex-col">
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <div className="flex items-start gap-2 min-w-0 flex-1">
-                                                                <span className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold font-mono mt-0.5">
-                                                                    {curIdx + 1}
-                                                                </span>
-                                                                <div className="min-w-0">
-                                                                    <div className="font-medium text-gray-700 leading-tight break-words">{stop.name}</div>
-                                                                    {stop.address && (
-                                                                        <div className="text-[11px] text-gray-400 leading-tight mt-0.5 break-words">{stop.address}</div>
-                                                                    )}
-                                                                    {(() => {
-                                                                        const school = schools.find(s => s.name === stop.name || s.address === stop.address);
-                                                                        if (school?.institute) {
-                                                                            const col = instituteColorMap[school.institute] || '#3b82f6';
-                                                                            return (
-                                                                                <div className="flex items-center gap-1 mt-0.5">
-                                                                                    <Building2 className="w-3 h-3 flex-shrink-0" style={{ color: col }} />
-                                                                                    <span className="text-[10px] font-medium" style={{ color: col }}>{school.institute}</span>
-                                                                                </div>
-                                                                            );
-                                                                        }
-                                                                        return null;
-                                                                    })()}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex-shrink-0 flex items-center gap-1 mt-0.5">
-                                                                {/* Per-stop shift button (all pickup stops) */}
-                                                                {curIdx >= 0 && (
-                                                                    <button
-                                                                        onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
-                                                                        title={`+${bufIncrement} min a questa e alle successive fermate`}
-                                                                        className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1 py-0.5 rounded hover:bg-orange-50"
-                                                                    >
-                                                                        <PlusCircle className="w-3 h-3" />
-                                                                        {bufIncrement}′
-                                                                    </button>
-                                                                )}
-                                                                <span className={`text-[10px] font-mono ${cumShift > 0 ? 'text-orange-500' : 'text-gray-400'}`}>
-                                                                    {displayedTime}
-                                                                </span>
-                                                                <span className="font-bold text-gray-800 bg-white px-1.5 py-0.5 rounded text-xs border border-gray-100">
-                                                                    {stop.count}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        {stop.dist_to_next_km != null && (
-                                                            <div className="ml-[9px] mt-1 mb-1 pl-[15px] border-l-2 border-dashed border-blue-200 flex items-center gap-2 text-[10px] text-gray-500 font-mono py-1">
-                                                                <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">{stop.dist_to_next_km} km</span>
-                                                                <span className="text-gray-400">•</span>
-                                                                <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">~{stop.time_to_next_min || 0} min</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
                                 );
