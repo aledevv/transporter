@@ -347,7 +347,7 @@ def optimize():
     data = request.json
     schools = data.get('schools', [])
     destination_address = data.get('destination', '')
-    bus_capacity = int(data.get('capacity', 53))
+    bus_capacity = int(data.get('capacity', 56))
     max_buses = data.get('max_buses', None)
 
     dest_lat_param = data.get('dest_lat')

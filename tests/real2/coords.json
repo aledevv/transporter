@@ -1,0 +1,182 @@
+{
+  "IC Cembra": {
+    "lat": 46.17251,
+    "lon": 11.22269,
+    "geocoded": true
+  },
+  "IC Centro Valsugana": {
+    "lat": 46.0703857,
+    "lon": 11.4774842,
+    "geocoded": true
+  },
+  "IC Giudicarie Esteriori": {
+    "lat": 46.0359883,
+    "lon": 10.8707177,
+    "geocoded": true
+  },
+  "IC Mezzolombardo-Paganella": {
+    "lat": 46.165742,
+    "lon": 11.0062033,
+    "geocoded": true
+  },
+  "IC Mori": {
+    "lat": 45.8521769,
+    "lon": 10.9854978,
+    "geocoded": true
+  },
+  "IC Primiero": {
+    "lat": 46.17941769999999,
+    "lon": 11.8296567,
+    "geocoded": true
+  },
+  "IC Trento 3": {
+    "lat": 46.05920889999999,
+    "lon": 11.1243692,
+    "geocoded": true
+  },
+  "IC Trento 6": {
+    "lat": 46.07272160000001,
+    "lon": 11.1176887,
+    "geocoded": true
+  },
+  "IC Trento 7": {
+    "lat": 46.103916,
+    "lon": 11.113834,
+    "geocoded": true
+  },
+  "IC Val Rendena": {
+    "lat": 46.0984281,
+    "lon": 10.7343319,
+    "geocoded": true
+  },
+  "IC Valle dei Laghi-Dro": {
+    "lat": 46.0790568,
+    "lon": 11.0020819,
+    "geocoded": true
+  },
+  "IC Valle di Ledro": {
+    "lat": 45.8951667,
+    "lon": 10.7206082,
+    "geocoded": true
+  },
+  "IC Vigolo Vattaro": {
+    "lat": 46.0044945,
+    "lon": 11.196556,
+    "geocoded": true
+  },
+  "IS Trento Linguistico Scholl": {
+    "lat": 46.06357939999999,
+    "lon": 11.1201272,
+    "geocoded": true
+  },
+  "IS Borgo Valsugana Degasperi": {
+    "lat": 46.0525294,
+    "lon": 11.4618198,
+    "geocoded": true
+  },
+  "IS San Michele Agrario": {
+    "lat": 46.1951398,
+    "lon": 11.1362244,
+    "geocoded": true
+  },
+  "IS Primiero ENAIP": {
+    "lat": 46.1759699,
+    "lon": 11.8340218,
+    "geocoded": true
+  },
+  "IS Mezzolombardo Martini": {
+    "lat": 46.2176296,
+    "lon": 11.0936824,
+    "geocoded": true
+  },
+  "IS Rovereto Marconi": {
+    "lat": 45.9112832,
+    "lon": 11.0413582,
+    "geocoded": true
+  },
+  "IS Trento Galilei": {
+    "lat": 46.0640829,
+    "lon": 11.1368428,
+    "geocoded": true
+  },
+  "IS Tione ENAIP": {
+    "lat": 46.0366717,
+    "lon": 10.7309755,
+    "geocoded": true
+  },
+  "IS Primiero": {
+    "lat": 46.1734734,
+    "lon": 11.8297968,
+    "geocoded": true
+  },
+  "IS Cles Pilati": {
+    "lat": 46.36850889999999,
+    "lon": 11.0324793,
+    "geocoded": true
+  },
+  "IS Trento Rosmini": {
+    "lat": 46.0592711,
+    "lon": 11.1263393,
+    "geocoded": true
+  },
+  "IS Trento Vittoria-Bonporti": {
+    "lat": 46.0926243,
+    "lon": 11.1161909,
+    "geocoded": true
+  },
+  "IS Pergine Valsugana Curie": {
+    "lat": 46.0630545,
+    "lon": 11.2445325,
+    "geocoded": true
+  },
+  "IS Trento Da Vinci": {
+    "lat": 46.06378203895415,
+    "lon": 11.119905981885339,
+    "geocoded": true
+  },
+  "IC Aldeno-Mattarello": {
+    "lat": 46.0092843,
+    "lon": 11.1314126,
+    "geocoded": true
+  },
+  "IC Mezzano Santa Croce": {
+    "lat": 46.1565848,
+    "lon": 11.8082961,
+    "geocoded": true
+  },
+  "IS Levico Terme Barelli": {
+    "lat": 46.0130195,
+    "lon": 11.3024084,
+    "geocoded": true
+  },
+  "IC Levico Terme": {
+    "lat": 46.0132258,
+    "lon": 11.307624,
+    "geocoded": true
+  },
+  "IS Cavalese Rosa Bianca": {
+    "lat": 46.3111204,
+    "lon": 11.5988833,
+    "geocoded": true
+  },
+  "IS Tesero ENAIP": {
+    "lat": 46.2869786,
+    "lon": 11.5119077,
+    "geocoded": true
+  },
+  "IS Rovereto Rosmini": {
+    "lat": 45.8941645,
+    "lon": 11.0436632,
+    "geocoded": true
+  },
+  "IS Mezzolombardo Martini (Staff)": {
+    "lat": 46.217832238954166,
+    "lon": 11.093461181885338,
+    "geocoded": true
+  },
+  "IC Alta Val di Sole": {
+    "lat": 46.31083220000001,
+    "lon": 10.7326135,
+    "geocoded": true
+  }
+}

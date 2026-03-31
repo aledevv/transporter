@@ -75,7 +75,7 @@ const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventName
 const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, onTripRenamed, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
-    const [capacity, setCapacity] = useState(53);
+    const [capacity, setCapacity] = useState(56);
     const [startTime, setStartTime] = useState('08:00');
     const [timeMode, setTimeMode] = useState('arrival');
     const [showEditor, setShowEditor] = useState(startInEditMode);

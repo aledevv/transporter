@@ -1,0 +1,97 @@
+{
+  "IS Ossana": {
+    "lat": 46.3101881,
+    "lon": 10.7455788,
+    "geocoded": true
+  },
+  "IS Cles ENA": {
+    "lat": 46.3681821,
+    "lon": 11.0342293,
+    "geocoded": true
+  },
+  "IS Cles Russel": {
+    "lat": 46.36850889999999,
+    "lon": 11.0324793,
+    "geocoded": true
+  },
+  "IS Mezzolombardo": {
+    "lat": 46.213454,
+    "lon": 11.093294,
+    "geocoded": true
+  },
+  "IS Primiero P": {
+    "lat": 46.1757686,
+    "lon": 11.8283805,
+    "geocoded": true
+  },
+  "IS Primier": {
+    "lat": 46.17597123895416,
+    "lon": 11.828159281885338,
+    "geocoded": true
+  },
+  "IS Borgo Valsugana": {
+    "lat": 46.0526144,
+    "lon": 11.4630007,
+    "geocoded": true
+  },
+  "IS Rovereto": {
+    "lat": 45.89141783895416,
+    "lon": 11.038058181885338,
+    "geocoded": true
+  },
+  "IS Ladino": {
+    "lat": 46.4270868,
+    "lon": 11.6828127,
+    "geocoded": true
+  },
+  "IS Cavalese": {
+    "lat": 46.2909777,
+    "lon": 11.4600331,
+    "geocoded": true
+  },
+  "IS Tesero": {
+    "lat": 46.2869786,
+    "lon": 11.5119077,
+    "geocoded": true
+  },
+  "IS Rovereto Psi": {
+    "lat": 45.8936791,
+    "lon": 11.0434604,
+    "geocoded": true
+  },
+  "IS Rovereto 2": {
+    "lat": 45.8924069,
+    "lon": 11.0443045,
+    "geocoded": true
+  },
+  "IS Trento Da": {
+    "lat": 46.06357939999999,
+    "lon": 11.1201272,
+    "geocoded": true
+  },
+  "IS Riva del Garda": {
+    "lat": 45.8922867,
+    "lon": 10.8399931,
+    "geocoded": true
+  },
+  "IS Arco Gardolo": {
+    "lat": 45.91631,
+    "lon": 10.8842786,
+    "geocoded": true
+  },
+  "IS Pergine Valsugana": {
+    "lat": 46.060768,
+    "lon": 11.2374226,
+    "geocoded": true
+  },
+  "Istituto di Istruzione Superiore \"Lorenzo Guetti\"": {
+    "lat": 46.0368953,
+    "lon": 10.7303104,
+    "geocoded": true
+  },
+  "Centro Formazione Professionale ENAIP - Tione di Trento": {
+    "lat": 46.0366717,
+    "lon": 10.7309755,
+    "geocoded": true
+  }
+}
