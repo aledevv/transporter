@@ -147,7 +147,7 @@ def process_file_task(task_id, filepath, original_filename):
         corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
 
         tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...'})
-        schools, correction_status = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
+        schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
 
         # Build a human-readable log of what changed
         original_map = {s['id']: s for s in original_schools}
@@ -213,6 +213,7 @@ def process_file_task(task_id, filepath, original_filename):
             'corrected_file': corrected_filename if address_corrections else None,
             'address_corrections': address_corrections,  # [] if nothing changed or LLM disabled
             'correction_status': correction_status,
+            'unresolved_by_ai': unresolved_by_ai,  # school names the agent could not geocode
         }
         
     except Exception as e:

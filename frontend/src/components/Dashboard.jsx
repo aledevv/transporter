@@ -72,7 +72,7 @@ const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventName
 );
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', onTripSaved, onTripRenamed, tripToRestore }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(56);
@@ -91,7 +91,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     // Trip name for saving (editable by user)
     const [tripName, setTripName] = useState('');
-    const [currentTripId, setCurrentTripId] = useState(null);
 
     // Download dialog (persisted fields)
     const [downloadDialog, setDownloadDialog] = useState(null); // null | 'pdf' | 'docx'
@@ -106,20 +105,24 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         }
     }, [results]);
 
-    useEffect(() => { setResults(null); setRouteShifts({}); setRouteAdvances({}); setTripName(''); setCurrentTripId(null); }, [schools]);
+    useEffect(() => { setResults(null); setRouteShifts({}); setRouteAdvances({}); setTripName(''); }, [schools]);
     useEffect(() => { setRouteShifts({}); setRouteAdvances({}); }, [results]);
+
+    // Track when we're in the middle of restoring a trip (to suppress auto-save)
+    const isRestoringRef = React.useRef(false);
 
     // Restore a saved trip
     useEffect(() => {
         if (!tripToRestore) return;
-        setDestination(tripToRestore.destination);
-        setDestCoords(null);
+        isRestoringRef.current = true;
+        setDestination(tripToRestore.destination || '');
+        setDestCoords(tripToRestore.destCoords || null);
         setCapacity(tripToRestore.capacity);
         setStartTime(tripToRestore.startTime);
         setTimeMode(tripToRestore.timeMode);
         setResults(tripToRestore.results);
         setTripName(tripToRestore.label || '');
-        setCurrentTripId(tripToRestore.id || null);
+        setTimeout(() => { isRestoringRef.current = false; }, 1500);
     }, [tripToRestore]);
 
     // Debounce tripName changes → rename on Firestore
@@ -128,6 +131,32 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         const t = setTimeout(() => { onTripRenamed?.(currentTripId, tripName); }, 700);
         return () => clearTimeout(t);
     }, [tripName, currentTripId]);
+
+    // Auto-save destination + destCoords to Firestore (debounced)
+    useEffect(() => {
+        if (!currentTripId || !destination || isRestoringRef.current) return;
+        const t = setTimeout(() => {
+            if (isRestoringRef.current) return;
+            const fields = { destination, destCoords, stage: 'configured' };
+            // Auto-update label only if user hasn't typed a custom name yet
+            if (!tripName) {
+                const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                fields.label = `${destination.split(',')[0]} - ${dateStr}`;
+            }
+            onTripUpdated?.(currentTripId, fields);
+        }, 1000);
+        return () => clearTimeout(t);
+    }, [destination, destCoords, currentTripId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Auto-save capacity / startTime / timeMode to Firestore (debounced)
+    useEffect(() => {
+        if (!currentTripId || isRestoringRef.current) return;
+        const t = setTimeout(() => {
+            if (isRestoringRef.current) return;
+            onTripUpdated?.(currentTripId, { capacity: parseInt(capacity), startTime, timeMode });
+        }, 1000);
+        return () => clearTimeout(t);
+    }, [capacity, startTime, timeMode, currentTripId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ── helpers ────────────────────────────────────────────────────────────────
     const shiftTime = (timeStr, deltaMin) => {
@@ -189,7 +218,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             const resolvedName = tripName || defaultName;
             setTripName(resolvedName);
             if (onTripSaved) {
-                const newId = await onTripSaved({
+                await onTripSaved({
                     destination,
                     capacity: parseInt(capacity),
                     startTime,
@@ -199,7 +228,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     label: resolvedName,
                     savedAt: serverTimestamp(),
                 });
-                if (newId) setCurrentTripId(newId);
             }
         } catch (err) {
             setError(err.response?.data?.error || "Ottimizzazione fallita.");

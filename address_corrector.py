@@ -17,7 +17,7 @@ except Exception as _err:
     print(f"[AddressCorrector] gemini_agent import FAILED — correction disabled. Reason: {_err}")
 
 # Names of env vars tried in order when rate-limit errors occur.
-_API_KEY_NAMES = ["GOOGLE_API_KEY", "GOOGLE_API_KEY2", "GOOGLE_API_KEY3"]
+_API_KEY_NAMES = ["GOOGLE_API_KEY", "GOOGLE_API_KEY2", "GOOGLE_API_KEY3", "GOOGLE_API_KEY4"]
 
 # Column written to the corrected Excel to mark it as already processed.
 # If this column is present and True for all rows, the agent is skipped.
@@ -32,7 +32,7 @@ class AddressCorrector:
       1. Read the uploaded Excel.
       2. If FLAG_COL is already set for all rows → skip (avoids unnecessary API costs).
       3. Send all addresses to call_agent() as a JSON string.
-      4. Parse the response (expected: list of {id, normalized_address}).
+      4. Parse the response (expected: list of {name, normalized_address}).
       5. Apply corrections to the school list and save <name>_corretto.xlsx with FLAG_COL=True.
     """
 
@@ -54,38 +54,50 @@ class AddressCorrector:
 
     def correct_addresses(self, schools, original_excel_path, output_path):
         """
-        Returns (corrected_schools, status) where status is one of the STATUS_* constants.
+        Returns (corrected_schools, status, unresolved_names) where:
+          - status is one of the STATUS_* constants
+          - unresolved_names is a list of school names the agent could not geocode
         Never raises — falls back to the original list on any failure.
         """
         if not self._enabled:
-            return schools, self.STATUS_SKIPPED_DISABLED
+            return schools, self.STATUS_SKIPPED_DISABLED, []
 
         df = pd.read_excel(original_excel_path)
         df.columns = [c.strip() for c in df.columns]
 
         if FLAG_COL in df.columns and df[FLAG_COL].astype(bool).all():
             print("[AddressCorrector] Already AI-corrected — skipping.")
-            return schools, self.STATUS_SKIPPED_FLAGGED
+            return schools, self.STATUS_SKIPPED_FLAGGED, []
 
-        address_data = [{"id": s["name"], "address": s["address"]} for s in schools]
+        address_data = [{"name": s["name"], "address": s["address"]} for s in schools]
 
         try:
             raw = self._call_with_fallback(json.dumps(address_data, ensure_ascii=False))
-            corrections = self._parse_response(raw)
+            corrections, unresolved_names = self._parse_response(raw)
             corrected_schools = self._apply_corrections(schools, corrections)
+            # Schools the agent could not geocode get an empty address so that
+            # the geocoding step fails cleanly (geocoding_failed=True) and the
+            # frontend orange banner can ask the user for a manual replacement.
+            unresolved_set = set(unresolved_names)
+            corrected_schools = [
+                {**s, "address": ""} if s["name"] in unresolved_set else s
+                for s in corrected_schools
+            ]
             self._save_corrected_excel(df, corrections, output_path)
 
             changed = sum(
                 1 for s in schools
                 if s["name"] in corrections and corrections[s["name"]] != s["address"]
             )
+            if unresolved_names:
+                print(f"[AddressCorrector] {len(unresolved_names)} addresses unresolved by agent: {unresolved_names}")
             print(f"[AddressCorrector] Corrected {changed}/{len(schools)} addresses → {output_path}")
-            return corrected_schools, self.STATUS_OK
+            return corrected_schools, self.STATUS_OK, unresolved_names
 
         except Exception as exc:
             status = self._classify_error(exc)
             print(f"[AddressCorrector] {status} — using original addresses. Reason: {exc}")
-            return schools, status
+            return schools, status, []
 
     def _call_with_fallback(self, user_input):
         """
@@ -127,12 +139,23 @@ class AddressCorrector:
 
     def _parse_response(self, raw):
         """
-        Parses the agent response into {id: normalized_address}.
+        Parses the agent response into ({name: normalized_address}, [unresolved_names]).
+        Items where normalized_address is empty (agent could not geocode) are excluded from
+        the corrections dict and collected in unresolved_names.
         Strips markdown code fences and cleans up empty comma-separated fields.
         """
         clean = re.sub(r"```(?:json)?\s*", "", raw).strip().rstrip("`").strip()
         data = json.loads(clean)
-        return {item["id"]: self._clean_address(item["normalized_address"]) for item in data}
+        corrections = {}
+        unresolved = []
+        for item in data:
+            name = item["name"]
+            addr = item["normalized_address"]
+            if addr:
+                corrections[name] = self._clean_address(addr)
+            else:
+                unresolved.append(name)
+        return corrections, unresolved
 
     @staticmethod
     def _clean_address(address):

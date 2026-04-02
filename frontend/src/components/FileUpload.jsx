@@ -71,6 +71,7 @@ const FileUpload = ({ onUploadSuccess, onLoadStart, onLoadProgress, onLoadEnd })
                             correctedFile: statusRes.data.corrected_file,
                             addressCorrections: statusRes.data.address_corrections ?? [],
                             correctionStatus: statusRes.data.correction_status,
+                            unresolvedByAI: statusRes.data.unresolved_by_ai ?? [],
                         });
                         if (onLoadEnd) onLoadEnd();
                     } else if (status === 'error') {

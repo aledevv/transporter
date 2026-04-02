@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import TripSidebar from './components/TripSidebar';
+import ResumeWorkBanner from './components/ResumeWorkBanner';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -51,7 +52,7 @@ function App() {
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
-    const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile }
+    const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
     // null = not yet fetched (Map must not render until this is set)
@@ -62,6 +63,8 @@ function App() {
     const [trips, setTrips] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [tripToRestore, setTripToRestore] = useState(null);
+    const [currentTripId, setCurrentTripId] = useState(null);
+    const [resumeDismissed, setResumeDismissed] = useState(false);
 
     useEffect(() => {
         fetch('/version.txt')
@@ -106,14 +109,34 @@ function App() {
     const handleTripSaved = async (tripData) => {
         if (!db) return null;
         try {
-            const docRef = await addDoc(collection(db, 'trips'), {
-                ...tripData,
-                results: JSON.stringify(tripData.results),
-            });
-            return docRef.id;
+            // eslint-disable-next-line no-unused-vars
+            const { savedAt, ...fields } = tripData;
+            const payload = {
+                ...fields,
+                results: typeof fields.results === 'object' ? JSON.stringify(fields.results) : fields.results,
+                stage: 'optimized',
+                updatedAt: serverTimestamp(),
+            };
+            if (currentTripId) {
+                await updateDoc(doc(db, 'trips', currentTripId), payload);
+                return currentTripId;
+            } else {
+                const docRef = await addDoc(collection(db, 'trips'), { ...payload, savedAt: serverTimestamp() });
+                setCurrentTripId(docRef.id);
+                return docRef.id;
+            }
         } catch (err) {
             console.warn('Failed to save trip:', err.message);
             return null;
+        }
+    };
+
+    const handleTripUpdated = async (tripId, fields) => {
+        if (!db || !tripId) return;
+        try {
+            await updateDoc(doc(db, 'trips', tripId), { ...fields, updatedAt: serverTimestamp() });
+        } catch (err) {
+            console.warn('Failed to update trip:', err.message);
         }
     };
 
@@ -133,6 +156,7 @@ function App() {
         };
         setSchools(restored.schools);
         setTripToRestore(restored);
+        setCurrentTripId(trip.id);
         setSidebarOpen(false);
     };
 
@@ -151,6 +175,8 @@ function App() {
         setShowDetails(false);
         setCorrectionInfo(null);
         setGeocodingFailures(null);
+        setCurrentTripId(null);
+        setResumeDismissed(false);
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
     };
 
@@ -268,19 +294,54 @@ function App() {
                     {/* Section 1: Upload */}
                     <section ref={uploadRef} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">1. Importazione Dati</h2>
+                        {schools.length === 0 && trips.length > 0 && !resumeDismissed && db && (
+                            <ResumeWorkBanner
+                                trip={trips[0]}
+                                onRestore={handleTripRestore}
+                                onDismiss={() => setResumeDismissed(true)}
+                            />
+                        )}
                         <FileUpload
                             key={resetKey}
-                            onUploadSuccess={({ schools: data, correctedFile, addressCorrections, correctionStatus }) => {
+                            onUploadSuccess={async ({ schools: data, correctedFile, addressCorrections, correctionStatus, unresolvedByAI }) => {
                                 setSchools(data);
+                                setResumeDismissed(true); // hide resume banner once user uploads
                                 setMessage('File caricato con successo! Procedi alla configurazione.');
                                 setCorrectionInfo({
                                     corrections: addressCorrections ?? [],
                                     correctedFile,
                                     status: correctionStatus,
+                                    unresolvedByAI: unresolvedByAI ?? [],
                                 });
                                 // Show modal for any addresses that couldn't be geocoded
                                 const failed = data.filter(s => s.geocoding_failed);
                                 if (failed.length > 0) setGeocodingFailures(failed);
+                                // Create Firestore doc for this session
+                                if (db) {
+                                    try {
+                                        const totalPax = data.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
+                                        const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                        const label = data.length > 0
+                                            ? `${data.length} fermate, ${totalPax} passeggeri - ${dateStr}`
+                                            : `Nuovo lavoro - ${dateStr}`;
+                                        const docRef = await addDoc(collection(db, 'trips'), {
+                                            label,
+                                            stage: 'uploaded',
+                                            schools: data,
+                                            destination: '',
+                                            destCoords: null,
+                                            capacity: 56,
+                                            startTime: '08:00',
+                                            timeMode: 'arrival',
+                                            results: null,
+                                            savedAt: serverTimestamp(),
+                                            updatedAt: serverTimestamp(),
+                                        });
+                                        setCurrentTripId(docRef.id);
+                                    } catch (err) {
+                                        console.warn('Failed to create trip on upload:', err.message);
+                                    }
+                                }
                             }}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
                             onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
@@ -292,11 +353,12 @@ function App() {
                             </div>
                         )}
 
-                        {correctionInfo && (correctionInfo.corrections.length > 0 || correctionInfo.status === 'rate_limit' || correctionInfo.status === 'error') && (
+                        {correctionInfo && (correctionInfo.corrections.length > 0 || (correctionInfo.unresolvedByAI ?? []).length > 0 || correctionInfo.status === 'rate_limit' || correctionInfo.status === 'error') && (
                             <AddressCorrectionBanner
                                 corrections={correctionInfo.corrections}
                                 correctedFile={correctionInfo.correctedFile}
                                 correctionStatus={correctionInfo.status}
+                                unresolvedByAI={correctionInfo.unresolvedByAI ?? []}
                                 onManualCorrect={handleManualAddressCorrect}
                             />
                         )}
@@ -407,8 +469,10 @@ function App() {
                                 instituteColorMap={instituteColorMap}
                                 mapsKey={mapsKey}
                                 startInEditMode={schools.length === 1 && schools[0].name === 'La mia prima fermata'}
+                                currentTripId={currentTripId}
                                 onTripSaved={handleTripSaved}
                                 onTripRenamed={handleTripRenamed}
+                                onTripUpdated={handleTripUpdated}
                                 tripToRestore={tripToRestore}
                             />
                         </section>
