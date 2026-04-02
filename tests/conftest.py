@@ -41,8 +41,8 @@ SAMPLE_SCHOOLS = [
 ]
 
 MOCK_AGENT_RESPONSE = json.dumps([
-    {"id": "Scuola Primaria Roma", "normalized_address": "Via Roma, 1, 38100 Trento, Trentino, Italia"},
-    {"id": "Scuola Media Dante",   "normalized_address": "Piazza Dante, 3, Rovereto, Trentino, Italia"},
+    {"name": "Scuola Primaria Roma", "normalized_address": "Via Roma, 1, 38100 Trento, Trentino, Italia"},
+    {"name": "Scuola Media Dante",   "normalized_address": "Piazza Dante, 3, Rovereto, Trentino, Italia"},
 ])
 
 

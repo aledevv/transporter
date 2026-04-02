@@ -41,6 +41,7 @@ def primary_api_key(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "test-key-1")
     monkeypatch.delenv("GOOGLE_API_KEY2", raising=False)
     monkeypatch.delenv("GOOGLE_API_KEY3", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY4", raising=False)
 
 
 # ---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ class TestCorrectAddresses:
     ):
         output = tmp_path / "out.xlsx"
         with patch("address_corrector.call_agent_with_key", return_value=MOCK_AGENT_RESPONSE):
-            result, _ = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
+            result, _, _u = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
 
         assert result[0]["address"] == "Via Roma, 1, 38100 Trento, Trentino, Italia"
         assert result[1]["address"] == "Piazza Dante, 3, Rovereto, Trentino, Italia"
@@ -63,8 +64,36 @@ class TestCorrectAddresses:
     ):
         output = tmp_path / "out.xlsx"
         with patch("address_corrector.call_agent_with_key", return_value=MOCK_AGENT_RESPONSE):
-            _, status = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
+            _, status, _ = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
         assert status == AddressCorrector.STATUS_OK
+
+    def test_returns_empty_unresolved_when_all_found(
+        self, corrector, sample_schools, sample_excel, tmp_path
+    ):
+        output = tmp_path / "out.xlsx"
+        with patch("address_corrector.call_agent_with_key", return_value=MOCK_AGENT_RESPONSE):
+            _, _, unresolved = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
+        assert unresolved == []
+
+    def test_unresolved_returned_when_agent_returns_empty_address(
+        self, corrector, sample_schools, sample_excel, tmp_path
+    ):
+        """When agent returns empty normalized_address, school name goes in unresolved list
+        and its address is set to '' so geocoding fails cleanly."""
+        partial_response = json.dumps([
+            {"name": "Scuola Primaria Roma", "normalized_address": "Via Roma, 1, 38100 Trento, Trentino, Italia"},
+            {"name": "Scuola Media Dante",   "normalized_address": ""},
+        ])
+        output = tmp_path / "out.xlsx"
+        with patch("address_corrector.call_agent_with_key", return_value=partial_response):
+            result, status, unresolved = corrector.correct_addresses(sample_schools, str(sample_excel), str(output))
+
+        assert status == AddressCorrector.STATUS_OK
+        assert unresolved == ["Scuola Media Dante"]
+        # Unresolved school gets empty address (forces geocoding_failed=True later)
+        assert result[1]["address"] == ""
+        # Resolved school gets the new address
+        assert result[0]["address"] == "Via Roma, 1, 38100 Trento, Trentino, Italia"
 
     def test_corrected_excel_saved_with_flag(
         self, corrector, sample_schools, sample_excel, tmp_path
@@ -96,11 +125,12 @@ class TestCorrectAddresses:
         output = tmp_path / "out.xlsx"
         mock_fn = MagicMock()
         with patch("address_corrector.call_agent_with_key", mock_fn):
-            result, status = corrector.correct_addresses(sample_schools, str(flagged_excel), str(output))
+            result, status, unresolved = corrector.correct_addresses(sample_schools, str(flagged_excel), str(output))
 
         mock_fn.assert_not_called()
         assert result == sample_schools
         assert status == AddressCorrector.STATUS_SKIPPED_FLAGGED
+        assert unresolved == []
 
     def test_partial_flag_does_not_skip(self, corrector, sample_schools, tmp_path):
         partial_excel = tmp_path / "partial.xlsx"
@@ -111,7 +141,7 @@ class TestCorrectAddresses:
         df.to_excel(partial_excel, index=False)
 
         with patch("address_corrector.call_agent_with_key", return_value=MOCK_AGENT_RESPONSE) as mock_fn:
-            _, status = corrector.correct_addresses(sample_schools, str(partial_excel), str(tmp_path / "out.xlsx"))
+            _, status, _ = corrector.correct_addresses(sample_schools, str(partial_excel), str(tmp_path / "out.xlsx"))
 
         mock_fn.assert_called_once()
         assert status == AddressCorrector.STATUS_OK
@@ -121,25 +151,28 @@ class TestCorrectAddresses:
         corrector._enabled = False
         mock_fn = MagicMock()
         with patch("address_corrector.call_agent_with_key", mock_fn):
-            result, status = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
+            result, status, unresolved = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
 
         mock_fn.assert_not_called()
         assert result == sample_schools
         assert status == AddressCorrector.STATUS_SKIPPED_DISABLED
+        assert unresolved == []
 
     def test_fallback_on_generic_error(self, corrector, sample_schools, sample_excel, tmp_path):
         with patch("address_corrector.call_agent_with_key", side_effect=GENERIC_EXC):
-            result, status = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
+            result, status, unresolved = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
 
         assert result == sample_schools
         assert status == AddressCorrector.STATUS_ERROR
+        assert unresolved == []
 
     def test_fallback_on_invalid_json(self, corrector, sample_schools, sample_excel, tmp_path):
         with patch("address_corrector.call_agent_with_key", return_value="not valid json {{"):
-            result, status = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
+            result, status, unresolved = corrector.correct_addresses(sample_schools, str(sample_excel), str(tmp_path / "out.xlsx"))
 
         assert result == sample_schools
         assert status == AddressCorrector.STATUS_ERROR
+        assert unresolved == []
 
 
 # ---------------------------------------------------------------------------
@@ -152,6 +185,7 @@ class TestCallWithFallback:
         monkeypatch.setenv("GOOGLE_API_KEY",  "key-1")
         monkeypatch.setenv("GOOGLE_API_KEY2", "key-2")
         monkeypatch.setenv("GOOGLE_API_KEY3", "key-3")
+        monkeypatch.delenv("GOOGLE_API_KEY4", raising=False)
 
     def test_uses_primary_key_on_success(self, corrector):
         with patch("address_corrector.call_agent_with_key", return_value="ok") as mock_fn:
@@ -204,21 +238,33 @@ class TestCallWithFallback:
         monkeypatch.delenv("GOOGLE_API_KEY")
         monkeypatch.delenv("GOOGLE_API_KEY2")
         monkeypatch.delenv("GOOGLE_API_KEY3")
+        monkeypatch.delenv("GOOGLE_API_KEY4", raising=False)
         with patch("address_corrector.call_agent_with_key"):
             with pytest.raises(RuntimeError, match="No API keys"):
                 corrector._call_with_fallback("input")
+
+    def test_falls_back_to_fourth_key_when_first_three_exhausted(self, monkeypatch, corrector):
+        monkeypatch.setenv("GOOGLE_API_KEY4", "key-4")
+        mock_fn = MagicMock(side_effect=[RATE_LIMIT_EXC, RATE_LIMIT_EXC, RATE_LIMIT_EXC, "ok-from-key4"])
+        with patch("address_corrector.call_agent_with_key", mock_fn):
+            result = corrector._call_with_fallback("input")
+
+        assert result == "ok-from-key4"
+        assert mock_fn.call_count == 4
+        assert mock_fn.call_args_list[3] == call("input", "key-4")
 
     def test_rate_limit_status_when_all_keys_exhausted_end_to_end(
         self, corrector, sample_schools, sample_excel, tmp_path
     ):
         """correct_addresses returns STATUS_RATE_LIMIT when all 3 keys are exhausted."""
         with patch("address_corrector.call_agent_with_key", side_effect=RATE_LIMIT_EXC):
-            result, status = corrector.correct_addresses(
+            result, status, unresolved = corrector.correct_addresses(
                 sample_schools, str(sample_excel), str(tmp_path / "out.xlsx")
             )
 
         assert result == sample_schools
         assert status == AddressCorrector.STATUS_RATE_LIMIT
+        assert unresolved == []
 
 
 # ---------------------------------------------------------------------------
@@ -231,33 +277,103 @@ class TestParseResponse:
         self.corrector = AddressCorrector()
 
     def test_parses_plain_json(self):
-        raw = '[{"id": 0, "normalized_address": "Via Roma, 1, Trento"}]'
-        assert self.corrector._parse_response(raw) == {0: "Via Roma, 1, Trento"}
+        raw = '[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
+        assert unresolved == []
 
     def test_strips_json_markdown_fence(self):
-        raw = '```json\n[{"id": 0, "normalized_address": "Via Roma, 1, Trento"}]\n```'
-        assert self.corrector._parse_response(raw) == {0: "Via Roma, 1, Trento"}
+        raw = '```json\n[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]\n```'
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
+        assert unresolved == []
 
     def test_strips_plain_markdown_fence(self):
-        raw = '```\n[{"id": 1, "normalized_address": "Piazza Dante, Rovereto"}]\n```'
-        assert self.corrector._parse_response(raw) == {1: "Piazza Dante, Rovereto"}
+        raw = '```\n[{"name": "Scuola B", "normalized_address": "Piazza Dante, Rovereto"}]\n```'
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola B": "Piazza Dante, Rovereto"}
+        assert unresolved == []
 
     def test_multiple_items(self):
         raw = json.dumps([
-            {"id": 0, "normalized_address": "Addr A"},
-            {"id": 1, "normalized_address": "Addr B"},
+            {"name": "Scuola A", "normalized_address": "Addr A"},
+            {"name": "Scuola B", "normalized_address": "Addr B"},
         ])
-        assert self.corrector._parse_response(raw) == {0: "Addr A", 1: "Addr B"}
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola A": "Addr A", "Scuola B": "Addr B"}
+        assert unresolved == []
 
     def test_raises_on_missing_normalized_address_key(self):
-        raw = '[{"id": 0, "address": "Via Roma, 1"}]'
+        raw = '[{"name": "Scuola A", "address": "Via Roma, 1"}]'
         with pytest.raises(KeyError):
             self.corrector._parse_response(raw)
 
     def test_empty_fields_cleaned_during_parse(self):
-        raw = json.dumps([{"id": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
-        result = self.corrector._parse_response(raw)
-        assert result == {"Scuola A": "Piazza, Campitello di Fassa, Trento, Italy"}
+        raw = json.dumps([{"name": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola A": "Piazza, Campitello di Fassa, Trento, Italy"}
+        assert unresolved == []
+
+    def test_empty_normalized_address_goes_to_unresolved(self):
+        raw = json.dumps([
+            {"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"},
+            {"name": "Scuola B", "normalized_address": ""},
+        ])
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
+        assert unresolved == ["Scuola B"]
+
+    def test_all_empty_normalized_addresses(self):
+        raw = json.dumps([
+            {"name": "Scuola A", "normalized_address": ""},
+            {"name": "Scuola B", "normalized_address": ""},
+        ])
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {}
+        assert unresolved == ["Scuola A", "Scuola B"]
+
+    def test_large_dataset_with_mixed_results(self):
+        """29-school dataset: verifies parsing handles real-world scale input correctly."""
+        schools_29 = [
+            {"name": "IC Levico Terme",         "normalized_address": "Via delle Albere 2, 38050 Tenna, Trentino-Alto Adige, Italia"},
+            {"name": "IC Cles",                 "normalized_address": "Piazza Fiera 1, 38023 Cles, Trentino-Alto Adige, Italia"},
+            {"name": "Liceo Galilei Trento",    "normalized_address": "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Pergine",    "normalized_address": "Via Regina Elena 20, 38057 Pergine Valsugana, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Rovereto",   "normalized_address": "Via Benacense 14, 38068 Rovereto, Trentino-Alto Adige, Italia"},
+            {"name": "ITC Fontana Rovereto",    "normalized_address": "Via Balteri 4, 38068 Rovereto, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola primaria Levico",  "normalized_address": "Via Roma 30, 38056 Levico Terme, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Riva del Garda", "normalized_address": "Viale Giuseppe Prati 4, 38066 Riva del Garda, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Arco",       "normalized_address": "Via dei Capitelli 15, 38062 Arco, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola superiore Tione",  "normalized_address": "Via Durighello 8, 38079 Tione di Trento, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Cavalese",   "normalized_address": "Via Francesco Bronzetti 5, 38033 Cavalese, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Bressanone", "normalized_address": "Via Bruno Buozzi 10, 39042 Bressanone, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Brunico",    "normalized_address": "Via Gilm 5, 39031 Brunico, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Egna",       "normalized_address": "Via Guglielmo Marconi 7, 39044 Egna, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Lavis",      "normalized_address": "Via Riccardo Zandonai 1, 38015 Lavis, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Mezzolombardo", "normalized_address": "Via Damiano Chiesa 2, 38017 Mezzolombardo, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola elementare Roncegno", "normalized_address": "Via Roma 10, 38050 Roncegno Terme, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola primaria Pinzolo", "normalized_address": "Via al Sole 3, 38086 Pinzolo, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Predazzo",   "normalized_address": "Via Fiamme Gialle 12, 38037 Predazzo, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Borgo Valsugana", "normalized_address": "Via per Tesino 5, 38051 Borgo Valsugana, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola primaria Andalo",  "normalized_address": "Via Priori 2, 38010 Andalo, Trentino-Alto Adige, Italia"},
+            {"name": "Istituto agrario San Michele", "normalized_address": "Via Edmund Mach 1, 38010 San Michele all'Adige, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Ala",        "normalized_address": "Via Papa Giovanni XXIII 4, 38061 Ala, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Mori",       "normalized_address": "Via Teatro 12, 38065 Mori, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media Madonna di Campiglio", "normalized_address": ""},  # simulated unresolved
+            {"name": "Liceo Walther Bolzano",   "normalized_address": "Piazza Walther 1, 39100 Bolzano, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola media via Claudia Augusta", "normalized_address": "Via Claudia Augusta 2, 39100 Bolzano, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola elementare via Roma Merano", "normalized_address": "Via Roma 160, 39012 Merano, Trentino-Alto Adige, Italia"},
+            {"name": "Scuola superiore Merano", "normalized_address": ""},  # simulated unresolved
+        ]
+        raw = json.dumps(schools_29)
+        corrections, unresolved = self.corrector._parse_response(raw)
+
+        assert len(corrections) == 27  # 29 total - 2 unresolved
+        assert len(unresolved) == 2
+        assert "Scuola media Madonna di Campiglio" in unresolved
+        assert "Scuola superiore Merano" in unresolved
+        assert "IC Levico Terme" in corrections
+        assert corrections["Liceo Galilei Trento"] == "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"
 
 
 # ---------------------------------------------------------------------------
