@@ -12,8 +12,30 @@ import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
 // Simple Loading Overlay Component
-const LoadingOverlay = ({ progress, message }) => {
+const LoadingOverlay = ({ progress, message, totalAddresses }) => {
     const isAI = message?.includes('AI');
+    const [elapsed, setElapsed] = useState(0);
+    const startRef = useRef(null);
+
+    useEffect(() => {
+        if (!isAI) {
+            setElapsed(0);
+            startRef.current = null;
+            return;
+        }
+        if (startRef.current === null) {
+            startRef.current = Date.now();
+        }
+        const id = setInterval(() => {
+            setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
+        }, 1000);
+        return () => clearInterval(id);
+    }, [isAI]);
+
+    const estimated = totalAddresses ? totalAddresses * 2 : 0;
+    const aiBarWidth = estimated > 0 ? Math.min(95, (elapsed / estimated) * 100) : Math.min(95, elapsed * 2);
+    const secondsLeft = estimated > 0 ? Math.max(0, estimated - elapsed) : null;
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center animate-fade-in">
             <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full mx-4">
@@ -31,7 +53,10 @@ const LoadingOverlay = ({ progress, message }) => {
                     {/* Progress Bar */}
                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                         {isAI ? (
-                            <div className="h-2.5 rounded-full bg-orange-400 animate-pulse" style={{ width: '100%' }} />
+                            <div
+                                className="h-2.5 rounded-full bg-orange-400 transition-all duration-1000 ease-linear"
+                                style={{ width: `${Math.max(5, aiBarWidth)}%` }}
+                            />
                         ) : (
                             <div
                                 className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
@@ -39,7 +64,13 @@ const LoadingOverlay = ({ progress, message }) => {
                             />
                         )}
                     </div>
-                    {!isAI && <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>}
+                    {isAI ? (
+                        <p className="text-xs text-orange-400 mt-1 text-right">
+                            {secondsLeft !== null ? `~${secondsLeft}s rimanenti` : 'Calcolo in corso...'}
+                        </p>
+                    ) : (
+                        <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
+                    )}
                 </div>
             </div>
         </div>
@@ -51,7 +82,7 @@ function App() {
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
-    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
+    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0 }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
@@ -74,11 +105,9 @@ function App() {
         fetch(`${API_BASE_URL}/api/config`)
             .then(r => r.json())
             .then(d => {
-                setMapsKey(d.maps_key || '');
+                setMapsKey('');
                 if (d.firebase?.projectId) {
                     setDb(initFirebase(d.firebase));
-                } else {
-                    setMapsKey(d.maps_key || '');
                 }
             })
             .catch(err => {
@@ -252,7 +281,7 @@ function App() {
                 onDelete={handleTripDelete}
                 onClose={() => setSidebarOpen(false)}
             />
-            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} />}
+            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} />}
             {geocodingFailures && (
                 <GeocodingFailuresModal
                     failures={geocodingFailures}

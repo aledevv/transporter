@@ -1,4 +1,5 @@
 import os
+import time
 import requests as req
 from dotenv import load_dotenv
 
@@ -34,6 +35,7 @@ def geocodingTool(location: str) -> str:
         A numbered list of up to 5 candidate addresses from OSM Nominatim, or an error message.
     """
     try:
+        time.sleep(1)  # Nominatim rate limit: 1 req/s
         resp = req.get(
             'https://nominatim.openstreetmap.org/search',
             params={
@@ -49,7 +51,12 @@ def geocodingTool(location: str) -> str:
             },
             timeout=6
         )
-        data = resp.json()
+        if resp.status_code != 200:
+            return f"No results found for: {location} (HTTP {resp.status_code})"
+        try:
+            data = resp.json()
+        except ValueError:
+            return f"No results found for: {location} (invalid response)"
 
         if not data:
             return f"No results found for: {location}"

@@ -56,7 +56,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleSelect = async (suggestion) => {
+    const handleSelect = (suggestion) => {
         const mainText = suggestion.structured_formatting?.main_text ?? suggestion.description ?? '';
         const secondaryText = suggestion.structured_formatting?.secondary_text ?? '';
         const displayValue = secondaryText ? `${mainText}, ${secondaryText}` : mainText;
@@ -65,19 +65,8 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         lastSelectedValueRef.current = displayValue;
         onChange(displayValue);
 
-        // Fetch coordinates for the selected place
-        if (onSelect && suggestion.place_id) {
-            try {
-                const res = await axios.get(`${API_BASE_URL}/api/places/details`, {
-                    params: { place_id: suggestion.place_id },
-                });
-                const loc = res.data?.result?.geometry?.location;
-                if (loc) {
-                    onSelect({ address: displayValue, lat: loc.lat, lon: loc.lng });
-                }
-            } catch (err) {
-                console.error('Place details error:', err);
-            }
+        if (onSelect && suggestion.lat != null && suggestion.lon != null) {
+            onSelect({ address: displayValue, lat: suggestion.lat, lon: suggestion.lon });
         }
     };
 

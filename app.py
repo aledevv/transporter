@@ -146,7 +146,7 @@ def process_file_task(task_id, filepath, original_filename):
         corrected_filename = f"{base}_corretto{ext}"
         corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
 
-        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...'})
+        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools})
         schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
 
         # Build a human-readable log of what changed
@@ -177,6 +177,11 @@ def process_file_task(task_id, filepath, original_filename):
             
             raw_address = school['address']
             lat, lon, success = smart_geocode(raw_address, school_name=school['name'])
+
+            if not success:
+                orig_addr = original_map.get(school['id'], {}).get('address', '')
+                if orig_addr and orig_addr != raw_address:
+                    lat, lon, success = smart_geocode(orig_addr, school_name=school['name'])
 
             if not success:
                 print(f"Failed to geocode: {raw_address} - Marking as unresolved")
@@ -855,57 +860,61 @@ def optimize():
 
 @app.route('/api/places/autocomplete', methods=['GET'])
 def places_autocomplete():
-    """Proxy to Google Places API autocomplete. Keeps the key server-side."""
+    """Address autocomplete via Nominatim (OSM)."""
     query = request.args.get('q', '').strip()
     if len(query) < 2:
         return jsonify({'predictions': [], 'status': 'OK'})
 
-    api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
-    if not api_key:
-        return jsonify({'error': 'GOOGLE_MAPS_API_KEY not configured'}), 500
-
     import requests as req
-    resp = req.get(
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json',
-        params={
-            'input': query,
-            'key': api_key,
-            'language': 'it',
-            'components': 'country:it',
-            'location': '46.0697,11.1211',
-            'radius': 80000,
-        },
-        timeout=5
-    )
-    data = resp.json()
-    if data.get('status') not in ('OK', 'ZERO_RESULTS'):
-        print(f"[Places Autocomplete] Google error: {data.get('status')} — {data.get('error_message', '')}")
-    return jsonify(data), 200
+    try:
+        resp = req.get(
+            'https://nominatim.openstreetmap.org/search',
+            params={
+                'q': query,
+                'format': 'json',
+                'countrycodes': 'it',
+                'limit': 5,
+                'viewbox': '10.4,45.6,12.2,46.95',
+                'bounded': 0,
+                'addressdetails': 1,
+            },
+            headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
+            timeout=5,
+        )
+        results = resp.json() if resp.status_code == 200 else []
+    except Exception as e:
+        print(f"[Autocomplete] Nominatim error: {e}")
+        results = []
 
+    # Map OSM class/type to a simplified icon type the frontend understands
+    def _osm_type(r):
+        osm_class = r.get('class', '')
+        osm_type = r.get('type', '')
+        if osm_class == 'highway':
+            return 'route'
+        if osm_class in ('amenity', 'building', 'shop', 'tourism'):
+            return 'establishment'
+        return 'geocode'
 
-@app.route('/api/places/details', methods=['GET'])
-def places_details():
-    """Proxy to Google Places API — fetch lat/lon for a place_id."""
-    place_id = request.args.get('place_id', '').strip()
-    if not place_id:
-        return jsonify({'error': 'place_id required'}), 400
+    predictions = []
+    for r in results:
+        display = r.get('display_name', '')
+        parts = [p.strip() for p in display.split(',')]
+        main_text = ', '.join(parts[:2]) if len(parts) >= 2 else display
+        secondary_text = ', '.join(parts[2:]) if len(parts) > 2 else ''
+        predictions.append({
+            'place_id': f"osm_{r.get('osm_type', 'node')}_{r.get('osm_id', '')}",
+            'description': display,
+            'structured_formatting': {
+                'main_text': main_text,
+                'secondary_text': secondary_text,
+            },
+            'types': [_osm_type(r)],
+            'lat': float(r['lat']),
+            'lon': float(r['lon']),
+        })
 
-    api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
-    if not api_key:
-        return jsonify({'error': 'GOOGLE_MAPS_API_KEY not configured'}), 500
-
-    import requests as req
-    resp = req.get(
-        'https://maps.googleapis.com/maps/api/place/details/json',
-        params={
-            'place_id': place_id,
-            'key': api_key,
-            'fields': 'geometry,formatted_address,name',
-            'language': 'it',
-        },
-        timeout=5
-    )
-    return jsonify(resp.json()), 200
+    return jsonify({'predictions': predictions, 'status': 'OK'}), 200
 
 
 @app.route('/api/download/<path:filename>', methods=['GET'])
@@ -928,7 +937,6 @@ def download_corrected_file(filename):
 @app.route('/api/config')
 def get_config():
     return jsonify({
-        'maps_key': os.environ.get('GOOGLE_MAPS_API_KEY', ''),
         'firebase': {
             'apiKey':            os.environ.get('FIREBASE_API_KEY', ''),
             'authDomain':        os.environ.get('FIREBASE_AUTH_DOMAIN', ''),
