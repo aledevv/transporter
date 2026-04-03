@@ -58,6 +58,8 @@ class GeocodingService:
                                 lat1, lon1 = locations[i]
                                 lat2, lon2 = locations[j]
                                 matrix[i][j] = int(((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000)
+                            else:
+                                matrix[i][j] = int(matrix[i][j])
                     return matrix
         except Exception as e:
             print(f"OSRM distance matrix error: {e}")
@@ -86,6 +88,8 @@ class GeocodingService:
                                 lat2, lon2 = locations[j]
                                 dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
                                 matrix[i][j] = int(dist_m / (30 / 3.6))
+                            else:
+                                matrix[i][j] = int(matrix[i][j])
                     return matrix
         except Exception as e:
             print(f"OSRM time matrix error: {e}")
