@@ -21,12 +21,12 @@ const formatDuration = (seconds) => {
     return `${s}s`;
 };
 
-// ~6s/address: measured 2.6–3.8s on real datasets, 1.5x pessimistic buffer
-const AI_SECONDS_PER_ADDRESS = 6;
+// ~5s/address: measured 2.6–4.2s on real datasets, ~1.3x pessimistic buffer
+const AI_SECONDS_PER_ADDRESS = 5;
 
 // Simple Loading Overlay Component
-const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds }) => {
-    const isAI = message?.includes('AI');
+const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isAiPhase }) => {
+    const isAI = isAiPhase;
     const [elapsed, setElapsed] = useState(0);
     const startRef = useRef(null);
 
@@ -95,7 +95,7 @@ function App() {
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
-    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0 }); // Global loading state
+    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: false }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
@@ -294,7 +294,7 @@ function App() {
                 onDelete={handleTripDelete}
                 onClose={() => setSidebarOpen(false)}
             />
-            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} aiExtraSeconds={loadingState.aiExtraSeconds} />}
+            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} aiExtraSeconds={loadingState.aiExtraSeconds} isAiPhase={loadingState.isAiPhase} />}
             {geocodingFailures && (
                 <GeocodingFailuresModal
                     failures={geocodingFailures}

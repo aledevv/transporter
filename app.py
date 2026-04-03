@@ -147,7 +147,7 @@ def process_file_task(task_id, filepath, original_filename):
         corrected_filename = f"{base}_corretto{ext}"
         corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
 
-        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools, 'ai_extra_seconds': 0})
+        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools, 'ai_extra_seconds': 0, 'is_ai_phase': True})
 
         def _ai_updater(msg, extra_s=0):
             tasks[task_id].update({
@@ -173,7 +173,7 @@ def process_file_task(task_id, filepath, original_filename):
             if s['address'] != original_map[s['id']]['address']
         ]
 
-        tasks[task_id].update({'progress': 20, 'message': f'Trovate {total_schools} scuole. Inizio geocoding...'})
+        tasks[task_id].update({'progress': 20, 'message': f'Trovate {total_schools} scuole. Inizio geocoding...', 'is_ai_phase': False})
         
         # 2. Geocoding with progress tracking
         processed_schools = []
