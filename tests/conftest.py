@@ -63,6 +63,13 @@ def sample_excel(tmp_path):
     return path
 
 
+@pytest.fixture(autouse=True)
+def clear_nominatim_cache():
+    """Reset in-memory Nominatim cache before each test to prevent cross-test pollution."""
+    import nominatim_cache
+    nominatim_cache.clear()
+
+
 @pytest.fixture
 def app_client():
     """Flask test client with testing mode enabled."""

@@ -62,7 +62,7 @@ const FileUpload = ({ onUploadSuccess, onLoadStart, onLoadProgress, onLoadEnd })
                     const statusRes = await axios.get(`${API_BASE_URL}/api/status/${taskId}`);
                     const { status, progress, message, result, error: taskError } = statusRes.data;
 
-                    if (onLoadProgress) onLoadProgress({ progress, message, totalAddresses: statusRes.data.total_addresses });
+                    if (onLoadProgress) onLoadProgress({ progress, message, totalAddresses: statusRes.data.total_addresses, aiExtraSeconds: statusRes.data.ai_extra_seconds || 0 });
 
                     if (status === 'completed') {
                         clearInterval(pollInterval);

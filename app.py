@@ -9,6 +9,7 @@ from data_loader import DataLoader
 from geocoder import GeocodingService
 from optimizer import VRPSolver
 from address_corrector import AddressCorrector
+import gemini_agent as _gemini_agent
 
 address_corrector = AddressCorrector()
 
@@ -146,8 +147,19 @@ def process_file_task(task_id, filepath, original_filename):
         corrected_filename = f"{base}_corretto{ext}"
         corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
 
-        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools})
-        schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
+        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools, 'ai_extra_seconds': 0})
+
+        def _ai_updater(msg, extra_s=0):
+            tasks[task_id].update({
+                'message': msg,
+                'ai_extra_seconds': tasks[task_id].get('ai_extra_seconds', 0) + extra_s,
+            })
+
+        _gemini_agent.set_status_updater(_ai_updater)
+        try:
+            schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
+        finally:
+            _gemini_agent.set_status_updater(None)
 
         # Build a human-readable log of what changed
         original_map = {s['id']: s for s in original_schools}
@@ -169,7 +181,7 @@ def process_file_task(task_id, filepath, original_filename):
         
         for i, school in enumerate(schools):
             # Calculate progress from 20% to 90%
-            current_progress = 20 + int((i / total_schools) * 70)
+            current_progress = 20 + int(((i + 1) / total_schools) * 70)
             tasks[task_id].update({
                 'progress': current_progress, 
                 'message': f'Geocoding {i+1}/{total_schools}: {school["name"]}'
@@ -866,25 +878,32 @@ def places_autocomplete():
         return jsonify({'predictions': [], 'status': 'OK'})
 
     import requests as req
-    try:
-        resp = req.get(
-            'https://nominatim.openstreetmap.org/search',
-            params={
-                'q': query,
-                'format': 'json',
-                'countrycodes': 'it',
-                'limit': 5,
-                'viewbox': '10.4,45.6,12.2,46.95',
-                'bounded': 0,
-                'addressdetails': 1,
-            },
-            headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
-            timeout=5,
-        )
-        results = resp.json() if resp.status_code == 200 else []
-    except Exception as e:
-        print(f"[Autocomplete] Nominatim error: {e}")
-        results = []
+    import nominatim_cache as _nc
+    cached = _nc.get(query, 5)
+    if cached:
+        results = cached
+    else:
+        try:
+            resp = req.get(
+                'https://nominatim.openstreetmap.org/search',
+                params={
+                    'q': query,
+                    'format': 'json',
+                    'countrycodes': 'it',
+                    'limit': 5,
+                    'viewbox': '10.4,45.6,12.2,46.95',
+                    'bounded': 0,
+                    'addressdetails': 1,
+                },
+                headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
+                timeout=5,
+            )
+            results = resp.json() if resp.status_code == 200 else []
+            if results:
+                _nc.store(query, 5, results)
+        except Exception as e:
+            print(f"[Autocomplete] Nominatim error: {e}")
+            results = []
 
     # Map OSM class/type to a simplified icon type the frontend understands
     def _osm_type(r):

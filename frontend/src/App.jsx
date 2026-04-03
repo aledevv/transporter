@@ -11,8 +11,21 @@ import ResumeWorkBanner from './components/ResumeWorkBanner';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
+const formatDuration = (seconds) => {
+    if (seconds <= 0) return '0s';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
+};
+
+// ~6s/address: measured 2.6–3.8s on real datasets, 1.5x pessimistic buffer
+const AI_SECONDS_PER_ADDRESS = 6;
+
 // Simple Loading Overlay Component
-const LoadingOverlay = ({ progress, message, totalAddresses }) => {
+const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds }) => {
     const isAI = message?.includes('AI');
     const [elapsed, setElapsed] = useState(0);
     const startRef = useRef(null);
@@ -32,7 +45,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses }) => {
         return () => clearInterval(id);
     }, [isAI]);
 
-    const estimated = totalAddresses ? totalAddresses * 2 : 0;
+    const estimated = totalAddresses ? totalAddresses * AI_SECONDS_PER_ADDRESS + (aiExtraSeconds || 0) : 0;
     const aiBarWidth = estimated > 0 ? Math.min(95, (elapsed / estimated) * 100) : Math.min(95, elapsed * 2);
     const secondsLeft = estimated > 0 ? Math.max(0, estimated - elapsed) : null;
 
@@ -66,7 +79,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses }) => {
                     </div>
                     {isAI ? (
                         <p className="text-xs text-orange-400 mt-1 text-right">
-                            {secondsLeft !== null ? `~${secondsLeft}s rimanenti` : 'Calcolo in corso...'}
+                            {secondsLeft !== null ? `~${formatDuration(secondsLeft)} rimanenti` : 'Calcolo in corso...'}
                         </p>
                     ) : (
                         <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
@@ -82,7 +95,7 @@ function App() {
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
-    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0 }); // Global loading state
+    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0 }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
@@ -281,7 +294,7 @@ function App() {
                 onDelete={handleTripDelete}
                 onClose={() => setSidebarOpen(false)}
             />
-            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} />}
+            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} aiExtraSeconds={loadingState.aiExtraSeconds} />}
             {geocodingFailures && (
                 <GeocodingFailuresModal
                     failures={geocodingFailures}

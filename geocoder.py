@@ -1,6 +1,7 @@
 
 import time
 import requests
+import nominatim_cache
 
 NOMINATIM_BASE = 'https://nominatim.openstreetmap.org'
 OSRM_BASE = 'http://router.project-osrm.org'
@@ -13,6 +14,11 @@ class GeocodingService:
     def get_coordinates(self, address):
         """Geocodes address using Nominatim (OSM). Returns (lat, lon)."""
         try:
+            cached = nominatim_cache.get(address, 1)
+            if cached is not None:
+                if cached:
+                    return float(cached[0]['lat']), float(cached[0]['lon'])
+                raise ValueError("cached empty")  # skip sleep, fall through to fallback
             time.sleep(1)  # Nominatim rate limit: 1 req/s
             resp = requests.get(
                 f'{NOMINATIM_BASE}/search',
@@ -29,6 +35,7 @@ class GeocodingService:
             )
             if resp.status_code == 200:
                 data = resp.json()
+                nominatim_cache.store(address, 1, data)  # cache even if empty
                 if data:
                     return float(data[0]['lat']), float(data[0]['lon'])
         except Exception as e:

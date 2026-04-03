@@ -1,7 +1,15 @@
 import os
 import time
+import threading
 import requests as req
 from dotenv import load_dotenv
+import nominatim_cache
+
+_thread_local = threading.local()
+
+def set_status_updater(fn):
+    """Set a per-thread callback fn(message, extra_seconds) called on rate-limit retries."""
+    _thread_local.status_fn = fn
 
 # Clients
 from datapizza.clients.google import GoogleClient
@@ -35,22 +43,36 @@ def geocodingTool(location: str) -> str:
         A numbered list of up to 5 candidate addresses from OSM Nominatim, or an error message.
     """
     try:
-        time.sleep(1)  # Nominatim rate limit: 1 req/s
-        resp = req.get(
-            'https://nominatim.openstreetmap.org/search',
-            params={
-                'q': location,
-                'format': 'json',
-                'countrycodes': 'it',
-                'limit': 5,
-                'viewbox': '10.4,45.6,12.2,46.95',  # Trentino-Alto Adige bounding box
-                'bounded': 0,
-            },
-            headers={
-                'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)',
-            },
-            timeout=6
-        )
+        cached = nominatim_cache.get(location, 5)
+        if cached is not None:
+            if not cached:
+                return f"No results found for: {location}"
+            lines = [f"{i}. {item['display_name']}" for i, item in enumerate(cached[:5], 1)]
+            return "\n".join(lines)
+        for attempt in range(4):
+            time.sleep(1 + attempt * 2)  # 1s, 3s, 5s, 7s — backoff on retry
+            resp = req.get(
+                'https://nominatim.openstreetmap.org/search',
+                params={
+                    'q': location,
+                    'format': 'json',
+                    'countrycodes': 'it',
+                    'limit': 5,
+                    'viewbox': '10.4,45.6,12.2,46.95',  # Trentino-Alto Adige bounding box
+                    'bounded': 0,
+                },
+                headers={
+                    'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)',
+                },
+                timeout=6
+            )
+            if resp.status_code == 429:
+                next_sleep = 1 + (attempt + 1) * 2
+                fn = getattr(_thread_local, 'status_fn', None)
+                if callable(fn):
+                    fn(f"Rate limit Nominatim — retry tra {next_sleep}s (AI in corso...)", next_sleep)
+                continue  # rate limited — retry with longer sleep
+            break
         if resp.status_code != 200:
             return f"No results found for: {location} (HTTP {resp.status_code})"
         try:
@@ -58,9 +80,9 @@ def geocodingTool(location: str) -> str:
         except ValueError:
             return f"No results found for: {location} (invalid response)"
 
+        nominatim_cache.store(location, 5, data)  # cache even if empty
         if not data:
             return f"No results found for: {location}"
-
         lines = [f"{i}. {item['display_name']}" for i, item in enumerate(data[:5], 1)]
         return "\n".join(lines)
 
