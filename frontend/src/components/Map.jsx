@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-polylineoffset';
-import { X, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Maximize2, Minimize2, Bus } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapPin, Flag, Building2 } from 'lucide-react';
 
@@ -69,6 +69,25 @@ const COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
+function miterFilter(pixelPoints, scaledOffset) {
+    if (Math.abs(scaledOffset) < 0.1) return pixelPoints;
+    const result = [pixelPoints[0]];
+    for (let i = 1; i < pixelPoints.length - 1; i++) {
+        const a = pixelPoints[i - 1], b = pixelPoints[i], c = pixelPoints[i + 1];
+        const d1x = b.x - a.x, d1y = b.y - a.y;
+        const d2x = c.x - b.x, d2y = c.y - b.y;
+        const len1 = Math.hypot(d1x, d1y), len2 = Math.hypot(d2x, d2y);
+        if (len1 < 0.01 || len2 < 0.01) continue;
+        const dot = (d1x * d2x + d1y * d2y) / (len1 * len2);
+        // miter extension = |offset| / cos(θ/2); spiral if it exceeds segment length
+        const cosHalf = Math.sqrt(Math.max(0, (1 + dot) / 2));
+        if (cosHalf < 0.01 || Math.abs(scaledOffset) / cosHalf > Math.min(len1, len2)) continue;
+        result.push(pixelPoints[i]);
+    }
+    result.push(pixelPoints[pixelPoints.length - 1]);
+    return result;
+}
+
 const OffsetPolyline = ({ positions, options, offset, popup }) => {
     const map = useMap();
     const [zoom, setZoom] = useState(() => map.getZoom());
@@ -81,19 +100,19 @@ const OffsetPolyline = ({ positions, options, offset, popup }) => {
 
     useEffect(() => {
         const scale = Math.max(0.15, Math.min(1, (zoom - 12) / 3));
-        const smoothFactor = Math.max(1, (15 - zoom) * 0.5);
+        const smoothFactor = Math.max(1, (15 - zoom) * 0.2);
+        const scaledOffset = offset * scale;
 
-        // Pre-simplify in pixel space so leaflet-polylineoffset computes the offset
-        // on the already-smoothed path — this eliminates spirals at sharp bends.
-        const tolerance = Math.max(0, (16 - zoom) * 0.8);
+        const dpTolerance = Math.max(0, (14 - zoom) * 0.35);
         const pixelPts = positions.map(ll => map.latLngToLayerPoint(L.latLng(ll[0], ll[1])));
-        const simplified = tolerance > 0 ? L.LineUtil.simplify(pixelPts, tolerance) : pixelPts;
-        const simplifiedLatLng = simplified.map(p => map.layerPointToLatLng(p));
+        const dpSimplified = dpTolerance > 0 ? L.LineUtil.simplify(pixelPts, dpTolerance) : pixelPts;
+        const filtered = miterFilter(dpSimplified, scaledOffset);
+        const filteredLatLng = filtered.map(p => map.layerPointToLatLng(p));
 
-        const layer = L.polyline(simplifiedLatLng, { ...options, offset: offset * scale, smoothFactor });
+        const layer = L.polyline(filteredLatLng, { ...options, offset: scaledOffset, smoothFactor });
         if (popup) layer.bindPopup(popup);
         layer.addTo(map);
-        return () => { map.removeLayer(layer); };
+        return () => map.removeLayer(layer);
     }, [positions, options, offset, popup, map, zoom]);
     return null;
 };
@@ -104,6 +123,9 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     const containerRef = useRef(null);   // the actual map div we animate
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [resizerTick, setResizerTick] = useState(0);
+    const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
+
+    useEffect(() => { setHiddenRouteIds(new Set()); }, [routes]);
 
     // --- FLIP animation helpers ---
     const enterFullscreen = useCallback(() => {
@@ -209,6 +231,33 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                 ref={containerRef}
                 className="w-full h-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
             >
+                {/* Route toggle panel — bottom-left */}
+                {routes && routes.length > 0 && (
+                    <div className="absolute bottom-3 left-3 z-[1000] flex flex-col gap-1">
+                        {routes.map((route, idx) => {
+                            const color = COLORS[idx % COLORS.length];
+                            const hidden = hiddenRouteIds.has(route.vehicle_id);
+                            return (
+                                <button
+                                    key={route.vehicle_id}
+                                    onClick={() => setHiddenRouteIds(prev => {
+                                        const next = new Set(prev);
+                                        hidden ? next.delete(route.vehicle_id) : next.add(route.vehicle_id);
+                                        return next;
+                                    })}
+                                    className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium shadow-md bg-white transition-opacity"
+                                    style={{ borderLeft: `4px solid ${color}`, opacity: hidden ? 0.45 : 1 }}
+                                >
+                                    <Bus size={12} style={{ color }} />
+                                    <span style={{ color: hidden ? '#9ca3af' : '#1f2937' }}>
+                                        Bus {route.vehicle_id + 1}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+
                 {/* Top-right buttons */}
                 <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
                     {highlightedRouteId !== null && onResetFocus && (
@@ -281,6 +330,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     })}
 
                     {routes && routes.map((route, idx) => {
+                        if (hiddenRouteIds.has(route.vehicle_id)) return null;
                         const isHighlighted = highlightedRouteId === route.vehicle_id;
                         const color = COLORS[idx % COLORS.length];
                         const positions = getPositions(route.outbound || route);
