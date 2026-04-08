@@ -80,8 +80,17 @@ const OffsetPolyline = ({ positions, options, offset, popup }) => {
     }, [map]);
 
     useEffect(() => {
-        const scale = zoom < 13 ? 0 : Math.min(1, (zoom - 13) / 2);
-        const layer = L.polyline(positions, { ...options, offset: offset * scale });
+        const scale = Math.max(0.15, Math.min(1, (zoom - 12) / 3));
+        const smoothFactor = Math.max(1, (15 - zoom) * 0.5);
+
+        // Pre-simplify in pixel space so leaflet-polylineoffset computes the offset
+        // on the already-smoothed path — this eliminates spirals at sharp bends.
+        const tolerance = Math.max(0, (16 - zoom) * 0.8);
+        const pixelPts = positions.map(ll => map.latLngToLayerPoint(L.latLng(ll[0], ll[1])));
+        const simplified = tolerance > 0 ? L.LineUtil.simplify(pixelPts, tolerance) : pixelPts;
+        const simplifiedLatLng = simplified.map(p => map.layerPointToLatLng(p));
+
+        const layer = L.polyline(simplifiedLatLng, { ...options, offset: offset * scale, smoothFactor });
         if (popup) layer.bindPopup(popup);
         layer.addTo(map);
         return () => { map.removeLayer(layer); };
