@@ -71,12 +71,21 @@ const COLORS = [
 
 const OffsetPolyline = ({ positions, options, offset, popup }) => {
     const map = useMap();
+    const [zoom, setZoom] = useState(() => map.getZoom());
+
     useEffect(() => {
-        const layer = L.polyline(positions, { ...options, offset });
+        const onZoom = () => setZoom(map.getZoom());
+        map.on('zoomend', onZoom);
+        return () => map.off('zoomend', onZoom);
+    }, [map]);
+
+    useEffect(() => {
+        const scale = zoom < 13 ? 0 : Math.min(1, (zoom - 13) / 2);
+        const layer = L.polyline(positions, { ...options, offset: offset * scale });
         if (popup) layer.bindPopup(popup);
         layer.addTo(map);
         return () => { map.removeLayer(layer); };
-    }, [positions, options, offset, popup, map]);
+    }, [positions, options, offset, popup, map, zoom]);
     return null;
 };
 
@@ -266,7 +275,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                         const isHighlighted = highlightedRouteId === route.vehicle_id;
                         const color = COLORS[idx % COLORS.length];
                         const positions = getPositions(route.outbound || route);
-                        const routeOffset = (idx - (routes.length - 1) / 2) * 6;
+                        const routeOffset = (idx - (routes.length - 1) / 2) * 3;
                         return (
                             <OffsetPolyline
                                 key={route.vehicle_id}
