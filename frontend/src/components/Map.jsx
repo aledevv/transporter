@@ -250,6 +250,9 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     }, [isFullscreen, exitFullscreen]);
 
     const getPositions = (routeData) => {
+        if (routeData.geometry && routeData.geometry.coordinates) {
+            return routeData.geometry.coordinates.map(c => [c[1], c[0]]);
+        }
         return (routeData.stops || [])
             .filter(s => s.lat != null && s.lon != null)
             .map(s => [s.lat, s.lon]);
