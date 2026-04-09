@@ -131,25 +131,6 @@ const COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
-function miterFilter(pixelPoints, scaledOffset) {
-    if (Math.abs(scaledOffset) < 0.1) return pixelPoints;
-    const result = [pixelPoints[0]];
-    for (let i = 1; i < pixelPoints.length - 1; i++) {
-        const a = pixelPoints[i - 1], b = pixelPoints[i], c = pixelPoints[i + 1];
-        const d1x = b.x - a.x, d1y = b.y - a.y;
-        const d2x = c.x - b.x, d2y = c.y - b.y;
-        const len1 = Math.hypot(d1x, d1y), len2 = Math.hypot(d2x, d2y);
-        if (len1 < 0.01 || len2 < 0.01) continue;
-        const dot = (d1x * d2x + d1y * d2y) / (len1 * len2);
-        // miter extension = |offset| / cos(θ/2); spiral if it exceeds segment length
-        const cosHalf = Math.sqrt(Math.max(0, (1 + dot) / 2));
-        if (cosHalf < 0.01 || Math.abs(scaledOffset) / cosHalf > Math.min(len1, len2)) continue;
-        result.push(pixelPoints[i]);
-    }
-    result.push(pixelPoints[pixelPoints.length - 1]);
-    return result;
-}
-
 const OffsetPolyline = ({ positions, options, offset, popup }) => {
     const map = useMap();
     const [zoom, setZoom] = useState(() => map.getZoom());
@@ -162,16 +143,8 @@ const OffsetPolyline = ({ positions, options, offset, popup }) => {
 
     useEffect(() => {
         const scale = Math.max(0.15, Math.min(1, (zoom - 12) / 3));
-        const smoothFactor = Math.max(1, (15 - zoom) * 0.2);
         const scaledOffset = offset * scale;
-
-        const dpTolerance = Math.max(0, (14 - zoom) * 0.35);
-        const pixelPts = positions.map(ll => map.latLngToLayerPoint(L.latLng(ll[0], ll[1])));
-        const dpSimplified = dpTolerance > 0 ? L.LineUtil.simplify(pixelPts, dpTolerance) : pixelPts;
-        const filtered = miterFilter(dpSimplified, scaledOffset);
-        const filteredLatLng = filtered.map(p => map.layerPointToLatLng(p));
-
-        const layer = L.polyline(filteredLatLng, { ...options, offset: scaledOffset, smoothFactor });
+        const layer = L.polyline(positions, { ...options, offset: scaledOffset, smoothFactor: 1 });
         if (popup) layer.bindPopup(popup);
         layer.addTo(map);
         return () => map.removeLayer(layer);
@@ -277,9 +250,6 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     }, [isFullscreen, exitFullscreen]);
 
     const getPositions = (routeData) => {
-        if (routeData.geometry && routeData.geometry.coordinates) {
-            return routeData.geometry.coordinates.map(c => [c[1], c[0]]);
-        }
         return (routeData.stops || [])
             .filter(s => s.lat != null && s.lon != null)
             .map(s => [s.lat, s.lon]);
