@@ -172,14 +172,82 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
             }
         });
         
-        const groups = {}; 
+        const groupsByCombo = {}; 
         segmentMap.forEach((val) => {
             const combo = Array.from(val.vehicles).sort((a,b)=>a-b).join(',');
-            if (!groups[combo]) groups[combo] = [];
-            groups[combo].push(val.coords);
+            if (!groupsByCombo[combo]) groupsByCombo[combo] = [];
+            groupsByCombo[combo].push(val.coords);
         });
         
-        return groups;
+        // Merge disconnected 2-point segments into continuous paths
+        const mergedPathsByCombo = {};
+        const pointsEqual = (p1, p2) => Math.abs(p1[0] - p2[0]) < 1e-5 && Math.abs(p1[1] - p2[1]) < 1e-5;
+
+        for (const [combo, segments] of Object.entries(groupsByCombo)) {
+            const paths = [];
+            let unvisited = [...segments];
+
+            while (unvisited.length > 0) {
+                let currentPath = [...unvisited.shift()];
+                let added = true;
+
+                while (added) {
+                    added = false;
+                    for (let i = 0; i < unvisited.length; i++) {
+                        const seg = unvisited[i];
+                        const start = currentPath[0];
+                        const end = currentPath[currentPath.length - 1];
+
+                        if (pointsEqual(end, seg[0])) {
+                            currentPath.push(seg[1]);
+                            unvisited.splice(i, 1);
+                            added = true; break;
+                        } else if (pointsEqual(end, seg[1])) {
+                            currentPath.push(seg[0]);
+                            unvisited.splice(i, 1);
+                            added = true; break;
+                        } else if (pointsEqual(start, seg[1])) {
+                            currentPath.unshift(seg[0]);
+                            unvisited.splice(i, 1);
+                            added = true; break;
+                        } else if (pointsEqual(start, seg[0])) {
+                            currentPath.unshift(seg[1]);
+                            unvisited.splice(i, 1);
+                            added = true; break;
+                        }
+                    }
+                }
+                
+                // Filter out points that are too close to avoid mega-spirals (swallowtails) on large offsets
+                if (currentPath.length > 2) {
+                    const simplifiedPath = [currentPath[0]];
+                    let lastAdded = currentPath[0];
+                    for (let j = 1; j < currentPath.length - 1; j++) {
+                         const p2 = currentPath[j];
+                         const dLat = lastAdded[0] - p2[0];
+                         const dLon = lastAdded[1] - p2[1];
+                         if ((dLat*dLat + dLon*dLon) > 1e-8) { // ~11 meters squared
+                             simplifiedPath.push(p2);
+                             lastAdded = p2;
+                         }
+                    }
+                    const lastPt = currentPath[currentPath.length - 1];
+                    const dLat = lastAdded[0] - lastPt[0];
+                    const dLon = lastAdded[1] - lastPt[1];
+                    if ((dLat*dLat + dLon*dLon) > 1e-8 || simplifiedPath.length === 1) {
+                         simplifiedPath.push(lastPt);
+                    } else {
+                         simplifiedPath[simplifiedPath.length - 1] = lastPt;
+                    }
+                    currentPath = simplifiedPath;
+                }
+
+                paths.push(currentPath);
+            }
+            mergedPathsByCombo[combo] = paths;
+        }
+        
+        return mergedPathsByCombo;
     }, [routes]);
 
     const [highlight, setHighlight] = useState(null); // { vehicleId, animKey } — active CSS animation
@@ -292,6 +360,55 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
             .map(s => [s.lat, s.lon]);
     };
 
+    const applyGeographicOffset = (positions, offsetMeters) => {
+        if (!offsetMeters || Math.abs(offsetMeters) < 0.1) return positions;
+        if (positions.length < 2) return positions;
+        
+        const latToMeters = 111320;
+        const res = [];
+        for (let i = 0; i < positions.length; i++) {
+            let pPrev = i > 0 ? positions[i-1] : null;
+            let pCurr = positions[i];
+            let pNext = i < positions.length - 1 ? positions[i+1] : null;
+
+            let nx = 0, ny = 0;
+            const computeD = (p1, p2) => {
+                const dy = (p2[0] - p1[0]) * latToMeters;
+                const dx = (p2[1] - p1[1]) * latToMeters * Math.cos(p1[0] * Math.PI / 180);
+                const len = Math.sqrt(dy*dy + dx*dx) || 1;
+                return [dy / len, dx / len]; // [dy, dx]
+            };
+            
+            if (pPrev && pNext) {
+                const [dyPrev, dxPrev] = computeD(pPrev, pCurr);
+                const [dyNext, dxNext] = computeD(pCurr, pNext);
+                const avgDy = (dyPrev + dyNext) / 2;
+                const avgDx = (dxPrev + dxNext) / 2;
+                const avgLen = Math.sqrt(avgDy*avgDy + avgDx*avgDx);
+                if (avgLen > 0) {
+                    nx = avgDy / avgLen;
+                    ny = -avgDx / avgLen;
+                } else {
+                    nx = dyPrev;
+                    ny = -dxPrev;
+                }
+            } else if (pNext) {
+                const [dy, dx] = computeD(pCurr, pNext);
+                nx = dy; ny = -dx;
+            } else if (pPrev) {
+                const [dy, dx] = computeD(pPrev, pCurr);
+                nx = dy; ny = -dx;
+            }
+            
+            const lonToMeters = latToMeters * Math.cos(pCurr[0] * Math.PI / 180);
+            res.push([
+                pCurr[0] + (ny * offsetMeters) / latToMeters,
+                pCurr[1] + (nx * offsetMeters) / lonToMeters
+            ]);
+        }
+        return res;
+    };
+
     return (
         <div ref={placeholderRef} className="w-full h-full rounded-xl">
         <style>{`
@@ -393,7 +510,7 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                     </button>
                 </div>
 
-                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <MapContainer center={defaultCenter} zoom={14} style={{ height: '100%', width: '100%' }}>
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
@@ -444,43 +561,44 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                     })}
 
                     {/* 1. LAYER VISIVO: MULTIPOLYLINES CON OFFSET DINAMICO */}
-                    {Object.entries(segmentGroups).map(([combo, segments]) => {
+                    {Object.entries(segmentGroups).map(([combo, paths]) => {
                         const vIds = combo.split(',').map(Number);
                         const activeVIds = vIds.filter(vId => !hiddenRouteIds.has(vId));
                         if (activeVIds.length === 0) return null;
                         
                         const numVehicles = activeVIds.length;
-                        const lineWidth = 4;
-                        const gap = 1;
+                        // Dynamically narrow multiple overlapping lines to reduce offset magnitude
+                        const lineWidth = numVehicles > 4 ? 2.5 : 4;
+                        const offsetStepMeters = numVehicles > 4 ? 8 : 12;
 
                         return activeVIds.map((vId, idx) => {
                             const originalIdx = routes.findIndex(r => r.vehicle_id === vId);
                             const color = COLORS[originalIdx % COLORS.length];
                             
-                            // Calcola offset: centra le N righe l'una accanto all'altra
-                            const offsetStep = lineWidth + gap;
-                            const offset = (idx - (numVehicles - 1) / 2) * offsetStep;
+                            const offsetMeters = (idx - (numVehicles - 1) / 2) * offsetStepMeters;
                             
                             const animId = highlight?.vehicleId;
                             const isAnimating = animId === vId;
                             const isSidebarHL = !animId && highlightedRouteId === vId;
                             const isDimmed = (animId !== null && animId !== undefined || highlightedRouteId !== null) && !isAnimating && !isSidebarHL;
                             
-                            return (
-                                <Polyline
-                                    key={`seg-${combo}-${vId}`}
-                                    positions={segments}
-                                    pathOptions={{
-                                        color: isSidebarHL ? '#f97316' : color,
-                                        weight: isSidebarHL ? 6 : lineWidth,
-                                        opacity: isDimmed ? 0.25 : 0.85,
-                                        offset: offset,
-                                        lineCap: 'round',
-                                        lineJoin: 'round',
-                                        interactive: false // eventi click sul layer invisibile
-                                    }}
-                                />
-                            );
+                            return paths.map((pathPositions, pathIdx) => {
+                                const offsetPath = applyGeographicOffset(pathPositions, offsetMeters);
+                                return (
+                                    <Polyline
+                                        key={`seg-${combo}-${vId}-${pathIdx}`}
+                                        positions={offsetPath}
+                                        pathOptions={{
+                                            color: isSidebarHL ? '#f97316' : color,
+                                            weight: isSidebarHL ? 6 : lineWidth,
+                                            opacity: isDimmed ? 0.25 : 1, // Opacità a 1
+                                            lineCap: 'round',
+                                            lineJoin: 'round',
+                                            interactive: false
+                                        }}
+                                    />
+                                );
+                            });
                         });
                     })}
 
