@@ -1,0 +1,517 @@
+[
+  {
+    "id": "ven_mestre_venezia_01",
+    "profile": "driving",
+    "from": [
+      12.2452,
+      45.4907
+    ],
+    "to": [
+      12.3333,
+      45.4379
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 10.4,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "urban",
+      "bridge",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_mestre_treviso_01",
+    "profile": "driving",
+    "from": [
+      12.2452,
+      45.4907
+    ],
+    "to": [
+      12.2423,
+      45.6669
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 21.5,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "regional",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_venezia_padova_01",
+    "profile": "driving",
+    "from": [
+      12.3333,
+      45.4379
+    ],
+    "to": [
+      11.8768,
+      45.4064
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 41.6,
+    "tolerance_km": 3.0,
+    "snap_max_m": 100,
+    "tags": [
+      "regional",
+      "autostrada",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_padova_verona_01",
+    "profile": "driving",
+    "from": [
+      11.8768,
+      45.4064
+    ],
+    "to": [
+      10.9916,
+      45.4384
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 88.3,
+    "tolerance_km": 4.0,
+    "snap_max_m": 100,
+    "tags": [
+      "regional",
+      "autostrada",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_padova_vicenza_01",
+    "profile": "driving",
+    "from": [
+      11.8768,
+      45.4064
+    ],
+    "to": [
+      11.5354,
+      45.5455
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 38.7,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "regional",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_vicenza_verona_01",
+    "profile": "driving",
+    "from": [
+      11.5354,
+      45.5455
+    ],
+    "to": [
+      10.9916,
+      45.4384
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 57.3,
+    "tolerance_km": 2.5,
+    "snap_max_m": 80,
+    "tags": [
+      "regional",
+      "autostrada",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_treviso_conegliano_01",
+    "profile": "driving",
+    "from": [
+      12.2423,
+      45.6669
+    ],
+    "to": [
+      12.3037,
+      45.8893
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 32.3,
+    "tolerance_km": 1.5,
+    "snap_max_m": 60,
+    "tags": [
+      "provinciale",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_conegliano_belluno_01",
+    "profile": "driving",
+    "from": [
+      12.3037,
+      45.8893
+    ],
+    "to": [
+      12.217,
+      46.1426
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 47.0,
+    "tolerance_km": 3.0,
+    "snap_max_m": 100,
+    "tags": [
+      "montagna",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_mestre_jesolo_01",
+    "profile": "driving",
+    "from": [
+      12.2452,
+      45.4907
+    ],
+    "to": [
+      12.6414,
+      45.5043
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 40.9,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "turistico",
+      "litorale",
+      "veneto"
+    ]
+  },
+  {
+    "id": "ven_mestre_chioggia_01",
+    "profile": "driving",
+    "from": [
+      12.2452,
+      45.4907
+    ],
+    "to": [
+      12.289,
+      45.2184
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 47.8,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "litorale",
+      "veneto"
+    ]
+  },
+  {
+    "id": "taa_trento_rovereto_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      11.0418,
+      45.8903
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 28.2,
+    "tolerance_km": 1.5,
+    "snap_max_m": 60,
+    "tags": [
+      "vallata",
+      "autostrada",
+      "trentino"
+    ]
+  },
+  {
+    "id": "taa_trento_bolzano_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      11.3533,
+      46.4983
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 58.4,
+    "tolerance_km": 3.0,
+    "snap_max_m": 100,
+    "tags": [
+      "vallata",
+      "autostrada",
+      "trentino_alto_adige"
+    ]
+  },
+  {
+    "id": "taa_trento_levico_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      11.3056,
+      46.0134
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 22.2,
+    "tolerance_km": 1.5,
+    "snap_max_m": 60,
+    "tags": [
+      "laghi",
+      "montagna",
+      "trentino"
+    ]
+  },
+  {
+    "id": "taa_trento_cavalese_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      11.459,
+      46.2898
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 63.6,
+    "tolerance_km": 3.5,
+    "snap_max_m": 100,
+    "tags": [
+      "montagna",
+      "vallata",
+      "trentino"
+    ]
+  },
+  {
+    "id": "taa_trento_madonna_campiglio_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      10.826,
+      46.2286
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 71.1,
+    "tolerance_km": 5.0,
+    "snap_max_m": 120,
+    "tags": [
+      "montagna",
+      "tornanti",
+      "trentino"
+    ]
+  },
+  {
+    "id": "taa_rovereto_riva_del_garda_01",
+    "profile": "driving",
+    "from": [
+      11.0418,
+      45.8903
+    ],
+    "to": [
+      10.839,
+      45.885
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 23.4,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "laghi",
+      "turistico",
+      "trentino"
+    ]
+  },
+  {
+    "id": "taa_bolzano_merano_01",
+    "profile": "driving",
+    "from": [
+      11.3533,
+      46.4983
+    ],
+    "to": [
+      11.16,
+      46.6713
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 33.0,
+    "tolerance_km": 2.0,
+    "snap_max_m": 80,
+    "tags": [
+      "vallata",
+      "autostrada",
+      "alto_adige"
+    ]
+  },
+  {
+    "id": "taa_bolzano_bressanone_01",
+    "profile": "driving",
+    "from": [
+      11.3533,
+      46.4983
+    ],
+    "to": [
+      11.6546,
+      46.715
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 41.4,
+    "tolerance_km": 3.0,
+    "snap_max_m": 100,
+    "tags": [
+      "vallata",
+      "autostrada",
+      "alto_adige"
+    ]
+  },
+  {
+    "id": "taa_merano_ortisei_01",
+    "profile": "driving",
+    "from": [
+      11.16,
+      46.6713
+    ],
+    "to": [
+      11.6761,
+      46.576
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 70.4,
+    "tolerance_km": 5.0,
+    "snap_max_m": 120,
+    "tags": [
+      "montagna",
+      "passi",
+      "alto_adige"
+    ]
+  },
+  {
+    "id": "taa_bolzano_bruneck_01",
+    "profile": "driving",
+    "from": [
+      11.3533,
+      46.4983
+    ],
+    "to": [
+      11.9366,
+      46.796
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 75.8,
+    "tolerance_km": 4.0,
+    "snap_max_m": 120,
+    "tags": [
+      "vallata",
+      "alto_adige"
+    ]
+  },
+  {
+    "id": "short_urb_trento_01",
+    "profile": "driving",
+    "from": [
+      11.1211,
+      46.0707
+    ],
+    "to": [
+      11.129,
+      46.0745
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 2.2,
+    "tolerance_km": 0.8,
+    "snap_max_m": 40,
+    "tags": [
+      "urbano_breve",
+      "trentino"
+    ]
+  },
+  {
+    "id": "short_urb_padova_01",
+    "profile": "driving",
+    "from": [
+      11.8768,
+      45.4064
+    ],
+    "to": [
+      11.8815,
+      45.4105
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 1.5,
+    "tolerance_km": 0.8,
+    "snap_max_m": 40,
+    "tags": [
+      "urbano_breve",
+      "veneto"
+    ]
+  },
+  {
+    "id": "short_urb_bolzano_01",
+    "profile": "driving",
+    "from": [
+      11.3533,
+      46.4983
+    ],
+    "to": [
+      11.361,
+      46.501
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 1.7,
+    "tolerance_km": 0.8,
+    "snap_max_m": 40,
+    "tags": [
+      "urbano_breve",
+      "alto_adige"
+    ]
+  },
+  {
+    "id": "very_short_same_city_01",
+    "profile": "driving",
+    "from": [
+      12.2452,
+      45.4907
+    ],
+    "to": [
+      12.2465,
+      45.491
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 0.2,
+    "tolerance_km": 0.5,
+    "snap_max_m": 30,
+    "tags": [
+      "quasi_zero",
+      "snap_test",
+      "veneto"
+    ]
+  },
+  {
+    "id": "long_cross_region_01",
+    "profile": "driving",
+    "from": [
+      12.3333,
+      45.4379
+    ],
+    "to": [
+      11.3533,
+      46.4983
+    ],
+    "expected_google_km": null,
+    "expected_osrm_km": 268.1,
+    "tolerance_km": 6.0,
+    "snap_max_m": 120,
+    "tags": [
+      "interregionale",
+      "veneto_trentino_alto_adige"
+    ]
+  }
+]

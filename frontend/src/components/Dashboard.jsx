@@ -431,7 +431,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             {/* Top Row: Config (left, full height) | Map (right) */}
             <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
                 {/* Configuration box */}
-                <div className="w-full lg:w-[30%] min-w-0 flex flex-col">
+                <div className="w-full lg:w-[25%] min-w-0 flex flex-col">
                     <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 flex flex-col flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="flex items-center gap-2 font-semibold text-gray-700">
@@ -486,7 +486,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 </div>
 
                 {/* Map */}
-                <div className="w-full lg:w-[70%]">
+                <div className="w-full lg:w-[75%]">
                     <div className="relative h-[500px] lg:h-full min-h-[400px]">
                         <Map schools={schools} routes={mapRoutes} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
                     </div>
