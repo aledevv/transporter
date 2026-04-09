@@ -279,7 +279,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
         `}</style>
             <div
                 ref={containerRef}
-                className="w-full h-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
+                className={`w-full h-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100${showDemand ? '' : ' map-minimal-pins'}`}
             >
                 {/* Route toggle panel — bottom-left */}
                 {routes && routes.length > 0 && (
@@ -341,7 +341,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     </button>
                 </div>
 
-                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }} className={showDemand ? '' : 'map-minimal-pins'}>
+                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
