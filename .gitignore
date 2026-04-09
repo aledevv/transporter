@@ -71,3 +71,5 @@ node_modules/
 venv/
 .venv/
 .nominatim_cache.json
+.worktrees/
+.superpowers/
