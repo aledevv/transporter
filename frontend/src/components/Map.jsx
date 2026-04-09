@@ -410,7 +410,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                                         key={isAnimating ? `line-${highlight.animKey}` : route.vehicle_id}
                                         positions={positions}
                                         pathOptions={{
-                                            color: (isAnimating || isSidebarHL) ? '#f97316' : color,
+                                            color: isSidebarHL ? '#f97316' : color,
                                             weight: (isAnimating || isSidebarHL) ? 7 : 4,
                                             opacity: (isAnimating || isSidebarHL) ? 1 : (isAnyDimmed ? 0.3 : 0.75),
                                             lineCap: 'round',
