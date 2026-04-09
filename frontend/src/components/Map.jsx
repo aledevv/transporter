@@ -77,20 +77,22 @@ const getInstituteIcon = (color) => {
 
 const createCustomIcon = (color, IconComponent) => {
     const iconHtml = renderToStaticMarkup(
-        <div className="relative flex items-center justify-center w-full h-full">
+        <div className="relative w-full h-full">
             <IconComponent
-                className="w-8 h-8 drop-shadow-md filter"
+                className="w-8 h-8 drop-shadow-md filter absolute top-0 left-0"
                 style={{ fill: color, color: 'white', strokeWidth: 1.5 }}
             />
-            <div className="absolute -bottom-1 w-2 h-2 bg-black opacity-20 rounded-full blur-[1px]" />
+            {/* Ombra riposizionata esattamente sotto la base dell'asta della bandiera */}
+            <div className="absolute bg-black opacity-30 rounded-full blur-[1.5px]" style={{ left: '3px', bottom: '2px', width: '8px', height: '4px' }} />
         </div>
     );
     return L.divIcon({
         html: iconHtml,
         className: 'custom-marker-icon',
         iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
+        // Allineamento millimetrico all'asta della bandiera lucide-react (svG viewBox 24x24 scalato a 32x32 -> x~5.3, y~29.3)
+        iconAnchor: [5, 29],
+        popupAnchor: [10, -29],
     });
 };
 
@@ -465,6 +467,9 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
             .route-line-hl {
                 animation: route-line-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
             }
+            .route-transition {
+                transition: stroke-opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.4s ease, stroke 0.4s ease;
+            }
             .pin-inner {
                 transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
                 transform-origin: 50% 100%;
@@ -594,13 +599,14 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                         );
                     })}
 
-                    {/* 1. LAYER VISIVO: MULTIPOLYLINES CON OFFSET DINAMICO */}
+                    {/* 1. LAYER VISIVO: MULTIPOLYLINES CON OFFSET DINAMICO (ED EVENTI DI CLICK) */}
                     {Object.entries(segmentGroups).map(([combo, paths]) => {
                         const vIds = combo.split(',').map(Number);
-                        const activeVIds = vIds.filter(vId => !hiddenRouteIds.has(vId));
-                        if (activeVIds.length === 0) return null;
+                        const numVehicles = vIds.length;
+                        if (numVehicles === 0) return null;
                         
-                        const numVehicles = activeVIds.length;
+                        // Fading out lines keeps them in active setup, so they keep their 'lane' slot and don't make others jump
+                        const activeVIds = vIds;
                         
                         // Scale visually by targeting a constant pixel thickness/gap based on zoom
                         let baseWeight = 7;
@@ -647,6 +653,7 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                             
                             const offsetMeters = (idx - (numVehicles - 1) / 2) * offsetStepMeters;
                             
+                            const isHidden = hiddenRouteIds.has(vId);
                             const animId = highlight?.vehicleId;
                             const isAnimating = animId === vId;
                             const isSidebarHL = !animId && highlightedRouteId === vId;
@@ -662,10 +669,14 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                                         pathOptions={{
                                             color: isSidebarHL ? '#f97316' : color,
                                             weight: isSidebarHL ? 6 : lineWidth,
-                                            opacity: isDimmed ? 0.25 : 1, // Opacità a 1
+                                            opacity: isHidden ? 0 : (isDimmed ? 0.25 : 1),
                                             lineCap: 'round',
                                             lineJoin: 'round',
-                                            interactive: false
+                                            interactive: !isHidden,
+                                            className: isHidden ? 'route-transition pointer-events-none' : 'route-transition'
+                                        }}
+                                        eventHandlers={{
+                                            click: () => { if (!isHidden) handlePolylineClick(vId); }
                                         }}
                                     />
                                 );
@@ -673,7 +684,7 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                         });
                     })}
 
-                    {/* 2. LAYER INTERATTIVO + GLOW: POLILINE CONTINUI E TRASPARENTI */}
+                    {/* 2. LAYER ANIMAZIONI: GLOW CENTRALE QUANDO UNA ROTTA É EVIDENZIATA */}
                     {routes && routes.map((route) => {
                         if (hiddenRouteIds.has(route.vehicle_id)) return null;
                         const animId = highlight?.vehicleId;
@@ -698,17 +709,6 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                                         }}
                                     />
                                 )}
-                                {/* Invisible thick line per facilitare i click mouse */}
-                                <Polyline
-                                    positions={positions}
-                                    pathOptions={{
-                                        color: 'transparent',
-                                        weight: 20,
-                                        opacity: 0,
-                                        interactive: true
-                                    }}
-                                    eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
-                                />
                             </React.Fragment>
                         );
                     })}
