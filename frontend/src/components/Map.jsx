@@ -372,6 +372,27 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
             .map(s => [s.lat, s.lon]);
     };
 
+    const simplifyPath = (positions, toleranceMeters) => {
+        if (positions.length <= 2 || toleranceMeters <= 0) return positions;
+        const res = [positions[0]];
+        let lastPt = positions[0];
+        const latToMeters = 111320;
+        
+        for (let i = 1; i < positions.length - 1; i++) {
+            const p = positions[i];
+            const dy = (p[0] - lastPt[0]) * latToMeters;
+            const dx = (p[1] - lastPt[1]) * latToMeters * Math.cos(lastPt[0] * Math.PI / 180);
+            const dist = Math.sqrt(dy*dy + dx*dx);
+            
+            if (dist >= toleranceMeters) {
+                res.push(p);
+                lastPt = p;
+            }
+        }
+        res.push(positions[positions.length - 1]);
+        return res;
+    };
+
     const applyGeographicOffset = (positions, offsetMeters) => {
         if (!offsetMeters || Math.abs(offsetMeters) < 0.1) return positions;
         if (positions.length < 2) return positions;
@@ -601,10 +622,16 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                             gapPixels = 1.5;
                         }
                         
-                        if (numVehicles > 3) {
-                            baseWeight = Math.max(4, baseWeight * 0.85);
-                            gapPixels = Math.max(0.5, gapPixels * 0.85);
+                        if (numVehicles > 1) {
+                            // Diminuisci la stazza delle linee quando sono affiancate per contenere l'ingombro visivo
+                            baseWeight = Math.max(3, baseWeight * 0.65);
+                            gapPixels = Math.max(0.5, gapPixels * 0.7);
                         }
+                        
+                        let toleranceMeters = 0;
+                        if (currentZoom <= 12) toleranceMeters = 150;
+                        else if (currentZoom === 13) toleranceMeters = 80;
+                        else if (currentZoom === 14) toleranceMeters = 35;
                         
                         const lineWidth = baseWeight;
                         const offsetStepPixels = baseWeight + gapPixels;
@@ -626,7 +653,8 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                             const isDimmed = (animId !== null && animId !== undefined || highlightedRouteId !== null) && !isAnimating && !isSidebarHL;
                             
                             return paths.map((pathPositions, pathIdx) => {
-                                const offsetPath = applyGeographicOffset(pathPositions, offsetMeters);
+                                const simplified = simplifyPath(pathPositions, toleranceMeters);
+                                const offsetPath = applyGeographicOffset(simplified, offsetMeters);
                                 return (
                                     <Polyline
                                         key={`seg-${combo}-${vId}-${pathIdx}`}
