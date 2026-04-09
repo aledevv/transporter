@@ -138,7 +138,8 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [resizerTick, setResizerTick] = useState(0);
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
-    const [tempHighlight, setTempHighlight] = useState(null);
+    const [highlight, setHighlight] = useState(null); // { vehicleId, animKey } — active CSS animation
+    const [topRouteId, setTopRouteId] = useState(null); // permanent front route after animation
     const highlightTimerRef = useRef(null);
 
     useEffect(() => { setHiddenRouteIds(new Set()); }, [routes]);
@@ -146,8 +147,9 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
 
     const handlePolylineClick = useCallback((vehicleId) => {
         if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-        setTempHighlight(vehicleId);
-        highlightTimerRef.current = setTimeout(() => setTempHighlight(null), 2000);
+        setTopRouteId(vehicleId);
+        setHighlight({ vehicleId, animKey: Date.now() });
+        highlightTimerRef.current = setTimeout(() => setHighlight(null), 5000);
     }, []);
 
     // --- FLIP animation helpers ---
@@ -247,9 +249,29 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     };
 
     return (
-        // The placeholder always stays in the normal document flow
-        // and defines the space the map occupies when not fullscreen
         <div ref={placeholderRef} className="w-full h-full rounded-xl">
+        <style>{`
+            @keyframes route-glow-anim {
+                0%   { opacity: 0; }
+                8%   { opacity: 0.55; }
+                78%  { opacity: 0.55; }
+                100% { opacity: 0; }
+            }
+            @keyframes route-line-anim {
+                0%   { opacity: 0; }
+                8%   { opacity: 1; }
+                78%  { opacity: 1; }
+                100% { opacity: 0; }
+            }
+            .route-glow {
+                filter: blur(12px);
+                animation: route-glow-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
+                pointer-events: none;
+            }
+            .route-line-hl {
+                animation: route-line-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
+            }
+        `}</style>
             <div
                 ref={containerRef}
                 className="w-full h-full rounded-xl overflow-hidden shadow-inner border border-gray-200 relative z-0 bg-gray-100"
@@ -355,28 +377,49 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     })}
 
                     {routes && (() => {
-                        const activeHighlight = tempHighlight ?? highlightedRouteId;
+                        const animId = highlight?.vehicleId;
+                        const frontId = animId ?? topRouteId ?? highlightedRouteId;
+                        const isAnyDimmed = animId !== null && animId !== undefined || highlightedRouteId !== null;
                         const sorted = [...routes].sort((a, b) =>
-                            a.vehicle_id === activeHighlight ? 1 : b.vehicle_id === activeHighlight ? -1 : 0
+                            a.vehicle_id === frontId ? 1 : b.vehicle_id === frontId ? -1 : 0
                         );
                         return sorted.map((route) => {
                             if (hiddenRouteIds.has(route.vehicle_id)) return null;
                             const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
                             const color = COLORS[originalIdx % COLORS.length];
-                            const isHighlighted = activeHighlight === route.vehicle_id;
+                            const isAnimating = animId === route.vehicle_id;
+                            const isSidebarHL = !animId && highlightedRouteId === route.vehicle_id;
                             const positions = getPositions(route.outbound || route);
                             return (
-                                <Polyline
-                                    key={route.vehicle_id}
-                                    positions={positions}
-                                    pathOptions={{
-                                        color: isHighlighted ? '#f97316' : color,
-                                        weight: isHighlighted ? 8 : 4,
-                                        opacity: isHighlighted ? 1 : (activeHighlight !== null ? 0.35 : 0.8),
-                                        lineJoin: 'round',
-                                    }}
-                                    eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
-                                />
+                                <React.Fragment key={route.vehicle_id}>
+                                    {isAnimating && (
+                                        <Polyline
+                                            key={`glow-${highlight.animKey}`}
+                                            positions={positions}
+                                            pathOptions={{
+                                                color,
+                                                weight: 22,
+                                                opacity: 1,
+                                                lineCap: 'round',
+                                                lineJoin: 'round',
+                                                className: 'route-glow',
+                                            }}
+                                        />
+                                    )}
+                                    <Polyline
+                                        key={isAnimating ? `line-${highlight.animKey}` : route.vehicle_id}
+                                        positions={positions}
+                                        pathOptions={{
+                                            color: (isAnimating || isSidebarHL) ? '#f97316' : color,
+                                            weight: (isAnimating || isSidebarHL) ? 7 : 4,
+                                            opacity: (isAnimating || isSidebarHL) ? 1 : (isAnyDimmed ? 0.3 : 0.75),
+                                            lineCap: 'round',
+                                            lineJoin: 'round',
+                                            className: isAnimating ? 'route-line-hl' : '',
+                                        }}
+                                        eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
+                                    />
+                                </React.Fragment>
                             );
                         });
                     })()}
