@@ -437,8 +437,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             <h3 className="flex items-center gap-2 font-semibold text-gray-700">
                                 <Settings className="w-5 h-5" /> Configurazione
                             </h3>
-                            <button onClick={() => setShowEditor(true)} className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium">
-                                <Edit className="w-3 h-3" /> Modifica Dati ({schools.length})
+                            <button onClick={() => setShowEditor(true)} className="text-xs flex items-center gap-0.5 text-blue-600 hover:text-blue-800 font-medium">
+                                <Edit className="w-3 h-3" /> <span>Modifica ({schools.length})</span>
                             </button>
                         </div>
 

@@ -12,7 +12,7 @@ const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 const createStopIcon = (color, demand) => {
     const fontSize = demand >= 100 ? '9px' : demand >= 10 ? '11px' : '13px';
     const html = `
-        <div style="position:relative;width:28px;height:34px;">
+        <div class="pin-inner" style="position:relative;width:28px;height:34px;">
             <div style="
                 width:28px;height:28px;
                 border-radius:50% 50% 50% 0;
@@ -45,7 +45,7 @@ const createInstituteIcon = (color) => {
         <GraduationCap style={{ width: 22, height: 22, color: 'white', strokeWidth: 2 }} />
     );
     const html = `
-        <div style="
+        <div class="pin-inner" style="
             width:40px;height:40px;
             border-radius:50%;
             background:${color};
@@ -263,14 +263,14 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
             .route-line-hl {
                 animation: route-line-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
             }
-            .custom-marker-icon {
+            .pin-inner {
                 transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
                 transform-origin: 50% 100%;
             }
             .stop-demand {
-                transition: opacity 0.25s ease;
+                transition: opacity 0.2s ease;
             }
-            .map-minimal-pins .custom-marker-icon {
+            .map-minimal-pins .pin-inner {
                 transform: scale(0.5);
             }
             .map-minimal-pins .stop-demand {
