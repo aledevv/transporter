@@ -129,6 +129,17 @@ const MapResizer = ({ trigger }) => {
     return null;
 };
 
+const MapEventTracker = ({ onZoomChange }) => {
+    const map = useMap();
+    useEffect(() => {
+        onZoomChange(map.getZoom());
+        const handleZoom = () => onZoomChange(map.getZoom());
+        map.on('zoomend', handleZoom);
+        return () => map.off('zoomend', handleZoom);
+    }, [map, onZoomChange]);
+    return null;
+};
+
 const COLORS = [
     '#3b82f6', '#ef4444', '#22c55e', '#eab308',
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
@@ -143,6 +154,7 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
     const [resizerTick, setResizerTick] = useState(0);
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
     const [showDemand, setShowDemand] = useState(true);
+    const [currentZoom, setCurrentZoom] = useState(14);
 
     // Compute segment clusters to draw perfectly offset parallel polylines
     // when any N routes share exactly the same road segments.
@@ -517,6 +529,7 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                     />
 
                     <MapResizer trigger={resizerTick} />
+                    <MapEventTracker onZoomChange={setCurrentZoom} />
 
                     <MapController
                         schools={schools}
@@ -567,9 +580,39 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                         if (activeVIds.length === 0) return null;
                         
                         const numVehicles = activeVIds.length;
-                        // Dynamically narrow multiple overlapping lines to reduce offset magnitude
-                        const lineWidth = numVehicles > 4 ? 2.5 : 4;
-                        const offsetStepMeters = numVehicles > 4 ? 8 : 12;
+                        
+                        // Scale visually by targeting a constant pixel thickness/gap based on zoom
+                        let baseWeight = 7;
+                        let gapPixels = 1;
+                        
+                        // Because fitBounds can start the map at zoom 12 or 13, 
+                        // we must guarantee a solid pixel gap at ALL zoom levels.
+                        if (currentZoom <= 12) {
+                            baseWeight = 3.5;
+                            gapPixels = 0.5;
+                        } else if (currentZoom === 13) {
+                            baseWeight = 4;
+                            gapPixels = 0.5;
+                        } else if (currentZoom === 14) {
+                            baseWeight = 5.5;
+                            gapPixels = 0.5;
+                        } else if (currentZoom >= 15) {
+                            baseWeight = 11;
+                            gapPixels = 1.5;
+                        }
+                        
+                        if (numVehicles > 3) {
+                            baseWeight = Math.max(4, baseWeight * 0.85);
+                            gapPixels = Math.max(0.5, gapPixels * 0.85);
+                        }
+                        
+                        const lineWidth = baseWeight;
+                        const offsetStepPixels = baseWeight + gapPixels;
+                        const metersPerPixel = 108740 / Math.pow(2, currentZoom);
+                        
+                        // No cap on max meters! We WANT the geographic offset to become huge (e.g. 500m) 
+                        // when zoomed out so the lines remain physically separated by `gapPixels` on the screen.
+                        const offsetStepMeters = offsetStepPixels * metersPerPixel;
 
                         return activeVIds.map((vId, idx) => {
                             const originalIdx = routes.findIndex(r => r.vehicle_id === vId);
