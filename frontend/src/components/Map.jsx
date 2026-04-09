@@ -2,15 +2,18 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, Maximize2, Minimize2, Bus } from 'lucide-react';
+import { X, Maximize2, Minimize2, Bus, Users, UserX } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Flag, GraduationCap } from 'lucide-react';
 
 const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
-const createStopIcon = (color, demand) => {
+const createStopIcon = (color, demand, showDemand = true) => {
     const fontSize = demand >= 100 ? '9px' : demand >= 10 ? '11px' : '13px';
+    const inner = showDemand
+        ? `<span style="transform:rotate(45deg);color:white;font-size:${fontSize};font-weight:800;line-height:1;font-family:sans-serif;">${demand}</span>`
+        : `<span style="transform:rotate(45deg);display:block;width:6px;height:6px;background:rgba(255,255,255,0.7);border-radius:50%;"></span>`;
     const html = `
         <div style="position:relative;width:28px;height:34px;">
             <div style="
@@ -21,16 +24,7 @@ const createStopIcon = (color, demand) => {
                 border:2px solid white;
                 box-shadow:0 2px 8px rgba(0,0,0,0.25);
                 display:flex;align-items:center;justify-content:center;
-            ">
-                <span style="
-                    transform:rotate(45deg);
-                    color:white;
-                    font-size:${fontSize};
-                    font-weight:800;
-                    line-height:1;
-                    font-family:sans-serif;
-                ">${demand}</span>
-            </div>
+            ">${inner}</div>
             <div style="
                 position:absolute;bottom:0;left:50%;
                 transform:translateX(-50%);
@@ -138,6 +132,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [resizerTick, setResizerTick] = useState(0);
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
+    const [showDemand, setShowDemand] = useState(true);
     const [highlight, setHighlight] = useState(null); // { vehicleId, animKey } — active CSS animation
     const [topRouteId, setTopRouteId] = useState(null); // permanent front route after animation
     const highlightTimerRef = useRef(null);
@@ -305,6 +300,16 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
 
                 {/* Top-right buttons */}
                 <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
+                    <button
+                        onClick={() => setShowDemand(v => !v)}
+                        className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
+                        title={showDemand ? 'Nascondi partecipanti' : 'Mostra partecipanti'}
+                    >
+                        {showDemand
+                            ? <Users className="w-4 h-4 text-gray-600" />
+                            : <UserX className="w-4 h-4 text-gray-400" />
+                        }
+                    </button>
                     {highlightedRouteId !== null && onResetFocus && (
                         <button
                             onClick={onResetFocus}
@@ -357,7 +362,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                             : '#3b82f6';
                         const icon = school.institute
                             ? createInstituteIcon(color)
-                            : createStopIcon(color, school.demand);
+                            : createStopIcon(color, school.demand, showDemand);
                         return (
                             <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
                                 <Popup>
