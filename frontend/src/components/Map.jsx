@@ -9,11 +9,8 @@ import { Flag, GraduationCap } from 'lucide-react';
 const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
-const createStopIcon = (color, demand, showDemand = true) => {
+const createStopIcon = (color, demand) => {
     const fontSize = demand >= 100 ? '9px' : demand >= 10 ? '11px' : '13px';
-    const inner = showDemand
-        ? `<span style="transform:rotate(45deg);color:white;font-size:${fontSize};font-weight:800;line-height:1;font-family:sans-serif;">${demand}</span>`
-        : `<span style="transform:rotate(45deg);display:block;width:6px;height:6px;background:rgba(255,255,255,0.7);border-radius:50%;"></span>`;
     const html = `
         <div style="position:relative;width:28px;height:34px;">
             <div style="
@@ -24,7 +21,7 @@ const createStopIcon = (color, demand, showDemand = true) => {
                 border:2px solid white;
                 box-shadow:0 2px 8px rgba(0,0,0,0.25);
                 display:flex;align-items:center;justify-content:center;
-            ">${inner}</div>
+            "><span class="stop-demand" style="transform:rotate(45deg);color:white;font-size:${fontSize};font-weight:800;line-height:1;font-family:sans-serif;">${demand}</span></div>
             <div style="
                 position:absolute;bottom:0;left:50%;
                 transform:translateX(-50%);
@@ -266,6 +263,19 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
             .route-line-hl {
                 animation: route-line-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
             }
+            .custom-marker-icon {
+                transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+                transform-origin: 50% 100%;
+            }
+            .stop-demand {
+                transition: opacity 0.25s ease;
+            }
+            .map-minimal-pins .custom-marker-icon {
+                transform: scale(0.5);
+            }
+            .map-minimal-pins .stop-demand {
+                opacity: 0;
+            }
         `}</style>
             <div
                 ref={containerRef}
@@ -331,7 +341,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     </button>
                 </div>
 
-                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }} className={showDemand ? '' : 'map-minimal-pins'}>
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
@@ -362,7 +372,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                             : '#3b82f6';
                         const icon = school.institute
                             ? createInstituteIcon(color)
-                            : createStopIcon(color, school.demand, showDemand);
+                            : createStopIcon(color, school.demand);
                         return (
                             <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
                                 <Popup>
