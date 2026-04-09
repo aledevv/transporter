@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { serverTimestamp } from 'firebase/firestore';
 import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays, Bookmark, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
-import { Document, Paragraph, TextRun, Table, TableRow, TableCell, Packer, WidthType, AlignmentType, HeadingLevel, BorderStyle } from 'docx';
+import { Document, Paragraph, TextRun, Table, TableRow, TableCell, Packer, WidthType, AlignmentType, HeadingLevel, BorderStyle, ImageRun } from 'docx';
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
 import SchoolEditor from './SchoolEditor';
@@ -98,6 +98,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [docEventName, setDocEventName] = useState('');
 
     const resultsRef = useRef(null);
+    const mapRef = useRef(null);
 
     useEffect(() => {
         if (results && resultsRef.current) {
@@ -276,7 +277,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     };
 
     // ── PDF generation ─────────────────────────────────────────────────────────
-    const generatePdf = () => {
+    const generatePdf = async () => {
         const doc = new jsPDF();
         const totalKm = (results.stats.total_distance / 1000).toFixed(1);
         const totalKmRT = (results.stats.total_distance / 1000 * 2).toFixed(1);
@@ -324,6 +325,26 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             });
             finalY = doc.lastAutoTable.finalY + 15;
         });
+
+        // Screenshot
+        const imgData = await mapRef.current?.captureScreenshot();
+        if (imgData) {
+            doc.addPage();
+            doc.setFontSize(16);
+            doc.text("Mappa Percorsi", 14, 20);
+            
+            await new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => {
+                    const pdfWidth = doc.internal.pageSize.getWidth();
+                    const width = pdfWidth - 28;
+                    const height = (img.height * width) / img.width;
+                    doc.addImage(imgData, 'JPEG', 14, 30, width, height);
+                    resolve();
+                };
+                img.src = imgData;
+            });
+        }
 
         doc.save('piano_trasporti.pdf');
     };
@@ -373,6 +394,43 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             sections.push(new Paragraph({ text: '' }));
         });
 
+        // Screenshot
+        const imgData = await mapRef.current?.captureScreenshot();
+        if (imgData) {
+            try {
+                const base64Data = imgData.replace(/^data:image\/(png|jpeg);base64,/, "");
+                const binaryString = atob(base64Data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                const imgProps = await new Promise(resolve => {
+                    const img = new Image();
+                    img.onload = () => resolve({ width: img.width, height: img.height });
+                    img.src = imgData;
+                });
+
+                const targetWidth = 600;
+                const targetHeight = (imgProps.height * targetWidth) / imgProps.width;
+
+                sections.push(new Paragraph({ text: '' }));
+                sections.push(new Paragraph({ text: 'Mappa Percorsi', heading: HeadingLevel.HEADING_2 }));
+                sections.push(new Paragraph({
+                    children: [
+                        new ImageRun({
+                            data: bytes,
+                            transformation: { width: targetWidth, height: targetHeight }
+                        })
+                    ],
+                    alignment: AlignmentType.CENTER
+                }));
+            } catch (err) {
+                console.error("Failed to add screenshot to DOCX", err);
+            }
+        }
+
         const doc = new Document({ sections: [{ children: sections }] });
         const blob = await Packer.toBlob(doc);
         const url = URL.createObjectURL(blob);
@@ -384,7 +442,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const handleOpenDownload = (type) => setDownloadDialog(type);
 
     const handleConfirmDownload = async () => {
-        if (downloadDialog === 'pdf') generatePdf();
+        if (downloadDialog === 'pdf') await generatePdf();
         else await generateDocx();
         setDownloadDialog(null);
     };
@@ -488,7 +546,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 {/* Map */}
                 <div className="w-full lg:w-[75%]">
                     <div className="relative h-[500px] lg:h-full min-h-[400px]">
-                        <Map schools={schools} routes={mapRoutes} overlaps={results?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
+                        <Map ref={mapRef} schools={schools} routes={mapRoutes} overlaps={results?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
                     </div>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import 'leaflet-polylineoffset';
 import { X, Maximize2, Minimize2, Bus, Users, UserX } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Flag, GraduationCap } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -148,8 +149,9 @@ const COLORS = [
 ];
 
 
-const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
+const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }, ref) => {
     const defaultCenter = [46.0697, 11.1211];
+    const mapRef = useRef(null);
     const placeholderRef = useRef(null); // the div that holds the natural-flow space
     const containerRef = useRef(null);   // the actual map div we animate
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -270,6 +272,98 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
 
     useEffect(() => { setHiddenRouteIds(new Set()); }, [routes]);
     useEffect(() => () => { if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current); }, []);
+
+    // Expose capture functionality
+    React.useImperativeHandle(ref, () => ({
+        captureScreenshot: async () => {
+            const mapObj = mapRef.current;
+            const container = containerRef.current;
+            if (!mapObj || !container) return null;
+
+            // 1. Calculate map bounds based on visible data
+            let boundsToCapture = null;
+            const geocoded = schools.filter(s => s.lat != null && s.lon != null);
+            if (geocoded.length > 0 || destination) {
+               boundsToCapture = L.latLngBounds(geocoded.map(s => [s.lat, s.lon]));
+               if (destination) boundsToCapture.extend([destination.lat, destination.lon]);
+               if (routes && routes.length > 0) {
+                    routes.forEach(r => {
+                         const geom = (r.outbound || r).geometry;
+                         if (geom && geom.coordinates) {
+                              geom.coordinates.forEach(c => boundsToCapture.extend([c[1], c[0]]));
+                         }
+                    });
+               }
+            }
+
+            // Disable animations and glow effects just for the capture
+            const glowEls = container.querySelectorAll('.route-glow');
+            glowEls.forEach(el => el.style.display = 'none');
+
+            try {
+                // Render the FULL container in HD
+                const scale = window.devicePixelRatio > 1 ? window.devicePixelRatio : 2;
+                const fullCanvas = await html2canvas(container, {
+                    useCORS: true,
+                    allowTaint: false,
+                    scale: scale,
+                    backgroundColor: '#f3f4f6', // matches tailwind bg-gray-100
+                    onclone: (clonedDoc) => {
+                        // Apply map-minimal-pins only to the cloned DOM
+                        const clonedContainer = clonedDoc.querySelector('.leaflet-container');
+                        if (clonedContainer && clonedContainer.parentElement) {
+                            clonedContainer.parentElement.classList.add('map-minimal-pins');
+                        }
+                    }
+                });
+
+                let finalDataUrl = fullCanvas.toDataURL('image/jpeg', 0.9);
+
+                // Now tightly crop the resulting canvas using the calculated relative boundaries
+                if (boundsToCapture && boundsToCapture.isValid()) {
+                    const nw = mapObj.latLngToContainerPoint(boundsToCapture.getNorthWest());
+                    const se = mapObj.latLngToContainerPoint(boundsToCapture.getSouthEast());
+                    
+                    const PADDING = 60;
+                    let minX = Math.min(nw.x, se.x) - PADDING;
+                    let maxX = Math.max(nw.x, se.x) + PADDING;
+                    let minY = Math.min(nw.y, se.y) - PADDING;
+                    let maxY = Math.max(nw.y, se.y) + PADDING;
+
+                    const rect = container.getBoundingClientRect();
+                    minX = Math.max(0, minX);
+                    minY = Math.max(0, minY);
+                    maxX = Math.min(rect.width, maxX);
+                    maxY = Math.min(rect.height, maxY);
+                    
+                    const width = maxX - minX;
+                    const height = maxY - minY;
+                    
+                    if (width > 0 && height > 0) {
+                        const croppedCanvas = document.createElement('canvas');
+                        croppedCanvas.width = width * scale;
+                        croppedCanvas.height = height * scale;
+                        const ctx = croppedCanvas.getContext('2d');
+                        
+                        ctx.drawImage(
+                            fullCanvas,
+                            minX * scale, minY * scale, width * scale, height * scale,
+                            0, 0, width * scale, height * scale
+                        );
+                        finalDataUrl = croppedCanvas.toDataURL('image/jpeg', 0.95); // High quality JPEG
+                    }
+                }
+
+                return finalDataUrl;
+            } catch (err) {
+                console.error("Screenshot capture failed:", err);
+                return null;
+            } finally {
+                // Restore elements
+                glowEls.forEach(el => el.style.display = '');
+            }
+        }
+    }));
 
     const handlePolylineClick = useCallback((vehicleId) => {
         if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
@@ -548,10 +642,11 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
                     </button>
                 </div>
 
-                <MapContainer center={defaultCenter} zoom={14} style={{ height: '100%', width: '100%' }}>
+                <MapContainer ref={mapRef} center={defaultCenter} zoom={14} style={{ height: '100%', width: '100%' }} preferCanvas={true}>
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
+                        crossOrigin="anonymous"
                     />
 
                     <MapResizer trigger={resizerTick} />
@@ -723,6 +818,6 @@ const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, high
             </div>
         </div>
     );
-};
+});
 
 export default BusMap;
