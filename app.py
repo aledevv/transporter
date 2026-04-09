@@ -10,6 +10,7 @@ from geocoder import GeocodingService
 from optimizer import VRPSolver
 from address_corrector import AddressCorrector
 import gemini_agent as _gemini_agent
+from scripts.find_overlaps import find_bus_overlaps
 
 address_corrector = AddressCorrector()
 
@@ -854,8 +855,12 @@ def optimize():
         # Calculate Totals
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
 
+        # Calculate Overlaps
+        overlaps = find_bus_overlaps(formatted_routes, min_overlap_meters=30)
+
         return jsonify({
             'routes': formatted_routes,
+            'overlaps': overlaps,
             'stats': {
                 'total_buses': solution['used_vehicles'],
                 'total_passengers': solution['total_load'],

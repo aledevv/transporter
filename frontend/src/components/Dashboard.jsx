@@ -488,7 +488,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 {/* Map */}
                 <div className="w-full lg:w-[75%]">
                     <div className="relative h-[500px] lg:h-full min-h-[400px]">
-                        <Map schools={schools} routes={mapRoutes} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
+                        <Map schools={schools} routes={mapRoutes} overlaps={results?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
                     </div>
                 </div>
             </div>

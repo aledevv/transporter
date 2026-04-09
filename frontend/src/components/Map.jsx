@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-polylineoffset';
 import { X, Maximize2, Minimize2, Bus, Users, UserX } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Flag, GraduationCap } from 'lucide-react';
@@ -9,7 +10,12 @@ import { Flag, GraduationCap } from 'lucide-react';
 const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
-const createStopIcon = (color, demand) => {
+const iconCache = new Map();
+
+const getStopIcon = (color, demand) => {
+    const cacheKey = `stop-${color}-${demand}`;
+    if (iconCache.has(cacheKey)) return iconCache.get(cacheKey);
+
     const fontSize = demand >= 100 ? '9px' : demand >= 10 ? '11px' : '13px';
     const html = `
         <div class="pin-inner" style="position:relative;width:28px;height:34px;">
@@ -31,16 +37,21 @@ const createStopIcon = (color, demand) => {
                 filter:blur(2px);
             "></div>
         </div>`;
-    return L.divIcon({
+    const icon = L.divIcon({
         html,
         className: 'custom-marker-icon',
         iconSize: [28, 34],
         iconAnchor: [14, 34],
         popupAnchor: [0, -34],
     });
+    iconCache.set(cacheKey, icon);
+    return icon;
 };
 
-const createInstituteIcon = (color) => {
+const getInstituteIcon = (color) => {
+    const cacheKey = `inst-${color}`;
+    if (iconCache.has(cacheKey)) return iconCache.get(cacheKey);
+
     const iconHtml = renderToStaticMarkup(
         <GraduationCap style={{ width: 22, height: 22, color: 'white', strokeWidth: 2 }} />
     );
@@ -53,13 +64,15 @@ const createInstituteIcon = (color) => {
             box-shadow:0 3px 10px rgba(0,0,0,0.25);
             display:flex;align-items:center;justify-content:center;
         ">${iconHtml}</div>`;
-    return L.divIcon({
+    const icon = L.divIcon({
         html,
         className: 'custom-marker-icon',
         iconSize: [40, 40],
         iconAnchor: [20, 40],
         popupAnchor: [0, -40],
     });
+    iconCache.set(cacheKey, icon);
+    return icon;
 };
 
 const createCustomIcon = (color, IconComponent) => {
@@ -122,7 +135,7 @@ const COLORS = [
 ];
 
 
-const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
+const BusMap = ({ schools, routes, overlaps = [], destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
     const defaultCenter = [46.0697, 11.1211];
     const placeholderRef = useRef(null); // the div that holds the natural-flow space
     const containerRef = useRef(null);   // the actual map div we animate
@@ -130,6 +143,45 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     const [resizerTick, setResizerTick] = useState(0);
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
     const [showDemand, setShowDemand] = useState(true);
+
+    // Compute segment clusters to draw perfectly offset parallel polylines
+    // when any N routes share exactly the same road segments.
+    const segmentGroups = React.useMemo(() => {
+        if (!routes) return {};
+        const segmentMap = new globalThis.Map();
+        
+        const getSegKey = (c1, c2) => {
+            const h1 = `${c1[0].toFixed(5)},${c1[1].toFixed(5)}`;
+            const h2 = `${c2[0].toFixed(5)},${c2[1].toFixed(5)}`;
+            return h1 < h2 ? `${h1}|${h2}` : `${h2}|${h1}`;
+        };
+        
+        routes.forEach(route => {
+            const geom = (route.outbound || route).geometry;
+            if (!geom || !geom.coordinates) return;
+            const coords = geom.coordinates;
+            for (let i = 0; i < coords.length - 1; i++) {
+                const c1 = coords[i];
+                const c2 = coords[i+1];
+                const key = getSegKey(c1, c2);
+                if (!segmentMap.has(key)) {
+                    // Convert [lon, lat] object into Leaflet [lat, lon] array
+                    segmentMap.set(key, { coords: [[c1[1], c1[0]], [c2[1], c2[0]]], vehicles: new Set() });
+                }
+                segmentMap.get(key).vehicles.add(route.vehicle_id);
+            }
+        });
+        
+        const groups = {}; 
+        segmentMap.forEach((val) => {
+            const combo = Array.from(val.vehicles).sort((a,b)=>a-b).join(',');
+            if (!groups[combo]) groups[combo] = [];
+            groups[combo].push(val.coords);
+        });
+        
+        return groups;
+    }, [routes]);
+
     const [highlight, setHighlight] = useState(null); // { vehicleId, animKey } — active CSS animation
     const [topRouteId, setTopRouteId] = useState(null); // permanent front route after animation
     const highlightTimerRef = useRef(null);
@@ -371,8 +423,8 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                             ? (instituteColorMap[school.institute] || '#3b82f6')
                             : '#3b82f6';
                         const icon = school.institute
-                            ? createInstituteIcon(color)
-                            : createStopIcon(color, school.demand);
+                            ? getInstituteIcon(color)
+                            : getStopIcon(color, school.demand);
                         return (
                             <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
                                 <Popup>
@@ -391,53 +443,86 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                         );
                     })}
 
-                    {routes && (() => {
-                        const animId = highlight?.vehicleId;
-                        const frontId = animId ?? topRouteId ?? highlightedRouteId;
-                        const isAnyDimmed = animId !== null && animId !== undefined || highlightedRouteId !== null;
-                        const sorted = [...routes].sort((a, b) =>
-                            a.vehicle_id === frontId ? 1 : b.vehicle_id === frontId ? -1 : 0
-                        );
-                        return sorted.map((route) => {
-                            if (hiddenRouteIds.has(route.vehicle_id)) return null;
-                            const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
+                    {/* 1. LAYER VISIVO: MULTIPOLYLINES CON OFFSET DINAMICO */}
+                    {Object.entries(segmentGroups).map(([combo, segments]) => {
+                        const vIds = combo.split(',').map(Number);
+                        const activeVIds = vIds.filter(vId => !hiddenRouteIds.has(vId));
+                        if (activeVIds.length === 0) return null;
+                        
+                        const numVehicles = activeVIds.length;
+                        const lineWidth = 4;
+                        const gap = 1;
+
+                        return activeVIds.map((vId, idx) => {
+                            const originalIdx = routes.findIndex(r => r.vehicle_id === vId);
                             const color = COLORS[originalIdx % COLORS.length];
-                            const isAnimating = animId === route.vehicle_id;
-                            const isSidebarHL = !animId && highlightedRouteId === route.vehicle_id;
-                            const positions = getPositions(route.outbound || route);
+                            
+                            // Calcola offset: centra le N righe l'una accanto all'altra
+                            const offsetStep = lineWidth + gap;
+                            const offset = (idx - (numVehicles - 1) / 2) * offsetStep;
+                            
+                            const animId = highlight?.vehicleId;
+                            const isAnimating = animId === vId;
+                            const isSidebarHL = !animId && highlightedRouteId === vId;
+                            const isDimmed = (animId !== null && animId !== undefined || highlightedRouteId !== null) && !isAnimating && !isSidebarHL;
+                            
                             return (
-                                <React.Fragment key={route.vehicle_id}>
-                                    {isAnimating && (
-                                        <Polyline
-                                            key={`glow-${highlight.animKey}`}
-                                            positions={positions}
-                                            pathOptions={{
-                                                color,
-                                                weight: 22,
-                                                opacity: 1,
-                                                lineCap: 'round',
-                                                lineJoin: 'round',
-                                                className: 'route-glow',
-                                            }}
-                                        />
-                                    )}
-                                    <Polyline
-                                        key={isAnimating ? `line-${highlight.animKey}` : route.vehicle_id}
-                                        positions={positions}
-                                        pathOptions={{
-                                            color: isSidebarHL ? '#f97316' : color,
-                                            weight: (isAnimating || isSidebarHL) ? 7 : 4,
-                                            opacity: (isAnimating || isSidebarHL) ? 1 : (isAnyDimmed ? 0.3 : 0.75),
-                                            lineCap: 'round',
-                                            lineJoin: 'round',
-                                            className: isAnimating ? 'route-line-hl' : '',
-                                        }}
-                                        eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
-                                    />
-                                </React.Fragment>
+                                <Polyline
+                                    key={`seg-${combo}-${vId}`}
+                                    positions={segments}
+                                    pathOptions={{
+                                        color: isSidebarHL ? '#f97316' : color,
+                                        weight: isSidebarHL ? 6 : lineWidth,
+                                        opacity: isDimmed ? 0.25 : 0.85,
+                                        offset: offset,
+                                        lineCap: 'round',
+                                        lineJoin: 'round',
+                                        interactive: false // eventi click sul layer invisibile
+                                    }}
+                                />
                             );
                         });
-                    })()}
+                    })}
+
+                    {/* 2. LAYER INTERATTIVO + GLOW: POLILINE CONTINUI E TRASPARENTI */}
+                    {routes && routes.map((route) => {
+                        if (hiddenRouteIds.has(route.vehicle_id)) return null;
+                        const animId = highlight?.vehicleId;
+                        const isAnimating = animId === route.vehicle_id;
+                        const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
+                        const color = COLORS[originalIdx % COLORS.length];
+                        const positions = getPositions(route.outbound || route);
+                        
+                        return (
+                            <React.Fragment key={`interactive-${route.vehicle_id}`}>
+                                {isAnimating && (
+                                    <Polyline
+                                        positions={positions}
+                                        pathOptions={{
+                                            color,
+                                            weight: 22,
+                                            opacity: 1,
+                                            lineCap: 'round',
+                                            lineJoin: 'round',
+                                            className: 'route-glow',
+                                            interactive: false
+                                        }}
+                                    />
+                                )}
+                                {/* Invisible thick line per facilitare i click mouse */}
+                                <Polyline
+                                    positions={positions}
+                                    pathOptions={{
+                                        color: 'transparent',
+                                        weight: 20,
+                                        opacity: 0,
+                                        interactive: true
+                                    }}
+                                    eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
 
                     {focusBounds && (
                         <Polyline
@@ -451,4 +536,4 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     );
 };
 
-export default Map;
+export default BusMap;
