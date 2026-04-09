@@ -21,8 +21,8 @@ const formatDuration = (seconds) => {
     return `${s}s`;
 };
 
-// ~5s/address: measured 2.6–4.2s on real datasets, ~1.3x pessimistic buffer
-const AI_SECONDS_PER_ADDRESS = 5;
+// ~2.5s/address: adjusted from 5s after user feedback (actual ~52s for 22 addresses)
+const AI_SECONDS_PER_ADDRESS = 2.5;
 
 // Simple Loading Overlay Component
 const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isAiPhase }) => {
