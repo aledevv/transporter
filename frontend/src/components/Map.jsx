@@ -10,16 +10,16 @@ const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
 const createStopIcon = (color, demand) => {
-    const fontSize = demand >= 100 ? '10px' : demand >= 10 ? '12px' : '14px';
+    const fontSize = demand >= 100 ? '9px' : demand >= 10 ? '11px' : '13px';
     const html = `
-        <div style="position:relative;width:36px;height:44px;">
+        <div style="position:relative;width:28px;height:34px;">
             <div style="
-                width:36px;height:36px;
+                width:28px;height:28px;
                 border-radius:50% 50% 50% 0;
                 transform:rotate(-45deg);
                 background:${color};
                 border:2px solid white;
-                box-shadow:0 3px 10px rgba(0,0,0,0.25);
+                box-shadow:0 2px 8px rgba(0,0,0,0.25);
                 display:flex;align-items:center;justify-content:center;
             ">
                 <span style="
@@ -34,7 +34,7 @@ const createStopIcon = (color, demand) => {
             <div style="
                 position:absolute;bottom:0;left:50%;
                 transform:translateX(-50%);
-                width:10px;height:5px;
+                width:8px;height:4px;
                 background:rgba(0,0,0,0.15);
                 border-radius:50%;
                 filter:blur(2px);
@@ -43,9 +43,9 @@ const createStopIcon = (color, demand) => {
     return L.divIcon({
         html,
         className: 'custom-marker-icon',
-        iconSize: [36, 44],
-        iconAnchor: [18, 44],
-        popupAnchor: [0, -44],
+        iconSize: [28, 34],
+        iconAnchor: [14, 34],
+        popupAnchor: [0, -34],
     });
 };
 
@@ -310,7 +310,7 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                     />
 
                     {destination && (
-                        <Marker position={[destination.lat, destination.lon]} icon={destinationIcon}>
+                        <Marker position={[destination.lat, destination.lon]} icon={destinationIcon} zIndexOffset={1000}>
                             <Popup>
                                 <div className="text-center">
                                     <strong className="text-red-600 block text-lg mb-1">Destinazione</strong>
