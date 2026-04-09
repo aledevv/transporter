@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-polylineoffset';
 import { X, Maximize2, Minimize2, Bus } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Flag, GraduationCap } from 'lucide-react';
@@ -131,26 +130,6 @@ const COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
-const OffsetPolyline = ({ positions, options, offset, popup }) => {
-    const map = useMap();
-    const [zoom, setZoom] = useState(() => map.getZoom());
-
-    useEffect(() => {
-        const onZoom = () => setZoom(map.getZoom());
-        map.on('zoomend', onZoom);
-        return () => map.off('zoomend', onZoom);
-    }, [map]);
-
-    useEffect(() => {
-        const scale = Math.max(0.15, Math.min(1, (zoom - 12) / 3));
-        const scaledOffset = offset * scale;
-        const layer = L.polyline(positions, { ...options, offset: scaledOffset, smoothFactor: 1 });
-        if (popup) layer.bindPopup(popup);
-        layer.addTo(map);
-        return () => map.removeLayer(layer);
-    }, [positions, options, offset, popup, map, zoom]);
-    return null;
-};
 
 const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }) => {
     const defaultCenter = [46.0697, 11.1211];
@@ -371,20 +350,19 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                         const isHighlighted = highlightedRouteId === route.vehicle_id;
                         const color = COLORS[idx % COLORS.length];
                         const positions = getPositions(route.outbound || route);
-                        const routeOffset = (idx - (routes.length - 1) / 2) * 3;
                         return (
-                            <OffsetPolyline
+                            <Polyline
                                 key={route.vehicle_id}
                                 positions={positions}
-                                options={{
+                                pathOptions={{
                                     color: isHighlighted ? '#f97316' : color,
                                     weight: isHighlighted ? 10 : 5,
                                     opacity: isHighlighted ? 1 : (highlightedRouteId !== null ? 0.3 : 0.8),
                                     lineJoin: 'round',
                                 }}
-                                offset={routeOffset}
-                                popup={`Bus #${route.vehicle_id + 1}`}
-                            />
+                            >
+                                <Popup>Bus #{route.vehicle_id + 1}</Popup>
+                            </Polyline>
                         );
                     })}
 
