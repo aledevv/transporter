@@ -5,10 +5,72 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-polylineoffset';
 import { X, Maximize2, Minimize2, Bus } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MapPin, Flag, Building2 } from 'lucide-react';
+import { Flag, GraduationCap } from 'lucide-react';
 
 const ANIM_MS = 420;
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
+const createStopIcon = (color, demand) => {
+    const fontSize = demand >= 100 ? '10px' : demand >= 10 ? '12px' : '14px';
+    const html = `
+        <div style="position:relative;width:36px;height:44px;">
+            <div style="
+                width:36px;height:36px;
+                border-radius:50% 50% 50% 0;
+                transform:rotate(-45deg);
+                background:${color};
+                border:2px solid white;
+                box-shadow:0 3px 10px rgba(0,0,0,0.25);
+                display:flex;align-items:center;justify-content:center;
+            ">
+                <span style="
+                    transform:rotate(45deg);
+                    color:white;
+                    font-size:${fontSize};
+                    font-weight:800;
+                    line-height:1;
+                    font-family:sans-serif;
+                ">${demand}</span>
+            </div>
+            <div style="
+                position:absolute;bottom:0;left:50%;
+                transform:translateX(-50%);
+                width:10px;height:5px;
+                background:rgba(0,0,0,0.15);
+                border-radius:50%;
+                filter:blur(2px);
+            "></div>
+        </div>`;
+    return L.divIcon({
+        html,
+        className: 'custom-marker-icon',
+        iconSize: [36, 44],
+        iconAnchor: [18, 44],
+        popupAnchor: [0, -44],
+    });
+};
+
+const createInstituteIcon = (color) => {
+    const iconHtml = renderToStaticMarkup(
+        <GraduationCap style={{ width: 22, height: 22, color: 'white', strokeWidth: 2 }} />
+    );
+    const html = `
+        <div style="
+            width:40px;height:40px;
+            border-radius:50%;
+            background:${color};
+            border:3px solid white;
+            box-shadow:0 3px 10px rgba(0,0,0,0.25);
+            display:flex;align-items:center;justify-content:center;
+        ">${iconHtml}</div>`;
+    return L.divIcon({
+        html,
+        className: 'custom-marker-icon',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40],
+    });
+};
 
 const createCustomIcon = (color, IconComponent) => {
     const iconHtml = renderToStaticMarkup(
@@ -310,7 +372,9 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                         const color = school.institute
                             ? (instituteColorMap[school.institute] || '#3b82f6')
                             : '#3b82f6';
-                        const icon = createCustomIcon(color, school.institute ? Building2 : MapPin);
+                        const icon = school.institute
+                            ? createInstituteIcon(color)
+                            : createStopIcon(color, school.demand);
                         return (
                             <Marker key={school.id} position={[school.lat, school.lon]} icon={icon}>
                                 <Popup>
