@@ -138,8 +138,17 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [resizerTick, setResizerTick] = useState(0);
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
+    const [tempHighlight, setTempHighlight] = useState(null);
+    const highlightTimerRef = useRef(null);
 
     useEffect(() => { setHiddenRouteIds(new Set()); }, [routes]);
+    useEffect(() => () => { if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current); }, []);
+
+    const handlePolylineClick = useCallback((vehicleId) => {
+        if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+        setTempHighlight(vehicleId);
+        highlightTimerRef.current = setTimeout(() => setTempHighlight(null), 2000);
+    }, []);
 
     // --- FLIP animation helpers ---
     const enterFullscreen = useCallback(() => {
@@ -345,26 +354,32 @@ const Map = ({ schools, routes, destination, focusBounds, highlightedRouteId, on
                         );
                     })}
 
-                    {routes && routes.map((route, idx) => {
-                        if (hiddenRouteIds.has(route.vehicle_id)) return null;
-                        const isHighlighted = highlightedRouteId === route.vehicle_id;
-                        const color = COLORS[idx % COLORS.length];
-                        const positions = getPositions(route.outbound || route);
-                        return (
-                            <Polyline
-                                key={route.vehicle_id}
-                                positions={positions}
-                                pathOptions={{
-                                    color: isHighlighted ? '#f97316' : color,
-                                    weight: isHighlighted ? 10 : 5,
-                                    opacity: isHighlighted ? 1 : (highlightedRouteId !== null ? 0.3 : 0.8),
-                                    lineJoin: 'round',
-                                }}
-                            >
-                                <Popup>Bus #{route.vehicle_id + 1}</Popup>
-                            </Polyline>
+                    {routes && (() => {
+                        const activeHighlight = tempHighlight ?? highlightedRouteId;
+                        const sorted = [...routes].sort((a, b) =>
+                            a.vehicle_id === activeHighlight ? 1 : b.vehicle_id === activeHighlight ? -1 : 0
                         );
-                    })}
+                        return sorted.map((route) => {
+                            if (hiddenRouteIds.has(route.vehicle_id)) return null;
+                            const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
+                            const color = COLORS[originalIdx % COLORS.length];
+                            const isHighlighted = activeHighlight === route.vehicle_id;
+                            const positions = getPositions(route.outbound || route);
+                            return (
+                                <Polyline
+                                    key={route.vehicle_id}
+                                    positions={positions}
+                                    pathOptions={{
+                                        color: isHighlighted ? '#f97316' : color,
+                                        weight: isHighlighted ? 8 : 4,
+                                        opacity: isHighlighted ? 1 : (activeHighlight !== null ? 0.35 : 0.8),
+                                        lineJoin: 'round',
+                                    }}
+                                    eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
+                                />
+                            );
+                        });
+                    })()}
 
                     {focusBounds && (
                         <Polyline
