@@ -2012,6 +2012,415 @@ git commit -m "feat: grid search for V2 cluster threshold, tuned thresholds"
 
 ---
 
+---
+
+## Task 14: Backend return time calculation
+
+**Files:**
+- Modify: `app.py` (add `calculate_return_times_for_routes()`, extend `/api/optimize` and `/api/optimize_v2`)
+- Modify: `tests/prepare_realSuite.py` (extract `orario_fine_manifestazione` into `config.json`)
+
+**Context:** The human-produced plans include a `Rientro Presunto` (estimated return time) per stop and a `Fine Manifestazione` (event end time) per event. After the event, each bus drives back from the destination to each pickup stop in reverse route order. Return time per stop = `fine_manifestazione` + cumulative reverse-route leg times.
+
+The existing `time_to_next_min` field on each stop (already computed by the outbound routing) gives the drive time from that stop to the next one. For the return trip, these values are reused in reverse order as an approximation.
+
+- [ ] **Step 1: Add `_get_fine_manifestazione()` helper to prepare_realSuite.py**
+
+In `tests/prepare_realSuite.py`, add a new helper after `_get_capacity()`:
+
+```python
+def _get_fine_manifestazione(xlsx_path: Path) -> str | None:
+    """
+    Extract event end time from 'Dettaglio Completo' sheet, 'Fine Manifestazione' column.
+    Returns HH:MM string or None if absent.
+    """
+    try:
+        df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
+        df.columns = [c.strip() for c in df.columns]
+        if "Fine Manifestazione" in df.columns:
+            col = df["Fine Manifestazione"].dropna()
+            col = col[col.astype(str).str.lower() != "nan"]
+            if not col.empty:
+                val = str(col.iloc[0]).strip()
+                # Normalize to HH:MM
+                if ":" in val:
+                    return val[:5]
+    except Exception:
+        pass
+    return None
+```
+
+Also update `run_extract()` to store it in `config.json`:
+
+In the `config = {...}` dict inside `run_extract()`, add:
+```python
+config = {
+    "destination": get_event_destination(xlsx),
+    "capacity": _get_capacity(xlsx),
+    "orario_fine_manifestazione": _get_fine_manifestazione(xlsx),  # ADD THIS LINE
+}
+```
+
+- [ ] **Step 2: Add `calculate_return_times_for_routes()` to app.py**
+
+Add this function near the existing `format_time_from_minutes` / `parse_time_to_minutes` helpers (around line 55):
+
+```python
+STOP_DWELL_TIME_MIN = 2  # already defined earlier in app.py — do NOT redefine
+
+def calculate_return_times_for_routes(formatted_routes, fine_manifestazione: str) -> None:
+    """
+    Mutates formatted_routes in-place, adding 'return_time' (HH:MM) to each pickup stop.
+
+    Algorithm (per route):
+      The return trip reverses the outbound order: destination → last_pickup → ... → first_pickup.
+      We reuse outbound leg times (time_to_next_min) as symmetric approximation:
+        - last pickup:  return_time = fine + last_pickup.time_to_next_min
+        - each earlier stop: return_time = next_stop.return_time + DWELL + this_stop.time_to_next_min
+    """
+    try:
+        base_h, base_m = map(int, fine_manifestazione.split(':'))
+    except Exception:
+        return  # Invalid format — skip silently
+
+    base_minutes = base_h * 60 + base_m
+
+    for route in formatted_routes:
+        pickup_stops = [s for s in route['outbound']['stops'] if s['type'] == 'pickup']
+        if not pickup_stops:
+            continue
+
+        n = len(pickup_stops)
+        # Walk backwards: pickup_stops[n-1] is closest to destination on outbound
+        cumulative = base_minutes
+        for i in range(n - 1, -1, -1):
+            leg_min = pickup_stops[i].get('time_to_next_min', 0)
+            cumulative += leg_min
+            pickup_stops[i]['return_time'] = format_time_from_minutes(cumulative)
+            if i > 0:
+                cumulative += STOP_DWELL_TIME_MIN
+```
+
+- [ ] **Step 3: Wire into /api/optimize**
+
+In the `/api/optimize` handler, after the `arrival_window` block and before the `return jsonify(...)`, add:
+
+```python
+        # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
+        fine_manifestazione = data.get('fine_manifestazione', '').strip()
+        calculate_return = data.get('calculate_return', True)
+        if calculate_return and fine_manifestazione:
+            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+```
+
+Do the same in `/api/optimize_v2` (will be created in Task 12 — the implementer of Task 12 must also add this block).
+
+- [ ] **Step 4: Add `fine_manifestazione` + `calculate_return` to the response stats**
+
+In the `return jsonify({...})` call inside `/api/optimize`, extend `stats`:
+
+```python
+'stats': {
+    'total_buses': solution['used_vehicles'],
+    'total_passengers': solution['total_load'],
+    'outbound_distance': total_outbound,
+    'total_distance': total_outbound,
+    'arrival_window': arrival_window,
+    'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
+}
+```
+
+- [ ] **Step 5: Re-run extraction to populate fine_manifestazione in config.json**
+
+```bash
+cd /Users/dev/Desktop/busplan
+source venv/bin/activate
+python tests/prepare_realSuite.py --extract
+```
+
+Check one config.json:
+```bash
+cat "tests/realSuite/Piano-Viaggi_Atletica-IS_7-maggio-2025_def_con-cell-5/config.json"
+```
+Expected: `"orario_fine_manifestazione": "15:00"` (or similar non-null value).
+
+- [ ] **Step 6: Manual smoke test**
+
+```bash
+source venv/bin/activate && python app.py &
+# In another terminal:
+curl -s -X POST http://localhost:5001/api/optimize \
+  -H "Content-Type: application/json" \
+  -d '{"schools": [...], "destination": "...", "capacity": 54, "fine_manifestazione": "15:00", "calculate_return": true}' | python -m json.pp | grep return_time
+```
+(Use a real payload from one of the test events — or just start the app and test via the frontend in Task 15.)
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add app.py tests/prepare_realSuite.py
+git commit -m "feat: backend return time calculation per pickup stop"
+```
+
+---
+
+## Task 15: Return time validation tests
+
+**Files:**
+- Modify: `tests/evaluate_realSuite.py` (add `load_return_groundtruth()`, `score_return_times()`)
+- Modify: `tests/test_realSuite.py` (add `TestReturnTimes` class)
+
+**Context:** The groundtruth "Per Istituto" sheet has a `Rientro Presunto` column with expected return times per stop. We compare the backend-calculated return times (from Task 14) against these groundtruth values, allowing ±30 min tolerance (road conditions vary; exact times differ from OSRM approximations).
+
+- [ ] **Step 1: Add groundtruth return time loader to evaluate_realSuite.py**
+
+Append to `tests/evaluate_realSuite.py`:
+
+```python
+def load_return_groundtruth(gt_path: Path) -> dict:
+    """
+    Returns {school_name: rientro_presunto_minutes} from the 'Per Istituto' sheet.
+    Only includes rows where Rientro Presunto is a valid HH:MM string.
+    """
+    df = pd.read_excel(gt_path, sheet_name="Per Istituto")
+    df.columns = [c.strip() for c in df.columns]
+    result = {}
+    for _, row in df.iterrows():
+        school = str(row.get("Istituto", "")).strip()
+        rientro = str(row.get("Rientro Presunto", "")).strip()
+        if not school or school == "nan" or not rientro or rientro == "nan":
+            continue
+        if ":" in rientro:
+            try:
+                h, m = map(int, rientro[:5].split(":"))
+                result[school] = h * 60 + m
+            except ValueError:
+                pass
+    return result
+
+
+def score_return_times(solution: dict, schools: list, gt_return: dict, tolerance_min: int = 30) -> float:
+    """
+    Fraction of stops whose calculated return_time is within tolerance_min of groundtruth.
+    Returns float in [0, 1]. Returns None if no groundtruth data available.
+    """
+    if not gt_return:
+        return None
+
+    hits = 0
+    total = 0
+    for route in solution["routes"]:
+        for stop in route["stops"]:
+            node = stop["node"]
+            if not (1 <= node <= len(schools)):
+                continue
+            school_name = schools[node - 1]["name"]
+            if school_name not in gt_return:
+                continue
+            total += 1
+            return_time_str = stop.get("return_time")
+            if not return_time_str:
+                continue
+            try:
+                h, m = map(int, return_time_str[:5].split(":"))
+                pred_min = h * 60 + m
+                gt_min = gt_return[school_name]
+                if abs(pred_min - gt_min) <= tolerance_min:
+                    hits += 1
+            except ValueError:
+                pass
+
+    return hits / total if total > 0 else None
+```
+
+- [ ] **Step 2: Add TestReturnTimes class to test_realSuite.py**
+
+Append to `tests/test_realSuite.py`:
+
+```python
+RETURN_TIME_TOLERANCE_MIN = 30
+RETURN_WITHIN_TOLERANCE_THRESHOLD = 0.5  # at least 50% of stops within ±30 min
+
+
+@pytest.fixture(scope="module")
+def config(event):
+    import json
+    config_path = Path(event["gt_path"]).parent / "config.json"
+    return json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+
+
+@pytest.fixture(scope="module")
+def gt_return(event):
+    from evaluate_realSuite import load_return_groundtruth
+    return load_return_groundtruth(event["gt_path"])
+
+
+class TestReturnTimes:
+    def test_return_times_within_tolerance(self, event, config, gt_return, v1_solution):
+        """At least 50% of stops have return_time within ±30 min of groundtruth."""
+        fine = config.get("orario_fine_manifestazione")
+        if not fine:
+            pytest.skip("No fine_manifestazione in config — return time test skipped")
+        if not gt_return:
+            pytest.skip("No Rientro Presunto data in groundtruth — skipped")
+
+        # Recalculate return times on the solution
+        import copy, sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from app import calculate_return_times_for_routes
+
+        # Work on a deep copy to avoid mutating the shared fixture
+        routes_copy = copy.deepcopy(v1_solution["routes"])
+        # Wrap in the format expected by calculate_return_times_for_routes
+        formatted = [{"outbound": {"stops": r["stops"]}, "vehicle_id": r["vehicle_id"]} for r in routes_copy]
+        # Rebuild stops with 'type' field (pickup/destination)
+        for route_data, original_route in zip(formatted, routes_copy):
+            n_schools = len(event["schools"])
+            for stop in route_data["outbound"]["stops"]:
+                stop["type"] = "pickup" if 1 <= stop["node"] <= n_schools else "destination"
+                # Add time_to_next_min approximation from time_matrix
+                if stop["type"] == "pickup":
+                    stop.setdefault("time_to_next_min", 15)  # fallback if not present
+
+        calculate_return_times_for_routes(formatted, fine)
+
+        # Re-map return_times back to solution stops
+        from evaluate_realSuite import score_return_times as _score_rt
+        # Build a minimal solution dict with return_time attached
+        for rf, orig in zip(formatted, routes_copy):
+            for s_rf, s_orig in zip(rf["outbound"]["stops"], orig["stops"]):
+                s_orig["return_time"] = s_rf.get("return_time")
+
+        score = _score_rt(
+            {"routes": routes_copy},
+            event["schools"],
+            gt_return,
+            tolerance_min=RETURN_TIME_TOLERANCE_MIN,
+        )
+
+        if score is None:
+            pytest.skip("No matchable schools for return time comparison")
+
+        assert score >= RETURN_WITHIN_TOLERANCE_THRESHOLD, (
+            f"{event['name']}: only {score:.0%} of stops within ±{RETURN_TIME_TOLERANCE_MIN} min "
+            f"of groundtruth return time (threshold: {RETURN_WITHIN_TOLERANCE_THRESHOLD:.0%})"
+        )
+```
+
+- [ ] **Step 3: Run return time tests**
+
+```bash
+cd /Users/dev/Desktop/busplan && source venv/bin/activate
+pytest tests/test_realSuite.py::TestReturnTimes -v
+```
+Expected: tests run, most pass or skip (events without `orario_fine_manifestazione` are skipped).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add tests/evaluate_realSuite.py tests/test_realSuite.py
+git commit -m "feat: return time groundtruth loader and validation tests"
+```
+
+---
+
+## Task 16: Frontend return time UI
+
+**Files:**
+- Modify: `frontend/src/components/Dashboard.jsx` (add toggle + time input, pass to API, display return_time)
+- Modify: `frontend/src/components/Map.jsx` or route display component (show return_time per stop)
+- Modify: PDF export logic (include return_time when present)
+
+**Context:** The backend now accepts `fine_manifestazione` (HH:MM) and `calculate_return` (bool). The UI needs a config section for this, display of return times per stop, and PDF inclusion. This is an optional feature — default ON but can be disabled.
+
+- [ ] **Step 1: Add return time config to Dashboard.jsx**
+
+Read `frontend/src/components/Dashboard.jsx` first to understand the current config panel structure.
+
+In the optimization settings section (near `time_mode` / `start_time` inputs), add:
+
+```jsx
+{/* Return Time Section */}
+<div className="mt-4 border-t pt-4">
+  <div className="flex items-center gap-2 mb-2">
+    <input
+      type="checkbox"
+      id="calculateReturn"
+      checked={calculateReturn}
+      onChange={e => setCalculateReturn(e.target.checked)}
+      className="w-4 h-4"
+    />
+    <label htmlFor="calculateReturn" className="text-sm font-medium text-gray-700">
+      Calcola orario di rientro
+    </label>
+  </div>
+  {calculateReturn && (
+    <div className="flex items-center gap-2">
+      <label className="text-sm text-gray-600 w-40">Fine manifestazione:</label>
+      <input
+        type="time"
+        value={fineManifestazione}
+        onChange={e => setFineManifestazione(e.target.value)}
+        className="border rounded px-2 py-1 text-sm"
+      />
+    </div>
+  )}
+</div>
+```
+
+Add state variables near the other optimization state:
+```jsx
+const [calculateReturn, setCalculateReturn] = useState(true);
+const [fineManifestazione, setFineManifestazione] = useState('15:00');
+```
+
+- [ ] **Step 2: Pass return time params to API call**
+
+In the `handleOptimize` function (or equivalent) where the fetch to `/api/optimize` is made, add to the request body:
+
+```js
+fine_manifestazione: calculateReturn ? fineManifestazione : '',
+calculate_return: calculateReturn,
+```
+
+- [ ] **Step 3: Display return_time per stop in route list**
+
+Find where pickup stops are rendered in the route results (likely in Dashboard.jsx or a RouteList component). After the `departure_time` display, add:
+
+```jsx
+{stop.return_time && (
+  <span className="text-xs text-gray-500 ml-2">
+    ↩ rientro: {stop.return_time}
+  </span>
+)}
+```
+
+- [ ] **Step 4: Include return_time in PDF export**
+
+Find the PDF generation code (likely uses jsPDF, look for `jsPDF` in `frontend/src/`). In the per-stop row, add the return time column when present:
+
+```js
+// In the stop row loop:
+const returnTime = stop.return_time ? `Rientro: ${stop.return_time}` : '';
+// Add returnTime to the PDF row
+```
+
+- [ ] **Step 5: Build and lint**
+
+```bash
+cd frontend && npm run lint && npm run build
+```
+Expected: 0 lint warnings, successful build.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add frontend/src/components/Dashboard.jsx frontend/src/
+git commit -m "feat: return time toggle, input, display and PDF export in UI"
+```
+
+---
+
 ## Self-Review Checklist
 
 - [x] **Spec coverage:**
