@@ -157,7 +157,53 @@ def run_extract():
 # -----------------------------------------------------------------------
 
 def run_correct():
-    print("[correct] Not yet implemented — run after Task 5.")
+    """Phase 2: AI-correct addresses in each event's input.xlsx.
+
+    Idempotent: skips events where input_corretto.xlsx already has AI_Corrected=True for all rows.
+    Requires GOOGLE_API_KEY environment variable.
+    """
+    sys.path.insert(0, str(TESTS_DIR.parent))
+    from address_corrector import AddressCorrector
+
+    corrector = AddressCorrector()
+    event_dirs = sorted(
+        d for d in REALSUITE_DIR.iterdir()
+        if d.is_dir() and (d / "input.xlsx").exists()
+    )
+
+    for ev_dir in event_dirs:
+        input_path = ev_dir / "input.xlsx"
+        corretto_path = ev_dir / "input_corretto.xlsx"
+
+        # Skip if already fully corrected
+        if corretto_path.exists():
+            try:
+                df_check = pd.read_excel(corretto_path)
+                if "AI_Corrected" in df_check.columns and df_check["AI_Corrected"].astype(bool).all():
+                    print(f"[correct] {ev_dir.name}: already corrected — skipping.")
+                    continue
+            except Exception:
+                pass  # Re-correct if the file is unreadable
+
+        df = pd.read_excel(input_path)
+        schools = [
+            {"name": str(row["Nome"]), "address": str(row["Indirizzo"])}
+            for _, row in df.iterrows()
+        ]
+
+        _, status, unresolved = corrector.correct_addresses(
+            schools, input_path, corretto_path
+        )
+
+        if unresolved:
+            print(
+                f"WARNING [{ev_dir.name}] {len(unresolved)} address(es) not resolved by AI:\n"
+                + "\n".join(f"  - {u}" for u in unresolved)
+            )
+
+        print(f"[correct] {ev_dir.name}: status={status}")
+
+    print("\nCorrection phase complete.")
 
 
 def run_geocode():
