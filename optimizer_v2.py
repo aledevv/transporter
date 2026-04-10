@@ -67,7 +67,11 @@ def _split_cluster(
         return [list(school_indices)]
 
     if len(school_indices) == 1:
-        # Single school exceeds capacity — cannot split further; keep as-is with a warning
+        import warnings
+        warnings.warn(
+            f"School at index {school_indices[0]} has demand {demands[school_indices[0]]} "
+            f"exceeding capacity {capacity} — cannot split further."
+        )
         return [list(school_indices)]
 
     # Find the school farthest from the cluster centroid.
@@ -133,12 +137,202 @@ def _merge_clusters(
 
 
 # -----------------------------------------------------------------------
-# HumanStyleSolver (stub — full implementation in Task 11)
+# Route ordering (nearest-neighbor TSP)
+# -----------------------------------------------------------------------
+
+def _order_route(school_indices: list, school_matrix: list, depot_row: list) -> list:
+    """
+    Order schools within a bus using nearest-neighbor heuristic.
+    Starts from the school farthest from the depot, always moves to the nearest unvisited.
+
+    school_indices: list of school-space indices (0-indexed, into school_matrix)
+    school_matrix:  NxN travel-time matrix (school-space)
+    depot_row:      row of the time matrix for the depot, restricted to school nodes
+                    (i.e. time_matrix[0][1:N+1])
+
+    Returns ordered list of school-space indices.
+    """
+    if not school_indices:
+        return []
+    if len(school_indices) == 1:
+        return list(school_indices)
+
+    start = max(school_indices, key=lambda i: depot_row[i])
+    visited = [start]
+    remaining = [i for i in school_indices if i != start]
+
+    while remaining:
+        last = visited[-1]
+        nearest = min(remaining, key=lambda i: school_matrix[last][i])
+        visited.append(nearest)
+        remaining.remove(nearest)
+
+    return visited
+
+
+# -----------------------------------------------------------------------
+# HumanStyleSolver
 # -----------------------------------------------------------------------
 
 class HumanStyleSolver:
     """
-    Placeholder class. Full implementation comes in Task 11.
-    Exposes the same interface as VRPSolver.
+    Human-style 2-step bus planner.
+
+    Same interface as VRPSolver — drop-in replacement.
+
+    time_matrix layout: 0=destination, 1..N=schools, N+1=dummy start.
+    demands layout:     same length as time_matrix rows.
     """
-    pass
+
+    def __init__(
+        self,
+        time_matrix: list,
+        demands: list,
+        vehicle_capacity: int,
+        cluster_threshold_minutes: int = 20,
+        fixed_vehicle_cost: int = 0,   # ignored — kept for API compatibility
+        starts: Optional[list] = None,  # ignored
+        ends: Optional[list] = None,    # ignored
+        institutes: Optional[list] = None,
+        **kwargs,
+    ):
+        self.time_matrix = time_matrix
+        self.demands = demands
+        self.vehicle_capacity = vehicle_capacity
+        self.threshold_seconds = cluster_threshold_minutes * 60
+        self.institutes = institutes
+
+    def solve(self) -> Optional[dict]:
+        """
+        Run Step 1 (clustering) then Step 2 (balancing) and return a solution dict
+        with the same structure as VRPSolver.solve().
+        """
+        n_schools = len(self.demands) - 2  # subtract depot (0) and dummy (N+1)
+        if n_schools == 0:
+            return {"routes": [], "total_distance": 0, "total_load": 0, "used_vehicles": 0}
+
+        school_nodes = list(range(1, n_schools + 1))  # node-space: 1..N
+
+        # Build school-only time matrix (school-space: 0-indexed)
+        school_matrix = [
+            [self.time_matrix[i][j] for j in school_nodes]
+            for i in school_nodes
+        ]
+        school_demands = [self.demands[i] for i in school_nodes]
+
+        # Step 1: Proximity clustering
+        labels = _cluster_schools(school_matrix, self.threshold_seconds)
+
+        # Group school-space indices by cluster label
+        cluster_map: dict = {}
+        for idx, label in enumerate(labels):
+            cluster_map.setdefault(label, []).append(idx)
+        clusters = list(cluster_map.values())
+
+        # Step 1b: Apply institute constraints — schools sharing a non-UNIVERSAL
+        # institute must end up in the same cluster.
+        if self.institutes is not None:
+            school_institutes = [self.institutes[i] for i in school_nodes]
+            clusters = _apply_institute_constraints(clusters, school_institutes)
+
+        # Step 2a: Split oversized clusters
+        split_clusters = []
+        for c in clusters:
+            split_clusters.extend(_split_cluster(c, school_demands, school_matrix, self.vehicle_capacity))
+
+        # Step 2b: Merge under-capacity clusters
+        final_clusters = _merge_clusters(split_clusters, school_demands, school_matrix, self.vehicle_capacity)
+
+        # Build routes
+        depot_row = [self.time_matrix[0][j] for j in school_nodes]  # depot → each school (school-space)
+        routes = []
+        total_distance = 0
+        total_load = 0
+
+        for vehicle_id, cluster in enumerate(final_clusters):
+            if not cluster:
+                continue
+
+            ordered = _order_route(cluster, school_matrix, depot_row)
+
+            # Convert school-space → node-space and build stops
+            stops = []
+            load = 0
+            for s_idx in ordered:
+                node = school_nodes[s_idx]
+                stops.append({"node": node, "load": school_demands[s_idx]})
+                load += school_demands[s_idx]
+
+            # Add depot at start and end (node 0)
+            stops = [{"node": 0, "load": 0}] + stops + [{"node": 0, "load": 0}]
+
+            # Route distance: sum travel times along path (depot→s1→s2→...→depot)
+            route_dist = 0
+            for k in range(len(stops) - 1):
+                route_dist += self.time_matrix[stops[k]["node"]][stops[k + 1]["node"]]
+
+            routes.append({
+                "vehicle_id": vehicle_id,
+                "stops": stops,
+                "distance": route_dist,
+                "load": load,
+            })
+            total_distance += route_dist
+            total_load += load
+
+        return {
+            "routes": routes,
+            "total_distance": total_distance,
+            "total_load": total_load,
+            "used_vehicles": len(routes),
+        }
+
+
+def _apply_institute_constraints(clusters: list, school_institutes: list) -> list:
+    """
+    Merge any clusters that contain schools from the same non-UNIVERSAL institute.
+    Ensures institute-labelled schools always share a bus (regardless of distance).
+    """
+    # Build mapping: institute → set of school-space indices
+    inst_to_schools: dict = {}
+    for idx, inst in enumerate(school_institutes):
+        if inst and inst != "UNIVERSAL":
+            inst_to_schools.setdefault(inst, set()).add(idx)
+
+    if not inst_to_schools:
+        return clusters
+
+    # Union-Find to merge clusters that share an institute
+    parent = list(range(len(clusters)))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x, y):
+        px, py = find(x), find(y)
+        if px != py:
+            parent[px] = py
+
+    school_to_cluster = {}
+    for ci, cluster in enumerate(clusters):
+        for s_idx in cluster:
+            school_to_cluster[s_idx] = ci
+
+    for inst, school_set in inst_to_schools.items():
+        school_list = sorted(school_set)
+        for i in range(1, len(school_list)):
+            ca = school_to_cluster.get(school_list[0])
+            cb = school_to_cluster.get(school_list[i])
+            if ca is not None and cb is not None:
+                union(ca, cb)
+
+    # Rebuild clusters
+    merged: dict = {}
+    for ci, cluster in enumerate(clusters):
+        root = find(ci)
+        merged.setdefault(root, []).extend(cluster)
+
+    return list(merged.values())

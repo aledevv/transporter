@@ -125,3 +125,70 @@ def test_merge_respects_capacity():
     clusters = [[0, 1], [2, 3]]  # each has demand 60, capacity 50 → cannot merge
     merged = _merge_clusters(clusters, demands, school_matrix, capacity=50)
     assert len(merged) == 2  # no merge happened
+
+
+# -----------------------------------------------------------------------
+# HumanStyleSolver.solve() integration tests
+# -----------------------------------------------------------------------
+
+def _make_full_matrix_close_pair():
+    """
+    4 schools (nodes 1-4), schools 1+2 close, schools 3+4 close.
+    Node layout: 0=dest, 1-4=schools, 5=dummy.
+    """
+    n_total = 6
+    m = [[3600] * n_total for _ in range(n_total)]
+    for i in range(n_total):
+        m[i][i] = 0
+    # Schools 1 and 2 close (5 min)
+    m[1][2] = m[2][1] = 300
+    # Schools 3 and 4 close (5 min)
+    m[3][4] = m[4][3] = 300
+    return m
+
+
+def test_solve_returns_correct_structure():
+    m = _make_full_matrix_close_pair()
+    demands = [0, 20, 20, 20, 20, 0]
+    solver = HumanStyleSolver(m, demands, vehicle_capacity=50, cluster_threshold_minutes=15)
+    sol = solver.solve()
+    assert sol is not None
+    assert "routes" in sol
+    assert "used_vehicles" in sol
+    assert "total_load" in sol
+
+
+def test_solve_assigns_all_schools():
+    m = _make_full_matrix_close_pair()
+    demands = [0, 20, 20, 20, 20, 0]
+    solver = HumanStyleSolver(m, demands, vehicle_capacity=50, cluster_threshold_minutes=15)
+    sol = solver.solve()
+    assigned = {stop["node"] for route in sol["routes"] for stop in route["stops"]}
+    for node in range(1, 5):
+        assert node in assigned, f"School node {node} not assigned"
+
+
+def test_solve_respects_capacity():
+    m = _make_full_matrix_close_pair()
+    demands = [0, 20, 20, 20, 20, 0]
+    solver = HumanStyleSolver(m, demands, vehicle_capacity=50, cluster_threshold_minutes=15)
+    sol = solver.solve()
+    for route in sol["routes"]:
+        assert route["load"] <= 50
+
+
+def test_solve_groups_nearby_schools():
+    """Schools 1+2 close, schools 3+4 close — should be on separate buses."""
+    m = _make_full_matrix_close_pair()
+    demands = [0, 20, 20, 20, 20, 0]
+    solver = HumanStyleSolver(m, demands, vehicle_capacity=50, cluster_threshold_minutes=15)
+    sol = solver.solve()
+
+    def bus_of(node):
+        for route in sol["routes"]:
+            if any(s["node"] == node for s in route["stops"]):
+                return route["vehicle_id"]
+        return None
+
+    assert bus_of(1) == bus_of(2), "Schools 1 and 2 (close) should be on the same bus"
+    assert bus_of(3) == bus_of(4), "Schools 3 and 4 (close) should be on the same bus"
