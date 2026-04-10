@@ -54,6 +54,39 @@ def parse_time_to_minutes(time_str):
     h, m = map(int, clean_time.split(':'))
     return h * 60 + m
 
+def calculate_return_times_for_routes(formatted_routes, fine_manifestazione: str) -> None:
+    """
+    Mutates formatted_routes in-place, adding 'return_time' (HH:MM) to each pickup stop.
+
+    Algorithm (per route):
+      The return trip reverses the outbound order: destination → last_pickup → ... → first_pickup.
+      We reuse outbound leg times (time_to_next_min) as symmetric approximation:
+        - last pickup:  return_time = fine + last_pickup.time_to_next_min
+        - each earlier stop: return_time = next_stop.return_time + DWELL + this_stop.time_to_next_min
+    """
+    try:
+        base_h, base_m = map(int, fine_manifestazione.split(':'))
+    except Exception:
+        return  # Invalid format — skip silently
+
+    DWELL = 3  # minutes per stop (same as STOP_DWELL_TIME_MIN in optimize())
+    base_minutes = base_h * 60 + base_m
+
+    for route in formatted_routes:
+        pickup_stops = [s for s in route['outbound']['stops'] if s['type'] == 'pickup']
+        if not pickup_stops:
+            continue
+
+        n = len(pickup_stops)
+        # Walk backwards: pickup_stops[n-1] is closest to destination on outbound
+        cumulative = base_minutes
+        for i in range(n - 1, -1, -1):
+            leg_min = pickup_stops[i].get('time_to_next_min', 0)
+            cumulative += leg_min
+            pickup_stops[i]['return_time'] = format_time_from_minutes(cumulative)
+            if i > 0:
+                cumulative += DWELL
+
 
 import threading
 import time
@@ -852,6 +885,12 @@ def optimize():
         else:
             arrival_window = None
 
+        # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
+        fine_manifestazione = data.get('fine_manifestazione', '').strip()
+        calculate_return = data.get('calculate_return', True)
+        if calculate_return and fine_manifestazione:
+            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+
         # Calculate Totals
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
 
@@ -866,10 +905,11 @@ def optimize():
                 'total_passengers': solution['total_load'],
                 'outbound_distance': total_outbound,
                 'total_distance': total_outbound,
-                'arrival_window': arrival_window
+                'arrival_window': arrival_window,
+                'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
             }
         }), 200
-        
+
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -1339,6 +1379,12 @@ def optimize_v2():
         else:
             arrival_window = None
 
+        # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
+        fine_manifestazione = data.get('fine_manifestazione', '').strip()
+        calculate_return = data.get('calculate_return', True)
+        if calculate_return and fine_manifestazione:
+            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+
         # Calculate Totals
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
 
@@ -1353,7 +1399,8 @@ def optimize_v2():
                 'total_passengers': solution['total_load'],
                 'outbound_distance': total_outbound,
                 'total_distance': total_outbound,
-                'arrival_window': arrival_window
+                'arrival_window': arrival_window,
+                'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
             }
         }), 200
 
