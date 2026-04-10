@@ -207,6 +207,9 @@ class HumanStyleSolver:
         Run Step 1 (clustering) then Step 2 (balancing) and return a solution dict
         with the same structure as VRPSolver.solve().
         """
+        assert len(self.demands) == len(self.time_matrix), (
+            f"demands length ({len(self.demands)}) must match time_matrix size ({len(self.time_matrix)})"
+        )
         n_schools = len(self.demands) - 2  # subtract depot (0) and dummy (N+1)
         if n_schools == 0:
             return {"routes": [], "total_distance": 0, "total_load": 0, "used_vehicles": 0}
