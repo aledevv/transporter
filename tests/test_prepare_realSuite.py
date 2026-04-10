@@ -1,5 +1,4 @@
 """Unit tests for prepare_realSuite helper functions."""
-import json
 from pathlib import Path
 import pandas as pd
 import pytest
@@ -7,7 +6,7 @@ import pytest
 # We test against a known structured file in realSuite
 REALSUITE = Path(__file__).parent / "realSuite"
 # Pick the first non-pending structured xlsx
-SAMPLE = next(REALSUITE.glob("*_structured.xlsx"))
+SAMPLE = sorted(REALSUITE.glob("*_structured.xlsx"))[0]
 
 
 def test_extract_schools_returns_required_columns():

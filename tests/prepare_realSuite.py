@@ -43,8 +43,8 @@ def extract_schools_from_structured(xlsx_path: Path) -> pd.DataFrame:
     })
 
     # Drop rows with missing or empty values
-    out = out[out["Nome"].notna() & (out["Nome"] != "") & (out["Nome"] != "nan")]
-    out = out[out["Indirizzo"].notna() & (out["Indirizzo"] != "") & (out["Indirizzo"] != "nan")]
+    out = out[out["Nome"].notna() & (out["Nome"] != "") & (out["Nome"].str.lower() != "nan")]
+    out = out[out["Indirizzo"].notna() & (out["Indirizzo"] != "") & (out["Indirizzo"].str.lower() != "nan")]
     out = out[out["Partecipanti"].notna()]
 
     # Deduplicate: same (Nome, Indirizzo) → sum Partecipanti
@@ -62,6 +62,7 @@ def get_event_destination(xlsx_path: Path) -> str:
     df = pd.read_excel(xlsx_path, sheet_name="Per Istituto")
     df.columns = [c.strip() for c in df.columns]
     col = df["Destinazione"].dropna()
+    col = col[col.astype(str).str.lower() != "nan"]
     if col.empty:
         return "Unknown"
     return str(col.iloc[0]).strip()
