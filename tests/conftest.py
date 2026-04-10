@@ -78,3 +78,31 @@ def app_client():
     app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
+
+
+# ---------------------------------------------------------------------------
+# Pytest hooks
+# ---------------------------------------------------------------------------
+import warnings as _warnings
+from pathlib import Path as _Path
+
+
+def pytest_configure(config):
+    """Warn if any realSuite event folder is missing input_corretto.xlsx."""
+    realsuite = _Path(__file__).parent / "realSuite"
+    if not realsuite.exists():
+        return
+    uncorrected = [
+        d.name for d in sorted(realsuite.iterdir())
+        if d.is_dir()
+        and (d / "input.xlsx").exists()
+        and not (d / "input_corretto.xlsx").exists()
+    ]
+    if uncorrected:
+        _warnings.warn(
+            f"\n[realSuite] {len(uncorrected)} event(s) missing AI address correction.\n"
+            f"Run: python tests/prepare_realSuite.py --correct\n"
+            f"Events: {', '.join(uncorrected)}",
+            UserWarning,
+            stacklevel=1,
+        )
