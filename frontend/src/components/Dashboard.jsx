@@ -78,6 +78,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [capacity, setCapacity] = useState(56);
     const [startTime, setStartTime] = useState('08:00');
     const [timeMode, setTimeMode] = useState('arrival');
+    const [calculateReturn, setCalculateReturn] = useState(true);
+    const [fineManifestazione, setFineManifestazione] = useState('15:00');
     const [showEditor, setShowEditor] = useState(startInEditMode);
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState(null);
@@ -212,7 +214,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             const response = await axios.post(`${API_BASE_URL}/api/optimize`, {
                 schools, destination, capacity: parseInt(capacity),
                 dest_lat: destCoords?.lat, dest_lon: destCoords?.lon,
-                start_time: startTime, time_mode: timeMode
+                start_time: startTime, time_mode: timeMode,
+                fine_manifestazione: calculateReturn ? fineManifestazione : '',
+                calculate_return: calculateReturn,
             });
             setResults(response.data);
             const defaultName = `${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
@@ -259,6 +263,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     address: stop.address || '',
                     count: stop.count != null ? String(stop.count) : '-',
                     time: shiftTime(stop.departure_time, cumShift) || '-',
+                    return_time: stop.return_time || '',
                     isDest: false
                 });
                 if (stop.dist_to_next_km != null) {
@@ -312,12 +317,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             doc.text(`Bus #${route.vehicle_id + 1} — ${route.total_load}/${capacity} pax — ${routeDistKm} km`, 14, finalY);
 
             const rows = buildStopRows(route).map(r => [
-                r.label, r.address, r.count, r.time
+                r.label, r.address, r.count, r.time, r.return_time
             ]);
 
             autoTable(doc, {
                 startY: finalY + 5,
-                head: [['Fermata', 'Indirizzo', 'Pax', 'Orario']],
+                head: [['Fermata', 'Indirizzo', 'Pax', 'Orario', 'Rientro']],
                 body: rows,
                 theme: 'grid',
                 headStyles: { fillColor: [52, 152, 219] },
@@ -380,11 +385,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             }));
 
             const headerRow = new TableRow({
-                children: [cell('Fermata', true, true), cell('Indirizzo', true, true), cell('Pax', true, true), cell('Orario', true, true)]
+                children: [cell('Fermata', true, true), cell('Indirizzo', true, true), cell('Pax', true, true), cell('Orario', true, true), cell('Rientro', true, true)]
             });
 
             const dataRows = buildStopRows(route).map(r =>
-                new TableRow({ children: [cell(r.label), cell(r.address), cell(r.count), cell(r.time)] })
+                new TableRow({ children: [cell(r.label), cell(r.address), cell(r.count), cell(r.time), cell(r.return_time || '')] })
             );
 
             sections.push(new Table({
@@ -532,6 +537,32 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                         <input type="time" className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={startTime} onChange={e => setStartTime(e.target.value)} />
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">{timeMode === 'departure' ? "Orario in cui i bus partono dalla prima scuola." : "Orario in cui TUTTI i bus devono essere a destinazione."}</p>
+                                    {/* Return Time Section */}
+                                    <div className="mt-4 border-t pt-4">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <input
+                                                type="checkbox"
+                                                id="calculateReturn"
+                                                checked={calculateReturn}
+                                                onChange={e => setCalculateReturn(e.target.checked)}
+                                                className="w-4 h-4"
+                                            />
+                                            <label htmlFor="calculateReturn" className="text-sm font-medium text-gray-700">
+                                                Calcola orario di rientro
+                                            </label>
+                                        </div>
+                                        {calculateReturn && (
+                                            <div className="flex items-center gap-2">
+                                                <label className="text-sm text-gray-600 w-40">Fine manifestazione:</label>
+                                                <input
+                                                    type="time"
+                                                    value={fineManifestazione}
+                                                    onChange={e => setFineManifestazione(e.target.value)}
+                                                    className="border rounded px-2 py-1 text-sm"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -785,6 +816,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                                 <Users className="w-2.5 h-2.5 text-gray-400" />{stop.count}
                                                                             </span>
                                                                         </div>
+                                                                        {stop.return_time && (
+                                                                            <span className="text-[10px] text-gray-400 font-mono">
+                                                                                ↩ {stop.return_time}
+                                                                            </span>
+                                                                        )}
                                                                         <button
                                                                             onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
                                                                             title={`+${bufIncrement} min a questa e alle successive fermate`}
