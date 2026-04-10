@@ -1,0 +1,263 @@
+{
+  "events": [
+    {
+      "event_id": "GDG_OLIMPIADI_PULLMAN_211025",
+      "sport": "GIOCHIAMO ALLE OLIMPIADI",
+      "categoria": "Istituti Comprensivi",
+      "data": "2025-10-21",
+      "destinazione": "Centro Sportivo di Gardolo – Trento Nord",
+      "orario_ritrovo": "09:00",
+      "orario_fine_manifestazione": "15:30",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 168,
+          "totale_pax": 20,
+          "note": "IC Cavalese: RITIRATI",
+          "fermate": [
+            {
+              "istituto": "IC Ladino di Fassa",
+              "orario_partenza": "07:05",
+              "luogo_ritrovo": "Hotel Trentino, fermata autobus Via Lowy, 96, 38035, Moena",
+              "persone": 20,
+              "rientro_presunto": "17:15"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 60,
+          "totale_pax": 52,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Altopiano di Pinè",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "Scuola di Bedollo, Via Giacomo Bresadola",
+              "persone": 28,
+              "rientro_presunto": "16:30"
+            },
+            {
+              "istituto": "IC Altopiano di Pinè",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Scuola Baselga di Pine, via del 26 maggio",
+              "persone": null,
+              "rientro_presunto": "16:15"
+            },
+            {
+              "istituto": "IC Civezzano",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "Scuola di Civezzano, via Telvana 6",
+              "persone": 24,
+              "rientro_presunto": "15:50"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 130,
+          "totale_pax": 38,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Riva 2",
+              "orario_partenza": "07:25",
+              "luogo_ritrovo": "Via dei laghi, 47 - 38060 Tenno",
+              "persone": 18,
+              "rientro_presunto": "17:05"
+            },
+            {
+              "istituto": "IC Rovereto Est",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Piazzale Orsi, fermata scuola CFP Veronesi Rovereto",
+              "persone": 20,
+              "rientro_presunto": "16:10"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 202,
+          "totale_pax": 43,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Mezzano Santa Croce",
+              "orario_partenza": "06:50",
+              "luogo_ritrovo": "Via Molaren, 29 - Mezzano (TN)",
+              "persone": 16,
+              "rientro_presunto": "17:45"
+            },
+            {
+              "istituto": "IC Vigolo Vattaro",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Fermata autocorriere Vigolo Vattaro",
+              "persone": 27,
+              "rientro_presunto": "16:10"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 32,
+          "totale_pax": 56,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Pergine 2",
+              "orario_partenza": "08:25",
+              "luogo_ritrovo": "Via delle Nazioni Unite, 44, 38057, Canale, TN",
+              "persone": 32,
+              "rientro_presunto": "16:05"
+            },
+            {
+              "istituto": "IC Pergine 1",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "Via Monte Cristallo, 4 - Pergine Valsugana",
+              "persone": 24,
+              "rientro_presunto": "15:55"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 196,
+          "totale_pax": 42,
+          "note": "IC Tione: 16 persone trasportate (PDF), con stop a Roncone e Ragoli; note parentetiche '15 p.' e '11 p' sono descrizione fermate",
+          "fermate": [
+            {
+              "istituto": "IC Chiese",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Via Lamarmora, 13 - Borgo Chiese",
+              "persone": 26,
+              "rientro_presunto": "17:10"
+            },
+            {
+              "istituto": "IC Tione",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "Roncone (centro scolastico provvisorio), via Nazionale, 20",
+              "persone": 16,
+              "rientro_presunto": "16:50"
+            },
+            {
+              "istituto": "IC Tione",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "Ragoli, fermata bus davanti alla Posta in via Trento",
+              "persone": null,
+              "rientro_presunto": "16:25"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 92,
+          "totale_pax": 30,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Folgaria-Lavarone-Luserna",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Scuola Gionghi di Lavarone",
+              "persone": 30,
+              "rientro_presunto": "16:45"
+            },
+            {
+              "istituto": "IC Folgaria-Lavarone-Luserna",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Palaghiaccio Folgaria",
+              "persone": null,
+              "rientro_presunto": "16:20"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 74,
+          "totale_pax": 38,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Taio",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Via delle scuole, Coredo",
+              "persone": 20,
+              "rientro_presunto": "16:30"
+            },
+            {
+              "istituto": "IC Lavis",
+              "orario_partenza": "08:45",
+              "luogo_ritrovo": "Scuola Primaria A. Frank: Piazza SS Filippo e Giacomo 1, Zambana",
+              "persone": 18,
+              "rientro_presunto": "15:45"
+            }
+          ]
+        },
+        {
+          "fin": "9",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 40,
+          "totale_pax": 53,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Aldeno-Mattarello",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Via 25 Aprile, Aldeno",
+              "persone": 39,
+              "rientro_presunto": "16:10"
+            },
+            {
+              "istituto": "IC Aldeno-Mattarello",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "Piazza Condini Romagnano",
+              "persone": 14,
+              "rientro_presunto": "15:55"
+            }
+          ]
+        },
+        {
+          "fin": "10",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 128,
+          "totale_pax": 34,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC Val Rendena",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Viale della Pace 10 Pinzolo",
+              "persone": 17,
+              "rientro_presunto": "17:15"
+            },
+            {
+              "istituto": "STUDENTS STAFF – IS GUETTI",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "IS Guetti, Via Durone 53, Tione",
+              "persone": 17,
+              "rientro_presunto": "16:45"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

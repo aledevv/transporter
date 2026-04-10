@@ -1,0 +1,105 @@
+{
+  "events": [
+    {
+      "event_id": "GDG_OLIMPIADI_BUS_TN_211025",
+      "sport": "GIOCHIAMO ALLE OLIMPIADI",
+      "categoria": "Scuole Trento città (linee urbane)",
+      "data": "2025-10-21",
+      "destinazione": "Centro Sportivo Trento Nord – Gardolo",
+      "orario_ritrovo": "09:00",
+      "orario_fine_manifestazione": "15:30",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "Linea 4",
+          "ditta": "TN Trasporti",
+          "ditta_tel": null,
+          "km": null,
+          "totale_pax": 30,
+          "note": "Trasporto tramite linea urbana 4. Andata da Giusti Arcivescovile ore 8:23, ritorno da P.le Neufahrn Nord ore 15:57 arrivo 16:19",
+          "fermate": [
+            {
+              "istituto": "ARCIVESCOVILE Trento",
+              "orario_partenza": "08:23",
+              "luogo_ritrovo": "da Giusti Arcivescovile - Trento",
+              "persone": 30,
+              "rientro_presunto": "16:19"
+            }
+          ]
+        },
+        {
+          "fin": "Linea 3",
+          "ditta": "TN Trasporti",
+          "ditta_tel": null,
+          "km": null,
+          "totale_pax": 49,
+          "note": "Trasporto tramite linea urbana 3. Andata da Trento Piazza Fiera ore 8:19/8:34; ritorno da Gardolo piazza ore 15:48/16:03",
+          "fermate": [
+            {
+              "istituto": "SACRO CUORE Trento",
+              "orario_partenza": "08:19",
+              "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+              "persone": null,
+              "rientro_presunto": "15:48"
+            },
+            {
+              "istituto": "SACRO CUORE Trento",
+              "orario_partenza": "08:34",
+              "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+              "persone": 49,
+              "rientro_presunto": "16:03"
+            }
+          ]
+        },
+        {
+          "fin": "Linea 7",
+          "ditta": "TN Trasporti",
+          "ditta_tel": null,
+          "km": null,
+          "totale_pax": 69,
+          "note": "Linea 7 dal centro a Gardolo Piscina. IC TRENTO 3: andata 8:05 da Gocciadoro Arcate, ritorno 15:34. SACRA FAMIGLIA: andata 8:30/8:50 da S.Francesco Porta Nuova, ritorno 15:54/16:14",
+          "fermate": [
+            {
+              "istituto": "IC TRENTO 3",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "Gocciadoro Arcate, capolinea bus n. 7 - Trento",
+              "persone": 20,
+              "rientro_presunto": "15:34"
+            },
+            {
+              "istituto": "SACRA FAMIGLIA Trento",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+              "persone": null,
+              "rientro_presunto": "15:54"
+            },
+            {
+              "istituto": "SACRA FAMIGLIA Trento",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+              "persone": 49,
+              "rientro_presunto": "16:14"
+            }
+          ]
+        },
+        {
+          "fin": "Linea 10+3",
+          "ditta": "TN Trasporti",
+          "ditta_tel": null,
+          "km": null,
+          "totale_pax": 39,
+          "note": "Andata: Linea 10 da Cognola ore 8:14 → Stazione FS TN; poi Linea 3 da Stazione FS ore 8:54. Ritorno: Linea 3 da Gardolo ore 15:33 → Stazione FS; poi Linea 10 da Stazione FS ore 16:01/16:11",
+          "fermate": [
+            {
+              "istituto": "IC TRENTO 2",
+              "orario_partenza": "08:14",
+              "luogo_ritrovo": "Cognola - Trento (Linea 10)",
+              "persone": 39,
+              "rientro_presunto": "16:11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

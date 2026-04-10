@@ -1,0 +1,148 @@
+{
+  "events": [
+    {
+      "event_id": "BASKET_CADETTI_210126",
+      "sport": "BASKET (NUOVI GIOCHI DELLA GIOVENTU')",
+      "categoria": "Cadetti/e",
+      "data": "2026-01-21",
+      "destinazione": "Centro sportivo Trento Nord - Trento",
+      "orario_ritrovo": "08:30",
+      "orario_fine_manifestazione": "16:00",
+      "autonomi": [
+        "IC TRENTO SALESIANI"
+      ],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": "Bordati",
+          "ditta_tel": "335 237925",
+          "km": 104,
+          "totale_pax": 8,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS GUETTI – Students Staff",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "TIONE, Via Durone, 53",
+              "persone": 8,
+              "rientro_presunto": "17:00"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": "Pedrinolla",
+          "ditta_tel": "335 5285666",
+          "km": 112,
+          "totale_pax": 45,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC AVIO",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "AVIO, Viale Degasperi, 69",
+              "persone": 24,
+              "rientro_presunto": "17:00"
+            },
+            {
+              "istituto": "IC ISERA-ROVERETO",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "ROVERETO, Viale Della Vittoria, 43",
+              "persone": 21,
+              "rientro_presunto": "16:30"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": "Fruner",
+          "ditta_tel": "349 8121209",
+          "km": 98,
+          "totale_pax": 40,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC RIVA 1",
+              "orario_partenza": "07:15",
+              "luogo_ritrovo": "RIVA DEL GARDA, Viale Damiano Chiesa, 10, Fermata bus",
+              "persone": 23,
+              "rientro_presunto": "17:15"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI-DRO",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "CAVEDINE, Piazza Italia",
+              "persone": 17,
+              "rientro_presunto": "16:40"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": "Nice",
+          "ditta_tel": "339 5612969",
+          "km": 64,
+          "totale_pax": 45,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ROVERETO EST",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "ROVERETO, Piazzale Orsi, Fermata bus CFP Veronesi",
+              "persone": 24,
+              "rientro_presunto": "16:45"
+            },
+            {
+              "istituto": "IC ALDENO MATTARELLO",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "ALDENO, Via Filzi, Fermata bus",
+              "persone": 21,
+              "rientro_presunto": "16:25"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": "Origano",
+          "ditta_tel": "347 1237504",
+          "km": 192,
+          "totale_pax": 45,
+          "note": "Totale PAX 45 nel PDF; conteggio fermate: 23+18=41 (discrepanza di 4)",
+          "fermate": [
+            {
+              "istituto": "IC PRIMIERO",
+              "orario_partenza": "06:45",
+              "luogo_ritrovo": "FIERA DI PRIMIERO, Via Roma 2, Fermata bus",
+              "persone": 23,
+              "rientro_presunto": "17:45"
+            },
+            {
+              "istituto": "IC MEZZANO SANTA CROCE",
+              "orario_partenza": "06:55",
+              "luogo_ritrovo": "MEZZANO, Via Molaren, 29",
+              "persone": 18,
+              "rientro_presunto": "17:35"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": "Giulia",
+          "ditta_tel": "348 2252140",
+          "km": 52,
+          "totale_pax": 14,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "SPORMAGGIORE, Via Alt Spaur, 5",
+              "persone": 14,
+              "rientro_presunto": "16:40"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

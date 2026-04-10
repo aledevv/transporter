@@ -1,0 +1,247 @@
+{
+  "events": [
+    {
+      "event_id": "PALLA_TAMBURELLO_IC_220426",
+      "sport": "PALLA TAMBURELLO",
+      "categoria": "Istituti Comprensivi",
+      "data": "2026-04-22",
+      "destinazione": "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo",
+      "orario_ritrovo": "08:45",
+      "orario_fine_manifestazione": "16:30",
+      "autonomi": [
+        "IC BASSA ANAUNIA – TUENNO",
+        "IC TAIO",
+        "IC COREDO"
+      ],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 164,
+          "totale_pax": 26,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC DRO",
+              "orario_partenza": "07:10",
+              "luogo_ritrovo": "Via S. Antonio 17 - Dro",
+              "persone": 26,
+              "rientro_presunto": "18:00"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 144,
+          "totale_pax": 27,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TIONE",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+              "persone": 9,
+              "rientro_presunto": "18:15"
+            },
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Piazza Palù, Madonna di Campiglio",
+              "persone": 18,
+              "rientro_presunto": "17:30"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 48,
+          "totale_pax": 47,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZOCORONA",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via Fornai 1 - Mezzocorona",
+              "persone": 18,
+              "rientro_presunto": "17:20"
+            },
+            {
+              "istituto": "IS MARTINO MARTINI – Students staff",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Via Perlasca 4 - Mezzolombardo",
+              "persone": 20,
+              "rientro_presunto": "17:10"
+            },
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Via degli Alpini 17 - Mezzolombardo",
+              "persone": 9,
+              "rientro_presunto": "17:00"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 160,
+          "totale_pax": 53,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC RIVA 1",
+              "orario_partenza": "06:55",
+              "luogo_ritrovo": "Viale Damiano Chiesa, 10 – Riva del Garda",
+              "persone": 27,
+              "rientro_presunto": "18:20"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Via XXV Aprile 7 - Cavedine",
+              "persone": 13,
+              "rientro_presunto": "17:45"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via Roma 3 - Vezzano",
+              "persone": 13,
+              "rientro_presunto": "17:25"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 180,
+          "totale_pax": 51,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ALA",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Via Betta 9 - Ala",
+              "persone": 26,
+              "rientro_presunto": "17:40"
+            },
+            {
+              "istituto": "IC VILLA LAGARINA",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via Stockstadt Am Rhein, 3 – Villa Lagarina",
+              "persone": 25,
+              "rientro_presunto": "17:15"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 20,
+          "totale_pax": 54,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC FONDO",
+              "orario_partenza": "08:15",
+              "luogo_ritrovo": "Via Canestrini - Revò",
+              "persone": 26,
+              "rientro_presunto": "17:00"
+            },
+            {
+              "istituto": "IC CLES",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Piazza Fiera - Cles",
+              "persone": 26,
+              "rientro_presunto": "16:45"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 190,
+          "totale_pax": 44,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC FOLGARIA LAVARONE",
+              "orario_partenza": "06:10",
+              "luogo_ritrovo": "Frazione Gionghi - Lavarone",
+              "persone": 26,
+              "rientro_presunto": "19:20"
+            },
+            {
+              "istituto": "IC FOLGARIA LAVARONE",
+              "orario_partenza": "06:50",
+              "luogo_ritrovo": "Park Palaghiaccio - Folgaria",
+              "persone": null,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IC FOLGARIA LAVARONE",
+              "orario_partenza": "07:05",
+              "luogo_ritrovo": "Fermata Bus - Mezzamonte",
+              "persone": null,
+              "rientro_presunto": "18:25"
+            },
+            {
+              "istituto": "IC TRENTO 1",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via Znojmo 24 – Povo - Trento",
+              "persone": 18,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 131,
+          "totale_pax": 54,
+          "note": "Luogo ritrovo IC ALTA VALLAGARINA da definire (indicato in giallo nel PDF)",
+          "fermate": [
+            {
+              "istituto": "IC ISERA - ROVERETO",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Viale della Vittoria, 43 - Rovereto",
+              "persone": 26,
+              "rientro_presunto": "18:15"
+            },
+            {
+              "istituto": "IC ALTA VALLAGARINA",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Da definire - Besenello",
+              "persone": 26,
+              "rientro_presunto": "17:55"
+            },
+            {
+              "istituto": "IC ALTA VALLAGARINA",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Da definire - Calliano",
+              "persone": null,
+              "rientro_presunto": "17:45"
+            },
+            {
+              "istituto": "IC ALTA VALLAGARINA",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "Da definire - Volano",
+              "persone": null,
+              "rientro_presunto": "17:35"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

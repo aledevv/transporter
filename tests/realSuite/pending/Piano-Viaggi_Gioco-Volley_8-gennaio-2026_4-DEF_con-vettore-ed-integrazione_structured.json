@@ -1,0 +1,232 @@
+{
+  "events": [
+    {
+      "event_id": "GIOCO_VOLLEY_ELEM_080126",
+      "sport": "GIOCO VOLLEY",
+      "categoria": "4° e 5° elementare",
+      "data": "2026-01-08",
+      "destinazione": "Centro Sportivo Trento Nord – Gardolo",
+      "orario_ritrovo": "08:30",
+      "orario_fine_manifestazione": "16:00",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": "PATERNOSTER",
+          "ditta_tel": "335 6756227",
+          "km": 136,
+          "totale_pax": 34,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ALTA VAL DI SOLE",
+              "orario_partenza": "06:50",
+              "luogo_ritrovo": "OSSANA, Via S Michele, 11",
+              "persone": 22,
+              "rientro_presunto": "17:50"
+            },
+            {
+              "istituto": "IC TAIO",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "TRES, Scuola Primaria",
+              "persone": 12,
+              "rientro_presunto": "16:45"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": "MATTIUZZI",
+          "ditta_tel": "348 3918706",
+          "km": 114,
+          "totale_pax": 44,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC RIVA 2",
+              "orario_partenza": "07:10",
+              "luogo_ritrovo": "RIVA DEL GARDA, Via Grez 7/F (Plesso Primaria Zadra)",
+              "persone": 19,
+              "rientro_presunto": "17:20"
+            },
+            {
+              "istituto": "IC VILLA LAGARINA",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "POMAROLO, Via San Cristoforo, 3 (davanti alla Chiesa)",
+              "persone": 25,
+              "rientro_presunto": "16:35"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": "SIGNORI …",
+          "ditta_tel": "335 5949531",
+          "km": 64,
+          "totale_pax": 41,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TRENTO 3",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "TRENTO, Fermata Arcate Gocciadoro capolinea Bus n. 7",
+              "persone": 20,
+              "rientro_presunto": "16:45"
+            },
+            {
+              "istituto": "IC CIVEZZANO",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "FORNACE, via dei Mori 2 - Fermata bus",
+              "persone": 21,
+              "rientro_presunto": "16:15"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": "CROSINA",
+          "ditta_tel": "333 8710304",
+          "km": 96,
+          "totale_pax": 48,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC RIVA 1",
+              "orario_partenza": "07:15",
+              "luogo_ritrovo": "NAGO, Via di Tezze 4 - fermata bus",
+              "persone": 23,
+              "rientro_presunto": "17:05"
+            },
+            {
+              "istituto": "IC ROVERETO NORD",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "ROVERETO, Fermata Bus Viale Trento, bivio Brione",
+              "persone": 25,
+              "rientro_presunto": "16:30"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": "GENZIANA",
+          "ditta_tel": "348 2242094",
+          "km": 76,
+          "totale_pax": 43,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CLES",
+              "orario_partenza": "07:25",
+              "luogo_ritrovo": "CLES, Piazza Fiera",
+              "persone": 20,
+              "rientro_presunto": "17:05"
+            },
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "MEZZOLOMBARDO, via S. Francesco di fronte fermata Stazione FS",
+              "persone": 23,
+              "rientro_presunto": "16:30"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": "SARCATOUR",
+          "ditta_tel": "348 3902804",
+          "km": 76,
+          "totale_pax": 39,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC DRO",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "SP DRO, Piazza della Repubblica n.1",
+              "persone": 19,
+              "rientro_presunto": "17:00"
+            },
+            {
+              "istituto": "IC VEZZANO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "CAVEDINE, Fermata autobus, Piazza Italia",
+              "persone": 20,
+              "rientro_presunto": "16:35"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": "IN SERVICE",
+          "ditta_tel": "353 4854702",
+          "km": 150,
+          "totale_pax": 41,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "06:50",
+              "luogo_ritrovo": "CARISOLO, Scuola Primaria di Carisolo, via G. Verdi, 18/B",
+              "persone": 18,
+              "rientro_presunto": "17:35"
+            },
+            {
+              "istituto": "IC TIONE",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "BONDO, Via Indipendenza, 105",
+              "persone": 23,
+              "rientro_presunto": "17:05"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": "SOLETANA",
+          "ditta_tel": "340 3794061",
+          "km": 154,
+          "totale_pax": 34,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CHIESE",
+              "orario_partenza": "06:25",
+              "luogo_ritrovo": "PIEVE DI BONO-PREZZO, Via Fiera - Creto - Pieve di Bono, 1",
+              "persone": 17,
+              "rientro_presunto": "18:05"
+            },
+            {
+              "istituto": "IC GIUDICARIE ESTERIORI",
+              "orario_partenza": "07:10",
+              "luogo_ritrovo": "STENICO, Via Risorgimento 11/A",
+              "persone": 17,
+              "rientro_presunto": "17:20"
+            },
+            {
+              "istituto": "IC GIUDICARIE ESTERIORI",
+              "orario_partenza": "07:25",
+              "luogo_ritrovo": "FIAVE', Via De Gasperi 23",
+              "persone": null,
+              "rientro_presunto": "17:00"
+            }
+          ]
+        },
+        {
+          "fin": "9",
+          "ditta": "VOLOTOLINI",
+          "ditta_tel": "335 7525644",
+          "km": 76,
+          "totale_pax": 22,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC BORGO VALSUGANA",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Ist. \"Rita Levi Montalcini\", Via Temanza 13/c – Borgo Valsugana",
+              "persone": 22,
+              "rientro_presunto": "16:45"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

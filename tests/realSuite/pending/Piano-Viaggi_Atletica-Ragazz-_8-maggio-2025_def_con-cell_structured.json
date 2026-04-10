@@ -1,0 +1,501 @@
+{
+  "events": [
+    {
+      "event_id": "ATLETICA_RAGAZZI_080525",
+      "sport": "ATLETICA LEGGERA",
+      "categoria": "Ragazze e Ragazzi",
+      "data": "2025-05-08",
+      "destinazione": "Rovereto – Stadio Quercia",
+      "orario_ritrovo": "09:30",
+      "orario_fine_manifestazione": "17:00",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": "PERGBUS",
+          "ditta_tel": "339 7873907",
+          "km": 167,
+          "totale_pax": 28,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CAVALESE",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "SSPG – Fermata bus – Piazza Verdi - Cavalese",
+              "persone": 18,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IC LAVIS",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "SSPG - via Carlo Sette, 13/a - Lavis",
+              "persone": 10,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": "GENZIANA SRL",
+          "ditta_tel": "348 2242094",
+          "km": 160,
+          "totale_pax": 50,
+          "note": "Totale PAX 50 nel PDF; conteggio fermate: 18+18+9+4=49",
+          "fermate": [
+            {
+              "istituto": "IC FONDO-REVO'",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "SSPG - via G. Garibaldi, 24 - Fondo",
+              "persone": 18,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IC FONDO-REVO'",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Park autobus c/o Vigili Fuoco Volontari - Revò",
+              "persone": 18,
+              "rientro_presunto": "18:30"
+            },
+            {
+              "istituto": "IC TAIO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Piazza della Chiesa - Coredo",
+              "persone": 9,
+              "rientro_presunto": "18:10"
+            },
+            {
+              "istituto": "IC TAIO",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Piazza della Chiesa – Taio",
+              "persone": 4,
+              "rientro_presunto": "18:00"
+            }
+          ]
+        },
+        {
+          "fin": "2 BIS",
+          "ditta": "SIGNORI SI PARTE",
+          "ditta_tel": "335 5949531",
+          "km": 160,
+          "totale_pax": 4,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TAIO",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Piazza della Chiesa – Taio",
+              "persone": 4,
+              "rientro_presunto": "18:00"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": "FACCHINI",
+          "ditta_tel": "3487129588",
+          "km": 240,
+          "totale_pax": 22,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZANO SANTA CROCE",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
+              "persone": 13,
+              "rientro_presunto": "19:30"
+            },
+            {
+              "istituto": "IC LEVICO TERME",
+              "orario_partenza": "08:25",
+              "luogo_ritrovo": "SSPG – via della Pace, 5 - Levico Terme",
+              "persone": 9,
+              "rientro_presunto": "18:05"
+            }
+          ]
+        },
+        {
+          "fin": "3 BIS",
+          "ditta": "VENTOURA",
+          "ditta_tel": "349 3569554",
+          "km": 50,
+          "totale_pax": 28,
+          "note": "IC TRENTO 5 e IC TRENTO 6 condividono stessa fermata e orario",
+          "fermate": [
+            {
+              "istituto": "IC TRENTO 5",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "Funivia Trento/Sardagna - Trento",
+              "persone": 10,
+              "rientro_presunto": "17:40"
+            },
+            {
+              "istituto": "IC TRENTO 6",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "Funivia Trento/Sardagna - Trento",
+              "persone": 18,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": "PERINI FRANCO",
+          "ditta_tel": "347 8603908",
+          "km": 100,
+          "totale_pax": 54,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VALLE DEI LAGHI-DRO",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "Fermata bus c/o farmacia - via Roma - Vezzano",
+              "persone": 9,
+              "rientro_presunto": "18:25"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI-DRO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Piazza Italia - Cavedine",
+              "persone": 9,
+              "rientro_presunto": "18:10"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI-DRO",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "SSPG DRO - Parcheggio Scuole Nuove - Dro",
+              "persone": 18,
+              "rientro_presunto": "17:55"
+            },
+            {
+              "istituto": "IC RIVA 2",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "Centro sportivo \"Malossini\" – Via Ginestre 1 - Riva del Garda",
+              "persone": 18,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": "RIGOTTI VIAGGI",
+          "ditta_tel": "339 2950824",
+          "km": 156,
+          "totale_pax": 54,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "SSPG – Via della Pace 10 - Pinzolo",
+              "persone": 18,
+              "rientro_presunto": "18:50"
+            },
+            {
+              "istituto": "IC TIONE",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "SSPG – via Circonvallazione, 44 – Tione",
+              "persone": 18,
+              "rientro_presunto": "18:30"
+            },
+            {
+              "istituto": "IC RIVA 1",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "SSPG - via D. Chiesa, 10 - Riva del Garda",
+              "persone": 18,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": "PEGORARO TOUR",
+          "ditta_tel": "349 5569542",
+          "km": 107,
+          "totale_pax": 28,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VIGOLO VATTARO",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Fermata bus – Vigolo Vattaro",
+              "persone": 18,
+              "rientro_presunto": "18:20"
+            },
+            {
+              "istituto": "IC FOLGARIA",
+              "orario_partenza": "09:00",
+              "luogo_ritrovo": "Fermata bus Palaghiaccio - Folgaria",
+              "persone": 10,
+              "rientro_presunto": "17:30"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": "ROMEO TOUR",
+          "ditta_tel": "338 3968296",
+          "km": 88,
+          "totale_pax": 50,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC PERGINE 1",
+              "orario_partenza": "08:15",
+              "luogo_ritrovo": "SSPG – Via Caduti, 39 - Pergine Valsugana",
+              "persone": 18,
+              "rientro_presunto": "18:15"
+            },
+            {
+              "istituto": "IC TRENTO 2",
+              "orario_partenza": "08:40",
+              "luogo_ritrovo": "SSPG - Via Ponte Alto, 2/1 - Cognola/Trento",
+              "persone": 22,
+              "rientro_presunto": "17:50"
+            },
+            {
+              "istituto": "IC TRENTO 1",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "SSPG - via Znojmo, 24 - Povo/Trento",
+              "persone": 10,
+              "rientro_presunto": "17:40"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": "PEDRINOLLA",
+          "ditta_tel": "335 5285666",
+          "km": 38,
+          "totale_pax": 55,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC AVIO",
+              "orario_partenza": "08:45",
+              "luogo_ritrovo": "Via De Gasperi 69 - Avio",
+              "persone": 18,
+              "rientro_presunto": "17:45"
+            },
+            {
+              "istituto": "IC ALA",
+              "orario_partenza": "09:00",
+              "luogo_ritrovo": "Piazzale Scuola primaria – Via Betta - Ala",
+              "persone": 18,
+              "rientro_presunto": "17:30"
+            },
+            {
+              "istituto": "IC ISERA/ROVERETO",
+              "orario_partenza": "09:20",
+              "luogo_ritrovo": "Viale Vittoria 43 - Rovereto",
+              "persone": 19,
+              "rientro_presunto": "17:10"
+            }
+          ]
+        },
+        {
+          "fin": "9",
+          "ditta": "MONAUNI",
+          "ditta_tel": "347 8033184",
+          "km": 115,
+          "totale_pax": 36,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "SSPG Segonzano - Loc. Scancio 69 - Segonzano",
+              "persone": 6,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "SSPG Cembra - Via Negritelle, 1 - Cembra",
+              "persone": 6,
+              "rientro_presunto": "18:25"
+            },
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "SSPG Giovo - Via Grec 2 - Giovo",
+              "persone": 6,
+              "rientro_presunto": "18:10"
+            },
+            {
+              "istituto": "IC TRENTO 7",
+              "orario_partenza": "08:40",
+              "luogo_ritrovo": "SSPG - via 4 Novembre, 35/1 - Gardolo/Trento",
+              "persone": 18,
+              "rientro_presunto": "17:50"
+            }
+          ]
+        },
+        {
+          "fin": "10",
+          "ditta": "VIAGGI BORDATI",
+          "ditta_tel": "335 237925",
+          "km": 144,
+          "totale_pax": 27,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CHIESE",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Via Fiera 1 – Pieve di Bono",
+              "persone": 9,
+              "rientro_presunto": "19:00"
+            },
+            {
+              "istituto": "IC CHIESE",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via Papaleoni 5 - Storo",
+              "persone": null,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IC VALLE DI LEDRO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Via Falcone e Borsellino - Bezzecca",
+              "persone": 18,
+              "rientro_presunto": "18:10"
+            }
+          ]
+        },
+        {
+          "fin": "11",
+          "ditta": "SIGNORI SI PARTE",
+          "ditta_tel": "335 5949531",
+          "km": 129,
+          "totale_pax": 36,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Via Trento Fermata bus - Spormaggiore",
+              "persone": 3,
+              "rientro_presunto": "18:10"
+            },
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Via degli Alpini, 17 - Mezzolombardo",
+              "persone": 15,
+              "rientro_presunto": "18:00"
+            },
+            {
+              "istituto": "IC MEZZOCORONA",
+              "orario_partenza": "08:40",
+              "luogo_ritrovo": "Via Fornai, 1 - Mezzocorona",
+              "persone": 18,
+              "rientro_presunto": "17:50"
+            }
+          ]
+        },
+        {
+          "fin": "12",
+          "ditta": "FONTANARI",
+          "ditta_tel": "348 5696083",
+          "km": 94,
+          "totale_pax": 36,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ALTOPIANO DI PINE'",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Via del 26 Maggio - Baselga di Pinè",
+              "persone": 18,
+              "rientro_presunto": "18:00"
+            },
+            {
+              "istituto": "IC ALDENO-MATTARELLO",
+              "orario_partenza": "09:00",
+              "luogo_ritrovo": "Fermata Bus \"Al Parco\" - Via Torre Franca - Mattarello",
+              "persone": 9,
+              "rientro_presunto": "17:30"
+            },
+            {
+              "istituto": "IC ALDENO-MATTARELLO",
+              "orario_partenza": "09:10",
+              "luogo_ritrovo": "Fermata bus – via Filzi - Aldeno",
+              "persone": 9,
+              "rientro_presunto": "17:20"
+            }
+          ]
+        },
+        {
+          "fin": "13",
+          "ditta": "DALLA TORRE",
+          "ditta_tel": "338 3685394",
+          "km": 126,
+          "totale_pax": 34,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC BASSA ANAUNIA-TUENNO",
+              "orario_partenza": "08:15",
+              "luogo_ritrovo": "Via Maistrelli, 11, Ville d'Anaunia fr. Tuenno",
+              "persone": 17,
+              "rientro_presunto": "18:00"
+            },
+            {
+              "istituto": "IC BASSA ANAUNIA-TUENNO",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "Via Colle Verde 3 - Denno",
+              "persone": 17,
+              "rientro_presunto": "17:45"
+            }
+          ]
+        },
+        {
+          "fin": "14",
+          "ditta": "AUTONOMEGGIO FABBRO",
+          "ditta_tel": "335 5283100",
+          "km": 134,
+          "totale_pax": 27,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC BORGO VALSUGANA",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Via Spagnolla 1 – Borgo Valsugana",
+              "persone": 12,
+              "rientro_presunto": "18:20"
+            },
+            {
+              "istituto": "IC TRENTO 3",
+              "orario_partenza": "08:50",
+              "luogo_ritrovo": "Via Vittorio Veneto 61 - Trento",
+              "persone": 5,
+              "rientro_presunto": "17:40"
+            },
+            {
+              "istituto": "IC TRENTO 4",
+              "orario_partenza": "09:00",
+              "luogo_ritrovo": "Piazzale CHIESA SACRO CUORE - Viale Verona 143 – Trento",
+              "persone": 10,
+              "rientro_presunto": "17:30"
+            }
+          ]
+        },
+        {
+          "fin": "15",
+          "ditta": "FABIO VIAGGI (A) / PEDRINOLLA (R)",
+          "ditta_tel": "0461 585236 / 3355285666",
+          "km": 86,
+          "totale_pax": 22,
+          "note": "Due vettori: A)FABIO VIAGGI per andata, R)PEDRINOLLA per ritorno",
+          "fermate": [
+            {
+              "istituto": "IS MARTINO MARTINI MEZZOLOMBARDO – Students Staff",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Via Perlasca 4 - Mezzolombardo",
+              "persone": 22,
+              "rientro_presunto": "17:45"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

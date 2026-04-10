@@ -1,0 +1,64 @@
+{
+  "events": [
+    {
+      "event_id": "BASKET_TOPCLASS_200126",
+      "sport": "BASKET (NUOVI GIOCHI DELLA GIOVENTU')",
+      "categoria": "Ragazze/Ragazzi – Top Class",
+      "data": "2026-01-20",
+      "destinazione": "Centro sportivo Trento Nord - Trento",
+      "orario_ritrovo": "08:30",
+      "orario_fine_manifestazione": "14:30",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 126,
+          "totale_pax": 46,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TAIO",
+              "orario_partenza": "06:55",
+              "luogo_ritrovo": "TAIO, Piazza della Chiesa",
+              "persone": 21,
+              "rientro_presunto": "16:00"
+            },
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "ANDALO, Piazza S. Vito n. 1",
+              "persone": 25,
+              "rientro_presunto": "15:15"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 50,
+          "totale_pax": 47,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VALLE DEI LAGHI DRO",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
+              "persone": 24,
+              "rientro_presunto": "15:20"
+            },
+            {
+              "istituto": "IC TRENTO 2",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
+              "persone": 23,
+              "rientro_presunto": "14:50"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

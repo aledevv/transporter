@@ -1,0 +1,503 @@
+{
+  "events": [
+    {
+      "event_id": "ORIENTEERING_IC_IS_150426",
+      "sport": "ORIENTEERING",
+      "categoria": "Istituti Comprensivi e Superiori",
+      "data": "2026-04-15",
+      "destinazione": "Centro Sportivo Lungolago Serraia - Baselga di Pinè",
+      "orario_ritrovo": "09:00",
+      "orario_fine_manifestazione": "15:00",
+      "autonomi": [
+        "IC ALTOPIANO DI PINE'"
+      ],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 100,
+          "totale_pax": 40,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS ROSA BIANCA CAVALESE",
+              "orario_partenza": "07:25",
+              "luogo_ritrovo": "Corso Degasperi - Predazzo",
+              "persone": 11,
+              "rientro_presunto": "16:20"
+            },
+            {
+              "istituto": "IS TESERO ENAIP",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Via Caltrezza, 13 - Tesero",
+              "persone": 18,
+              "rientro_presunto": "16:10"
+            },
+            {
+              "istituto": "IS ROSA BIANCA CAVALESE",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Stazione dei pullman - Cavalese",
+              "persone": 11,
+              "rientro_presunto": "15:55"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 172,
+          "totale_pax": 36,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ALTA VAL DI SOLE",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Via S. Michele, 11 – Fucine di Ossana",
+              "persone": 18,
+              "rientro_presunto": "17:00"
+            },
+            {
+              "istituto": "IS PILATI CLES",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Via IV Novembre, 35 - Cles",
+              "persone": 18,
+              "rientro_presunto": "16:10"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 123,
+          "totale_pax": 54,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MORI",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Via Giovanni XXIII, n. 64 – Mori",
+              "persone": 18,
+              "rientro_presunto": "16:40"
+            },
+            {
+              "istituto": "IC ALDENO MATTARELLO",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "Via Filzi, fermata bus - Aldeno",
+              "persone": 18,
+              "rientro_presunto": "16:05"
+            },
+            {
+              "istituto": "IC ALDENO MATTARELLO",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Via Torre Franca – Fermata Bus \"Al Parco\" Mattarello",
+              "persone": null,
+              "rientro_presunto": "15:50"
+            },
+            {
+              "istituto": "IC TRENTO 7",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Via IV Novembre 35/1 - Trento",
+              "persone": 18,
+              "rientro_presunto": "15:30"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 84,
+          "totale_pax": 44,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS AGRARIO SAN MICHELE A/A",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Fermata bus S. Michele, Via Biasi (dalla rotonda Conad) – San Michele A/A",
+              "persone": 21,
+              "rientro_presunto": "16:25"
+            },
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Via al Grec, 2 - Giovo",
+              "persone": 23,
+              "rientro_presunto": "16:05"
+            },
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Via Negritelle 1 - Cembra",
+              "persone": null,
+              "rientro_presunto": "15:50"
+            },
+            {
+              "istituto": "IC CEMBRA",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Frazione Scancio 69 – Fermata Bus - Segonzano",
+              "persone": null,
+              "rientro_presunto": "15:30"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 108,
+          "totale_pax": 38,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZOLOMBARDO PAGANELLA",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Piazza S. Vito 1 - Andalo",
+              "persone": 9,
+              "rientro_presunto": "16:20"
+            },
+            {
+              "istituto": "IS MARTINO MARTINI",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "Via Perlasca 4 - Mezzolombardo",
+              "persone": 14,
+              "rientro_presunto": "15:50"
+            },
+            {
+              "istituto": "IS MARTINO MARTINI – STUDENTS STAFF",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "Via Perlasca 4 - Mezzolombardo",
+              "persone": 15,
+              "rientro_presunto": "15:50"
+            }
+          ]
+        },
+        {
+          "fin": "6",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 92,
+          "totale_pax": 44,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS ROSMINI ROVERETO",
+              "orario_partenza": "07:55",
+              "luogo_ritrovo": "Via Piomarta, palazzetto Sport - Rovereto",
+              "persone": 22,
+              "rientro_presunto": "16:00"
+            },
+            {
+              "istituto": "IS MARCONI ROVERETO",
+              "orario_partenza": "08:05",
+              "luogo_ritrovo": "Via Monti 1 - Rovereto",
+              "persone": 22,
+              "rientro_presunto": "15:50"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 56,
+          "totale_pax": 45,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VIGOLO VATTARO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Fermata Bus - Vigolo Vattaro",
+              "persone": 30,
+              "rientro_presunto": "15:40"
+            },
+            {
+              "istituto": "IC CIVEZZANO",
+              "orario_partenza": "08:40",
+              "luogo_ritrovo": "Park Supermercato Lidl - Civezzano",
+              "persone": 15,
+              "rientro_presunto": "15:20"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 49,
+          "totale_pax": 46,
+          "note": "Pullman con Pedana",
+          "fermate": [
+            {
+              "istituto": "IS GALILEI TRENTO",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Piazza Vicenza fermata autobus - Trento",
+              "persone": 26,
+              "rientro_presunto": "15:50"
+            },
+            {
+              "istituto": "IS VITTORIA BONPORTI",
+              "orario_partenza": "08:25",
+              "luogo_ritrovo": "Via Zambra 3 - Trento",
+              "persone": 20,
+              "rientro_presunto": "15:35"
+            }
+          ]
+        },
+        {
+          "fin": "9",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 40,
+          "totale_pax": 44,
+          "note": "IS ROSMINI TRENTO e IC TRENTO 3 condividono la stessa fermata e orario",
+          "fermate": [
+            {
+              "istituto": "IS ROSMINI TRENTO",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Via Vittorio Veneto 61 - Trento",
+              "persone": 22,
+              "rientro_presunto": "15:40"
+            },
+            {
+              "istituto": "IC TRENTO 3",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Via Vittorio Veneto 61 - Trento",
+              "persone": 22,
+              "rientro_presunto": "15:40"
+            }
+          ]
+        },
+        {
+          "fin": "10",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 50,
+          "totale_pax": 47,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TRENTO 6",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Park ex Italcementi - Trento",
+              "persone": 32,
+              "rientro_presunto": "15:40"
+            },
+            {
+              "istituto": "IC CIVEZZANO",
+              "orario_partenza": "08:40",
+              "luogo_ritrovo": "Park Supermercato Lidl - Civezzano",
+              "persone": 15,
+              "rientro_presunto": "15:20"
+            }
+          ]
+        },
+        {
+          "fin": "11",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 193,
+          "totale_pax": 49,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC PRIMIERO",
+              "orario_partenza": "07:00",
+              "luogo_ritrovo": "Stazione Trentino Trasporti Fiera di Primiero",
+              "persone": 26,
+              "rientro_presunto": "17:10"
+            },
+            {
+              "istituto": "IC MEZZANO SANTA CROCE",
+              "orario_partenza": "07:05",
+              "luogo_ritrovo": "Via Molaren, 29 – Mezzano",
+              "persone": 23,
+              "rientro_presunto": "17:00"
+            }
+          ]
+        },
+        {
+          "fin": "12",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 88,
+          "totale_pax": 39,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC CENTRO VALSUGANA",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Fermata Bus Piazza Maggiore - Telve",
+              "persone": 11,
+              "rientro_presunto": "16:15"
+            },
+            {
+              "istituto": "IS DEGASPERI BORGO VALSUGANA",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Stazione intermodale est di Borgo Valsugana",
+              "persone": 17,
+              "rientro_presunto": "16:00"
+            },
+            {
+              "istituto": "IC CENTRO VALSUGANA",
+              "orario_partenza": "08:15",
+              "luogo_ritrovo": "Fermata Bus \"Pizzeria il Picchio\" - Roncegno",
+              "persone": 11,
+              "rientro_presunto": "15:45"
+            }
+          ]
+        },
+        {
+          "fin": "13",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 185,
+          "totale_pax": 39,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "06:45",
+              "luogo_ritrovo": "Piazza Palù - Madonna di Campiglio",
+              "persone": 26,
+              "rientro_presunto": "17:00"
+            },
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "07:10",
+              "luogo_ritrovo": "Scuola Media Pinzolo, Viale della Pace 10 - Pinzolo",
+              "persone": null,
+              "rientro_presunto": "16:40"
+            },
+            {
+              "istituto": "IC VAL RENDENA",
+              "orario_partenza": "07:25",
+              "luogo_ritrovo": "Scuola Media Spiazzo, Frazione Fisto, 112 - Spiazzo",
+              "persone": null,
+              "rientro_presunto": "16:25"
+            },
+            {
+              "istituto": "IS ENAIP TIONE",
+              "orario_partenza": "07:45",
+              "luogo_ritrovo": "Via Durone n. 57, Tione",
+              "persone": 13,
+              "rientro_presunto": "16:15"
+            }
+          ]
+        },
+        {
+          "fin": "14",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 155,
+          "totale_pax": 49,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC VALLE DI LEDRO",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Via Falcone e Borsellino 2 – Bezzecca",
+              "persone": 26,
+              "rientro_presunto": "17:40"
+            },
+            {
+              "istituto": "IC VALLE DEI LAGHI-DRO",
+              "orario_partenza": "08:35",
+              "luogo_ritrovo": "Fermata bus c/o farmacia - via Roma 3 - Vezzano",
+              "persone": 23,
+              "rientro_presunto": "16:30"
+            }
+          ]
+        },
+        {
+          "fin": "15",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 44,
+          "totale_pax": 47,
+          "note": "Pullman con pedana",
+          "fermate": [
+            {
+              "istituto": "IC LEVICO TERME",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Via della Pace, 5 – Levico Terme",
+              "persone": 21,
+              "rientro_presunto": "15:40"
+            },
+            {
+              "istituto": "IS PERGINE VALSUGANA CURIE",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Piazza Gavazzi - Pergine",
+              "persone": 26,
+              "rientro_presunto": "15:20"
+            }
+          ]
+        },
+        {
+          "fin": "16",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 197,
+          "totale_pax": 47,
+          "note": "Prima fermata: IS ENAIP PRIMIERO + IS PRIMIERO, conteggio pax parziale nel PDF ('9 + ...')",
+          "fermate": [
+            {
+              "istituto": "IS ENAIP PRIMIERO + IS PRIMIERO",
+              "orario_partenza": "06:50",
+              "luogo_ritrovo": "Stazione autocorriere Fiera di Primiero",
+              "persone": null,
+              "rientro_presunto": "17:10"
+            },
+            {
+              "istituto": "IS PRIMIERO",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Fermata Bus Località Ponte Serra",
+              "persone": 20,
+              "rientro_presunto": "16:30"
+            },
+            {
+              "istituto": "IS LEVICO TERME BARELLI",
+              "orario_partenza": "08:30",
+              "luogo_ritrovo": "Via Roma 61 – Levico Terme",
+              "persone": 18,
+              "rientro_presunto": "15:30"
+            }
+          ]
+        },
+        {
+          "fin": "17",
+          "ditta": null,
+          "ditta_tel": null,
+          "km": 108,
+          "totale_pax": 47,
+          "note": "IS DA VINCI e IS SOPHIE SCHOOL condividono la stessa fermata",
+          "fermate": [
+            {
+              "istituto": "IC GIUDICARIE ESTERIORI",
+              "orario_partenza": "07:35",
+              "luogo_ritrovo": "Via San Giovanni Bosco, 14 - Comano Terme",
+              "persone": 18,
+              "rientro_presunto": "16:25"
+            },
+            {
+              "istituto": "IS DA VINCI",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Park ex Italcementi - Trento",
+              "persone": 17,
+              "rientro_presunto": "15:45"
+            },
+            {
+              "istituto": "IS SOPHIE SCHOOL",
+              "orario_partenza": "08:20",
+              "luogo_ritrovo": "Park ex Italcementi - Trento",
+              "persone": 12,
+              "rientro_presunto": "15:45"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

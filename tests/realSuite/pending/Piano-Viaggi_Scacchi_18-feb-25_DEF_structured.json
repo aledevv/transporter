@@ -1,0 +1,248 @@
+{
+  "events": [
+    {
+      "event_id": "SCACCHI_IC_180225",
+      "sport": "SCACCHI",
+      "categoria": "Istituti Comprensivi (mattina)",
+      "data": "2025-02-18",
+      "destinazione": "TSM, Via Giusti 40, Trento",
+      "orario_ritrovo": "08:30",
+      "orario_fine_manifestazione": "12:00",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "1",
+          "ditta": "SARCA TOUR",
+          "ditta_tel": "348 3902804",
+          "km": 57,
+          "totale_pax": 51,
+          "note": "IC ROVERETO LA VELA Primaria 1° e IC ROVERETO EST condividono la stessa fermata e orario a Piazzale Leoni",
+          "fermate": [
+            {
+              "istituto": "IC ROVERETO LA VELA Primaria 1°",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "persone": 20,
+              "rientro_presunto": "13:00"
+            },
+            {
+              "istituto": "IC ROVERETO LA VELA Primaria 2°",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "persone": null,
+              "rientro_presunto": "12:50"
+            },
+            {
+              "istituto": "IC ROVERETO EST",
+              "orario_partenza": "07:40",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "persone": 22,
+              "rientro_presunto": null
+            },
+            {
+              "istituto": "IC ROVERETO NORD",
+              "orario_partenza": "07:50",
+              "luogo_ritrovo": "Corso Bettini 67 - Rovereto",
+              "persone": 9,
+              "rientro_presunto": "12:40"
+            }
+          ]
+        },
+        {
+          "fin": "2",
+          "ditta": "TODESCHI AUTONOLEGGI",
+          "ditta_tel": "335 7721367",
+          "km": 62,
+          "totale_pax": 36,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC ROVERETO SUD",
+              "orario_partenza": "07:15",
+              "luogo_ritrovo": "Via Livenza 1 - Rovereto",
+              "persone": 13,
+              "rientro_presunto": "13:15"
+            },
+            {
+              "istituto": "IC ROVERETO SUD",
+              "orario_partenza": "07:20",
+              "luogo_ritrovo": "Via Benacense, 32 - Rovereto",
+              "persone": null,
+              "rientro_presunto": "13:10"
+            },
+            {
+              "istituto": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Via Unione, 23 - Rovereto",
+              "persone": 14,
+              "rientro_presunto": "13:00"
+            },
+            {
+              "istituto": "IC ALDENO MATTARELLO – Scuola secondaria",
+              "orario_partenza": "08:10",
+              "luogo_ritrovo": "Via Torre Franca, fermata bus \"Al Parco\" - Mattarello",
+              "persone": 9,
+              "rientro_presunto": "12:20"
+            }
+          ]
+        },
+        {
+          "fin": "3",
+          "ditta": "GIULIA SAS",
+          "ditta_tel": "348 2252140",
+          "km": 28,
+          "totale_pax": 9,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC LAVIS",
+              "orario_partenza": "08:00",
+              "luogo_ritrovo": "Via Carlo Sette, 13/a - Lavis",
+              "persone": 9,
+              "rientro_presunto": "12:30"
+            }
+          ]
+        },
+        {
+          "fin": "4",
+          "ditta": "FACCHIN FRANCESCO",
+          "ditta_tel": "348 7129588",
+          "km": 208,
+          "totale_pax": 20,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC MEZZANO SANTA CROCE",
+              "orario_partenza": "06:15",
+              "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
+              "persone": 7,
+              "rientro_presunto": "14:20"
+            },
+            {
+              "istituto": "IC CENTRO VALSUGANA",
+              "orario_partenza": "07:30",
+              "luogo_ritrovo": "Pizzeria \"Il Picchio\" - Roncegno",
+              "persone": 13,
+              "rientro_presunto": "13:00"
+            }
+          ]
+        },
+        {
+          "fin": "5",
+          "ditta": "AUTONOLEGGI FILIPPINI",
+          "ditta_tel": "340 4839546",
+          "km": 90,
+          "totale_pax": 13,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IC TIONE",
+              "orario_partenza": "07:15",
+              "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+              "persone": 13,
+              "rientro_presunto": "13:15"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "SCACCHI_IS_180225",
+      "sport": "SCACCHI",
+      "categoria": "Istituti Superiori (pomeriggio)",
+      "data": "2025-02-18",
+      "destinazione": "TSM, Via Giusti 40, Trento",
+      "orario_ritrovo": "12:30",
+      "orario_fine_manifestazione": "16:30",
+      "autonomi": [],
+      "bus_groups": [
+        {
+          "fin": "6",
+          "ditta": "CROSINA MARIO",
+          "ditta_tel": "333 8710304",
+          "km": 98,
+          "totale_pax": 53,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS FLORIANI RIVA DEL GARDA",
+              "orario_partenza": "10:20",
+              "luogo_ritrovo": "Viale dei Tigli, 43 - Riva del Garda",
+              "persone": 5,
+              "rientro_presunto": "18:40"
+            },
+            {
+              "istituto": "IS MAFFEI RIVA DEL GARDA",
+              "orario_partenza": "10:30",
+              "luogo_ritrovo": "Viale Martiri, Fermata autobus - Riva del Garda",
+              "persone": 22,
+              "rientro_presunto": "18:30"
+            },
+            {
+              "istituto": "IS DON MILANI ROVERETO",
+              "orario_partenza": "11:20",
+              "luogo_ritrovo": "Via Balista 2, Rovereto",
+              "persone": 10,
+              "rientro_presunto": "17:40"
+            },
+            {
+              "istituto": "IS ROSMINI ROVERETO",
+              "orario_partenza": "11:35",
+              "luogo_ritrovo": "Via Piomarta c/o Palazzetto Sport - Rovereto",
+              "persone": 5,
+              "rientro_presunto": "17:20"
+            },
+            {
+              "istituto": "IS MARCONI ROVERETO",
+              "orario_partenza": "11:50",
+              "luogo_ritrovo": "Via Monti, n. 1 – Rovereto, Parcheggio di fronte all'Istituto Marconi",
+              "persone": 11,
+              "rientro_presunto": "17:05"
+            }
+          ]
+        },
+        {
+          "fin": "7",
+          "ditta": "VIAGGI BORSATI",
+          "ditta_tel": "335 237925",
+          "km": 90,
+          "totale_pax": 10,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS TIONE GUETTI",
+              "orario_partenza": "11:10",
+              "luogo_ritrovo": "Via Durone 53, Tione",
+              "persone": 10,
+              "rientro_presunto": "17:45"
+            }
+          ]
+        },
+        {
+          "fin": "8",
+          "ditta": "VITO DI PEDRON",
+          "ditta_tel": "335 8334935",
+          "km": 92,
+          "totale_pax": 21,
+          "note": null,
+          "fermate": [
+            {
+              "istituto": "IS CLES PILATI",
+              "orario_partenza": "11:00",
+              "luogo_ritrovo": "Piazza Fiera, Cles",
+              "persone": 9,
+              "rientro_presunto": "17:50"
+            },
+            {
+              "istituto": "IS MARTINI MEZZOLOMBARDO",
+              "orario_partenza": "11:45",
+              "luogo_ritrovo": "Via Perlasca 4, Mezzolombardo",
+              "persone": 12,
+              "rientro_presunto": "17:05"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -66,3 +66,121 @@ def get_event_destination(xlsx_path: Path) -> str:
     if col.empty:
         return "Unknown"
     return str(col.iloc[0]).strip()
+
+
+# -----------------------------------------------------------------------
+# Phase 1: Extract
+# -----------------------------------------------------------------------
+
+def _event_name(xlsx_path: Path) -> str:
+    """Folder name for an event: filename without '_structured.xlsx'."""
+    return xlsx_path.stem.replace("_structured", "")
+
+
+def _get_capacity(xlsx_path: Path) -> int:
+    """
+    Infer bus capacity from 'Totale PAX Bus' in 'Dettaglio Completo' sheet.
+    Falls back to 54 if the column is absent or empty.
+    """
+    try:
+        df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
+        df.columns = [c.strip() for c in df.columns]
+        if "Totale PAX Bus" in df.columns:
+            vals = pd.to_numeric(df["Totale PAX Bus"], errors="coerce").dropna()
+            if not vals.empty:
+                return max(54, int(vals.max()))
+    except Exception:
+        pass
+    return 54
+
+
+def _get_fine_manifestazione(xlsx_path: Path) -> str | None:
+    """
+    Extract event end time from 'Dettaglio Completo' sheet, 'Fine Manifestazione' column.
+    Returns HH:MM string or None if absent.
+    """
+    try:
+        df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
+        df.columns = [c.strip() for c in df.columns]
+        if "Fine Manifestazione" in df.columns:
+            col = df["Fine Manifestazione"].dropna()
+            col = col[col.astype(str).str.lower() != "nan"]
+            if not col.empty:
+                val = str(col.iloc[0]).strip()
+                # Normalize to HH:MM
+                if ":" in val:
+                    return val[:5]
+    except Exception:
+        pass
+    return None
+
+
+def run_extract():
+    """Phase 1: extract input.xlsx + groundtruth.xlsx + config.json for each event."""
+    structured_files = sorted(
+        f for f in REALSUITE_DIR.glob("*_structured.xlsx")
+        if not str(f).startswith(str(PENDING_DIR))
+    )
+
+    if not structured_files:
+        print("No _structured.xlsx files found in tests/realSuite/")
+        return
+
+    for xlsx in structured_files:
+        name = _event_name(xlsx)
+        out_dir = REALSUITE_DIR / name
+        out_dir.mkdir(exist_ok=True)
+
+        # Write input.xlsx
+        df = extract_schools_from_structured(xlsx)
+        df.to_excel(out_dir / "input.xlsx", index=False)
+
+        # Copy groundtruth
+        shutil.copy2(xlsx, out_dir / "groundtruth.xlsx")
+
+        # Write config.json
+        config = {
+            "destination": get_event_destination(xlsx),
+            "capacity": _get_capacity(xlsx),
+            "orario_fine_manifestazione": _get_fine_manifestazione(xlsx),
+        }
+        (out_dir / "config.json").write_text(
+            json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+        print(f"[extract] {name}: {len(df)} schools → {out_dir}")
+
+    print(f"\nExtraction complete: {len(structured_files)} events.")
+
+
+# -----------------------------------------------------------------------
+# Phase 2 and 3 stubs (implemented in later tasks)
+# -----------------------------------------------------------------------
+
+def run_correct():
+    print("[correct] Not yet implemented — run after Task 5.")
+
+
+def run_geocode():
+    print("[geocode] Not yet implemented — run after Task 6.")
+
+
+# -----------------------------------------------------------------------
+# CLI entry point
+# -----------------------------------------------------------------------
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Prepare realSuite test cases")
+    parser.add_argument("--extract", action="store_true", help="Extract input.xlsx files")
+    parser.add_argument("--correct", action="store_true", help="AI-correct addresses")
+    parser.add_argument("--geocode", action="store_true", help="Geocode + build time matrices")
+    args = parser.parse_args()
+
+    run_all = not any([args.extract, args.correct, args.geocode])
+
+    if args.extract or run_all:
+        run_extract()
+    if args.correct or run_all:
+        run_correct()
+    if args.geocode or run_all:
+        run_geocode()
