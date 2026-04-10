@@ -79,18 +79,10 @@ def _event_name(xlsx_path: Path) -> str:
 
 def _get_capacity(xlsx_path: Path) -> int:
     """
-    Infer bus capacity from 'Totale PAX Bus' in 'Dettaglio Completo' sheet.
-    Falls back to 54 if the column is absent or empty.
+    Return the standard bus capacity for test cases.
+    NOTE: 'Totale PAX Bus' in the groundtruth stores actual bus *load*, not physical
+    capacity. We use 54 (standard Trentino school bus) unconditionally.
     """
-    try:
-        df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
-        df.columns = [c.strip() for c in df.columns]
-        if "Totale PAX Bus" in df.columns:
-            vals = pd.to_numeric(df["Totale PAX Bus"], errors="coerce").dropna()
-            if not vals.empty:
-                return max(54, int(vals.max()))
-    except Exception:
-        pass
     return 54
 
 
@@ -99,6 +91,7 @@ def _get_fine_manifestazione(xlsx_path: Path) -> str | None:
     Extract event end time from 'Dettaglio Completo' sheet, 'Fine Manifestazione' column.
     Returns HH:MM string or None if absent.
     """
+    import datetime
     try:
         df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
         df.columns = [c.strip() for c in df.columns]
@@ -106,7 +99,13 @@ def _get_fine_manifestazione(xlsx_path: Path) -> str | None:
             col = df["Fine Manifestazione"].dropna()
             col = col[col.astype(str).str.lower() != "nan"]
             if not col.empty:
-                val = str(col.iloc[0]).strip()
+                val_raw = col.iloc[0]
+                # Handle datetime objects before stringifying
+                if isinstance(val_raw, datetime.time):
+                    return val_raw.strftime("%H:%M")
+                if hasattr(val_raw, 'strftime'):  # pd.Timestamp or datetime
+                    return val_raw.strftime("%H:%M")
+                val = str(val_raw).strip()
                 # Normalize to HH:MM
                 if ":" in val:
                     return val[:5]
@@ -119,7 +118,7 @@ def run_extract():
     """Phase 1: extract input.xlsx + groundtruth.xlsx + config.json for each event."""
     structured_files = sorted(
         f for f in REALSUITE_DIR.glob("*_structured.xlsx")
-        if not str(f).startswith(str(PENDING_DIR))
+        if not f.is_relative_to(PENDING_DIR)
     )
 
     if not structured_files:
