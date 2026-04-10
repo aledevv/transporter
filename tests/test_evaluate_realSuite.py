@@ -29,9 +29,9 @@ def test_assignment_handles_unequal_bus_counts():
     # More pred buses than gt buses
     pred = {"0": {"A"}, "1": {"B"}, "2": {"C"}}
     gt   = {"fin1": {"A", "B", "C"}}
-    # Hungarian match: best is to match one pred to gt; others get Jaccard against empty→0
+    # Best match: one singleton vs {A,B,C} → Jaccard=1/3; mean over 1 matched pair
     result = score_assignment(pred, gt)
-    assert 0.0 <= result <= 1.0
+    assert result == pytest.approx(1 / 3, abs=0.01)
 
 
 # --- score_bus_count ---
