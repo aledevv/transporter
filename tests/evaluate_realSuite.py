@@ -274,3 +274,59 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def load_return_groundtruth(gt_path: Path) -> dict:
+    """
+    Returns {school_name: rientro_presunto_minutes} from the 'Per Istituto' sheet.
+    Only includes rows where Rientro Presunto is a valid HH:MM string.
+    """
+    df = pd.read_excel(gt_path, sheet_name="Per Istituto")
+    df.columns = [c.strip() for c in df.columns]
+    result = {}
+    for _, row in df.iterrows():
+        school = str(row.get("Istituto", "")).strip()
+        rientro = str(row.get("Rientro Presunto", "")).strip()
+        if not school or school == "nan" or not rientro or rientro == "nan":
+            continue
+        if ":" in rientro:
+            try:
+                h, m = map(int, rientro[:5].split(":"))
+                result[school] = h * 60 + m
+            except ValueError:
+                pass
+    return result
+
+
+def score_return_times(solution: dict, schools: list, gt_return: dict, tolerance_min: int = 30) -> float:
+    """
+    Fraction of stops whose calculated return_time is within tolerance_min of groundtruth.
+    Returns float in [0, 1]. Returns None if no groundtruth data available.
+    """
+    if not gt_return:
+        return None
+
+    hits = 0
+    total = 0
+    for route in solution["routes"]:
+        for stop in route["stops"]:
+            node = stop["node"]
+            if not (1 <= node <= len(schools)):
+                continue
+            school_name = schools[node - 1]["name"]
+            if school_name not in gt_return:
+                continue
+            total += 1
+            return_time_str = stop.get("return_time")
+            if not return_time_str:
+                continue
+            try:
+                h, m = map(int, return_time_str[:5].split(":"))
+                pred_min = h * 60 + m
+                gt_min = gt_return[school_name]
+                if abs(pred_min - gt_min) <= tolerance_min:
+                    hits += 1
+            except ValueError:
+                pass
+
+    return hits / total if total > 0 else None
