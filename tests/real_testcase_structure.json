@@ -1,0 +1,38 @@
+data = {
+    "events": [
+        {
+            "event_id": "BADMINTON_RAGAZZI_250226",
+            "sport": "BADMINTON",
+            "categoria": "Ragazze/Ragazzi mista",
+            "data": "2026-02-25",
+            "destinazione": "Rovereto – Palestra IS Marconi",
+            "orario_ritrovo": "08:15",
+            "orario_fine_manifestazione": "16:00",
+            "autonomi": [
+                "IC TRENTO 3",
+                "..."
+            ],
+            "bus_groups": [
+                {
+                    "fin": "1",
+                    "ditta": "NICE",
+                    "ditta_tel": "339 5612969",
+                    "km": 40,
+                    "totale_pax": 15,
+                    "note": "eventuale nota su ambiguità estrazione",
+                    "fermate": [
+                        {
+                            "istituto": "IC ALA",
+                            "orario_partenza": "07:30",
+                            "luogo_ritrovo": "Ala, Via Betta 9",
+                            "persone": 5,
+                            "rientro_presunto": "16:45",
+                        },
+            # ...
+                    ],
+                },
+        # altri FIN...
+            ],
+        }
+    ]
+}

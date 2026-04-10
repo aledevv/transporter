@@ -13,6 +13,7 @@ import gemini_agent as _gemini_agent
 from scripts.find_overlaps import find_bus_overlaps
 
 address_corrector = AddressCorrector()
+import school_cache as _school_cache
 
 # Setup static folder to point to frontend/dist
 app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
@@ -234,6 +235,13 @@ def process_file_task(task_id, filepath, original_filename):
                 school['lat'] = None
                 school['lon'] = None
                 school['geocoding_failed'] = True
+                # Look up a suggestion from the known-good address cache
+                suggestion = _school_cache.find_suggestion(
+                    school_name=school.get('name', ''),
+                    raw_address=raw_address,
+                )
+                if suggestion:
+                    school['cache_suggestion'] = suggestion  # {name, address, score}
             else:
                 # Deterministic Spiral Jitter for Overlapping Coordinates
                 coord_key = (round(lat, 6), round(lon, 6))

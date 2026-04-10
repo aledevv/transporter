@@ -30,64 +30,82 @@ class Address(BaseModel):
 
 
 @tool
-def geocodingTool(location: str) -> str:
+def geocodingTool(locations: list[str]) -> str:
     """
     Search OpenStreetMap Nominatim for address suggestions in Italy (Trentino region).
-    Use this tool for every address to find the best real-world match.
-    Returns up to 5 candidate addresses — you must pick the most appropriate one.
+    Provide up to 3 address variations to evaluate simultaneously.
 
     Args:
-        location: the raw address string to search for
+        locations: a list of up to 3 raw address strings to search for. For example: ["Tenna , Via Albere 2", "Tenna , Via Albere", "Tenna"]
 
     Returns:
-        A numbered list of up to 5 candidate addresses from OSM Nominatim, or an error message.
+        A string containing up to 5 candidate addresses for each input location.
     """
-    try:
-        cached = nominatim_cache.get(location, 5)
-        if cached is not None:
-            if not cached:
-                return f"No results found for: {location}"
-            lines = [f"{i}. {item['display_name']}" for i, item in enumerate(cached[:5], 1)]
-            return "\n".join(lines)
-        for attempt in range(4):
-            time.sleep(1 + attempt * 2)  # 1s, 3s, 5s, 7s — backoff on retry
-            resp = req.get(
-                'https://nominatim.openstreetmap.org/search',
-                params={
-                    'q': location,
-                    'format': 'json',
-                    'countrycodes': 'it',
-                    'limit': 5,
-                    'viewbox': '10.4,45.6,12.2,46.95',  # Trentino-Alto Adige bounding box
-                    'bounded': 0,
-                },
-                headers={
-                    'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)',
-                },
-                timeout=6
-            )
-            if resp.status_code == 429:
-                next_sleep = 1 + (attempt + 1) * 2
-                fn = getattr(_thread_local, 'status_fn', None)
-                if callable(fn):
-                    fn(f"Rate limit Nominatim — retry tra {next_sleep}s (AI in corso...)", next_sleep)
-                continue  # rate limited — retry with longer sleep
-            break
-        if resp.status_code != 200:
-            return f"No results found for: {location} (HTTP {resp.status_code})"
+    results = []
+    
+    for location in locations[:3]:
+        location = location.strip()
+        if not location:
+            continue
+            
+        results.append(f"--- Results for: {location} ---")
         try:
-            data = resp.json()
-        except ValueError:
-            return f"No results found for: {location} (invalid response)"
+            cached = nominatim_cache.get(location, 5)
+            if cached is not None:
+                if not cached:
+                    results.append(f"No results found for: {location}\n")
+                    continue
+                lines = [f"{i}. {item['display_name']}" for i, item in enumerate(cached[:5], 1)]
+                results.append("\n".join(lines) + "\n")
+                continue
+                
+            for attempt in range(4):
+                time.sleep(1 + attempt * 2)  # 1s, 3s, 5s, 7s — backoff on retry
+                resp = req.get(
+                    'https://nominatim.openstreetmap.org/search',
+                    params={
+                        'q': location,
+                        'format': 'json',
+                        'countrycodes': 'it',
+                        'limit': 5,
+                        'viewbox': '10.4,45.6,12.2,46.95',  # Trentino-Alto Adige bounding box
+                        'bounded': 0,
+                    },
+                    headers={
+                        'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)',
+                    },
+                    timeout=6
+                )
+                if resp.status_code == 429:
+                    next_sleep = 1 + (attempt + 1) * 2
+                    fn = getattr(_thread_local, 'status_fn', None)
+                    if callable(fn):
+                        fn(f"Rate limit Nominatim — retry tra {next_sleep}s (AI in corso...)", next_sleep)
+                    continue  # rate limited — retry with longer sleep
+                break
+                
+            if resp.status_code != 200:
+                results.append(f"No results found for: {location} (HTTP {resp.status_code})\n")
+                continue
+                
+            try:
+                data = resp.json()
+            except ValueError:
+                results.append(f"No results found for: {location} (invalid response)\n")
+                continue
 
-        nominatim_cache.store(location, 5, data)  # cache even if empty
-        if not data:
-            return f"No results found for: {location}"
-        lines = [f"{i}. {item['display_name']}" for i, item in enumerate(data[:5], 1)]
-        return "\n".join(lines)
+            nominatim_cache.store(location, 5, data)  # cache even if empty
+            if not data:
+                results.append(f"No results found for: {location}\n")
+                continue
+                
+            lines = [f"{i}. {item['display_name']}" for i, item in enumerate(data[:5], 1)]
+            results.append("\n".join(lines) + "\n")
 
-    except Exception as e:
-        return f"Tool error: {e}"
+        except Exception as e:
+            results.append(f"Tool error for {location}: {e}\n")
+
+    return "\n".join(results)
 
 
 # Module-level default agent (used only by call_agent).

@@ -1,0 +1,120 @@
+{
+  "xlsx_fixes": {
+    "Malè, Nuova Stazione, Via Alcide De Gasperi, Pondasio, Malé, Comunità della Valle di Sole, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38027, Italia": {
+      "new_address": "Via Alcide De Gasperi, Pondasio, Malé, Comunità della Valle di Sole, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38027, Italy",
+      "nominatim_match": "Via Alcide De Gasperi, Pondasio, Malé, Comunità della Valle di Sole, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38027, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Cadette_i_27-Febbaio-2026_con-Vettore-2/groundtruth.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Cadette_i_27-Febbaio-2026_con-Vettore-2/input.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Cadette_i_27-Febbaio-2026_con-Vettore-2/input_corretto.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/groundtruth.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/input.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/input_corretto.xlsx"
+      ],
+      "cells_updated": 2
+    },
+    "Ex Italcementi, Via Papiria, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38122, Italia": {
+      "new_address": "Via Papiria, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38122, Italy",
+      "nominatim_match": "Via Papiria, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38122, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/groundtruth.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/input.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/input_corretto.xlsx"
+      ],
+      "cells_updated": 1
+    },
+    "Via Giuseppe Verdi, 18/B, Carisolo, Provincia di Trento": {
+      "new_address": "Via Verdi, Carisolo, Comunità delle Giudicarie, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38080, Italy",
+      "nominatim_match": "Via Verdi, Carisolo, Comunità delle Giudicarie, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38080, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Gioco-Volley_8-gennaio-2026_4-DEF_con-vettore-ed-integrazione/groundtruth.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Gioco-Volley_8-gennaio-2026_4-DEF_con-vettore-ed-integrazione/input.xlsx",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Gioco-Volley_8-gennaio-2026_4-DEF_con-vettore-ed-integrazione/input_corretto.xlsx"
+      ],
+      "cells_updated": 1
+    }
+  },
+  "xlsx_remaining": {},
+  "destination_fixes": {
+    "Unknown": {
+      "new_destination": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
+      "nominatim_match": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 31821, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piani-viaggio_Padel_10-dic-25_def2_con-VETTORE/config.json"
+      ]
+    },
+    "Villa Lagarina – Località Giardini": {
+      "new_destination": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+      "nominatim_match": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino-Alto Adige/Südtirol, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi-Corsa-Campestre_IC_Cadett-_13-marzo-25/config.json",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi-Corsa-Campestre_IC_Ragazz-_14-marzo-25-2/config.json",
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi-Corsa-Campestre_IS_12-marzo-25_con-cel-3/config.json"
+      ]
+    },
+    "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3": {
+      "new_destination": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
+      "nominatim_match": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38060, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi-GdG_24-marzo-26-Def-con-Vettore-4/config.json"
+      ]
+    },
+    "Rovereto – Palestra IS Marconi": {
+      "new_destination": "Istituto Tecnico Tecnologico Guglielmo Marconi, 1, Via Padre Faustino Monti, Sant'Ilario, Rovereto, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38068, Italy",
+      "nominatim_match": "Istituto Tecnico Tecnologico Guglielmo Marconi, 1, Via Padre Faustino Monti, Sant'Ilario, Rovereto, Comunità della Vallagarina, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38068, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3/config.json"
+      ]
+    },
+    "Centro Sportivo di Gardolo – Trento Nord": {
+      "new_destination": "Via 4 Novembre (1918), Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38121, Italy",
+      "nominatim_match": "Via 4 Novembre (1918), Canova, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38121, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Giochiamo-alle-Olimpiadi_21-ottobre-2025_Gardolo/config.json"
+      ]
+    },
+    "Centro Sportivo Lungolago Serraia - Baselga di Pinè": {
+      "new_destination": "Lake Fit, Via del Lido, Lido, Miola, Baselga di Piné, Comunità Alta Valsugana e Bersntol, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38057, Italy",
+      "nominatim_match": "Lake Fit, Via del Lido, Lido, Miola, Baselga di Piné, Comunità Alta Valsugana e Bersntol, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38057, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Orienteering_15-aprile-2026_def/config.json"
+      ]
+    },
+    "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo": {
+      "new_destination": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
+      "nominatim_match": "Via di Santo Spirito, Sanzenone, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38028, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Palla-Tamburello_22-aprile-2026/config.json"
+      ]
+    },
+    "TSM, Via Giusti 40, Trento": {
+      "new_destination": "TSM-Trentino School of Management, 40, Via Giuseppe Giusti, San Pio Decimo, San Giuseppe - Santa Chiara, Sardagna, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+      "nominatim_match": "TSM-Trentino School of Management, 40, Via Giuseppe Giusti, San Pio Decimo, San Giuseppe - Santa Chiara, Sardagna, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 31822, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Scacchi_18-feb-25_DEF/config.json"
+      ]
+    },
+    "1° tappa Sopramonte, Via di Mura 11 / 2° tappa Trento Nord – Gardolo, Via 4 Novembre 23/4": {
+      "new_destination": "Via di Mura, Bondone, Sopramonte, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38123, Italy",
+      "nominatim_match": "Via di Mura, Bondone, Sopramonte, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38123, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-Viaggi_Volley-S3_Tn-Nord-e-Sopramonte_4-dic-25_def3_con-VETTORE-e-CELL/config.json"
+      ]
+    },
+    "Centro Sportivo \"Pala Vela\" - Trento": {
+      "new_destination": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+      "nominatim_match": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 31822, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-viaggi_TENNIS-TAVOLO-IC_con-vettore-e-cel_24-nov-25/config.json"
+      ]
+    },
+    "CENTRO SPORTIVO Vela-Piedicastello, Via Doss Trento – TRENTO": {
+      "new_destination": "Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38122, Italy",
+      "nominatim_match": "Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38122, Italia",
+      "files_updated": [
+        "/Users/dev/Desktop/busplan/tests/realSuite/Piano-viaggi_Tennistavolo_IS_28-nov-25-CON-VETTORE/config.json"
+      ]
+    }
+  },
+  "destination_remaining": {}
+}

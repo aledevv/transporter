@@ -4,6 +4,7 @@ import re
 
 import pandas as pd
 from dotenv import load_dotenv
+import school_cache as _school_cache
 
 load_dotenv()  # Load .env locally; on Cloud Run env vars come from the service config and are already set.
 
@@ -17,7 +18,7 @@ except Exception as _err:
     print(f"[AddressCorrector] gemini_agent import FAILED — correction disabled. Reason: {_err}")
 
 # Names of env vars tried in order when rate-limit errors occur.
-_API_KEY_NAMES = ["GOOGLE_API_KEY", "GOOGLE_API_KEY2", "GOOGLE_API_KEY3", "GOOGLE_API_KEY4"]
+_API_KEY_NAMES = ["GOOGLE_API_KEY", "GOOGLE_API_KEY2", "GOOGLE_API_KEY3", "GOOGLE_API_KEY4", "GOOGLE_API_KEY5"]
 
 # Column written to the corrected Excel to mark it as already processed.
 # If this column is present and True for all rows, the agent is skipped.
@@ -31,9 +32,11 @@ class AddressCorrector:
     Flow:
       1. Read the uploaded Excel.
       2. If FLAG_COL is already set for all rows → skip (avoids unnecessary API costs).
-      3. Send all addresses to call_agent() as a JSON string.
-      4. Parse the response (expected: list of {name, normalized_address}).
-      5. Apply corrections to the school list and save <name>_corretto.xlsx with FLAG_COL=True.
+      3. Apply cache hits: for schools whose name is already in school_address_cache.json
+         the normalized address is used directly — these schools are excluded from the AI call.
+      4. Send remaining schools to the Gemini agent as a JSON string.
+      5. Parse the response (expected: list of {name, normalized_address}).
+      6. Apply corrections to the school list and save <name>_corretto.xlsx with FLAG_COL=True.
     """
 
     def __init__(self):
@@ -71,9 +74,22 @@ class AddressCorrector:
 
         address_data = [{"name": s["name"], "address": s["address"]} for s in schools]
 
+        # ── Step 3: apply cache hits (bypass AI for known schools) ──────────
+        cache_corrections = self._apply_cache_hits(schools)
+        if cache_corrections:
+            print(f"[AddressCorrector] Cache hit: {len(cache_corrections)} school(s) resolved without AI.")
+        # Exclude cache-resolved schools from the AI call
+        needs_ai = [s for s in address_data if s["name"] not in cache_corrections]
+
         try:
-            raw = self._call_with_fallback(json.dumps(address_data, ensure_ascii=False))
-            corrections, unresolved_names = self._parse_response(raw)
+            ai_corrections: dict = {}
+            if needs_ai:
+                raw = self._call_with_fallback(json.dumps(needs_ai, ensure_ascii=False))
+                ai_corrections, unresolved_names = self._parse_response(raw)
+            else:
+                unresolved_names = []
+            # Merge: cache takes priority, AI fills the rest
+            corrections = {**ai_corrections, **cache_corrections}
             corrected_schools = self._apply_corrections(schools, corrections)
             # Schools the agent could not geocode get an empty address so that
             # the geocoding step fails cleanly (geocoding_failed=True) and the
@@ -99,9 +115,33 @@ class AddressCorrector:
             print(f"[AddressCorrector] {status} — using original addresses. Reason: {exc}")
             return schools, status, []
 
+    # ------------------------------------------------------------------
+    # Cache helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _apply_cache_hits(schools: list) -> dict:
+        """
+        Returns {name: cached_address} for schools whose name exactly matches
+        an entry in school_address_cache.json.
+        Only applied when the cached address differs from the current address
+        (no point in "correcting" to the same value).
+        """
+        corrections = {}
+        for school in schools:
+            name = school.get("name", "")
+            cached_addr = _school_cache.get_exact(name)
+            if cached_addr and cached_addr != school.get("address", ""):
+                corrections[name] = cached_addr
+        return corrections
+
+    # ------------------------------------------------------------------
+    # Fallback / key rotation
+    # ------------------------------------------------------------------
+
     def _call_with_fallback(self, user_input):
         """
-        Tries GOOGLE_API_KEY → GOOGLE_API_KEY2 → GOOGLE_API_KEY3 in order.
+        Tries GOOGLE_API_KEY → GOOGLE_API_KEY2 → … → GOOGLE_API_KEY5 in order.
         Moves to the next key only on rate-limit errors; any other error raises immediately.
         Raises the last rate-limit exception if all keys are exhausted.
         """

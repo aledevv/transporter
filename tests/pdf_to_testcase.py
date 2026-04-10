@@ -1,140 +1,162 @@
-import pdfplumber
-import pandas as pd
-import re
-import os
-import warnings
+from pathlib import Path
+import json
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from datetime import datetime
 
-# Ignora avvisi non critici di pandas per un output più pulito
-warnings.filterwarnings('ignore')
+# --- Stili base ---
+HDR_FILL  = PatternFill('solid', fgColor='1F4E79')
+HDR_FONT  = Font(name='Calibri', bold=True, color='FFFFFF', size=11)
+ALT_FILL  = PatternFill('solid', fgColor='EBF3FB')
+WHITE_FILL = PatternFill('solid', fgColor='FFFFFF')
+NORM_FONT = Font(name='Calibri', size=10)
+CENTER    = Alignment(horizontal='center', vertical='center', wrap_text=True)
+LEFT      = Alignment(horizontal='left',   vertical='center', wrap_text=True)
+thin      = Side(style='thin', color='B8CCE4')
+BORDER    = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-def elabora_singolo_pdf(pdf_path, output_dir="output_excel"):
+
+def style_cell(cell, font=None, fill=None, align=None, border=None):
+    if font:
+        cell.font = font
+    if fill:
+        cell.fill = fill
+    if align:
+        cell.alignment = align
+    if border:
+        cell.border = border
+
+
+def make_excel(path: str, data: dict) -> None:
     """
-    Legge un singolo PDF, estrae le informazioni del viaggio e genera i due file Excel.
-    """
-    print(f"Inizio elaborazione di: {pdf_path}")
-    
-    # 1. Variabili per le informazioni generali
-    destinazione_generale = "Destinazione non trovata"
-    
-    # 2. Estrazione Testo Generale e Tabelle
-    dati_tabella = []
-    
-    with pdfplumber.open(pdf_path) as pdf:
-        # Estraiamo il testo dalla prima pagina per trovare la destinazione
-        testo_prima_pagina = pdf.pages[0].extract_text()
-        
-        # Usiamo una Regex (Espressione Regolare) per trovare la stringa dopo "DESTINAZIONE:"
-        match_destinazione = re.search(r"DESTINAZIONE:\s*(.*)", testo_prima_pagina)
-        if match_destinazione:
-            destinazione_generale = match_destinazione.group(1).strip()
-            
-        # Estraiamo le tabelle da tutte le pagine
-        for page in pdf.pages:
-            tabelle = page.extract_tables()
-            for tabella in tabelle:
-                # Estendiamo la nostra lista con le righe della tabella
-                dati_tabella.extend(tabella)
-                
-    # 3. Creazione del DataFrame Pandas
-    # Se il PDF è strutturato bene, la prima riga sarà l'intestazione
-    df = pd.DataFrame(dati_tabella[1:], columns=dati_tabella[0])
-    
-    # Rinominiamo le colonne per comodità nel codice
-    df.columns = ["Bus", "Km", "Istituto", "Partenza", "Indirizzo", "Partecipanti", "Rientro"]
-    
-    # 4. Data Cleaning (Pulizia dei dati)
-    # Rimuoviamo le righe vuote o le righe di riepilogo "TOTALE PAX"
-    df = df.dropna(how='all')
-    df = df[~df['Bus'].astype(str).str.contains('TOTALE PAX', na=False, case=False)]
-    df = df[~df['Istituto'].astype(str).str.contains('TOTALE PAX', na=False, case=False)]
-    
-    # Sostituiamo le stringhe vuote con NaN (Not a Number) per poter usare ffill()
-    df.replace("", pd.NA, inplace=True)
-    df.replace(r"^\s*$", pd.NA, regex=True, inplace=True)
-    
-    # Propaghiamo in basso i valori del Bus e dei Km (es. "Fin 1" scende finché non trova "Fin 2")
-    df['Bus'] = df['Bus'].fillna(method='ffill')
-    df['Km'] = df['Km'].fillna(method='ffill')
-    
-    # Anche l'Istituto va propagato se è vuoto ma ci sono indirizzi sotto (scuole con più sedi)
-    df['Istituto'] = df['Istituto'].fillna(method='ffill')
-    
-    # Eliminiamo le righe in cui manca l'indirizzo e la partenza (righe sporche)
-    df = df.dropna(subset=['Indirizzo', 'Partenza'])
-    
-    # 5. Gestione delle celle multilinea (es. IC VALLE DEI LAGHI che ha due ritrovi nella stessa cella)
-    def splitta_valori(x):
-        # Se la cella è una stringa e contiene il carattere "a capo" (\n), crea una lista
-        if isinstance(x, str) and '\n' in x:
-            return [val.strip() for val in x.split('\n') if val.strip()]
-        # Altrimenti la mette in una lista singola per uniformità
-        return [x] if pd.notna(x) else [x]
+    Crea l'Excel di ground truth a partire dalla struttura `data`.
 
-    # Applichiamo la funzione alle colonne critiche
-    colonne_da_esplodere = ['Partenza', 'Indirizzo', 'Partecipanti', 'Rientro']
-    for col in colonne_da_esplodere:
-        df[col] = df[col].apply(splitta_valori)
-        
-    # Esplodiamo le liste trasformandole in righe vere e proprie
-    df = df.explode(colonne_da_esplodere)
-    
-    # 6. Costruzione dei due File di Output (Task 1 e Task 2)
-    
-    # TASK 1: Input.xlsx (Nome, Indirizzo, Partecipanti, Istituto)
-    # Rinominiamo logicamente: Il "Nome" specifico in questo caso lo deriviamo.
-    df_task1 = pd.DataFrame({
-        'Nome': df['Istituto'], # Come da tua regola, se ci sono più indirizzi è sempre l'Istituto
-        'Indirizzo': df['Indirizzo'],
-        'Partecipanti': df['Partecipanti'],
-        'Istituto': df['Istituto']
-    })
-    
-    # TASK 2: Output.xlsx (Bus Plan dettagliato)
-    df_task2 = pd.DataFrame({
-        'Bus / Codice': df['Bus'],
-        'Ditta / Km': df['Km'],
-        'Nome Scuola': df['Istituto'],
-        'Indirizzo': df['Indirizzo'],
-        'Orario Partenza': df['Partenza'],
-        'Rientro Presunto': df['Rientro'],
-        'Partecipanti': df['Partecipanti'],
-        'Destinazione': destinazione_generale
-    })
-    
-    # 7. Salvataggio in Excel
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        
-    nome_base = os.path.splitext(os.path.basename(pdf_path))[0]
-    
-    file_task1 = os.path.join(output_dir, f"{nome_base}_input.xlsx")
-    file_task2 = os.path.join(output_dir, f"{nome_base}_output.xlsx")
-    
-    df_task1.to_excel(file_task1, index=False)
-    df_task2.to_excel(file_task2, index=False)
-    
-    print(f"Fatto! File salvati in: {output_dir}\n")
-
-def elabora_batch(cartella_pdf):
+    `data` deve rispettare lo schema:
+      data = {"events": [ { event_id, sport, ..., bus_groups: [ {fin,..., fermate:[...]} ] } ]}
     """
-    Esegue lo script su tutti i file PDF presenti in una cartella.
-    Perfetto per i tuoi test futuri!
-    """
-    for nome_file in os.listdir(cartella_pdf):
-        if nome_file.lower().endswith(".pdf"):
-            percorso_completo = os.path.join(cartella_pdf, nome_file)
-            elabora_singolo_pdf(percorso_completo)
+    wb = Workbook()
 
-# --- COME UTILIZZARE LO SCRIPT ---
-if __name__ == "__main__":
-    # Sostituisci questo percorso con il file che stai testando ora
-    pdf_di_test = "Piano Viaggi_Palla Tamburello_22 aprile 2026.pdf" 
-    
-    # Se il file esiste, esegui lo script singolo
-    if os.path.exists(pdf_di_test):
-        elabora_singolo_pdf(pdf_di_test)
-    else:
-        print(f"Assicurati che il file '{pdf_di_test}' sia nella stessa cartella dello script.")
-        
-    # ESEMPIO BATCH (Da usare in futuro decommentando la riga sotto):
-    # elabora_batch("./cartella_con_i_miei_pdf")
+    # ---------------- Foglio 1: Dettaglio Completo ----------------
+    ws1 = wb.active
+    ws1.title = 'Dettaglio Completo'
+
+    headers = [
+        'Evento ID','Sport','Categoria','Data','Destinazione',
+        'Orario Ritrovo','Fine Manifestazione',
+        'FIN #','Ditta','Tel Ditta','Km','Totale PAX Bus','Note Bus',
+        'Istituto','Orario Partenza','Luogo Ritrovo','Persone','Rientro Presunto'
+    ]
+    for col, h in enumerate(headers, 1):
+        c = ws1.cell(row=1, column=col, value=h)
+        style_cell(c, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=BORDER)
+
+    row_idx = 2
+    alt = False
+
+    for ev in data["events"]:
+        for bg in ev["bus_groups"]:
+            for i, f in enumerate(bg["fermate"]):
+                fill = ALT_FILL if alt else WHITE_FILL
+
+                values = [
+                    ev["event_id"] if i == 0 else '',
+                    ev["sport"]     if i == 0 else '',
+                    ev["categoria"] if i == 0 else '',
+                    ev["data"]      if i == 0 else '',
+                    ev["destinazione"] if i == 0 else '',
+                    ev.get("orario_ritrovo") if i == 0 else '',
+                    ev.get("orario_fine_manifestazione") if i == 0 else '',
+                    bg["fin"]       if i == 0 else '',
+                    bg.get("ditta") if i == 0 else '',
+                    bg.get("ditta_tel") if i == 0 else '',
+                    bg.get("km")    if i == 0 else '',
+                    bg.get("totale_pax") if i == 0 else '',
+                    bg.get("note")  if i == 0 else '',
+                    f.get("istituto"),
+                    f.get("orario_partenza"),
+                    f.get("luogo_ritrovo"),
+                    f.get("persone"),
+                    f.get("rientro_presunto"),
+                ]
+
+                for col, val in enumerate(values, 1):
+                    c = ws1.cell(row=row_idx, column=col, value=val)
+                    align = CENTER if col in [1,2,3,4,6,7,8,11,12,15,17,18] else LEFT
+                    style_cell(c, font=NORM_FONT, fill=fill, align=align, border=BORDER)
+
+                row_idx += 1
+
+            alt = not alt
+
+    widths = [22,16,26,12,55,14,16,8,18,15,8,12,42,30,14,52,10,14]
+    for col, w in enumerate(widths, 1):
+        ws1.column_dimensions[get_column_letter(col)].width = w
+    ws1.freeze_panes = "A2"
+
+    # ---------------- Foglio 2: Per Istituto ----------------
+    ws2 = wb.create_sheet('Per Istituto')
+
+    headers2 = [
+        'Sport','Data','Categoria','Destinazione',
+        'FIN #','Istituto','Orario Partenza','Luogo Ritrovo','Persone','Rientro Presunto'
+    ]
+    for col, h in enumerate(headers2, 1):
+        c = ws2.cell(row=1, column=col, value=h)
+        style_cell(c, font=HDR_FONT, fill=HDR_FILL, align=CENTER, border=BORDER)
+
+    rows = []
+    for ev in data["events"]:
+        for bg in ev["bus_groups"]:
+            for f in bg["fermate"]:
+                rows.append([
+                    ev["sport"],
+                    ev["data"],
+                    ev["categoria"],
+                    ev["destinazione"],
+                    bg["fin"],
+                    f.get("istituto"),
+                    f.get("orario_partenza"),
+                    f.get("luogo_ritrovo"),
+                    f.get("persone"),
+                    f.get("rientro_presunto"),
+                ])
+
+    # ordina per istituto, poi data, poi FIN
+    rows.sort(key=lambda x: (str(x[5]), str(x[1]), str(x[4])))
+
+    for i, row in enumerate(rows, start=2):
+        fill = ALT_FILL if i % 2 == 0 else WHITE_FILL
+        for col, val in enumerate(row, 1):
+            c = ws2.cell(row=i, column=col, value=val)
+            align = CENTER if col in [1,2,5,7,9,10] else LEFT
+            style_cell(c, font=NORM_FONT, fill=fill, align=align, border=BORDER)
+
+    # footer
+    for ws in wb.worksheets:
+        r = ws.max_row + 2
+        ws.cell(r, 1, f"Generato il: {datetime.now():%Y-%m-%d} | Fonte: estrazione da PDF")
+
+    wb.save(path)
+
+
+def save_pair(base_name: str, data: dict, out_dir: str = "output"):
+    """
+    Salva JSON + Excel con lo stesso nome base.
+
+    - base_name: nome base del file (senza estensione PDF)
+    - data: struttura `data`
+    - out_dir: directory di output
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    json_path = out_dir / f"{base_name}_structured.json"
+    xlsx_path = out_dir / f"{base_name}_structured.xlsx"
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    make_excel(str(xlsx_path), data)
+
+    return str(json_path), str(xlsx_path)
