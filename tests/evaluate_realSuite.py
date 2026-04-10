@@ -178,6 +178,26 @@ def run_v1(ev: dict) -> dict | None:
     return solver.solve()
 
 
+def run_v2(ev: dict, cluster_threshold_minutes: int = 20) -> dict | None:
+    """Run HumanStyleSolver (V2) on an event dict. Returns solution or None."""
+    from optimizer_v2 import HumanStyleSolver
+
+    schools = ev["schools"]
+    n = len(schools)
+    capacity = ev["capacity"]
+    time_matrix = _build_solver_matrix(ev["time_matrix"], n)
+
+    demands = [0] + [s["demand"] for s in schools] + [0]
+
+    solver = HumanStyleSolver(
+        time_matrix=time_matrix,
+        demands=demands,
+        vehicle_capacity=capacity,
+        cluster_threshold_minutes=cluster_threshold_minutes,
+    )
+    return solver.solve()
+
+
 # -----------------------------------------------------------------------
 # Standalone runner (table output)
 # -----------------------------------------------------------------------
@@ -210,13 +230,22 @@ def main():
         else:
             s_v1, n_v1 = 0.0, 0
 
+        # V2
+        sol_v2 = run_v2(ev)
+        if sol_v2:
+            pred_v2 = solution_to_buses(sol_v2, ev["schools"])
+            s_v2 = combined_score(pred_v2, gt)
+            n_v2 = len(pred_v2)
+        else:
+            s_v2, n_v2 = 0.0, 0
+
         rows.append({
             "Event": ev["name"][:45],
             "GT buses": gt_count,
             "V1 buses": n_v1,
             "V1 score": f"{s_v1:.3f}",
-            "V2 buses": "—",
-            "V2 score": "—",
+            "V2 buses": n_v2,
+            "V2 score": f"{s_v2:.3f}",
         })
 
     if not rows:
@@ -238,6 +267,9 @@ def main():
     v1_scores = [float(r["V1 score"]) for r in rows if r["V1 score"] != "—"]
     if v1_scores:
         print(f"\nMean V1: {sum(v1_scores)/len(v1_scores):.3f}")
+    v2_scores = [float(r["V2 score"]) for r in rows if r["V2 score"] != "—"]
+    if v2_scores:
+        print(f"Mean V2: {sum(v2_scores)/len(v2_scores):.3f}")
 
 
 if __name__ == "__main__":

@@ -87,3 +87,39 @@ class TestV1:
         assert score >= V1_THRESHOLD, (
             f"{event['name']}: V1 score {score:.3f} < threshold {V1_THRESHOLD}"
         )
+
+
+V2_THRESHOLD = 0.45  # tune after seeing baseline numbers
+
+@pytest.fixture(scope="module")
+def v2_solution(event):
+    from evaluate_realSuite import run_v2
+    sol = run_v2(event)
+    assert sol is not None, "V2 returned no solution"
+    return sol
+
+
+class TestV2:
+    def test_all_schools_assigned(self, v2_solution, event):
+        assigned = {
+            stop["node"]
+            for route in v2_solution["routes"]
+            for stop in route["stops"]
+        }
+        for i in range(1, len(event["schools"]) + 1):
+            assert i in assigned, f"School node {i} not assigned in V2"
+
+    def test_capacity_respected(self, v2_solution, event):
+        cap = event["capacity"]
+        for route in v2_solution["routes"]:
+            assert route["load"] <= cap, (
+                f"V2 Bus {route['vehicle_id']} load={route['load']} > capacity {cap}"
+            )
+
+    def test_combined_score(self, v2_solution, event, groundtruth):
+        from evaluate_realSuite import combined_score, solution_to_buses
+        pred = solution_to_buses(v2_solution, event["schools"])
+        score = combined_score(pred, groundtruth)
+        assert score >= V2_THRESHOLD, (
+            f"{event['name']}: V2 score {score:.3f} < threshold {V2_THRESHOLD}"
+        )

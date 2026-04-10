@@ -875,6 +875,493 @@ def optimize():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/optimize_v2', methods=['POST'])
+def optimize_v2():
+    data = request.json
+    cluster_threshold_minutes = int(data.get('cluster_threshold_minutes', 20))
+    schools = data.get('schools', [])
+    destination_address = data.get('destination', '')
+    bus_capacity = int(data.get('capacity', 56))
+    max_buses = data.get('max_buses', None)
+
+    dest_lat_param = data.get('dest_lat')
+    dest_lon_param = data.get('dest_lon')
+
+    if not schools or not destination_address:
+        return jsonify({'error': 'Scuole o destinazione mancanti'}), 400
+
+    # PRE-GROUPING: Group schools by institute before optimization
+    # This ensures schools from the same institute are on the same bus when feasible
+    from collections import defaultdict
+    import uuid
+
+    # Step 1: Group schools by institute
+    institute_groups = defaultdict(list)
+    for school in schools:
+        institute = school.get('institute')
+        if not institute:
+            # Schools without institute get unique singleton groups
+            institute = f"SINGLETON_{uuid.uuid4()}"
+            school['institute'] = institute
+        institute_groups[institute].append(school)
+
+    # Step 2: Create meta-nodes for each institute group
+    processed_schools = []
+    meta_node_mapping = {}  # Maps meta-node index to list of component schools
+
+    for institute, group_schools in institute_groups.items():
+        # Calculate total demand for this institute
+        total_demand = sum(s['demand'] for s in group_schools)
+
+        if total_demand > bus_capacity:
+            # Institute group doesn't fit in one bus - must split
+            # Strategy: Try to keep as many together as possible, split only when necessary
+
+            # Sort by demand (largest first) for better bin packing
+            sorted_schools = sorted(group_schools, key=lambda x: x['demand'], reverse=True)
+
+            current_batch = []
+            current_batch_demand = 0
+            batch_idx = 1
+
+            for school in sorted_schools:
+                school_demand = school['demand']
+
+                # Check if adding this school exceeds capacity
+                if current_batch_demand + school_demand > bus_capacity:
+                    # Save current batch as a meta-node (if not empty)
+                    if current_batch:
+                        meta_node = {
+                            'id': f"{institute}_META_{batch_idx}",
+                            'name': f"{institute} (Gruppo {batch_idx})",
+                            'original_name': institute,
+                            'address': current_batch[0]['address'],  # Use first school's address
+                            'demand': current_batch_demand,
+                            'lat': sum(s['lat'] for s in current_batch) / len(current_batch),  # Average coords
+                            'lon': sum(s['lon'] for s in current_batch) / len(current_batch),
+                            'institute': institute,
+                            'is_meta': True,
+                            'component_schools': current_batch.copy()
+                        }
+                        processed_schools.append(meta_node)
+                        batch_idx += 1
+
+                    # Start new batch with current school
+                    current_batch = [school]
+                    current_batch_demand = school_demand
+                else:
+                    # Add to current batch
+                    current_batch.append(school)
+                    current_batch_demand += school_demand
+
+            # Don't forget the last batch
+            if current_batch:
+                meta_node = {
+                    'id': f"{institute}_META_{batch_idx}",
+                    'name': f"{institute} (Gruppo {batch_idx})" if batch_idx > 1 else institute,
+                    'original_name': institute,
+                    'address': current_batch[0]['address'],
+                    'demand': current_batch_demand,
+                    'lat': sum(s['lat'] for s in current_batch) / len(current_batch),
+                    'lon': sum(s['lon'] for s in current_batch) / len(current_batch),
+                    'institute': institute,
+                    'is_meta': True,
+                    'component_schools': current_batch.copy()
+                }
+                processed_schools.append(meta_node)
+
+        else:
+            # Entire institute fits in one bus - create single meta-node
+            meta_node = {
+                'id': f"{institute}_META",
+                'name': institute,
+                'original_name': institute,
+                'address': group_schools[0]['address'],  # Use first school's address
+                'demand': total_demand,
+                'lat': sum(s['lat'] for s in group_schools) / len(group_schools),  # Average coords
+                'lon': sum(s['lon'] for s in group_schools) / len(group_schools),
+                'institute': institute,
+                'is_meta': True,
+                'component_schools': group_schools.copy()
+            }
+            processed_schools.append(meta_node)
+
+    schools = processed_schools
+
+    try:
+        # 1. Prepare Nodes
+        if dest_lat_param and dest_lon_param:
+            dest_lat, dest_lon = float(dest_lat_param), float(dest_lon_param)
+        else:
+            dest_lat, dest_lon = geocoder.get_coordinates(destination_address)
+
+        all_nodes = []
+        # Destination Node (Index 0)
+        all_nodes.append({
+            'id': 'DEST',
+            'name': 'Destination',
+            'address': destination_address,
+            'participants': 0,
+            'lat': dest_lat,
+            'lon': dest_lon,
+            'institute': 'UNIVERSAL' # Compatible with all
+        })
+
+        index_to_school = {}
+        for i, school in enumerate(schools):
+            all_nodes.append({
+                'id': school['id'],
+                'name': school['name'],
+                'address': school['address'],
+                'participants': school['demand'],
+                'lat': float(school.get('lat', 0)),
+                'lon': float(school.get('lon', 0)),
+                'institute': school['institute']
+            })
+            index_to_school[i + 1] = school
+
+        # Add DUMMY START NODE (Index = len(all_nodes))
+        # This node represents an "Anywhere" start point with 0 cost to all other nodes.
+        dummy_node_index = len(all_nodes)
+        all_nodes.append({
+            'id': 'DUMMY_START',
+            'name': 'Start',
+            'address': '',
+            'participants': 0,
+            'lat': 0,
+            'lon': 0,
+            'institute': 'UNIVERSAL'
+        })
+
+        # 2. Time Matrix (seconds) — primary optimization objective
+        # We process N real nodes. The matrix needs to be (N+1)x(N+1)
+        real_node_count = len(all_nodes) - 1
+        locations = [(n['lat'], n['lon']) for n in all_nodes[:real_node_count]]
+        real_matrix = geocoder.get_time_matrix(locations)
+
+        # Extend matrix for Dummy Node
+        # Rows: Real nodes -> Real nodes (Keep)
+        # Row: Dummy -> Real nodes (0 distance)
+        # Col: Real nodes -> Dummy (Infinity? Or 0? Usually maximize to prevent using as shortcut, but it's start node so it only has outgoing)
+
+        full_matrix = []
+        for row in real_matrix:
+            row.append(0)
+            full_matrix.append(row)
+
+        dummy_row = [0] * (real_node_count + 1)
+        full_matrix.append(dummy_row)
+
+        distance_matrix = full_matrix
+
+        # 3. Demands & Solve
+        demands = [n['participants'] for n in all_nodes]
+
+        from optimizer_v2 import HumanStyleSolver
+        solver = HumanStyleSolver(
+            time_matrix=distance_matrix,
+            demands=demands,
+            vehicle_capacity=bus_capacity,
+            cluster_threshold_minutes=cluster_threshold_minutes,
+        )
+
+        solution = solver.solve()
+
+        if not solution:
+             msg = "Nessuna soluzione trovata. Prova ad aumentare il numero di bus o la capacità, oppure verifica che la destinazione sia raggiungibile."
+             if max_buses:
+                 msg += f" (Hai forzato {max_buses} bus, forse non sono sufficienti per la capacità totale)"
+             return jsonify({'error': msg}), 400
+
+        # 4. Format Response (Outbound & Return)
+        formatted_routes = []
+
+        # Time estimation settings
+        start_time_str = data.get('start_time', '08:00')  # Default 08:00
+        try:
+            start_hour, start_min = map(int, start_time_str.split(':'))
+        except:
+            start_hour, start_min = 8, 0
+        AVERAGE_SPEED_KMH = 30  # Urban average speed
+        STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
+
+        sorted_routes = sorted(solution['routes'], key=lambda x: x['vehicle_id'])
+
+        for idx, route in enumerate(sorted_routes):
+            current_vehicle_id = idx
+
+            # Reconstruct stops with details
+            stops_data = []
+            for node_obj in route['stops']:
+                node_idx = node_obj['node']
+
+                # Skip Dummy Start Node in output
+                if node_idx == dummy_node_index:
+                    continue
+
+                if node_idx == 0:
+                    stops_data.append({
+                        'type': 'destination',
+                        'name': destination_address,
+                        'load_change': 0,
+                        'lat': dest_lat,
+                        'lon': dest_lon
+                    })
+                else:
+                    original_school = index_to_school[node_idx]
+                    stops_data.append({
+                        'type': 'pickup',
+                        'name': original_school['name'],
+                        'original_name': original_school.get('original_name', original_school['name']),
+                        'address': original_school['address'],
+                        'count': original_school['demand'],
+                        'lat': original_school['lat'],
+                        'lon': original_school['lon'],
+                        'is_meta': original_school.get('is_meta', False),
+                        'component_schools': original_school.get('component_schools', [])
+                    })
+
+            # Agglomerate: Merge consecutive stops from the same original school
+            agglomerated_stops = []
+            for stop in stops_data:
+                if stop['type'] == 'destination':
+                    agglomerated_stops.append(stop)
+                elif agglomerated_stops and agglomerated_stops[-1]['type'] == 'pickup' and agglomerated_stops[-1].get('original_name') == stop.get('original_name'):
+                    # Same school, merge
+                    agglomerated_stops[-1]['count'] += stop['count']
+                    agglomerated_stops[-1]['name'] = stop['original_name']  # Use clean name
+                else:
+                    # Different stop, add new
+                    merged_stop = stop.copy()
+                    merged_stop['name'] = stop['original_name']  # Use clean name without "Gruppo X"
+                    agglomerated_stops.append(merged_stop)
+
+            stops_data = agglomerated_stops
+
+            # EXPAND META-NODES: Convert meta-nodes back to individual schools
+            expanded_stops = []
+            for stop in stops_data:
+                if stop['type'] == 'pickup' and stop.get('is_meta'):
+                    # This is a meta-node, expand it into component schools
+                    component_schools = stop['component_schools']
+                    for comp_school in component_schools:
+                        expanded_stop = {
+                            'type': 'pickup',
+                            'name': comp_school['name'],
+                            'original_name': comp_school.get('original_name', comp_school['name']),
+                            'address': comp_school['address'],
+                            'count': comp_school['demand'],
+                            'lat': comp_school['lat'],
+                            'lon': comp_school['lon'],
+                            'from_meta': True  # Mark that this came from a meta-node
+                        }
+                        # Inherit timing from meta-node (all schools in meta-node share same time)
+                        if 'departure_time' in stop:
+                            expanded_stop['departure_time'] = stop['departure_time']
+                        expanded_stops.append(expanded_stop)
+                else:
+                    # Regular stop (destination or non-meta school)
+                    expanded_stops.append(stop)
+
+            stops_data = expanded_stops
+
+            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
+            pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
+            seg_distances_m = []
+            if pickup_stops:
+                for i, stop in enumerate(pickup_stops):
+                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
+                    seg_distances_m.append(
+                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
+                    )
+
+            # Fetch geometry for Outbound (includes real road leg distances + durations)
+            geo_data = geocoder.get_route_geometry(stops_data)
+            outbound_geometry = geo_data['geometry'] if geo_data else None
+            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
+
+            # Real per-leg distances from Google Directions (leg i = segment stop i → stop i+1)
+            # Using these ensures sum(dist_to_next_km) == total bus distance in the header.
+            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
+            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
+
+            # Calculate times FORWARD from first school departure
+            # start_time = when bus departs from FIRST school
+            if pickup_stops:
+                total_haversine_m = sum(seg_distances_m) or 1
+
+                # Use Google Directions total duration if available, else fall back to speed estimate
+                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
+
+                cumulative_minutes = start_hour * 60 + start_min
+
+                for i, stop in enumerate(pickup_stops):
+                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
+
+                    # Use real road leg distance/duration from Google when available (fallback: haversine)
+                    if leg_distances_m and i < len(leg_distances_m):
+                        seg_dist_m = leg_distances_m[i]
+                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                    else:
+                        seg_dist_m = seg_distances_m[i]
+                        if total_drive_min:
+                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
+                        else:
+                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+
+                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
+                    stop['time_to_next_min'] = round(seg_drive_min)
+                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
+                # Destination arrival time
+                for stop in stops_data:
+                    if stop['type'] == 'destination':
+                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
+
+            formatted_routes.append({
+                'vehicle_id': current_vehicle_id,
+                'total_load': route['load'],
+                'outbound': {
+                    'stops': stops_data,
+                    'geometry': outbound_geometry,
+                    'distance': outbound_dist
+                }
+            })
+
+        # POST-PROCESSING: Synchronize pickup times for schools split across buses
+        # Find all schools and their departure times across all routes
+        school_times = {}  # {original_name: [(route_idx, stop_idx, departure_time_minutes)]}
+
+        for route_idx, route in enumerate(formatted_routes):
+            for stop_idx, stop in enumerate(route['outbound']['stops']):
+                if stop['type'] == 'pickup':
+                    original_name = stop.get('original_name', stop['name'])
+                    if original_name not in school_times:
+                        school_times[original_name] = []
+                    # Parse the departure time
+                    if 'departure_time' in stop:
+                        minutes = parse_time_to_minutes(stop['departure_time'])
+                        school_times[original_name].append({
+                            'route_idx': route_idx,
+                            'stop_idx': stop_idx,
+                            'minutes': minutes
+                        })
+
+        # For schools with multiple entries, synchronize to the LATEST time
+        for school_name, times in school_times.items():
+            if len(times) > 1:
+                # Find the latest departure time
+                latest_minutes = max(t['minutes'] for t in times)
+                latest_time_str = format_time_from_minutes(latest_minutes)
+
+                # Update all stops for this school to use synchronized time
+                for t in times:
+                    stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
+                    stop['departure_time'] = latest_time_str
+                    stop['synchronized'] = True  # Mark as synchronized
+
+        # POST-PROCESSING: Synchronize arrival times (ONLY in arrival mode)
+        # Collect all arrival times
+        time_mode = data.get('time_mode', 'arrival')  # 'departure' or 'arrival'
+        arrival_times_minutes = []
+
+        for route in formatted_routes:
+            for stop in route['outbound']['stops']:
+                if stop['type'] == 'destination' and 'arrival_time' in stop:
+                    minutes = parse_time_to_minutes(stop['arrival_time'])
+                    arrival_times_minutes.append(minutes)
+
+        if arrival_times_minutes:
+            earliest_arrival = min(arrival_times_minutes)
+            latest_arrival = max(arrival_times_minutes)
+            current_spread = latest_arrival - earliest_arrival
+
+            # ONLY synchronize arrivals if in ARRIVAL mode
+            if time_mode == 'arrival':
+                # User specified ARRIVAL time - all buses should arrive at this time
+                target_time_str = data.get('start_time', '08:00')
+                try:
+                    th, tm = map(int, target_time_str.split(':'))
+                    target_arrival_minutes = th * 60 + tm
+                except:
+                    target_arrival_minutes = 8 * 60  # Default 08:00
+
+                # Recalculate departure times to synchronize arrivals to target time
+                for route in formatted_routes:
+                    stops = route['outbound']['stops']
+                    dest_stop = None
+                    for stop in stops:
+                        if stop['type'] == 'destination':
+                            dest_stop = stop
+                            break
+
+                    if dest_stop and 'arrival_time' in dest_stop:
+                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
+
+                        # Calculate time shift needed to hit target arrival
+                        # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
+                        # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
+                        delay_minutes = target_arrival_minutes - current_arrival
+
+                        # Shift all times for this route
+                        for stop in stops:
+                            if stop['type'] == 'pickup' and 'departure_time' in stop:
+                                old_minutes = parse_time_to_minutes(stop['departure_time'])
+                                new_minutes = old_minutes + delay_minutes
+                                stop['departure_time'] = format_time_from_minutes(new_minutes)
+                            elif stop['type'] == 'destination' and 'arrival_time' in stop:
+                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
+                                new_minutes = old_minutes + delay_minutes
+                                stop['arrival_time'] = format_time_from_minutes(new_minutes)
+
+                # Recalculate arrival times after synchronization
+                final_arrival_times = []
+                for route in formatted_routes:
+                    for stop in route['outbound']['stops']:
+                        if stop['type'] == 'destination' and 'arrival_time' in stop:
+                            minutes = parse_time_to_minutes(stop['arrival_time'])
+                            final_arrival_times.append(minutes)
+
+                final_earliest = min(final_arrival_times) if final_arrival_times else 0
+                final_latest = max(final_arrival_times) if final_arrival_times else 0
+                final_spread = final_latest - final_earliest
+            else:
+                # DEPARTURE mode: No arrival synchronization, buses arrive naturally
+                final_earliest = earliest_arrival
+                final_latest = latest_arrival
+                final_spread = current_spread
+
+            arrival_window = {
+                'earliest': format_time_from_minutes(final_earliest),
+                'latest': format_time_from_minutes(final_latest),
+                'spread_minutes': final_spread
+            }
+        else:
+            arrival_window = None
+
+        # Calculate Totals
+        total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
+
+        # Calculate Overlaps
+        overlaps = find_bus_overlaps(formatted_routes, min_overlap_meters=30)
+
+        return jsonify({
+            'routes': formatted_routes,
+            'overlaps': overlaps,
+            'stats': {
+                'total_buses': solution['used_vehicles'],
+                'total_passengers': solution['total_load'],
+                'outbound_distance': total_outbound,
+                'total_distance': total_outbound,
+                'arrival_window': arrival_window
+            }
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/places/autocomplete', methods=['GET'])
 def places_autocomplete():
     """Address autocomplete via Nominatim (OSM)."""
