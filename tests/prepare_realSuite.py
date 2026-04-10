@@ -206,8 +206,94 @@ def run_correct():
     print("\nCorrection phase complete.")
 
 
+def _haversine_m(lat1, lon1, lat2, lon2):
+    """Return great-circle distance in metres between two (lat, lon) points."""
+    R = 6_371_000  # Earth radius in metres
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
 def run_geocode():
-    print("[geocode] Not yet implemented — run after Task 6.")
+    """Phase 3: geocode schools + destination, sanity-check, write coords.json + time_matrix.json.
+
+    Idempotent: skips events where both coords.json and time_matrix.json exist.
+    Uses corrected addresses (input_corretto.xlsx) when available, else raw input.xlsx.
+    """
+    sys.path.insert(0, str(TESTS_DIR.parent))
+    from geocoder import GeocodingService
+
+    geo = GeocodingService()
+
+    event_dirs = sorted(
+        d for d in REALSUITE_DIR.iterdir()
+        if d.is_dir() and (d / "input.xlsx").exists()
+    )
+
+    for ev_dir in event_dirs:
+        coords_path = ev_dir / "coords.json"
+        matrix_path = ev_dir / "time_matrix.json"
+
+        if coords_path.exists() and matrix_path.exists():
+            print(f"[geocode] {ev_dir.name}: already done — skipping.")
+            continue
+
+        # Use corrected file if available, else raw input
+        input_path = (
+            ev_dir / "input_corretto.xlsx"
+            if (ev_dir / "input_corretto.xlsx").exists()
+            else ev_dir / "input.xlsx"
+        )
+        df = pd.read_excel(input_path)
+        config = json.loads((ev_dir / "config.json").read_text(encoding="utf-8"))
+
+        # Geocode destination
+        dest_lat, dest_lon = geo.get_coordinates(config["destination"])
+        config["destination_lat"] = dest_lat
+        config["destination_lon"] = dest_lon
+        (ev_dir / "config.json").write_text(
+            json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+        # Geocode schools
+        schools = []
+        for _, row in df.iterrows():
+            name = str(row["Nome"])
+            addr = str(row["Indirizzo"])
+            lat, lon = geo.get_coordinates(addr)
+            schools.append({"name": name, "lat": lat, "lon": lon})
+
+        # Sanity check: flag any school >100 km from its nearest neighbor
+        if len(schools) >= 2:
+            for s in schools:
+                min_dist = min(
+                    _haversine_m(s["lat"], s["lon"], o["lat"], o["lon"])
+                    for o in schools if o is not s
+                )
+                if min_dist > 100_000:
+                    print(
+                        f"WARNING [{ev_dir.name}] '{s['name']}' is >{min_dist/1000:.0f} km "
+                        f"from all others — check address. Geocoded: ({s['lat']:.4f}, {s['lon']:.4f})"
+                    )
+
+        # Write coords.json
+        coords_json = {s["name"]: {"lat": s["lat"], "lon": s["lon"]} for s in schools}
+        coords_path.write_text(
+            json.dumps(coords_json, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+        # Build time matrix: destination at index 0, schools at 1..N
+        locations = [(dest_lat, dest_lon)] + [(s["lat"], s["lon"]) for s in schools]
+        matrix = geo.get_time_matrix(locations)
+        matrix_path.write_text(
+            json.dumps(matrix, ensure_ascii=False), encoding="utf-8"
+        )
+
+        print(f"[geocode] {ev_dir.name}: {len(schools)} schools geocoded.")
+
+    print("\nGeocoding phase complete.")
 
 
 # -----------------------------------------------------------------------
