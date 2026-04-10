@@ -10,3 +10,5 @@ datapizza-ai
 datapizza-ai-clients-google
 datapizza-ai-tools-duckduckgo
 pytest
+scipy
+numpy
