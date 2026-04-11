@@ -1,0 +1,34 @@
+{
+  "IC LADINO DI FASSA": {
+    "lat": 46.4232672,
+    "lon": 11.6823607
+  },
+  "IS DON MILANI ROVERETO": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IS ENAIP CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IS ENAIP OSSANA": {
+    "lat": 46.3074694,
+    "lon": 10.7393033
+  },
+  "IS ENAIP di TIONE": {
+    "lat": 46.0373696,
+    "lon": 10.7309219
+  },
+  "IS FLORIANI RIVA DEL GARDA": {
+    "lat": 45.8940205,
+    "lon": 10.8420112
+  },
+  "IS M. MARTINI MEZZOLOMBARDO": {
+    "lat": 46.2177667,
+    "lon": 11.0938593
+  },
+  "IS MAFFEI RIVA DEL GARDA": {
+    "lat": 45.8883178,
+    "lon": 10.8443531
+  }
+}

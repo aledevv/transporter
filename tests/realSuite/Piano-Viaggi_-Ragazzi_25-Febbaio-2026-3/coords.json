@@ -1,0 +1,98 @@
+{
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
+  },
+  "IC ALDENO MATTARELLO": {
+    "lat": 45.9985027,
+    "lon": 11.1257594
+  },
+  "IC ARCO GARDASCUOLA": {
+    "lat": 45.9152713,
+    "lon": 10.8937092
+  },
+  "IC BASSA VAL DI SOLE": {
+    "lat": 46.3533505,
+    "lon": 10.9163663
+  },
+  "IC CAVALESE": {
+    "lat": 46.2908416,
+    "lon": 11.4605473
+  },
+  "IC CEMBRA": {
+    "lat": 46.1915831,
+    "lon": 11.2592486
+  },
+  "IC CENTRO VALSUGANA": {
+    "lat": 46.070336,
+    "lon": 11.477498
+  },
+  "IC CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IC FOLGARIA-LAVARONE": {
+    "lat": 45.9149727,
+    "lon": 11.173015
+  },
+  "IC FONDO": {
+    "lat": 46.3934428,
+    "lon": 11.0567127
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4279413,
+    "lon": 11.6831041
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2117854,
+    "lon": 11.0961895
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC PERGINE 2": {
+    "lat": 46.0655975,
+    "lon": 11.2289492
+  },
+  "IC ROVERETO EST": {
+    "lat": 45.8909487,
+    "lon": 11.0361115
+  },
+  "IC ROVERETO NORD": {
+    "lat": 45.8935846,
+    "lon": 11.0436421
+  },
+  "IC TAIO": {
+    "lat": 46.3206186,
+    "lon": 11.0661736
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0697521,
+    "lon": 11.1131616
+  },
+  "IC TRENTO 7": {
+    "lat": 46.1151073,
+    "lon": 11.0977939
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.1596838,
+    "lon": 10.7664831
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8886987,
+    "lon": 10.7311727
+  },
+  "IC VEZZANO": {
+    "lat": 46.0794117,
+    "lon": 11.0022582
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.0052482,
+    "lon": 11.1946963
+  }
+}

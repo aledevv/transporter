@@ -1,5 +1,7 @@
 {
   "destination": "Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38122, Italy",
   "capacity": 54,
-  "orario_fine_manifestazione": "16:00"
+  "orario_fine_manifestazione": "16:00",
+  "destination_lat": 46.0749836,
+  "destination_lon": 11.1115833
 }

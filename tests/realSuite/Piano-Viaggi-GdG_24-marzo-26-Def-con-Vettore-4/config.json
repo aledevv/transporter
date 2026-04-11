@@ -1,5 +1,7 @@
 {
   "destination": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
   "capacity": 54,
-  "orario_fine_manifestazione": "12:30"
+  "orario_fine_manifestazione": "12:30",
+  "destination_lat": 45.9677978,
+  "destination_lon": 11.0913554
 }

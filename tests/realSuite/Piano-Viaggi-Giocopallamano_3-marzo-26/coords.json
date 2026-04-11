@@ -1,0 +1,86 @@
+{
+  "IC ALTA VAL DI SOLE": {
+    "lat": 46.3107355,
+    "lon": 10.7325498
+  },
+  "IC BORGO VALSUGANA": {
+    "lat": 45.9912519,
+    "lon": 11.6709586
+  },
+  "IC CHIESE": {
+    "lat": 45.9419975,
+    "lon": 10.6405
+  },
+  "IC CIVEZZANO": {
+    "lat": 46.146655,
+    "lon": 11.2023389
+  },
+  "IC CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IC DRO": {
+    "lat": 45.9614465,
+    "lon": 10.9108906
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0247796,
+    "lon": 10.8636177
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4350756,
+    "lon": 11.6902056
+  },
+  "IC LEVICO TERME": {
+    "lat": 45.9929705,
+    "lon": 11.2609981
+  },
+  "IC MEZZANO SANTA CROCE": {
+    "lat": 46.1630679,
+    "lon": 11.8178119
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.1921066,
+    "lon": 11.1334061
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2189608,
+    "lon": 11.048443
+  },
+  "IC PERGINE 1": {
+    "lat": 46.0788068,
+    "lon": 11.2780094
+  },
+  "IC RIVA 1": {
+    "lat": 45.8877612,
+    "lon": 10.8471007
+  },
+  "IC RIVA 2": {
+    "lat": 45.8947663,
+    "lon": 10.8536536
+  },
+  "IC STRIGNO TESINO": {
+    "lat": 46.0652116,
+    "lon": 11.5101031
+  },
+  "IC TAIO": {
+    "lat": 46.3205505,
+    "lon": 11.0654295
+  },
+  "IC TIONE": {
+    "lat": 46.0338494,
+    "lon": 10.7460879
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0822444,
+    "lon": 11.118196
+  },
+  "IC TUENNO": {
+    "lat": 46.3304899,
+    "lon": 11.0250292
+  },
+  "IC VEZZANO": {
+    "lat": 46.0794117,
+    "lon": 11.0022582
+  }
+}

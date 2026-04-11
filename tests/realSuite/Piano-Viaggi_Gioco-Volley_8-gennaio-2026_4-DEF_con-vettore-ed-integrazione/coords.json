@@ -1,0 +1,70 @@
+{
+  "IC ALTA VAL DI SOLE": {
+    "lat": 46.3107355,
+    "lon": 10.7325498
+  },
+  "IC BORGO VALSUGANA": {
+    "lat": 46.0550446,
+    "lon": 11.4652734
+  },
+  "IC CHIESE": {
+    "lat": 45.9419975,
+    "lon": 10.6405
+  },
+  "IC CIVEZZANO": {
+    "lat": 46.1174785,
+    "lon": 11.2053491
+  },
+  "IC CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IC DRO": {
+    "lat": 45.9614465,
+    "lon": 10.9108906
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0494183,
+    "lon": 10.8563831
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2140353,
+    "lon": 11.0926169
+  },
+  "IC RIVA 1": {
+    "lat": 45.8774332,
+    "lon": 10.8961574
+  },
+  "IC RIVA 2": {
+    "lat": 45.891725,
+    "lon": 10.8508954
+  },
+  "IC ROVERETO NORD": {
+    "lat": 45.8991032,
+    "lon": 11.0422846
+  },
+  "IC TAIO": {
+    "lat": 46.3208854,
+    "lon": 11.0927663
+  },
+  "IC TIONE": {
+    "lat": 45.9998131,
+    "lon": 10.6917379
+  },
+  "IC TRENTO 3": {
+    "lat": 46.0550348,
+    "lon": 11.1333643
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.1675833,
+    "lon": 10.7590435
+  },
+  "IC VEZZANO": {
+    "lat": 45.9938902,
+    "lon": 10.9736278
+  },
+  "IC VILLA LAGARINA": {
+    "lat": 45.9266293,
+    "lon": 11.0451808
+  }
+}

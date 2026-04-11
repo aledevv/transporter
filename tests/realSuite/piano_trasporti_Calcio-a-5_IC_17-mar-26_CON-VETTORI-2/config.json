@@ -1,5 +1,7 @@
 {
   "destination": "Centro Sportivo Melta di Gardolo",
   "capacity": 54,
-  "orario_fine_manifestazione": "16:00"
+  "orario_fine_manifestazione": "16:00",
+  "destination_lat": 46.0974,
+  "destination_lon": 11.1173373
 }

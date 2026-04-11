@@ -1,0 +1,90 @@
+{
+  "IC ALTA VAL DI SOLE": {
+    "lat": 46.3107355,
+    "lon": 10.7325498
+  },
+  "IC BASSA TUENNO": {
+    "lat": 46.3304899,
+    "lon": 11.0250292
+  },
+  "IC BRENTONICO": {
+    "lat": 45.8192863,
+    "lon": 10.9562624
+  },
+  "IC CHIESE": {
+    "lat": 45.9414422,
+    "lon": 10.6392502
+  },
+  "IC FONDO-REVO’": {
+    "lat": 46.437594,
+    "lon": 11.1388241
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0359577,
+    "lon": 10.870972
+  },
+  "IC ISERA ROVERETO": {
+    "lat": 45.9009049,
+    "lon": 11.0389004
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4279413,
+    "lon": 11.6831041
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2140353,
+    "lon": 11.0926169
+  },
+  "IC PERGINE 1": {
+    "lat": 46.0612304,
+    "lon": 11.2375736
+  },
+  "IC PRIMIERO": {
+    "lat": 46.0036974,
+    "lon": 11.8146763
+  },
+  "IC PRIMIERO / IS PRIMIERO": {
+    "lat": 46.1770769,
+    "lon": 11.829606
+  },
+  "IC TIONE": {
+    "lat": 46.0339593,
+    "lon": 10.7267173
+  },
+  "IC TRENTO 2": {
+    "lat": 46.0569638,
+    "lon": 11.1125554
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.1596838,
+    "lon": 10.7664831
+  },
+  "IC VILLA LAGARINA": {
+    "lat": 45.9182063,
+    "lon": 11.0311707
+  },
+  "IS BORGO VALSUGANA": {
+    "lat": 46.051538,
+    "lon": 11.453705
+  },
+  "IS CLES PILATI": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IS ROSA BIANCA": {
+    "lat": 46.2899642,
+    "lon": 11.4637424
+  },
+  "IS ROSMINI ROVERETO Squadra + Students Staff": {
+    "lat": 45.9009049,
+    "lon": 11.0389004
+  },
+  "IS TRENTO PERTINI": {
+    "lat": 46.0569638,
+    "lon": 11.1125554
+  }
+}

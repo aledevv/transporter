@@ -1,0 +1,82 @@
+{
+  "IC ALDENO-MATTARELLO": {
+    "lat": 46.0111711,
+    "lon": 11.1309932
+  },
+  "IC ALTA VALLAGARINA": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IC ARCO": {
+    "lat": 45.9241345,
+    "lon": 10.8914271
+  },
+  "IC CHIESE": {
+    "lat": 45.9419975,
+    "lon": 10.6405
+  },
+  "IC FOLGARIA – LAVARONE - LUSERNA": {
+    "lat": 45.9397228,
+    "lon": 11.2691526
+  },
+  "IC FONDO REVO'": {
+    "lat": 46.391811,
+    "lon": 11.059672
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0359577,
+    "lon": 10.870972
+  },
+  "IC ISERA ROVERETO": {
+    "lat": 45.8851325,
+    "lon": 11.0239036
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.1657078,
+    "lon": 11.0059181
+  },
+  "IC MORI": {
+    "lat": 45.8521713,
+    "lon": 10.9855725
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC PRIMIERO": {
+    "lat": 46.1777907,
+    "lon": 11.8318563
+  },
+  "IC RIVA 1": {
+    "lat": 45.8881868,
+    "lon": 10.8462504
+  },
+  "IC RIVA 2": {
+    "lat": 45.8980002,
+    "lon": 10.8462385
+  },
+  "IC ROVERETO EST": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IC ROVERETO SUD": {
+    "lat": 45.8704688,
+    "lon": 11.0307145
+  },
+  "IC TAIO": {
+    "lat": 46.35081,
+    "lon": 11.088773
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO 3": {
+    "lat": 46.0579033,
+    "lon": 11.1198905
+  },
+  "IC VALLE LAGHI": {
+    "lat": 45.9939222,
+    "lon": 10.9737585
+  }
+}

@@ -1,5 +1,7 @@
 {
   "destination": "TSM-Trentino School of Management, 40, Via Giuseppe Giusti, San Pio Decimo, San Giuseppe - Santa Chiara, Sardagna, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
   "capacity": 54,
-  "orario_fine_manifestazione": "12:00"
+  "orario_fine_manifestazione": "12:00",
+  "destination_lat": 46.0595196,
+  "destination_lon": 11.1185387
 }

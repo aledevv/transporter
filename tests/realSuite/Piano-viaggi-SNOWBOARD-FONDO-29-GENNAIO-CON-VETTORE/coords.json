@@ -1,0 +1,90 @@
+{
+  "IC BASSA VAL DI SOLE": {
+    "lat": 46.3527626,
+    "lon": 10.9147106
+  },
+  "IC BRENTONICO": {
+    "lat": 45.8186444,
+    "lon": 10.95719
+  },
+  "IC CAVALESE": {
+    "lat": 46.2909029,
+    "lon": 11.468204
+  },
+  "IC CIVEZZANO": {
+    "lat": 46.0928072,
+    "lon": 11.1794133
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0359577,
+    "lon": 10.870972
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4279413,
+    "lon": 11.6831041
+  },
+  "IC PRIMIERO": {
+    "lat": 46.1757319,
+    "lon": 11.8297215
+  },
+  "IC ROSMINI ROVERETO": {
+    "lat": 45.9001919,
+    "lon": 11.0363944
+  },
+  "IC ROVERETO EST": {
+    "lat": 45.9001919,
+    "lon": 11.0363944
+  },
+  "IC ROVERETO SUD": {
+    "lat": 45.8704688,
+    "lon": 11.0307145
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.100445,
+    "lon": 10.7407245
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8951472,
+    "lon": 10.7206859
+  },
+  "IS DA VINCI TRENTO": {
+    "lat": 46.0582218,
+    "lon": 11.1125459
+  },
+  "IS ENAIP CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IS ENAIP OSSANA": {
+    "lat": 46.3074694,
+    "lon": 10.7393033
+  },
+  "IS ENAIP VILLAZZANO": {
+    "lat": 46.0582218,
+    "lon": 11.1125459
+  },
+  "IS GUETTI TIONE": {
+    "lat": 46.0339593,
+    "lon": 10.7267173
+  },
+  "IS MAFFEI RIVA DEL GARDA": {
+    "lat": 45.894842,
+    "lon": 10.8496061
+  },
+  "IS MARCONI ROVERETO": {
+    "lat": 45.9117604,
+    "lon": 11.0419398
+  },
+  "IS PERGINE 2": {
+    "lat": 46.0649029,
+    "lon": 11.2295763
+  },
+  "IS PRIMIERO": {
+    "lat": 46.0605799,
+    "lon": 11.7629655
+  },
+  "IS ROSA BIANCA": {
+    "lat": 46.3119217,
+    "lon": 11.5994861
+  }
+}

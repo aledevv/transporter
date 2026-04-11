@@ -1,0 +1,158 @@
+{
+  "IC ALDENO-MATTARELLO": {
+    "lat": 45.9768882,
+    "lon": 11.0922044
+  },
+  "IC ALTA VALLAGARINA": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IC ALTOPIANO DI PINE’": {
+    "lat": 46.1286198,
+    "lon": 11.2437977
+  },
+  "IC ARCO": {
+    "lat": 45.9233381,
+    "lon": 10.8834253
+  },
+  "IC BASSA ANAUNIA-TUENNO": {
+    "lat": 46.3304899,
+    "lon": 11.0250292
+  },
+  "IC BASSA VAL DI SOLE": {
+    "lat": 46.3529721,
+    "lon": 10.9177568
+  },
+  "IC BRENTONICO": {
+    "lat": 45.8186444,
+    "lon": 10.95719
+  },
+  "IC CAVALESE": {
+    "lat": 46.2904945,
+    "lon": 11.4606222
+  },
+  "IC CEMBRA": {
+    "lat": 46.1576947,
+    "lon": 11.154492
+  },
+  "IC CENTRO VALSUGANA": {
+    "lat": 46.0506468,
+    "lon": 11.4116127
+  },
+  "IC CHIESE": {
+    "lat": 45.8491181,
+    "lon": 10.575339
+  },
+  "IC CIVEZZANO": {
+    "lat": 46.0928072,
+    "lon": 11.1794133
+  },
+  "IC FOLGARIA-LAV.-LUS.": {
+    "lat": 45.9394693,
+    "lon": 11.2739378
+  },
+  "IC FONDO-REVO’": {
+    "lat": 46.3940922,
+    "lon": 11.0538911
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0359577,
+    "lon": 10.870972
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4765478,
+    "lon": 11.7409078
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC LEVICO TERME": {
+    "lat": 46.0136198,
+    "lon": 11.3083459
+  },
+  "IC MEZZANO Santa Croce": {
+    "lat": 46.1630679,
+    "lon": 11.8178119
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.2129389,
+    "lon": 11.1139953
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2117854,
+    "lon": 11.0961895
+  },
+  "IC MORI": {
+    "lat": 45.8521713,
+    "lon": 10.9855725
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC PERGINE 2": {
+    "lat": 46.0665221,
+    "lon": 11.2272808
+  },
+  "IC PRIMIERO": {
+    "lat": 46.1770769,
+    "lon": 11.829606
+  },
+  "IC RIVA 1": {
+    "lat": 45.8879839,
+    "lon": 10.8466447
+  },
+  "IC RIVA 2": {
+    "lat": 45.8980002,
+    "lon": 10.8462385
+  },
+  "IC ROVERETO EST": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IC STRIGNO-TESINO": {
+    "lat": 46.0627068,
+    "lon": 11.5240334
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO 2": {
+    "lat": 46.074542,
+    "lon": 11.1432647
+  },
+  "IC TRENTO 3": {
+    "lat": 46.0696547,
+    "lon": 11.1160738
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0696547,
+    "lon": 11.1160738
+  },
+  "IC TRENTO 7": {
+    "lat": 46.1058483,
+    "lon": 11.1160349
+  },
+  "IC TRENTO ARCIVESCOVILE": {
+    "lat": 46.0696547,
+    "lon": 11.1160738
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.1032651,
+    "lon": 10.7378052
+  },
+  "IC VALLE DEI LAGHI-DRO": {
+    "lat": 45.9593387,
+    "lon": 10.9086174
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8951472,
+    "lon": 10.7206859
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.0048443,
+    "lon": 11.1983809
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "IC ALA": {
+    "lat": 45.7564167,
+    "lon": 11.0014206
+  },
+  "IC ALDENO-MATTARELLO": {
+    "lat": 45.9768882,
+    "lon": 11.0922044
+  },
+  "IC ALTOPIANO DI PINE'": {
+    "lat": 46.1236472,
+    "lon": 11.2419032
+  },
+  "IC AVIO": {
+    "lat": 45.7359737,
+    "lon": 10.9439825
+  },
+  "IC BASSA ANAUNIA-TUENNO": {
+    "lat": 46.3304899,
+    "lon": 11.0250292
+  },
+  "IC BORGO VALSUGANA": {
+    "lat": 46.0531899,
+    "lon": 11.4559338
+  },
+  "IC CAVALESE": {
+    "lat": 46.2908416,
+    "lon": 11.4605473
+  },
+  "IC CEMBRA": {
+    "lat": 46.1848249,
+    "lon": 11.2507535
+  },
+  "IC CHIESE": {
+    "lat": 45.9419975,
+    "lon": 10.6405
+  },
+  "IC FOLGARIA": {
+    "lat": 45.9189898,
+    "lon": 11.1637083
+  },
+  "IC FONDO-REVO'": {
+    "lat": 46.4377024,
+    "lon": 11.1368818
+  },
+  "IC ISERA/ROVERETO": {
+    "lat": 45.8851325,
+    "lon": 11.0239036
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC LEVICO TERME": {
+    "lat": 46.0136198,
+    "lon": 11.3083459
+  },
+  "IC MEZZANO SANTA CROCE": {
+    "lat": 46.1630679,
+    "lon": 11.8178119
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.2129389,
+    "lon": 11.1139953
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2117854,
+    "lon": 11.0961895
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC RIVA 1": {
+    "lat": 45.8879839,
+    "lon": 10.8466447
+  },
+  "IC RIVA 2": {
+    "lat": 45.8980002,
+    "lon": 10.8462385
+  },
+  "IC TAIO": {
+    "lat": 46.3205899,
+    "lon": 11.0668144
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO 1": {
+    "lat": 46.053097,
+    "lon": 11.1507557
+  },
+  "IC TRENTO 2": {
+    "lat": 46.0841883,
+    "lon": 11.114804
+  },
+  "IC TRENTO 3": {
+    "lat": 46.059076,
+    "lon": 11.1242264
+  },
+  "IC TRENTO 4": {
+    "lat": 46.0513554,
+    "lon": 11.1301435
+  },
+  "IC TRENTO 5": {
+    "lat": 46.0697032,
+    "lon": 11.115753
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0697032,
+    "lon": 11.115753
+  },
+  "IC TRENTO 7": {
+    "lat": 46.1385548,
+    "lon": 11.1183609
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.1596838,
+    "lon": 10.7664831
+  },
+  "IC VALLE DEI LAGHI-DRO": {
+    "lat": 45.964315,
+    "lon": 10.9160736
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8954313,
+    "lon": 10.7206901
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.0048443,
+    "lon": 11.1983809
+  },
+  "IS MARTINO MARTINI MEZZOLOMBARDO – Students Staff": {
+    "lat": 46.2177667,
+    "lon": 11.0938593
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "ENAIP TESERO": {
+    "lat": 46.2874466,
+    "lon": 11.5125733
+  },
+  "IC ALA": {
+    "lat": 45.7564167,
+    "lon": 11.0014206
+  },
+  "IC ALDENO-MATTARELLO": {
+    "lat": 46.0068229,
+    "lon": 11.1306398
+  },
+  "IC BASSA VAL DI SOLE": {
+    "lat": 46.3533505,
+    "lon": 10.9163663
+  },
+  "IC BRENTONICO": {
+    "lat": 45.8186444,
+    "lon": 10.95719
+  },
+  "IC CAVALESE": {
+    "lat": 46.2902101,
+    "lon": 11.4649719
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.0359577,
+    "lon": 10.870972
+  },
+  "IC ISERA ROVERETO": {
+    "lat": 45.90294,
+    "lon": 11.0380953
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.2129389,
+    "lon": 11.1139953
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2177519,
+    "lon": 11.0482682
+  },
+  "IC PERGINE 2": {
+    "lat": 46.0649029,
+    "lon": 11.2295763
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO SACRO CUORE": {
+    "lat": 46.0696467,
+    "lon": 11.1122739
+  },
+  "IC VAL RENDENA": {
+    "lat": 46.100445,
+    "lon": 10.7407245
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.0048443,
+    "lon": 11.1983809
+  },
+  "IC VILLA LAGARINA": {
+    "lat": 45.9182063,
+    "lon": 11.0311707
+  },
+  "IS ENAIP CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IS ENAIP OSSANA": {
+    "lat": 46.3074694,
+    "lon": 10.7393033
+  },
+  "IS GUETTI TIONE": {
+    "lat": 46.0339593,
+    "lon": 10.7267173
+  },
+  "IS MAFFEI RIVA DEL GARDA": {
+    "lat": 45.8941822,
+    "lon": 10.8431194
+  },
+  "IS MARCONI ROVERETO": {
+    "lat": 45.9117604,
+    "lon": 11.0419398
+  },
+  "IS ROSA BIANCA": {
+    "lat": 46.3119217,
+    "lon": 11.5994861
+  },
+  "IS ROSMINI ROVERETO": {
+    "lat": 45.90294,
+    "lon": 11.0380953
+  },
+  "IS TRENTO TAMBOSI": {
+    "lat": 46.0696467,
+    "lon": 11.1122739
+  },
+  "IS VITTORIA BONPORTI TRENTO": {
+    "lat": 46.0696467,
+    "lon": 11.1122739
+  }
+}

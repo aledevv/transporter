@@ -1,0 +1,122 @@
+{
+  "IC ALA": {
+    "lat": 45.7564167,
+    "lon": 11.0014206
+  },
+  "IC ALDENO-MATTARELLO": {
+    "lat": 46.0070509,
+    "lon": 11.1306787
+  },
+  "IC ALTOPIANO DI PINE’": {
+    "lat": 46.1310288,
+    "lon": 11.2408174
+  },
+  "IC AVIO": {
+    "lat": 45.7359737,
+    "lon": 10.9439825
+  },
+  "IC BASSA ANAUNIA-TUENNO": {
+    "lat": 46.3304899,
+    "lon": 11.0250292
+  },
+  "IC BORGO VALSUGANA": {
+    "lat": 46.0525226,
+    "lon": 11.4570508
+  },
+  "IC CAVALESE": {
+    "lat": 46.2908416,
+    "lon": 11.4605473
+  },
+  "IC CEMBRA": {
+    "lat": 46.1718264,
+    "lon": 11.2230731
+  },
+  "IC CHIESE": {
+    "lat": 45.8491181,
+    "lon": 10.575339
+  },
+  "IC CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IC FOLGARIA": {
+    "lat": 45.914166,
+    "lon": 11.1680842
+  },
+  "IC FONDO-REVO’": {
+    "lat": 46.3940922,
+    "lon": 11.0538911
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC LEVICO TERME": {
+    "lat": 46.0135499,
+    "lon": 11.307898
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.2129389,
+    "lon": 11.1139953
+  },
+  "IC MEZZOLOMBARDO PAGANELLA": {
+    "lat": 46.2117854,
+    "lon": 11.0961895
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC PRIMIERO": {
+    "lat": 46.1770769,
+    "lon": 11.829606
+  },
+  "IC RIVA 1": {
+    "lat": 45.8884204,
+    "lon": 10.8468784
+  },
+  "IC RIVA 2": {
+    "lat": 45.8971182,
+    "lon": 10.8457348
+  },
+  "IC TAIO": {
+    "lat": 46.3205505,
+    "lon": 11.0654295
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO 1": {
+    "lat": 46.053097,
+    "lon": 11.1507557
+  },
+  "IC TRENTO 2": {
+    "lat": 46.074542,
+    "lon": 11.1432647
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0677913,
+    "lon": 11.1091923
+  },
+  "IC TRENTO 7": {
+    "lat": 46.1040249,
+    "lon": 11.1137704
+  },
+  "IC TRENTO ARCIVESCOVILE": {
+    "lat": 46.0631482,
+    "lon": 11.119025
+  },
+  "IC VALLE DEI LAGHI-DRO": {
+    "lat": 45.9938902,
+    "lon": 10.9736278
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8954313,
+    "lon": 10.7206901
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.003999,
+    "lon": 11.1958728
+  }
+}

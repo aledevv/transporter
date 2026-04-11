@@ -1,5 +1,7 @@
 {
   "destination": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
   "capacity": 54,
-  "orario_fine_manifestazione": "13:00"
+  "orario_fine_manifestazione": "13:00",
+  "destination_lat": 46.0755872,
+  "destination_lon": 11.107593
 }

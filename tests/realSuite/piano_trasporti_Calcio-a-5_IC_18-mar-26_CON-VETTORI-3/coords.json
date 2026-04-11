@@ -1,0 +1,66 @@
+{
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
+  },
+  "IC ALDENO MATTARELLO": {
+    "lat": 46.0104021,
+    "lon": 11.131074
+  },
+  "IC ALTA VALLAGARINA": {
+    "lat": 45.8909414,
+    "lon": 11.0347273
+  },
+  "IC CENTRO VALSUGANA": {
+    "lat": 46.070336,
+    "lon": 11.477498
+  },
+  "IC CHIESE": {
+    "lat": 45.8491181,
+    "lon": 10.575339
+  },
+  "IC FOLGARIA LAVARONE": {
+    "lat": 45.9394693,
+    "lon": 11.2739378
+  },
+  "IC FONDO REVO’": {
+    "lat": 46.4373706,
+    "lon": 11.1377944
+  },
+  "IC GIUDICARIE ESTERIORI": {
+    "lat": 46.035868,
+    "lon": 10.8705968
+  },
+  "IC ISERA ROVERETO": {
+    "lat": 45.8851325,
+    "lon": 11.0239036
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4279413,
+    "lon": 11.6831041
+  },
+  "IC MORI": {
+    "lat": 45.8521713,
+    "lon": 10.9855725
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC ROVERETO NORD": {
+    "lat": 45.8935846,
+    "lon": 11.0436421
+  },
+  "IC STRIGNO TESINO": {
+    "lat": 46.0634633,
+    "lon": 11.5230992
+  },
+  "IC TAIO": {
+    "lat": 46.3206186,
+    "lon": 11.0661736
+  },
+  "IC VALLE DEI LAGHI - DRO": {
+    "lat": 46.0794117,
+    "lon": 11.0022582
+  }
+}
