@@ -249,7 +249,7 @@ class SavingsSolver:
             )
 
         # Step 4: Build ordered routes
-        depot_row = [self.time_matrix[0][j] for j in school_nodes]
+        depot_row = depot_times
         routes = []
         total_distance = 0
         total_load = 0
