@@ -211,7 +211,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         if (!destination) { setError("Inserisci un indirizzo di destinazione."); return; }
         setError(''); setLoading(true); setResults(null);
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/optimize`, {
+            const response = await axios.post(`${API_BASE_URL}/api/optimize_v2`, {
                 schools, destination, capacity: parseInt(capacity),
                 dest_lat: destCoords?.lat, dest_lon: destCoords?.lon,
                 start_time: startTime, time_mode: timeMode,
