@@ -74,7 +74,7 @@ def main():
 
         n_v1, v1_a, v1_c, v1_t = _score(run_v1(ev))
         n_v2, v2_a, v2_c, v2_t = _score(run_v2(ev))
-        n_v3, v3_a, v3_c, v3_t = _score(run_savings(ev))
+        n_v3, v3_a, v3_c, v3_t = _score(run_savings(ev, min_savings_minutes=20))
 
         rows.append({
             "Event":   ev["name"][:45],
