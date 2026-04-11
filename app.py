@@ -926,7 +926,7 @@ def optimize():
 @app.route('/api/optimize_v2', methods=['POST'])
 def optimize_v2():
     data = request.json
-    cluster_threshold_minutes = int(data.get('cluster_threshold_minutes', 20))
+    cluster_threshold_minutes = int(data.get('cluster_threshold_minutes', 10))
     schools = data.get('schools', [])
     destination_address = data.get('destination', '')
     bus_capacity = int(data.get('capacity', 56))

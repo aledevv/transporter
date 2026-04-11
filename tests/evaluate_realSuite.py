@@ -178,7 +178,7 @@ def run_v1(ev: dict) -> dict | None:
     return solver.solve()
 
 
-def run_v2(ev: dict, cluster_threshold_minutes: int = 20) -> dict | None:
+def run_v2(ev: dict, cluster_threshold_minutes: int = 10) -> dict | None:
     """Run HumanStyleSolver (V2) on an event dict. Returns solution or None."""
     from optimizer_v2 import HumanStyleSolver
 

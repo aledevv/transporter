@@ -22,7 +22,7 @@ from evaluate_realSuite import (
 )
 
 # Tune these after seeing baseline numbers
-V1_THRESHOLD = 0.40
+V1_THRESHOLD = 0.50
 
 # -----------------------------------------------------------------------
 # Parametrize: collect all event dirs with complete artifacts
@@ -89,7 +89,7 @@ class TestV1:
         )
 
 
-V2_THRESHOLD = 0.45  # tune after seeing baseline numbers
+V2_THRESHOLD = 0.55  # tuned after grid search: best D=10min, mean=0.652
 
 @pytest.fixture(scope="module")
 def v2_solution(event):
