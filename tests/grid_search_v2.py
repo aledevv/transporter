@@ -23,6 +23,8 @@ from evaluate_realSuite import (
     load_groundtruth,
     run_v1,
     run_v2,
+    score_assignment,
+    score_bus_count,
     solution_to_buses,
     _all_events,
 )
@@ -43,25 +45,45 @@ def main():
         print("No events ready. Run prepare_realSuite.py first.")
         return
 
+    n = len(events_data)
+
     # V1 baseline
     v1_scores = []
-    for ev, gt in events_data:
+    v1_asgn_scores = []
+    v1_cnt_scores = []
+    for i, (ev, gt) in enumerate(events_data):
+        print(f"[V1] {i + 1}/{n} {ev['name'][:40]}", end="\r", flush=True)
         sol = run_v1(ev)
         if sol:
             pred = solution_to_buses(sol, ev["schools"])
             v1_scores.append(combined_score(pred, gt))
-    v1_mean = sum(v1_scores) / len(v1_scores) if v1_scores else 0.0
+            v1_asgn_scores.append(score_assignment(pred, gt))
+            v1_cnt_scores.append(score_bus_count(pred, gt))
+    print(f"[V1] done ({n}/{n})                                              ")
+    v1_mean      = sum(v1_scores)      / len(v1_scores)      if v1_scores      else 0.0
+    v1_asgn_mean = sum(v1_asgn_scores) / len(v1_asgn_scores) if v1_asgn_scores else 0.0
+    v1_cnt_mean  = sum(v1_cnt_scores)  / len(v1_cnt_scores)  if v1_cnt_scores  else 0.0
 
     # V2 grid search
-    results = {}  # threshold → list of scores
+    results      = {}  # D → list of combined scores
+    asgn_results = {}  # D → list of assignment scores
+    cnt_results  = {}  # D → list of bus count scores
     for D in THRESHOLDS:
         scores = []
-        for ev, gt in events_data:
+        asgn_scores = []
+        cnt_scores = []
+        for i, (ev, gt) in enumerate(events_data):
+            print(f"[D={D:2d}] {i + 1}/{n} {ev['name'][:40]}", end="\r", flush=True)
             sol = run_v2(ev, cluster_threshold_minutes=D)
             if sol:
                 pred = solution_to_buses(sol, ev["schools"])
                 scores.append(combined_score(pred, gt))
-        results[D] = scores
+                asgn_scores.append(score_assignment(pred, gt))
+                cnt_scores.append(score_bus_count(pred, gt))
+        results[D]      = scores
+        asgn_results[D] = asgn_scores
+        cnt_results[D]  = cnt_scores
+        print(f"[D={D:2d}] done ({n}/{n})                                          ")
 
     # Print per-event table
     col_w = [46] + [8] * (len(THRESHOLDS) + 1)
@@ -82,12 +104,24 @@ def main():
 
     print(sep)
 
-    # Summary row
+    # Summary rows
     summary = ["MEAN", f"{v1_mean:.3f}"] + [
         f"{sum(results[D])/len(results[D]):.3f}" if results[D] else "—"
         for D in THRESHOLDS
     ]
     print("  ".join(str(s).ljust(w) for s, w in zip(summary, col_w)))
+
+    mean_asgn = ["MEAN_ASGN", f"{v1_asgn_mean:.3f}"] + [
+        f"{sum(asgn_results[D])/len(asgn_results[D]):.3f}" if asgn_results[D] else "—"
+        for D in THRESHOLDS
+    ]
+    print("  ".join(str(s).ljust(w) for s, w in zip(mean_asgn, col_w)))
+
+    mean_cnt = ["MEAN_CNT", f"{v1_cnt_mean:.3f}"] + [
+        f"{sum(cnt_results[D])/len(cnt_results[D]):.3f}" if cnt_results[D] else "—"
+        for D in THRESHOLDS
+    ]
+    print("  ".join(str(s).ljust(w) for s, w in zip(mean_cnt, col_w)))
 
     # Best D
     best_D = max(THRESHOLDS, key=lambda D: sum(results[D]) / len(results[D]) if results[D] else 0)
