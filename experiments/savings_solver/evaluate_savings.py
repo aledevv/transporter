@@ -64,12 +64,12 @@ def main():
         gt = load_groundtruth(ev["gt_path"])
         gt_count = len([v for v in gt.values() if v])
 
-        def _score(sol):
+        def _score(sol, _ev=ev, _gt=gt):
             if not sol:
                 return 0, 0.0, 0.0, 0.0
-            pred = solution_to_buses(sol, ev["schools"])
-            a = score_assignment(pred, gt)
-            c = score_bus_count(pred, gt)
+            pred = solution_to_buses(sol, _ev["schools"])
+            a = score_assignment(pred, _gt)
+            c = score_bus_count(pred, _gt)
             return len(pred), a, c, 0.6 * a + 0.4 * c
 
         n_v1, v1_a, v1_c, v1_t = _score(run_v1(ev))
