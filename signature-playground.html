@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusPlan – Firma Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Controls panel ── */
+  #controls { width: 300px; min-width: 260px; background: #1a1d27; border-right: 1px solid #2d3148; overflow-y: auto; padding: 20px 16px; display: flex; flex-col: column; gap: 0; }
+  #controls h1 { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 20px; }
+
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #64748b; margin: 20px 0 8px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* Preset cards */
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px; }
+  .preset-btn { background: #252840; border: 1.5px solid transparent; border-radius: 8px; padding: 8px 6px; cursor: pointer; font-size: 11px; color: #94a3b8; text-align: center; transition: all .15s; line-height: 1.3; }
+  .preset-btn:hover { border-color: #4f6ef7; color: #e2e8f0; }
+  .preset-btn.active { border-color: #4f6ef7; background: #1e2240; color: #a5b4fc; font-weight: 600; }
+
+  /* Radio chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { background: #252840; border: 1.5px solid transparent; border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #94a3b8; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .chip:hover { border-color: #4f6ef7; color: #e2e8f0; }
+  .chip.active { border-color: #4f6ef7; background: #1e2240; color: #a5b4fc; font-weight: 600; }
+
+  /* Text input */
+  .text-input { width: 100%; background: #252840; border: 1.5px solid #2d3148; border-radius: 8px; padding: 6px 10px; color: #e2e8f0; font-size: 12px; outline: none; transition: border-color .15s; }
+  .text-input:focus { border-color: #4f6ef7; }
+
+  /* Color row */
+  .color-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color .15s; flex-shrink: 0; }
+  .color-swatch.active { border-color: #fff; }
+  .custom-color { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .custom-color input[type=color] { width: 28px; height: 28px; border: none; border-radius: 50%; cursor: pointer; background: none; padding: 0; }
+
+  /* Toggle */
+  .toggle-row { display: flex; justify-content: space-between; align-items: center; }
+  .toggle { width: 36px; height: 20px; background: #2d3148; border-radius: 10px; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
+  .toggle.on { background: #4f6ef7; }
+  .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left .2s; }
+  .toggle.on::after { left: 18px; }
+
+  /* ── Right side ── */
+  #right { flex: 1; display: flex; flex-column: column; min-height: 0; }
+  #right { display: flex; flex-direction: column; }
+
+  #preview-area { flex: 1; overflow: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .preview-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+
+  /* Mock BusPlan UI */
+  .mock-app { background: #f9fafb; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+  .mock-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  .mock-logo { font-size: 20px; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 8px; }
+  .mock-logo svg { width: 24px; height: 24px; }
+  .mock-beta { font-size: 11px; font-weight: 500; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 6px; }
+  .mock-body { padding: 16px 24px; min-height: 60px; }
+  .mock-body p { color: #9ca3af; font-size: 13px; }
+  .mock-footer { background: white; border-top: 1px solid #e5e7eb; padding: 16px 24px; }
+  .mock-footer-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .mock-footer-text { color: #6b7280; font-size: 13px; }
+  .mock-version { color: #9ca3af; font-size: 10px; font-family: monospace; }
+
+  /* ── Prompt output ── */
+  #prompt-area { background: #1a1d27; border-top: 1px solid #2d3148; padding: 14px 16px; }
+  #prompt-area .prompt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  #prompt-area .prompt-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #64748b; }
+  #copy-btn { background: #252840; border: 1px solid #2d3148; color: #94a3b8; font-size: 11px; padding: 4px 12px; border-radius: 6px; cursor: pointer; transition: all .15s; }
+  #copy-btn:hover { border-color: #4f6ef7; color: #a5b4fc; }
+  #copy-btn.copied { background: #1a2e1a; border-color: #22c55e; color: #4ade80; }
+  #prompt-text { color: #cbd5e1; font-size: 12px; line-height: 1.6; font-family: 'SF Mono', 'Fira Code', monospace; white-space: pre-wrap; }
+
+  /* ── Signature styles rendered in mock ── */
+  .sig-minimal { color: #9ca3af; font-size: 12px; }
+  .sig-minimal a { color: #6b7280; text-decoration: none; border-bottom: 1px dotted #9ca3af; }
+  .sig-minimal a:hover { color: #374151; }
+
+  .sig-badge { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f6; border-radius: 20px; padding: 3px 10px 3px 3px; font-size: 11px; color: #6b7280; text-decoration: none; }
+  .sig-badge .avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
+
+  .sig-delta { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #6b7280; text-decoration: none; }
+  .sig-delta .sym { font-size: 18px; font-weight: 300; }
+
+  .sig-made { font-size: 11px; color: #9ca3af; display: flex; align-items: center; gap: 4px; }
+  .sig-made a { color: inherit; text-decoration: none; font-weight: 600; }
+  .sig-made a:hover { color: #374151; }
+
+  .sig-corner { position: absolute; bottom: 12px; right: 16px; }
+
+  .mock-relative { position: relative; }
+
+  hr.ctrl-sep { border: none; border-top: 1px solid #2d3148; margin: 16px 0 0; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     CONTROLS
+     ════════════════════════════════════ -->
+<div id="controls">
+  <h1>Firma · BusPlan</h1>
+
+  <div class="section-label">Preset</div>
+  <div class="presets">
+    <button class="preset-btn active" data-preset="minimal" onclick="applyPreset('minimal')">Minimale<br><span style="opacity:.5">testo + link</span></button>
+    <button class="preset-btn" data-preset="badge" onclick="applyPreset('badge')">Badge<br><span style="opacity:.5">avatar + nome</span></button>
+    <button class="preset-btn" data-preset="delta" onclick="applyPreset('delta')">Δ Delta<br><span style="opacity:.5">simbolo + testo</span></button>
+    <button class="preset-btn" data-preset="madeby" onclick="applyPreset('madeby')">Made by<br><span style="opacity:.5">♥ classico</span></button>
+    <button class="preset-btn" data-preset="corner" onclick="applyPreset('corner')">Angolo<br><span style="opacity:.5">discreto</span></button>
+  </div>
+
+  <div class="section-label">Stile</div>
+  <div class="chips" id="style-chips">
+    <div class="chip active" data-val="minimal" onclick="setProp('style','minimal',this)">Minimale</div>
+    <div class="chip" data-val="badge" onclick="setProp('style','badge',this)">Badge</div>
+    <div class="chip" data-val="delta" onclick="setProp('style','delta',this)">Δ Delta</div>
+    <div class="chip" data-val="madeby" onclick="setProp('style','madeby',this)">Made by</div>
+  </div>
+
+  <div class="section-label">Posizione</div>
+  <div class="chips" id="pos-chips">
+    <div class="chip active" data-val="footer-center" onclick="setProp('position','footer-center',this)">Footer centro</div>
+    <div class="chip" data-val="footer-right" onclick="setProp('position','footer-right',this)">Footer destra</div>
+    <div class="chip" data-val="corner" onclick="setProp('position','corner',this)">Angolo</div>
+  </div>
+
+  <div class="section-label">Nome mostrato</div>
+  <input class="text-input" type="text" id="input-name" value="Dev" oninput="state.name=this.value;updateAll()">
+
+  <div class="section-label">Link (opzionale)</div>
+  <input class="text-input" type="text" id="input-link" value="https://github.com/aledevv" oninput="state.link=this.value;updateAll()">
+
+  <div class="section-label">Colore accento</div>
+  <div class="color-row" id="color-row">
+    <div class="color-swatch active" style="background:#6b7280" data-color="#6b7280" onclick="setColor('#6b7280',this)" title="Grigio neutro"></div>
+    <div class="color-swatch" style="background:#2563eb" data-color="#2563eb" onclick="setColor('#2563eb',this)" title="Blu BusPlan"></div>
+    <div class="color-swatch" style="background:#7c3aed" data-color="#7c3aed" onclick="setColor('#7c3aed',this)" title="Viola"></div>
+    <div class="color-swatch" style="background:#0f766e" data-color="#0f766e" onclick="setColor('#0f766e',this)" title="Verde acqua"></div>
+    <div class="color-swatch" style="background:#dc2626" data-color="#dc2626" onclick="setColor('#dc2626',this)" title="Rosso"></div>
+    <div class="color-swatch" style="background:#d97706" data-color="#d97706" onclick="setColor('#d97706',this)" title="Ambra"></div>
+  </div>
+  <div class="custom-color" style="margin-top:8px">
+    <input type="color" id="custom-color" value="#6b7280" oninput="setColor(this.value,null)">
+    <span style="font-size:11px;color:#64748b">personalizzato</span>
+  </div>
+
+  <hr class="ctrl-sep">
+
+  <div class="section-label" style="margin-top:16px">Opzioni</div>
+  <div class="toggle-row" style="margin-bottom:10px">
+    <span style="font-size:12px;color:#94a3b8">Mostra "v0.x.x"</span>
+    <div class="toggle on" id="tog-version" onclick="toggleOpt('showVersion',this)"></div>
+  </div>
+  <div class="toggle-row">
+    <span style="font-size:12px;color:#94a3b8">Link esterno</span>
+    <div class="toggle on" id="tog-link" onclick="toggleOpt('showLink',this)"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     RIGHT: PREVIEW + PROMPT
+     ════════════════════════════════════ -->
+<div id="right">
+  <div id="preview-area">
+    <div class="preview-label">Anteprima — BusPlan</div>
+    <div class="mock-app mock-relative" id="mock-app">
+      <!-- Header -->
+      <div class="mock-header">
+        <div class="mock-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+          BusPlan <span class="mock-beta">Beta</span>
+        </div>
+      </div>
+      <!-- Body -->
+      <div class="mock-body">
+        <p>… contenuto app …</p>
+      </div>
+      <!-- Footer -->
+      <div class="mock-footer" id="mock-footer">
+        <div class="mock-footer-inner" id="mock-footer-inner">
+          <div class="mock-footer-text">BusPlan — Pianificazione trasporti</div>
+          <div class="mock-version" id="mock-ver">v0.4.2</div>
+          <!-- signature injected here -->
+          <div id="sig-slot"></div>
+        </div>
+      </div>
+      <!-- Corner slot (absolute) -->
+      <div id="corner-slot" class="sig-corner" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Prompt -->
+  <div id="prompt-area">
+    <div class="prompt-header">
+      <span class="prompt-label">Prompt da copiare</span>
+      <button id="copy-btn" onclick="copyPrompt()">Copia</button>
+    </div>
+    <div id="prompt-text"></div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const DEFAULTS = {
+  style: 'minimal',
+  position: 'footer-center',
+  name: 'Dev',
+  link: 'https://github.com/aledevv',
+  color: '#6b7280',
+  showVersion: true,
+  showLink: true,
+};
+
+const state = { ...DEFAULTS };
+
+// ── Presets ──
+const PRESETS = {
+  minimal:  { style:'minimal',  position:'footer-center', name:'Dev',    color:'#6b7280', showVersion:true,  showLink:true  },
+  badge:    { style:'badge',    position:'footer-center', name:'aledevv', color:'#2563eb', showVersion:true,  showLink:true  },
+  delta:    { style:'delta',    position:'footer-right',  name:'Dev',    color:'#7c3aed', showVersion:false, showLink:true  },
+  madeby:   { style:'madeby',   position:'footer-center', name:'Dev',    color:'#dc2626', showVersion:true,  showLink:true  },
+  corner:   { style:'minimal',  position:'corner',        name:'Dev',    color:'#9ca3af', showVersion:false, showLink:true  },
+};
+
+function applyPreset(key) {
+  const p = PRESETS[key];
+  Object.assign(state, p);
+  // sync inputs
+  document.getElementById('input-name').value = state.name;
+  document.getElementById('input-link').value = state.link;
+  document.getElementById('custom-color').value = state.color;
+  syncChips('style-chips', state.style);
+  syncChips('pos-chips', state.position);
+  syncSwatches(state.color);
+  syncToggle('tog-version', state.showVersion);
+  syncToggle('tog-link', state.showLink);
+  // preset button highlights
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === key));
+  updateAll();
+}
+
+// ── Controls helpers ──
+function setProp(prop, val, el) {
+  state[prop] = val;
+  const groupId = prop === 'style' ? 'style-chips' : 'pos-chips';
+  syncChips(groupId, val);
+  updateAll();
+}
+function syncChips(groupId, val) {
+  document.querySelectorAll(`#${groupId} .chip`).forEach(c => c.classList.toggle('active', c.dataset.val === val));
+}
+function setColor(c, swatchEl) {
+  state.color = c;
+  document.getElementById('custom-color').value = c;
+  syncSwatches(c);
+  updateAll();
+}
+function syncSwatches(c) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s.dataset.color === c));
+}
+function toggleOpt(prop, el) {
+  state[prop] = !state[prop];
+  syncToggle(el.id, state[prop]);
+  updateAll();
+}
+function syncToggle(id, val) {
+  document.getElementById(id).classList.toggle('on', val);
+}
+
+// ── Render ──
+function buildSig() {
+  const { style, name, link, color, showLink } = state;
+  const href = showLink && link ? link : null;
+  const wrap = (inner) => href ? `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none">${inner}</a>` : inner;
+
+  if (style === 'minimal') {
+    const txt = `by ${name}`;
+    return `<span class="sig-minimal">${wrap(`<span style="color:${color};font-weight:600">${txt}</span>`)}</span>`;
+  }
+  if (style === 'badge') {
+    const initials = name.slice(0,2).toUpperCase();
+    const inner = `<span class="avatar" style="background:${color}">${initials}</span>${name}`;
+    return `<a class="sig-badge" ${href?`href="${href}" target="_blank" rel="noopener"`:''}style="color:#6b7280;text-decoration:none">${inner}</a>`;
+  }
+  if (style === 'delta') {
+    const inner = `<span class="sym" style="color:${color}">Δ</span><span style="color:#6b7280">${name}</span>`;
+    return href ? `<a class="sig-delta" href="${href}" target="_blank" rel="noopener">${inner}</a>` : `<span class="sig-delta">${inner}</span>`;
+  }
+  if (style === 'madeby') {
+    return `<span class="sig-made">fatto con <span style="color:${color}">♥</span> da ${wrap(`<span style="color:${color};font-weight:700">${name}</span>`)}</span>`;
+  }
+  return '';
+}
+
+function renderPreview() {
+  const sigSlot = document.getElementById('sig-slot');
+  const cornerSlot = document.getElementById('corner-slot');
+  const mockFooterInner = document.getElementById('mock-footer-inner');
+  const mockVer = document.getElementById('mock-ver');
+
+  // Version visibility
+  mockVer.style.display = state.showVersion ? '' : 'none';
+
+  // Reset both slots
+  sigSlot.innerHTML = '';
+  cornerSlot.innerHTML = '';
+  cornerSlot.style.display = 'none';
+  mockFooterInner.style.alignItems = 'center';
+
+  const sig = buildSig();
+
+  if (state.position === 'corner') {
+    cornerSlot.innerHTML = sig;
+    cornerSlot.style.display = 'block';
+  } else {
+    sigSlot.innerHTML = sig;
+    if (state.position === 'footer-right') {
+      // reflow footer to row with space-between
+      mockFooterInner.style.display = 'flex';
+      mockFooterInner.style.flexDirection = 'row';
+      mockFooterInner.style.justifyContent = 'space-between';
+      mockFooterInner.style.alignItems = 'center';
+      // Move sig to right side — wrap main text + version
+      sigSlot.parentNode.style = '';
+    } else {
+      mockFooterInner.style.flexDirection = 'column';
+      mockFooterInner.style.alignItems = 'center';
+    }
+  }
+}
+
+// ── Prompt ──
+function updatePrompt() {
+  const { style, position, name, link, color, showVersion, showLink } = state;
+
+  const styleNames = { minimal:'testo minimale "by X"', badge:'badge con avatar', delta:'simbolo Δ con nome', madeby:'frase "fatto con ♥"' };
+  const posNames = { 'footer-center':'centro del footer', 'footer-right':'destra del footer', corner:'angolo in basso a destra' };
+  const defaultColor = '#6b7280';
+
+  let parts = [`Aggiungi una firma "${name}" al footer di BusPlan.`];
+  parts.push(`Stile: ${styleNames[style]||style}.`);
+  parts.push(`Posizione: ${posNames[position]||position}.`);
+  if (showLink && link) parts.push(`Link alla pagina: ${link}.`);
+  if (color !== defaultColor) parts.push(`Colore accento: ${color}.`);
+  if (!showVersion) parts.push(`Nascondi il numero di versione.`);
+  if (!showLink) parts.push(`Firma senza link (solo testo).`);
+  parts.push(`La firma deve essere discreta e non distogliere l'attenzione dall'app.`);
+
+  document.getElementById('prompt-text').textContent = parts.join(' ');
+}
+
+function updateAll() {
+  renderPreview();
+  updatePrompt();
+}
+
+// ── Copy ──
+function copyPrompt() {
+  const text = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copiato!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copia'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// Init
+updateAll();
+</script>
+</body>
+</html>

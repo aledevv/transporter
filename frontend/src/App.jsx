@@ -525,8 +525,22 @@ function App() {
             {/* Footer */}
             <footer className="bg-white border-t border-gray-200 mt-auto">
                 <div className="max-w-7xl mx-auto py-6 px-4 flex flex-col items-center gap-1 text-gray-500">
-                    <div>BusPlan - Pianificazione trasporti</div>
+                    <div>BusPlan — Pianificazione trasporti</div>
                     {version && <div className="text-[10px] text-gray-400 font-mono">{version}</div>}
+                    <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 text-[11px] text-gray-400">
+                        <span>Sviluppato da</span>
+                        <a
+                            href="https://aledevv.github.io"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                        >
+                            Ale Dev
+                        </a>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5 text-gray-300">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                    </div>
                 </div>
             </footer>
         </div>
