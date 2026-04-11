@@ -219,42 +219,51 @@ def main():
             continue
 
         gt = load_groundtruth(ev["gt_path"])
-        gt_count = len(gt)
+        gt_count = len([v for v in gt.values() if v])
 
         # V1
         sol_v1 = run_v1(ev)
         if sol_v1:
             pred_v1 = solution_to_buses(sol_v1, ev["schools"])
-            s_v1 = combined_score(pred_v1, gt)
-            n_v1 = len(pred_v1)
+            n_v1    = len(pred_v1)
+            v1_asgn = score_assignment(pred_v1, gt)
+            v1_cnt  = score_bus_count(pred_v1, gt)
+            v1_tot  = combined_score(pred_v1, gt)
         else:
-            s_v1, n_v1 = 0.0, 0
+            n_v1 = 0
+            v1_asgn = v1_cnt = v1_tot = 0.0
 
         # V2
         sol_v2 = run_v2(ev)
         if sol_v2:
             pred_v2 = solution_to_buses(sol_v2, ev["schools"])
-            s_v2 = combined_score(pred_v2, gt)
-            n_v2 = len(pred_v2)
+            n_v2    = len(pred_v2)
+            v2_asgn = score_assignment(pred_v2, gt)
+            v2_cnt  = score_bus_count(pred_v2, gt)
+            v2_tot  = combined_score(pred_v2, gt)
         else:
-            s_v2, n_v2 = 0.0, 0
+            n_v2 = 0
+            v2_asgn = v2_cnt = v2_tot = 0.0
 
         rows.append({
-            "Event": ev["name"][:45],
-            "GT buses": gt_count,
-            "V1 buses": n_v1,
-            "V1 score": f"{s_v1:.3f}",
-            "V2 buses": n_v2,
-            "V2 score": f"{s_v2:.3f}",
+            "Event":   ev["name"][:45],
+            "GT":      gt_count,
+            "V1_n":    n_v1,
+            "V1_asgn": f"{v1_asgn:.3f}",
+            "V1_cnt":  f"{v1_cnt:.3f}",
+            "V1_tot":  f"{v1_tot:.3f}",
+            "V2_n":    n_v2,
+            "V2_asgn": f"{v2_asgn:.3f}",
+            "V2_cnt":  f"{v2_cnt:.3f}",
+            "V2_tot":  f"{v2_tot:.3f}",
         })
 
     if not rows:
         print("No events with complete artifacts found. Run prepare_realSuite.py first.")
         return
 
-    # Table header
-    col_w = [46, 9, 9, 9, 9, 9]
-    cols  = ["Event", "GT buses", "V1 buses", "V1 score", "V2 buses", "V2 score"]
+    cols  = ["Event", "GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V2_n", "V2_asgn", "V2_cnt", "V2_tot"]
+    col_w = [46,       4,    5,      8,          8,         8,        5,      8,          8,         8]
     header = "  ".join(c.ljust(w) for c, w in zip(cols, col_w))
     sep    = "-" * len(header)
     print(sep)
@@ -264,12 +273,13 @@ def main():
         print("  ".join(str(r[c]).ljust(w) for c, w in zip(cols, col_w)))
     print(sep)
 
-    v1_scores = [float(r["V1 score"]) for r in rows if r["V1 score"] != "—"]
-    if v1_scores:
-        print(f"\nMean V1: {sum(v1_scores)/len(v1_scores):.3f}")
-    v2_scores = [float(r["V2 score"]) for r in rows if r["V2 score"] != "—"]
-    if v2_scores:
-        print(f"Mean V2: {sum(v2_scores)/len(v2_scores):.3f}")
+    # MEAN row — average every numeric column
+    numeric_cols = ["GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V2_n", "V2_asgn", "V2_cnt", "V2_tot"]
+    mean_row = {"Event": "MEAN"}
+    for col in numeric_cols:
+        vals = [float(r[col]) for r in rows]
+        mean_row[col] = f"{sum(vals)/len(vals):.3f}"
+    print("  ".join(str(mean_row.get(c, "")).ljust(w) for c, w in zip(cols, col_w)))
 
 
 if __name__ == "__main__":
