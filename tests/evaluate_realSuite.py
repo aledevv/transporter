@@ -171,14 +171,14 @@ def run_v1(ev: dict) -> dict | None:
         vehicle_capacity=capacity,
         num_vehicles=num_vehicles,
         depot_index=0,
-        fixed_vehicle_cost=3600,
+        fixed_vehicle_cost=600,  # 10-min equivalent; was 3600 (too aggressive, caused bus under-use)
         starts=[dummy_idx] * num_vehicles,
         ends=[0] * num_vehicles,
     )
     return solver.solve()
 
 
-def run_v2(ev: dict, cluster_threshold_minutes: int = 10) -> dict | None:
+def run_v2(ev: dict, cluster_threshold_minutes: int = 25) -> dict | None:
     """Run HumanStyleSolver (V2) on an event dict. Returns solution or None."""
     from optimizer_v2 import HumanStyleSolver
 

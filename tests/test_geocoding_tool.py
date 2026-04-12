@@ -22,6 +22,11 @@ for _mod in [
 # datapizza.tools.tool must be a no-op decorator
 sys.modules["datapizza.tools"].tool = lambda fn: fn
 
+# nominatim_cache: stub with cache-miss behaviour so tests always hit req.get
+_cache_stub = MagicMock()
+_cache_stub.get.return_value = None
+sys.modules["nominatim_cache"] = _cache_stub
+
 # Remove the conftest-registered MagicMock so the real module is imported below
 sys.modules.pop("gemini_agent", None)
 
@@ -47,10 +52,11 @@ def _make_response(json_data, status_code=200):
 
 class TestGeocodingTool:
     def test_returns_numbered_list_on_success(self):
-        with patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)):
-            result = geocodingTool("Via Roma Trento")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)):
+            result = geocodingTool(["Via Roma Trento"])
 
-        lines = result.strip().splitlines()
+        lines = [ln for ln in result.strip().splitlines() if ln and not ln.startswith("---")]
         assert len(lines) == 3
         assert lines[0].startswith("1.")
         assert lines[1].startswith("2.")
@@ -58,36 +64,41 @@ class TestGeocodingTool:
         assert "Trento" in lines[0]
 
     def test_display_names_in_output(self):
-        with patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)):
-            result = geocodingTool("Via Roma Trento")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)):
+            result = geocodingTool(["Via Roma Trento"])
 
         assert "Via Roma, 1, Trento" in result
         assert "Via Roma, 10, Rovereto" in result
 
     def test_no_results_returns_message(self):
-        with patch("gemini_agent.req.get", return_value=_make_response([])):
-            result = geocodingTool("indirizzo inesistente xyz")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response([])):
+            result = geocodingTool(["indirizzo inesistente xyz"])
 
         assert "No results found for:" in result
         assert "indirizzo inesistente xyz" in result
 
     def test_network_error_returns_tool_error(self):
-        with patch("gemini_agent.req.get", side_effect=ConnectionError("timeout")):
-            result = geocodingTool("Via Roma Trento")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", side_effect=ConnectionError("timeout")):
+            result = geocodingTool(["Via Roma Trento"])
 
-        assert result.startswith("Tool error:")
+        assert "Tool error" in result
         assert "timeout" in result
 
     def test_calls_nominatim_url(self):
-        with patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
-            geocodingTool("Piazza Dante Trento")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
+            geocodingTool(["Piazza Dante Trento"])
 
         called_url = mock_get.call_args[0][0]
         assert called_url == NOMINATIM_URL
 
     def test_uses_correct_params(self):
-        with patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
-            geocodingTool("liceo trento")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
+            geocodingTool(["liceo trento"])
 
         params = mock_get.call_args[1]["params"]
         assert params["countrycodes"] == "it"
@@ -96,8 +107,9 @@ class TestGeocodingTool:
         assert params["q"] == "liceo trento"
 
     def test_sets_user_agent_header(self):
-        with patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
-            geocodingTool("scuola Rovereto")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(SAMPLE_RESULTS)) as mock_get:
+            geocodingTool(["scuola Rovereto"])
 
         headers = mock_get.call_args[1]["headers"]
         assert "User-Agent" in headers
@@ -105,9 +117,10 @@ class TestGeocodingTool:
 
     def test_limits_to_five_results(self):
         many_results = [{"display_name": f"Result {i}"} for i in range(10)]
-        with patch("gemini_agent.req.get", return_value=_make_response(many_results)):
-            result = geocodingTool("scuola")
+        with patch("gemini_agent.time.sleep"), \
+             patch("gemini_agent.req.get", return_value=_make_response(many_results)):
+            result = geocodingTool(["scuola"])
 
-        lines = [ln for ln in result.strip().splitlines() if ln]
+        lines = [ln for ln in result.strip().splitlines() if ln and not ln.startswith("---")]
         assert len(lines) == 5
         assert lines[4].startswith("5.")

@@ -94,15 +94,19 @@ def _merge_clusters(
     demands: list,
     school_matrix: list,
     capacity: int,
+    max_merge_seconds: float = float("inf"),
 ) -> list:
     """
     Greedily merge clusters if combined demand fits capacity.
     Picks the pair with minimum inter-cluster travel time (closest schools between groups).
+    Only merges if the inter-cluster distance is within max_merge_seconds.
 
     clusters: list of lists of school indices (school-space)
     demands: list[int] (school-space)
     school_matrix: NxN travel-time matrix (school-space)
     capacity: int
+    max_merge_seconds: float — skip merge if closest schools between two clusters
+                               are farther than this (prevents cross-region grouping)
 
     Returns the updated clusters list.
     """
@@ -122,6 +126,8 @@ def _merge_clusters(
                     for a in clusters[i]
                     for b in clusters[j]
                 )
+                if inter_dist > max_merge_seconds:
+                    continue
                 if inter_dist < best_dist:
                     best_dist = inter_dist
                     best_pair = (i, j)
@@ -189,7 +195,8 @@ class HumanStyleSolver:
         time_matrix: list,
         demands: list,
         vehicle_capacity: int,
-        cluster_threshold_minutes: int = 20,
+        cluster_threshold_minutes: int = 25,
+        max_merge_minutes: int = 35,
         fixed_vehicle_cost: int = 0,   # ignored — kept for API compatibility
         starts: Optional[list] = None,  # ignored
         ends: Optional[list] = None,    # ignored
@@ -200,6 +207,7 @@ class HumanStyleSolver:
         self.demands = demands
         self.vehicle_capacity = vehicle_capacity
         self.threshold_seconds = cluster_threshold_minutes * 60
+        self.max_merge_seconds = max_merge_minutes * 60
         self.institutes = institutes
 
     def solve(self) -> Optional[dict]:
@@ -244,7 +252,7 @@ class HumanStyleSolver:
             split_clusters.extend(_split_cluster(c, school_demands, school_matrix, self.vehicle_capacity))
 
         # Step 2b: Merge under-capacity clusters
-        final_clusters = _merge_clusters(split_clusters, school_demands, school_matrix, self.vehicle_capacity)
+        final_clusters = _merge_clusters(split_clusters, school_demands, school_matrix, self.vehicle_capacity, self.max_merge_seconds)
 
         # Build routes
         depot_row = [self.time_matrix[0][j] for j in school_nodes]  # depot → each school (school-space)
