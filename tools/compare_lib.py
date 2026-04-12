@@ -52,3 +52,40 @@ def load_groundtruth_full(gt_path: Path) -> dict:
         if stops:
             result[fin_key] = {"stops": stops, "distance_km": distance_km}
     return result
+
+
+def resolve_coords(name: str, coords: dict) -> dict | None:
+    """
+    Match school name to coords dict (from coords.json).
+    Returns {"lat": float, "lon": float} or None.
+    Tries exact match first, then case-insensitive stripped match.
+    """
+    if name in coords:
+        e = coords[name]
+        return {"lat": e["lat"], "lon": e["lon"]}
+    normalized = name.strip().lower()
+    for key, e in coords.items():
+        if key.strip().lower() == normalized:
+            return {"lat": e["lat"], "lon": e["lon"]}
+    return None
+
+
+def enrich_gt_with_coords(gt_buses: dict, coords: dict) -> dict:
+    """
+    Add lat/lon to every GT stop by matching name against coords.json.
+    Sets coords_missing=True for any stop without a match.
+    Does not mutate gt_buses.
+    """
+    result = {}
+    for fin, bus in gt_buses.items():
+        enriched = []
+        for stop in bus["stops"]:
+            c = resolve_coords(stop["name"], coords)
+            enriched.append({
+                **stop,
+                "lat": c["lat"] if c else None,
+                "lon": c["lon"] if c else None,
+                "coords_missing": c is None,
+            })
+        result[fin] = {**bus, "stops": enriched}
+    return result
