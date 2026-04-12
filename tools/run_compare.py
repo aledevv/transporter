@@ -75,7 +75,16 @@ def process_event(ev_dir: Path) -> dict | None:
     config = _load_config(ev_dir)
 
     # --- Ground truth ---
-    gt_simple = load_groundtruth(ev["gt_path"])   # {fin: set(names)} for scoring
+    # load_groundtruth returns keys like '4.0' (float-string from Excel);
+    # load_groundtruth_full normalises to '4'. Re-normalise gt_simple so both
+    # sides use the same keys before passing to match_buses / scoring.
+    _gt_raw = load_groundtruth(ev["gt_path"])
+    gt_simple = {}
+    for k, v in _gt_raw.items():
+        try:
+            gt_simple[str(int(float(k)))] = v
+        except (ValueError, TypeError):
+            gt_simple[k] = v
     gt_full = load_groundtruth_full(ev["gt_path"]) # {fin: {stops, distance_km}}
     gt_full = enrich_gt_with_coords(gt_full, coords)
 
