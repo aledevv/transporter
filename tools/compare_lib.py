@@ -89,3 +89,54 @@ def enrich_gt_with_coords(gt_buses: dict, coords: dict) -> dict:
             })
         result[fin] = {**bus, "stops": enriched}
     return result
+
+
+def _jaccard(a: set, b: set) -> float:
+    """Compute Jaccard similarity between two sets."""
+    union = a | b
+    return len(a & b) / len(union) if union else 1.0
+
+
+def match_buses(planner_buses: dict, gt_buses: dict):
+    """
+    Match planner buses to GT buses maximising Jaccard similarity.
+
+    Args:
+        planner_buses: {bus_id: set(school_names)}
+        gt_buses:      {fin_id: set(school_names)}
+
+    Returns:
+        (pairs, unmatched_planner, unmatched_gt)
+        pairs: [{"p_id": str, "gt_id": str, "jaccard": float}] descending Jaccard
+        unmatched_planner: [bus_id, ...] — excess planner buses
+        unmatched_gt:      [fin_id, ...]  — excess GT buses
+    """
+    p_ids = list(planner_buses.keys())
+    g_ids = list(gt_buses.keys())
+    if not p_ids or not g_ids:
+        return [], p_ids[:], g_ids[:]
+
+    n, m = len(p_ids), len(g_ids)
+    cost = np.zeros((n, m))
+    for i, pid in enumerate(p_ids):
+        for j, gid in enumerate(g_ids):
+            cost[i, j] = -_jaccard(planner_buses[pid], gt_buses[gid])
+
+    row_ind, col_ind = linear_sum_assignment(cost)
+    paired_p, paired_g = set(), set()
+    pairs = []
+    for r, c in zip(row_ind, col_ind):
+        pairs.append({
+            "p_id": p_ids[r],
+            "gt_id": g_ids[c],
+            "jaccard": round(float(-cost[r, c]), 4),
+        })
+        paired_p.add(p_ids[r])
+        paired_g.add(g_ids[c])
+
+    pairs.sort(key=lambda x: x["jaccard"], reverse=True)
+    return (
+        pairs,
+        [p for p in p_ids if p not in paired_p],
+        [g for g in g_ids if g not in paired_g],
+    )

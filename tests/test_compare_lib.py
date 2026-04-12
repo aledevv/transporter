@@ -71,3 +71,39 @@ def test_enrich_gt_with_coords_marks_missing():
     assert result["7"]["stops"][0]["coords_missing"] is True
     assert result["7"]["stops"][0]["lat"] is None
     assert result["7"]["stops"][0]["lon"] is None
+
+def test_match_buses_perfect_pair():
+    from tools.compare_lib import match_buses
+    p = {"bus0": {"A", "B", "C"}}
+    g = {"fin1": {"A", "B", "C"}}
+    pairs, up, ug = match_buses(p, g)
+    assert len(pairs) == 1
+    assert pairs[0]["jaccard"] == 1.0
+    assert pairs[0]["p_id"] == "bus0"
+    assert pairs[0]["gt_id"] == "fin1"
+    assert up == [] and ug == []
+
+def test_match_buses_unmatched_gt_when_more_gt_buses():
+    from tools.compare_lib import match_buses
+    p = {"bus0": {"A", "B"}}
+    g = {"fin1": {"A", "B"}, "fin2": {"C", "D"}}
+    pairs, up, ug = match_buses(p, g)
+    assert len(pairs) == 1
+    assert len(ug) == 1
+    assert up == []
+
+def test_match_buses_unmatched_planner_when_more_planner_buses():
+    from tools.compare_lib import match_buses
+    p = {"bus0": {"A", "B"}, "bus1": {"C", "D"}}
+    g = {"fin1": {"A", "B"}}
+    pairs, up, ug = match_buses(p, g)
+    assert len(pairs) == 1
+    assert len(up) == 1
+    assert ug == []
+
+def test_match_buses_ordered_by_descending_jaccard():
+    from tools.compare_lib import match_buses
+    p = {"bus0": {"A", "B"}, "bus1": {"C"}}
+    g = {"fin1": {"A", "B"}, "fin2": {"C", "X", "Y"}}
+    pairs, _, _ = match_buses(p, g)
+    assert pairs[0]["jaccard"] >= pairs[1]["jaccard"]
