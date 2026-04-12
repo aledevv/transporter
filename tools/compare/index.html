@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BusPlan Compare</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+/* ── Top bar ── */
+#topbar{background:#161b2e;border-bottom:1px solid #334155;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:1000}
+#topbar .logo{font-weight:700;font-size:15px;color:#60a5fa;letter-spacing:.5px}
+#evSelect{background:#1e2130;border:1px solid #334155;color:#e2e8f0;padding:5px 10px;border-radius:6px;font-size:12px;max-width:360px}
+.score-chip{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:3px 10px;font-size:11px;display:flex;gap:6px;align-items:center}
+.score-chip .val{font-weight:700}
+.green .val{color:#4ade80}.yellow .val{color:#fbbf24}.red .val{color:#f87171}
+/* ── Column headers ── */
+#colheaders{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #334155}
+.colh{padding:8px 16px;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.colh.ph{background:#1a2744;color:#93c5fd;border-right:1px solid #334155}
+.colh.gh{background:#1a2c1a;color:#86efac}
+.colh .pill{background:rgba(255,255,255,.08);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:400}
+/* ── Maps ── */
+#maps{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #334155}
+#mapP,#mapG{height:220px}
+#mapP{border-right:1px solid #334155}
+/* ── Bus pairs ── */
+#buses{overflow:auto}
+.bus-section{border-bottom:1px solid #1e293b}
+.bus-section:last-child{border-bottom:none}
+.bus-pair-header{background:#111827;padding:7px 16px;display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #1e293b;cursor:pointer}
+.bus-pair-header:hover{background:#1e293b}
+.bh-cell{display:flex;align-items:center;gap:8px;font-size:11px}
+.bh-cell.ph{border-right:1px solid #1e293b}
+.bus-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.bstat{color:#64748b;font-size:10px}.bstat span{color:#94a3b8}
+.jbadge{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:10px}
+.jg{background:rgba(74,222,128,.1);color:#4ade80}
+.jy{background:rgba(251,191,36,.1);color:#fbbf24}
+.jr{background:rgba(248,113,113,.1);color:#f87171}
+.stops-grid{display:grid;grid-template-columns:1fr 1fr}
+.stops-col.pc{border-right:1px solid #1e293b}
+.stop-row{display:flex;align-items:center;padding:5px 16px;border-bottom:1px solid #0f1117;gap:8px;font-size:11px}
+.stop-row:last-child{border-bottom:none}
+.stop-row.da{background:rgba(74,222,128,.07)}
+.stop-row.dr{background:rgba(248,113,113,.07)}
+.stop-row.dt{background:rgba(251,191,36,.06)}
+.snum{color:#475569;font-size:10px;min-width:14px;text-align:right}
+.sname{flex:1;color:#cbd5e1}
+.stime{color:#64748b;font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
+.spax{color:#475569;font-size:10px;min-width:22px;text-align:right}
+.dtag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;min-width:22px;text-align:center}
+.dtag.same{background:rgba(100,116,139,.12);color:#64748b}
+.dtag.add{background:rgba(74,222,128,.15);color:#4ade80}
+.dtag.rem{background:rgba(248,113,113,.15);color:#f87171}
+.dtag.chg{background:rgba(251,191,36,.12);color:#fbbf24}
+.km-row{display:grid;grid-template-columns:1fr 1fr;background:#0d1117;border-top:1px solid #1e293b}
+.km-cell{padding:5px 16px;font-size:10px;color:#64748b;display:flex;gap:6px;align-items:center}
+.km-cell.pc{border-right:1px solid #1e293b}
+.km-val{color:#94a3b8;font-weight:600}
+.km-delta.worse{color:#f87171}.km-delta.better{color:#4ade80}
+.warn-coords{color:#fb923c;font-size:9px;margin-left:4px}
+/* ── Unmatched section ── */
+.unmatched-section{background:#0d1117;border-top:2px solid #334155;padding:12px 16px}
+.unmatched-section h4{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.unmatched-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.unmatched-bus{background:#1e2130;border:1px solid #334155;border-radius:6px;padding:8px 12px}
+.unmatched-bus .ub-header{font-size:11px;color:#94a3b8;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.unmatched-bus .ub-stop{font-size:10px;color:#64748b;padding:2px 0}
+/* ── Empty state ── */
+#empty{display:flex;align-items:center;justify-content:center;height:200px;color:#475569;font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="logo">BusPlan Compare</span>
+  <select id="evSelect"><option value="">— scegli un evento —</option></select>
+  <div id="scoreChips" style="display:none;display:flex;gap:8px;flex-wrap:wrap"></div>
+</div>
+
+<div id="colheaders" style="display:none">
+  <div class="colh ph">
+    <span>Planner V2</span><span id="pSummary" class="pill"></span>
+  </div>
+  <div class="colh gh">
+    <span>Ground Truth</span><span id="gSummary" class="pill"></span>
+  </div>
+</div>
+
+<div id="maps" style="display:none">
+  <div id="mapP"></div>
+  <div id="mapG"></div>
+</div>
+
+<div id="buses"></div>
+<div id="empty">Seleziona un evento dal menu in alto</div>
+
+<script>
+// ── Constants ──
+const ROUTE_COLORS = [
+  '#3b82f6','#22c55e','#f59e0b','#a855f7','#ef4444',
+  '#06b6d4','#ec4899','#84cc16','#f97316','#6366f1',
+  '#14b8a6','#eab308','#8b5cf6','#10b981','#f43f5e',
+  '#0ea5e9','#d946ef','#fb923c','#a3e635','#38bdf8',
+];
+
+let mapP = null, mapG = null;
+let plannerLayers = [], gtLayers = [];
+
+// ── Bootstrap ──
+fetch('data/index.json')
+  .then(r => r.json())
+  .then(index => {
+    const sel = document.getElementById('evSelect');
+    index.forEach(ev => {
+      const opt = document.createElement('option');
+      opt.value = ev.slug;
+      opt.textContent = ev.name;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', () => {
+      if (sel.value) loadEvent(sel.value);
+    });
+  })
+  .catch(() => {
+    document.getElementById('empty').textContent =
+      'Errore: avvia il server con: cd tools/compare && python3 -m http.server 8080';
+  });
+
+// ── Score chips ──
+function scoreColor(v) {
+  return v >= 0.7 ? 'green' : v >= 0.4 ? 'yellow' : 'red';
+}
+
+function renderScoreChips(scores, nP, nG) {
+  const el = document.getElementById('scoreChips');
+  el.style.display = 'flex';
+  el.innerHTML = `
+    <div class="score-chip ${scoreColor(scores.assignment)}">
+      <span>Assignment</span><span class="val">${(scores.assignment * 100).toFixed(1)}%</span>
+    </div>
+    <div class="score-chip ${scoreColor(Math.max(0, 1 - Math.abs(nP - nG) / Math.max(nG, 1)))}">
+      <span>Bus</span><span class="val">${nP} vs ${nG}</span>
+    </div>
+    <div class="score-chip ${scoreColor(scores.combined)}">
+      <span>Combined</span><span class="val">${(scores.combined * 100).toFixed(1)}%</span>
+    </div>`;
+}
+
+// ── Load event ──
+function loadEvent(slug) {
+  fetch(`data/${slug}.json`)
+    .then(r => r.json())
+    .then(data => renderEvent(data));
+}
+
+function renderEvent(data) {
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('colheaders').style.display = 'grid';
+  document.getElementById('maps').style.display = 'grid';
+
+  const nP = data.matched_pairs.length + data.unmatched_planner.length;
+  const nG = data.matched_pairs.length + data.unmatched_gt.length;
+
+  renderScoreChips(data.scores, nP, nG);
+  document.getElementById('pSummary').textContent = `${nP} bus`;
+  document.getElementById('gSummary').textContent = `${nG} bus`;
+
+  initMaps(data);
+  renderBusPairs(data);
+}
+
+// ── Maps ──
+function initMaps(data) {
+  // Destroy old map instances if re-loading an event
+  if (mapP) { mapP.remove(); mapP = null; }
+  if (mapG) { mapG.remove(); mapG = null; }
+  plannerLayers = [];
+  gtLayers = [];
+
+  mapP = L.map('mapP', { zoomControl: false });
+  mapG = L.map('mapG', { zoomControl: false });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 16
+  }).addTo(mapP);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 16
+  }).addTo(mapG);
+
+  const dest = data.destination;
+  const allCoords = [];
+
+  // Draw each matched pair
+  data.matched_pairs.forEach((pair, idx) => {
+    const color = ROUTE_COLORS[idx % ROUTE_COLORS.length];
+    const pLayer = drawRoute(mapP, pair.planner.stops, dest, color);
+    const gLayer = drawRoute(mapG, pair.gt.stops, dest, color);
+    if (pLayer) plannerLayers.push({ id: idx, layer: pLayer, color });
+    if (gLayer) gtLayers.push({ id: idx, layer: gLayer, color });
+    allCoords.push(...pair.planner.stops.filter(s => s.lat).map(s => [s.lat, s.lon]));
+    allCoords.push(...pair.gt.stops.filter(s => s.lat).map(s => [s.lat, s.lon]));
+  });
+
+  // Unmatched buses (grey)
+  data.unmatched_planner.forEach(bus => {
+    drawRoute(mapP, bus.stops, dest, '#64748b');
+    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon]));
+  });
+  data.unmatched_gt.forEach(bus => {
+    drawRoute(mapG, bus.stops, dest, '#64748b');
+    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon]));
+  });
+
+  // Destination marker on both maps
+  if (dest.lat && dest.lon) {
+    const destIcon = L.divIcon({
+      html: `<div style="font-size:18px">🏁</div>`,
+      className: '', iconAnchor: [9, 18]
+    });
+    L.marker([dest.lat, dest.lon], { icon: destIcon }).addTo(mapP);
+    L.marker([dest.lat, dest.lon], { icon: destIcon }).addTo(mapG);
+    allCoords.push([dest.lat, dest.lon]);
+  }
+
+  // Fit both maps to same bounds
+  if (allCoords.length > 0) {
+    const bounds = L.latLngBounds(allCoords);
+    mapP.fitBounds(bounds, { padding: [10, 10] });
+    mapG.fitBounds(bounds, { padding: [10, 10] });
+  }
+}
+
+function drawRoute(map, stops, dest, color) {
+  const validStops = stops.filter(s => s.lat != null && s.lon != null);
+  if (validStops.length === 0) return null;
+
+  const latlngs = validStops.map(s => [s.lat, s.lon]);
+  if (dest.lat && dest.lon) latlngs.push([dest.lat, dest.lon]);
+
+  const line = L.polyline(latlngs, { color, weight: 2.5, opacity: 0.85 }).addTo(map);
+
+  // School markers
+  validStops.forEach(stop => {
+    const icon = L.divIcon({
+      html: `<div style="
+        background:${color};border-radius:50%;width:10px;height:10px;
+        border:2px solid rgba(255,255,255,0.7)"></div>`,
+      className: '', iconAnchor: [5, 5]
+    });
+    L.marker([stop.lat, stop.lon], { icon })
+      .bindTooltip(`${stop.name}<br>${stop.departure_time || ''} · ${stop.count || ''}p`, { sticky: true })
+      .addTo(map);
+  });
+
+  return line;
+}
+
+function highlightBus(pairIdx) {
+  // Reset all
+  plannerLayers.forEach(l => l.layer.setStyle({ weight: 2.5, opacity: 0.85 }));
+  gtLayers.forEach(l => l.layer.setStyle({ weight: 2.5, opacity: 0.85 }));
+
+  // Highlight selected
+  const pl = plannerLayers.find(l => l.id === pairIdx);
+  const gl = gtLayers.find(l => l.id === pairIdx);
+  if (pl) pl.layer.setStyle({ weight: 5, opacity: 1 });
+  if (gl) gl.layer.setStyle({ weight: 5, opacity: 1 });
+
+  // Scroll map into view
+  document.getElementById('maps').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Bus pair rendering ──
+function renderBusPairs(data) {
+  const container = document.getElementById('buses');
+  container.innerHTML = '';
+
+  data.matched_pairs.forEach((pair, idx) => {
+    const color = ROUTE_COLORS[idx % ROUTE_COLORS.length];
+    const jScore = pair.jaccard;
+    const jClass = jScore >= 0.7 ? 'jg' : jScore >= 0.4 ? 'jy' : 'jr';
+
+    // Align stops: build merged list of (planner_stop|null, gt_stop|null) rows
+    const rows = alignStops(pair.planner.stops || [], pair.gt.stops || []);
+
+    const pKm = pair.planner.distance_km ?? '—';
+    const gKm = pair.gt.distance_km ?? '—';
+    const kmDelta = (typeof pKm === 'number' && typeof gKm === 'number')
+      ? (pKm - gKm).toFixed(1) : null;
+    const deltaClass = kmDelta !== null ? (parseFloat(kmDelta) > 0 ? 'worse' : 'better') : '';
+    const deltaStr = kmDelta !== null
+      ? `<span class="km-delta ${deltaClass}">(${parseFloat(kmDelta) > 0 ? '+' : ''}${kmDelta} km)</span>`
+      : '';
+
+    const pStops = pair.planner.stops || [];
+    const gStops = pair.gt.stops || [];
+    const pPax = pStops.reduce((s, st) => s + (st.count || 0), 0);
+    const gPax = gStops.reduce((s, st) => s + (st.count || 0), 0);
+
+    const section = document.createElement('div');
+    section.className = 'bus-section';
+    section.dataset.pairIdx = idx;
+
+    section.innerHTML = `
+      <div class="bus-pair-header" onclick="highlightBus(${idx})">
+        <div class="bh-cell ph">
+          <div class="bus-dot" style="background:${color}"></div>
+          <span>Bus P-${idx + 1}</span>
+          <span class="bstat">· <span>${pStops.length} fermate</span> · <span>${pPax} pax</span></span>
+        </div>
+        <div class="bh-cell">
+          <div class="bus-dot" style="background:${color};opacity:.6"></div>
+          <span>FIN #${pair.gt_fin}</span>
+          <span class="bstat">· <span>${gStops.length} fermate</span> · <span>${gPax} pax</span></span>
+          <span class="jbadge ${jClass}">J:${jScore.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="stops-grid">
+        <div class="stops-col pc">${rows.map((r, i) => renderStopCell(r.p, i + 1, r.tag)).join('')}</div>
+        <div class="stops-col">${rows.map((r, i) => renderStopCell(r.g, i + 1, r.tag, true)).join('')}</div>
+      </div>
+      <div class="km-row">
+        <div class="km-cell pc">Dist.: <span class="km-val">${pKm} km</span> ${deltaStr}</div>
+        <div class="km-cell">Dist. GT: <span class="km-val">${gKm} km</span></div>
+      </div>`;
+
+    container.appendChild(section);
+  });
+
+  // Unmatched buses section
+  if (data.unmatched_planner.length > 0 || data.unmatched_gt.length > 0) {
+    const sec = document.createElement('div');
+    sec.className = 'unmatched-section';
+    sec.innerHTML = `
+      <h4>Bus senza corrispondenza</h4>
+      <div class="unmatched-grid">
+        <div>
+          ${data.unmatched_planner.map(b => renderUnmatchedBus(b, 'Planner', '#64748b')).join('')}
+        </div>
+        <div>
+          ${data.unmatched_gt.map(b => renderUnmatchedBus(b, `FIN #${b.fin}`, '#4ade80')).join('')}
+        </div>
+      </div>`;
+    container.appendChild(sec);
+  }
+}
+
+function alignStops(pStops, gStops) {
+  // Build name→stop maps for GT
+  const gByName = {};
+  gStops.forEach(s => { if (s.name) gByName[s.name] = s; });
+
+  const rows = [];
+  const usedG = new Set();
+
+  pStops.forEach(ps => {
+    const gs = gByName[ps.name];
+    let tag;
+    if (!gs) {
+      tag = 'add'; // planner-only
+    } else {
+      usedG.add(ps.name);
+      const tDiff = Math.abs(
+        (gs.departure_time && ps.departure_time)
+          ? parseMinutes(ps.departure_time) - parseMinutes(gs.departure_time)
+          : 0
+      );
+      tag = tDiff > 5 ? 'chg' : 'same';
+    }
+    rows.push({ p: ps, g: gs || null, tag });
+  });
+
+  // GT stops not in planner
+  gStops.forEach(gs => {
+    if (!usedG.has(gs.name)) {
+      rows.push({ p: null, g: gs, tag: 'rem' });
+    }
+  });
+
+  return rows;
+}
+
+function parseMinutes(t) {
+  try { const [h, m] = t.split(':'); return +h * 60 + +m; } catch { return 0; }
+}
+
+function renderStopCell(stop, num, tag, isGt = false) {
+  if (!stop) {
+    return `<div class="stop-row ${tag === 'add' ? 'da' : tag === 'rem' ? 'dr' : ''}" style="opacity:.25">
+      <span class="snum">—</span><span class="sname" style="color:#334155">–</span>
+      <span class="dtag rem">–</span>
+    </div>`;
+  }
+  const rowClass = tag === 'add' ? 'da' : tag === 'rem' ? 'dr' : tag === 'chg' ? 'dt' : '';
+  const tagLabel = tag === 'same' ? '=' : tag === 'add' ? '+' : tag === 'rem' ? '–' : 'Δt';
+  const tagClass = tag;
+  const warnCoords = stop.coords_missing ? '<span class="warn-coords" title="coordinate non trovate">⚠</span>' : '';
+  const ret = (isGt && stop.return_time) ? `<span style="color:#475569;font-size:9px" title="rientro"> /${stop.return_time}</span>` : '';
+  return `<div class="stop-row ${rowClass}">
+    <span class="snum">${num}</span>
+    <span class="sname">${stop.name}${warnCoords}</span>
+    <span class="stime">${stop.departure_time || '—'}${ret}</span>
+    <span class="spax">${stop.count || ''}p</span>
+    <span class="dtag ${tagClass}">${tagLabel}</span>
+  </div>`;
+}
+
+function renderUnmatchedBus(bus, label, color) {
+  const stops = (bus.stops || []).slice(0, 6);
+  const more = (bus.stops || []).length - stops.length;
+  return `<div class="unmatched-bus">
+    <div class="ub-header">
+      <div class="bus-dot" style="background:${color}"></div>
+      <span>${label}</span>
+      <span style="color:#475569;font-size:10px">· ${bus.stops?.length || 0} fermate · ${bus.distance_km ?? '—'} km</span>
+    </div>
+    ${stops.map(s => `<div class="ub-stop">${s.name} <span style="color:#475569">${s.departure_time || ''}</span></div>`).join('')}
+    ${more > 0 ? `<div class="ub-stop" style="color:#475569">+${more} altri...</div>` : ''}
+  </div>`;
+}
+</script>
+</body>
+</html>
