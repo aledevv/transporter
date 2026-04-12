@@ -140,3 +140,131 @@ def match_buses(planner_buses: dict, gt_buses: dict) -> tuple[list[dict], list, 
         [p for p in p_ids if p not in paired_p],
         [g for g in g_ids if g not in paired_g],
     )
+
+
+def _parse_time(t: str) -> int | None:
+    """Parse HH:MM to total minutes. Returns None if unparseable or not exactly HH:MM."""
+    try:
+        parts = str(t).strip().split(":")
+        if len(parts) != 2:
+            return None
+        h, m = parts
+        return int(h) * 60 + int(m)
+    except Exception:
+        return None
+
+
+def _fmt_time(total_minutes: int) -> str:
+    """Format total minutes to HH:MM."""
+    h = int(total_minutes) // 60
+    m = int(total_minutes) % 60
+    return f"{h:02d}:{m:02d}"
+
+
+def derive_arrival_time(gt_buses: dict, schools: list, time_matrix: list) -> str:
+    """
+    Estimate target arrival time at destination from GT departure times.
+
+    For each GT bus, takes the last stop's departure_time and adds the
+    travel time from that school to the destination (node 0) using time_matrix.
+    Returns the median of all estimates as HH:MM. Falls back to "09:00".
+
+    Args:
+        gt_buses:    output of load_groundtruth_full (stops have departure_time strings)
+        schools:     [{"name": str, ...}] in the same order as time_matrix nodes 1..N
+        time_matrix: raw (N+1)×(N+1) matrix (index 0=dest, 1..N=schools)
+    """
+    school_index = {s["name"]: i + 1 for i, s in enumerate(schools)}
+    arrivals = []
+    for fin, bus in gt_buses.items():
+        valid = [s for s in bus["stops"] if _parse_time(s.get("departure_time", "")) is not None]
+        if not valid:
+            continue
+        last = valid[-1]
+        node = school_index.get(last["name"])
+        if node is None or node >= len(time_matrix):
+            continue
+        dep_min = _parse_time(last["departure_time"])
+        if dep_min is None:
+            continue
+        travel_min = time_matrix[node][0] // 60
+        arrivals.append(dep_min + travel_min)
+
+    if not arrivals:
+        return "09:00"
+    return _fmt_time(sorted(arrivals)[len(arrivals) // 2])
+
+
+def format_planner_routes(
+    solution: dict,
+    schools: list,
+    time_matrix: list,
+    coords: dict,
+    arrival_time: str,
+) -> list:
+    """
+    Convert raw VRP solution to UI-ready route list.
+
+    Departure times are back-calculated from arrival_time at destination:
+        dep(stop_i) = arrival_time
+                    - Σ travel(stop_k → stop_{k+1}) for k=i..last
+                    - (n_stops_after_i) × STOP_DWELL_TIME_MIN
+
+    Args:
+        solution:     VRPSolver / HumanStyleSolver .solve() output
+        schools:      [{"name": str, "demand": int}] — same order as time_matrix nodes 1..N
+        time_matrix:  raw (N+1)×(N+1) (index 0=dest, 1..N=schools)
+        coords:       {school_name: {"lat": float, "lon": float}}
+        arrival_time: "HH:MM" when all buses arrive at destination
+
+    Returns:
+        [{"vehicle_id": int, "stops": [...], "distance_km": float}]
+        Each stop: {"name", "lat", "lon", "departure_time", "count"}
+    """
+    arrival_min = _parse_time(arrival_time) or 0
+    n = len(schools)
+    routes = []
+
+    for route in solution["routes"]:
+        # Collect school nodes (exclude dest=0 and dummy=n+1)
+        school_nodes = [s["node"] for s in route["stops"] if 1 <= s["node"] <= n]
+        if not school_nodes:
+            continue
+
+        # Back-calculate departure times from arrival_time.
+        # STOP_DWELL_TIME_MIN is subtracted at every stop (including the first),
+        # consistent with app.py's back-calculation logic.
+        cum = arrival_min
+        stop_times: list = []
+        for k in range(len(school_nodes) - 1, -1, -1):
+            node = school_nodes[k]
+            next_node = school_nodes[k + 1] if k + 1 < len(school_nodes) else 0
+            travel_min = time_matrix[node][next_node] // 60
+            cum -= travel_min + STOP_DWELL_TIME_MIN
+            stop_times.insert(0, cum)
+
+        # Build stop list + compute total km (time-matrix estimate).
+        # Dummy-start → first-school leg is excluded (dummy node is zero-cost).
+        total_km = 0.0
+        stop_list = []
+        for k, node in enumerate(school_nodes):
+            school = schools[node - 1]
+            c = resolve_coords(school["name"], coords)
+            next_node = school_nodes[k + 1] if k + 1 < len(school_nodes) else 0
+            seg_s = time_matrix[node][next_node]
+            seg_km = round(seg_s / 3600 * AVERAGE_SPEED_KMH, 2)
+            total_km += seg_km
+            stop_list.append({
+                "name": school["name"],
+                "lat": c["lat"] if c else None,
+                "lon": c["lon"] if c else None,
+                "departure_time": _fmt_time(stop_times[k]),
+                "count": school["demand"],
+            })
+
+        routes.append({
+            "vehicle_id": route["vehicle_id"],
+            "stops": stop_list,
+            "distance_km": round(total_km, 2),
+        })
+    return routes

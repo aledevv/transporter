@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 
-from tools.compare_lib import load_groundtruth_full
+from tools.compare_lib import load_groundtruth_full, format_planner_routes, derive_arrival_time
 
 def test_load_groundtruth_full_returns_structured_buses():
     gt_files = list((ROOT / "tests/realSuite").glob("*/groundtruth.xlsx"))
@@ -120,3 +120,109 @@ def test_match_buses_empty_planner_returns_all_gt_unmatched():
     g = {"fin1": {"A", "B"}, "fin2": {"C"}}
     pairs, up, ug = match_buses({}, g)
     assert pairs == [] and up == [] and len(ug) == 2
+
+
+def _make_time_matrix():
+    # 3x3: dest=0, A=1, B=2
+    #   time_matrix[1][2] = 600  (A→B = 10 min)
+    #   time_matrix[2][0] = 1200 (B→dest = 20 min)
+    return [
+        [0, 1200, 600],   # dest row
+        [1200, 0, 600],   # A: A→dest=1200, A→B=600
+        [1200, 600, 0],   # B: B→dest=1200, B→A=600
+    ]
+
+def test_format_planner_routes_departure_times():
+    # arrival_time = "09:00" = 540 min
+    # B dep = 540 - 1200//60 - 3 = 540 - 20 - 3 = 517 = "08:37"
+    # A dep = 517 - 600//60 - 3 = 517 - 10 - 3 = 504 = "08:24"
+    schools = [{"name": "School A", "demand": 10}, {"name": "School B", "demand": 15}]
+    coords = {
+        "School A": {"lat": 46.0, "lon": 11.0},
+        "School B": {"lat": 46.1, "lon": 11.1},
+    }
+    solution = {
+        "routes": [{
+            "vehicle_id": 0,
+            "stops": [
+                {"node": 3, "load": 0},   # dummy (filtered out — node > n)
+                {"node": 1, "load": 10},  # School A
+                {"node": 2, "load": 25},  # School B
+                {"node": 0, "load": 0},   # dest (filtered out — node == 0)
+            ],
+            "distance": 1800, "load": 25,
+        }],
+        "total_distance": 1800, "total_load": 25, "used_vehicles": 1,
+    }
+    result = format_planner_routes(solution, schools, _make_time_matrix(), coords, "09:00")
+    assert len(result) == 1
+    route = result[0]
+    assert len(route["stops"]) == 2
+    assert route["stops"][0]["name"] == "School A"
+    assert route["stops"][0]["departure_time"] == "08:24"
+    assert route["stops"][1]["name"] == "School B"
+    assert route["stops"][1]["departure_time"] == "08:37"
+    assert route["stops"][0]["lat"] == 46.0
+    assert route["distance_km"] > 0
+
+def test_format_planner_routes_skips_empty_routes():
+    schools = [{"name": "School A", "demand": 10}]
+    solution = {
+        "routes": [
+            {"vehicle_id": 0, "stops": [{"node": 0, "load": 0}], "distance": 0, "load": 0},
+        ],
+        "total_distance": 0, "total_load": 0, "used_vehicles": 0,
+    }
+    result = format_planner_routes(solution, schools, [[0, 0], [0, 0]], {}, "09:00")
+    assert result == []
+
+def test_derive_arrival_time_from_gt():
+    # GT bus has last stop "School B" departing "08:37"
+    # time_matrix[2][0] = 1200 (20 min to dest)
+    # arrival = 08:37 + 20 = 08:57
+    schools = [{"name": "School A", "demand": 10}, {"name": "School B", "demand": 15}]
+    gt = {
+        "7": {
+            "stops": [
+                {"name": "School A", "departure_time": "08:24", "return_time": "", "luogo_ritrovo": "", "count": 10},
+                {"name": "School B", "departure_time": "08:37", "return_time": "", "luogo_ritrovo": "", "count": 15},
+            ],
+            "distance_km": 15.0,
+        }
+    }
+    arrival = derive_arrival_time(gt, schools, _make_time_matrix())
+    # median of one bus: 517 + 20 = 537 = "08:57"
+    assert arrival == "08:57"
+
+def test_derive_arrival_time_ignores_unparseable_times():
+    # Bus 7: last valid stop is "School B" at "08:37" (School A has HH:MM:SS — ignored)
+    # Bus 8: all stops have unparseable times — excluded entirely, no contribution
+    # Only bus 7 contributes: 517 + 20 = 537 = "08:57"
+    schools = [{"name": "School A", "demand": 10}, {"name": "School B", "demand": 15}]
+    gt = {
+        "7": {
+            "stops": [
+                {"name": "School A", "departure_time": "08:24:00", "return_time": "", "luogo_ritrovo": "", "count": 10},
+                {"name": "School B", "departure_time": "08:37", "return_time": "", "luogo_ritrovo": "", "count": 15},
+            ],
+            "distance_km": 15.0,
+        },
+        "8": {
+            "stops": [
+                {"name": "School A", "departure_time": "nan", "return_time": "", "luogo_ritrovo": "", "count": 10},
+            ],
+            "distance_km": None,
+        },
+    }
+    arrival = derive_arrival_time(gt, schools, _make_time_matrix())
+    assert arrival == "08:57"
+
+def test_derive_arrival_time_falls_back_when_no_valid_stops():
+    schools = [{"name": "School A", "demand": 10}]
+    gt = {
+        "7": {
+            "stops": [{"name": "School A", "departure_time": "invalid", "return_time": "", "luogo_ritrovo": "", "count": 10}],
+            "distance_km": None,
+        }
+    }
+    assert derive_arrival_time(gt, schools, [[0, 0], [0, 0]]) == "09:00"
