@@ -1,0 +1,455 @@
+{
+  "event": {
+    "name": "Piano-Viaggi_Gioco-Volley_8-gennaio-2026_4-DEF_con-vettore-ed-integrazione",
+    "destination": "Centro Sportivo Trento Nord – Gardolo",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.6111,
+    "bus_count": 1.0,
+    "combined": 0.7667
+  },
+  "destination": {
+    "name": "Centro Sportivo Trento Nord – Gardolo",
+    "lat": 46.1052838,
+    "lon": 11.1145014
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC BORGO VALSUGANA",
+            "lat": 46.0550446,
+            "lon": 11.4652734,
+            "departure_time": "07:39",
+            "count": 22
+          }
+        ],
+        "distance_km": 18.52
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC BORGO VALSUGANA",
+            "luogo_ritrovo": "Ist. \"Rita Levi Montalcini\", Via Temanza 13/c – Borgo Valsugana",
+            "departure_time": "07:45",
+            "return_time": "16:45",
+            "count": 22,
+            "lat": 46.0550446,
+            "lon": 11.4652734,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "9"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 2,
+        "stops": [
+          {
+            "name": "IC CIVEZZANO",
+            "lat": 46.1174785,
+            "lon": 11.2053491,
+            "departure_time": "07:41",
+            "count": 21
+          },
+          {
+            "name": "IC TRENTO 3",
+            "lat": 46.0550348,
+            "lon": 11.1333643,
+            "departure_time": "08:05",
+            "count": 20
+          }
+        ],
+        "distance_km": 16.79
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CIVEZZANO",
+            "luogo_ritrovo": "FORNACE, via dei Mori 2 - Fermata bus",
+            "departure_time": "08:05",
+            "return_time": "16:15",
+            "count": 21,
+            "lat": 46.1174785,
+            "lon": 11.2053491,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TRENTO 3",
+            "luogo_ritrovo": "TRENTO, Fermata Arcate Gocciadoro capolinea Bus n. 7",
+            "departure_time": "07:30",
+            "return_time": "16:45",
+            "count": 20,
+            "lat": 46.0550348,
+            "lon": 11.1333643,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "3"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 4,
+        "stops": [
+          {
+            "name": "IC DRO",
+            "lat": 45.9614465,
+            "lon": 10.9108906,
+            "departure_time": "07:30",
+            "count": 19
+          },
+          {
+            "name": "IC VEZZANO",
+            "lat": 45.9938902,
+            "lon": 10.9736278,
+            "departure_time": "07:45",
+            "count": 20
+          }
+        ],
+        "distance_km": 22.08
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC DRO",
+            "luogo_ritrovo": "SP DRO, Piazza della Repubblica n.1",
+            "departure_time": "07:55",
+            "return_time": "17:00",
+            "count": 19,
+            "lat": 45.9614465,
+            "lon": 10.9108906,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VEZZANO",
+            "luogo_ritrovo": "CAVEDINE, Fermata autobus, Piazza Italia",
+            "departure_time": "08:20",
+            "return_time": "16:35",
+            "count": 20,
+            "lat": 45.9938902,
+            "lon": 10.9736278,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "6"
+    },
+    {
+      "jaccard": 0.6667,
+      "planner": {
+        "vehicle_id": 7,
+        "stops": [
+          {
+            "name": "IC ALTA VAL DI SOLE",
+            "lat": 46.3107355,
+            "lon": 10.7325498,
+            "departure_time": "06:46",
+            "count": 22
+          },
+          {
+            "name": "IC CLES",
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "departure_time": "07:22",
+            "count": 20
+          },
+          {
+            "name": "IC TAIO",
+            "lat": 46.3208854,
+            "lon": 11.0927663,
+            "departure_time": "07:39",
+            "count": 12
+          }
+        ],
+        "distance_km": 42.47
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ALTA VAL DI SOLE",
+            "luogo_ritrovo": "OSSANA, Via S Michele, 11",
+            "departure_time": "06:50",
+            "return_time": "17:50",
+            "count": 22,
+            "lat": 46.3107355,
+            "lon": 10.7325498,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TAIO",
+            "luogo_ritrovo": "TRES, Scuola Primaria",
+            "departure_time": "07:45",
+            "return_time": "16:45",
+            "count": 12,
+            "lat": 46.3208854,
+            "lon": 11.0927663,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "1"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 3,
+        "stops": [
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "lat": 46.2140353,
+            "lon": 11.0926169,
+            "departure_time": "07:57",
+            "count": 23
+          }
+        ],
+        "distance_km": 9.8
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CLES",
+            "luogo_ritrovo": "CLES, Piazza Fiera",
+            "departure_time": "07:25",
+            "return_time": "17:05",
+            "count": 20,
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "coords_missing": false
+          },
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "luogo_ritrovo": "MEZZOLOMBARDO, via S. Francesco di fronte fermata Stazione FS",
+            "departure_time": "08:00",
+            "return_time": "16:30",
+            "count": 23,
+            "lat": 46.2140353,
+            "lon": 11.0926169,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "5"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC CHIESE",
+            "lat": 45.9419975,
+            "lon": 10.6405,
+            "departure_time": "07:04",
+            "count": 17
+          },
+          {
+            "name": "IC TIONE",
+            "lat": 45.9998131,
+            "lon": 10.6917379,
+            "departure_time": "07:19",
+            "count": 23
+          }
+        ],
+        "distance_km": 34.8
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CHIESE",
+            "luogo_ritrovo": "PIEVE DI BONO-PREZZO, Via Fiera - Creto - Pieve di Bono, 1",
+            "departure_time": "06:25",
+            "return_time": "18:05",
+            "count": 17,
+            "lat": 45.9419975,
+            "lon": 10.6405,
+            "coords_missing": false
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "luogo_ritrovo": "STENICO, Via Risorgimento 11/A",
+            "departure_time": "07:10",
+            "return_time": "17:20",
+            "count": 17,
+            "lat": 46.0494183,
+            "lon": 10.8563831,
+            "coords_missing": false
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "luogo_ritrovo": "FIAVE', Via De Gasperi 23",
+            "departure_time": "07:25",
+            "return_time": "17:00",
+            "count": 0,
+            "lat": 46.0494183,
+            "lon": 10.8563831,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "8"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 5,
+        "stops": [
+          {
+            "name": "IC RIVA 2",
+            "lat": 45.891725,
+            "lon": 10.8508954,
+            "departure_time": "07:23",
+            "count": 19
+          },
+          {
+            "name": "IC RIVA 1",
+            "lat": 45.8774332,
+            "lon": 10.8961574,
+            "departure_time": "07:36",
+            "count": 23
+          }
+        ],
+        "distance_km": 25.41
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC RIVA 1",
+            "luogo_ritrovo": "NAGO, Via di Tezze 4 - fermata bus",
+            "departure_time": "07:15",
+            "return_time": "17:05",
+            "count": 23,
+            "lat": 45.8774332,
+            "lon": 10.8961574,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ROVERETO NORD",
+            "luogo_ritrovo": "ROVERETO, Fermata Bus Viale Trento, bivio Brione",
+            "departure_time": "07:50",
+            "return_time": "16:30",
+            "count": 25,
+            "lat": 45.8991032,
+            "lon": 11.0422846,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "4"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 6,
+        "stops": [
+          {
+            "name": "IC VILLA LAGARINA",
+            "lat": 45.9266293,
+            "lon": 11.0451808,
+            "departure_time": "07:38",
+            "count": 25
+          },
+          {
+            "name": "IC ROVERETO NORD",
+            "lat": 45.8991032,
+            "lon": 11.0422846,
+            "departure_time": "07:48",
+            "count": 25
+          }
+        ],
+        "distance_km": 17.7
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC RIVA 2",
+            "luogo_ritrovo": "RIVA DEL GARDA, Via Grez 7/F (Plesso Primaria Zadra)",
+            "departure_time": "07:10",
+            "return_time": "17:20",
+            "count": 19,
+            "lat": 45.891725,
+            "lon": 10.8508954,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VILLA LAGARINA",
+            "luogo_ritrovo": "POMAROLO, Via San Cristoforo, 3 (davanti alla Chiesa)",
+            "departure_time": "07:55",
+            "return_time": "16:35",
+            "count": 25,
+            "lat": 45.9266293,
+            "lon": 11.0451808,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "2"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 8,
+        "stops": [
+          {
+            "name": "IC VAL RENDENA",
+            "lat": 46.1675833,
+            "lon": 10.7590435,
+            "departure_time": "06:58",
+            "count": 18
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "lat": 46.0494183,
+            "lon": 10.8563831,
+            "departure_time": "07:35",
+            "count": 17
+          }
+        ],
+        "distance_km": 38.37
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "BONDO, Via Indipendenza, 105",
+            "departure_time": "07:20",
+            "return_time": "17:05",
+            "count": 23,
+            "lat": 45.9998131,
+            "lon": 10.6917379,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VAL RENDENA",
+            "luogo_ritrovo": "CARISOLO, Scuola Primaria di Carisolo, via G. Verdi, 18/B",
+            "departure_time": "06:50",
+            "return_time": "17:35",
+            "count": 18,
+            "lat": 46.1675833,
+            "lon": 10.7590435,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "7"
+    }
+  ],
+  "unmatched_planner": [],
+  "unmatched_gt": []
+}

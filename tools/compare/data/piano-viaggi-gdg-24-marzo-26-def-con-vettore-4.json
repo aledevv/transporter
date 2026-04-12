@@ -1,0 +1,151 @@
+{
+  "event": {
+    "name": "Piano-Viaggi-GdG_24-marzo-26-Def-con-Vettore-4",
+    "destination": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.7222,
+    "bus_count": 1.0,
+    "combined": 0.8333
+  },
+  "destination": {
+    "name": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
+    "lat": 45.9677978,
+    "lon": 11.0913554
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC ARCO",
+            "lat": 45.9282235,
+            "lon": 10.8923377,
+            "departure_time": "08:07",
+            "count": 27
+          }
+        ],
+        "distance_km": 21.02
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ARCO",
+            "luogo_ritrovo": "Arco, Ist. Comprensivo Arco, Località Prabi",
+            "departure_time": "08:10",
+            "return_time": "13:15",
+            "count": 27,
+            "lat": 45.9282235,
+            "lon": 10.8923377,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "2"
+    },
+    {
+      "jaccard": 0.6667,
+      "planner": {
+        "vehicle_id": 2,
+        "stops": [
+          {
+            "name": "IC AVIO",
+            "lat": 45.7359737,
+            "lon": 10.9439825,
+            "departure_time": "07:48",
+            "count": 23
+          },
+          {
+            "name": "IC ROVERETO EST",
+            "lat": 45.8909414,
+            "lon": 11.0347273,
+            "departure_time": "08:12",
+            "count": 23
+          },
+          {
+            "name": "IS S. SHOOL – Students staff",
+            "lat": 46.0668543,
+            "lon": 11.1126427,
+            "departure_time": "08:35",
+            "count": 2
+          }
+        ],
+        "distance_km": 28.12
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC AVIO",
+            "luogo_ritrovo": "Avio, Viale Degasperi 69",
+            "departure_time": "08:05",
+            "return_time": "13:30",
+            "count": 23,
+            "lat": 45.7359737,
+            "lon": 10.9439825,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ROVERETO EST",
+            "luogo_ritrovo": "Rovereto, Piazzale Orsi (di fronte Ist. Veronesi)",
+            "departure_time": "08:40",
+            "return_time": "12:50",
+            "count": 23,
+            "lat": 45.8909414,
+            "lon": 11.0347273,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "1"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC TIONE",
+            "lat": 46.0302545,
+            "lon": 10.7247686,
+            "departure_time": "07:51",
+            "count": 21
+          }
+        ],
+        "distance_km": 29.04
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "Tione, Via Circonvalazione 44",
+            "departure_time": "07:30",
+            "return_time": "14:00",
+            "count": 21,
+            "lat": 46.0302545,
+            "lon": 10.7247686,
+            "coords_missing": false
+          },
+          {
+            "name": "IS S. SHOOL – Students staff",
+            "luogo_ritrovo": "Trento, Park Ex Italcementi",
+            "departure_time": "08:35",
+            "return_time": "12:50",
+            "count": 2,
+            "lat": 46.0668543,
+            "lon": 11.1126427,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "3"
+    }
+  ],
+  "unmatched_planner": [],
+  "unmatched_gt": []
+}

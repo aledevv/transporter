@@ -1,0 +1,210 @@
+{
+  "event": {
+    "name": "Piano-viaggi_TENNIS-TAVOLO-IC_con-vettore-e-cel_24-nov-25",
+    "destination": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.75,
+    "bus_count": 0.5,
+    "combined": 0.65
+  },
+  "destination": {
+    "name": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+    "lat": 46.0755872,
+    "lon": 11.107593
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 0.75,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC FONDO",
+            "lat": 46.437594,
+            "lon": 11.1388241,
+            "departure_time": "06:04",
+            "count": 10
+          },
+          {
+            "name": "IC CLES",
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "departure_time": "06:26",
+            "count": 9
+          },
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "lat": 46.2117854,
+            "lon": 11.0961895,
+            "departure_time": "06:54",
+            "count": 9
+          },
+          {
+            "name": "IC PERGINE 1",
+            "lat": 46.067046,
+            "lon": 11.2453364,
+            "departure_time": "07:25",
+            "count": 9
+          }
+        ],
+        "distance_km": 45.61
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CLES",
+            "luogo_ritrovo": "Cles, Piazza Fiera",
+            "departure_time": "06:50",
+            "return_time": "14:05",
+            "count": 9,
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FONDO",
+            "luogo_ritrovo": "Borgo d'Anaunia Via Laviosa Zambotti - Fondo, 24",
+            "departure_time": "06:20",
+            "return_time": "14:00",
+            "count": 10,
+            "lat": 46.437594,
+            "lon": 11.1388241,
+            "coords_missing": false
+          },
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "luogo_ritrovo": "Mezzolombardo, Via Degli Alpini, 17",
+            "departure_time": "07:25",
+            "return_time": "13:30",
+            "count": 9,
+            "lat": 46.2117854,
+            "lon": 11.0961895,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 122.0
+      },
+      "gt_fin": "3"
+    },
+    {
+      "jaccard": 0.75,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC VALLE DEI LAGHI – DRO",
+            "lat": 45.9592826,
+            "lon": 10.9101053,
+            "departure_time": "05:42",
+            "count": 9
+          },
+          {
+            "name": "IC ROVERETO EST",
+            "lat": 45.8909414,
+            "lon": 11.0347273,
+            "departure_time": "06:18",
+            "count": 9
+          },
+          {
+            "name": "IC ALDENO - MATTARELLO",
+            "lat": 45.9768882,
+            "lon": 11.0922044,
+            "departure_time": "06:36",
+            "count": 9
+          },
+          {
+            "name": "IC AVIO",
+            "lat": 45.7388498,
+            "lon": 10.9530665,
+            "departure_time": "07:08",
+            "count": 9
+          }
+        ],
+        "distance_km": 56.98
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ALDENO - MATTARELLO",
+            "luogo_ritrovo": "Aldeno, Fermata via Filzi",
+            "departure_time": "07:15",
+            "return_time": "13:40",
+            "count": 9,
+            "lat": 45.9768882,
+            "lon": 11.0922044,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ALDENO - MATTARELLO",
+            "luogo_ritrovo": "Mattarello, Via Torre Franca (fermata bus “al parco”)",
+            "departure_time": "07:30",
+            "return_time": "13:25",
+            "count": 0,
+            "lat": 45.9768882,
+            "lon": 11.0922044,
+            "coords_missing": false
+          },
+          {
+            "name": "IC AVIO",
+            "luogo_ritrovo": "Avio, Via Degasperi 69",
+            "departure_time": "06:25",
+            "return_time": "14:35",
+            "count": 9,
+            "lat": 45.7388498,
+            "lon": 10.9530665,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ROVERETO EST",
+            "luogo_ritrovo": "Rovereto, Piazzale Orsi Fermata corriere davanti IPIA VERONESI",
+            "departure_time": "06:55",
+            "return_time": "14:00",
+            "count": 9,
+            "lat": 45.8909414,
+            "lon": 11.0347273,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 106.0
+      },
+      "gt_fin": "2"
+    }
+  ],
+  "unmatched_planner": [],
+  "unmatched_gt": [
+    {
+      "stops": [
+        {
+          "name": "IC PERGINE 1",
+          "luogo_ritrovo": "Pergine Valsugana, Via dei Caduti 39",
+          "departure_time": "07:30",
+          "return_time": "13:40",
+          "count": 9,
+          "lat": 46.067046,
+          "lon": 11.2453364,
+          "coords_missing": false
+        }
+      ],
+      "distance_km": 33.0,
+      "fin": "1"
+    },
+    {
+      "stops": [
+        {
+          "name": "IC VALLE DEI LAGHI – DRO",
+          "luogo_ritrovo": "Dro, Via S Antonio, 17",
+          "departure_time": "07:15",
+          "return_time": "nan",
+          "count": 9,
+          "lat": 45.9592826,
+          "lon": 10.9101053,
+          "coords_missing": false
+        }
+      ],
+      "distance_km": 60.0,
+      "fin": "4"
+    }
+  ]
+}

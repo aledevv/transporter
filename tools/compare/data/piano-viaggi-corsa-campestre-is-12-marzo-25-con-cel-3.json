@@ -1,0 +1,416 @@
+{
+  "event": {
+    "name": "Piano-Viaggi-Corsa-Campestre_IS_12-marzo-25_con-cel-3",
+    "destination": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.6042,
+    "bus_count": 1.0,
+    "combined": 0.7625
+  },
+  "destination": {
+    "name": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+    "lat": 45.9149896,
+    "lon": 11.0330024
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IS Levico Termico Alberghiero",
+            "lat": 46.0094047,
+            "lon": 11.3073121,
+            "departure_time": "10:53",
+            "count": 13
+          },
+          {
+            "name": "IS Curie",
+            "lat": 46.0616792,
+            "lon": 11.2376062,
+            "departure_time": "11:07",
+            "count": 29
+          }
+        ],
+        "distance_km": 20.44
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Curie",
+            "luogo_ritrovo": "Bar Alba - Piazza Gavazzi 2, Pergine Valsugana",
+            "departure_time": "11:15",
+            "return_time": "16:45",
+            "count": 29,
+            "lat": 46.0616792,
+            "lon": 11.2376062,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Levico Termico Alberghiero",
+            "luogo_ritrovo": "Fermata Bus rotatoria Corso Rovigo, Levico Terme",
+            "departure_time": "11:00",
+            "return_time": "17:00",
+            "count": 13,
+            "lat": 46.0094047,
+            "lon": 11.3073121,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "7"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 3,
+        "stops": [
+          {
+            "name": "IS Floriani",
+            "lat": 45.8940205,
+            "lon": 10.8420112,
+            "departure_time": "11:00",
+            "count": 18
+          },
+          {
+            "name": "IS Maffei",
+            "lat": 45.8874898,
+            "lon": 10.8435719,
+            "departure_time": "11:05",
+            "count": 27
+          }
+        ],
+        "distance_km": 17.17
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Floriani",
+            "luogo_ritrovo": "Scuola - Viale dei Tigli, 43, Riva del Garda",
+            "departure_time": "11:10",
+            "return_time": "16:50",
+            "count": 18,
+            "lat": 45.8940205,
+            "lon": 10.8420112,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Maffei",
+            "luogo_ritrovo": "c/o SSPG - Via D. Chiesa, 10, Riva del Garda",
+            "departure_time": "11:15",
+            "return_time": "16:45",
+            "count": 27,
+            "lat": 45.8874898,
+            "lon": 10.8435719,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "1"
+    },
+    {
+      "jaccard": 0.6667,
+      "planner": {
+        "vehicle_id": 6,
+        "stops": [
+          {
+            "name": "IS Pilati",
+            "lat": 46.3669595,
+            "lon": 11.0335205,
+            "departure_time": "10:35",
+            "count": 18
+          },
+          {
+            "name": "IS Martini + Students Staff",
+            "lat": 46.2177667,
+            "lon": 11.0938593,
+            "departure_time": "11:02",
+            "count": 13
+          },
+          {
+            "name": "IS Agrario",
+            "lat": 46.1934059,
+            "lon": 11.1339421,
+            "departure_time": "11:11",
+            "count": 18
+          }
+        ],
+        "distance_km": 28.54
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Agrario",
+            "luogo_ritrovo": "Scuola - Via E. Mach, 1, San Michele all’Adige",
+            "departure_time": "11:15",
+            "return_time": "16:45",
+            "count": 18,
+            "lat": 46.1934059,
+            "lon": 11.1339421,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Pilati",
+            "luogo_ritrovo": "Scuola – Via IV Novembre, Cles",
+            "departure_time": "10:40",
+            "return_time": "17:20",
+            "count": 18,
+            "lat": 46.3669595,
+            "lon": 11.0335205,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "6"
+    },
+    {
+      "jaccard": 0.6667,
+      "planner": {
+        "vehicle_id": 7,
+        "stops": [
+          {
+            "name": "IS Ladino di Fassa",
+            "lat": 46.4302623,
+            "lon": 11.6867947,
+            "departure_time": "09:55",
+            "count": 14
+          },
+          {
+            "name": "IS Enaip Tesero",
+            "lat": 46.2889416,
+            "lon": 11.5106848,
+            "departure_time": "10:27",
+            "count": 8
+          }
+        ],
+        "distance_km": 49.64
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Enaip Tesero",
+            "luogo_ritrovo": "Piazza C. Battisti, Tesero",
+            "departure_time": "10:30",
+            "return_time": "17:45",
+            "count": 8,
+            "lat": 46.2889416,
+            "lon": 11.5106848,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Ladino di Fassa",
+            "luogo_ritrovo": "Via G. Soraperra, 6, Sèn Jan/San Giovanni",
+            "departure_time": "10:00",
+            "return_time": "18:00",
+            "count": 14,
+            "lat": 46.4302623,
+            "lon": 11.6867947,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Prati",
+            "luogo_ritrovo": "Fermata Funivia - Lungadige, Trento",
+            "departure_time": "11:30",
+            "return_time": "16:30",
+            "count": 16,
+            "lat": 46.0690353,
+            "lon": 11.1154167,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "3"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IS Buonarroti",
+            "lat": 46.0697674,
+            "lon": 11.1278861,
+            "departure_time": "11:06",
+            "count": 13
+          },
+          {
+            "name": "IS Prati",
+            "lat": 46.0690353,
+            "lon": 11.1154167,
+            "departure_time": "11:11",
+            "count": 16
+          },
+          {
+            "name": "IS Pertini",
+            "lat": 46.0577819,
+            "lon": 11.128012,
+            "departure_time": "11:18",
+            "count": 17
+          }
+        ],
+        "distance_km": 12.77
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Buonarroti",
+            "luogo_ritrovo": "Fermata Bus davanti cinema Modena, Piazza Venezia, Trento",
+            "departure_time": "11:00",
+            "return_time": "16:45",
+            "count": 13,
+            "lat": 46.0697674,
+            "lon": 11.1278861,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Da Vinci",
+            "luogo_ritrovo": "nan",
+            "departure_time": "nan",
+            "return_time": "nan",
+            "count": 13,
+            "lat": null,
+            "lon": null,
+            "coords_missing": true
+          },
+          {
+            "name": "IS Pertini",
+            "luogo_ritrovo": "Fermata Bus San Bartolomeo, Viale Verona 17, Trento",
+            "departure_time": "11:10",
+            "return_time": "16:30",
+            "count": 17,
+            "lat": 46.0577819,
+            "lon": 11.128012,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "8"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 2,
+        "stops": [
+          {
+            "name": "IS Degasperi",
+            "lat": 46.0536427,
+            "lon": 11.4612206,
+            "departure_time": "10:46",
+            "count": 18
+          }
+        ],
+        "distance_km": 25.48
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Degasperi",
+            "luogo_ritrovo": "Stazione autocorriere, Borgo Valsugana",
+            "departure_time": "11:00",
+            "return_time": "17:00",
+            "count": 18,
+            "lat": 46.0536427,
+            "lon": 11.4612206,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Primiero",
+            "luogo_ritrovo": "Stazione autocorriere, Fiera di Primiero",
+            "departure_time": "10:00",
+            "return_time": "18:00",
+            "count": 27,
+            "lat": 46.1761699,
+            "lon": 11.8286583,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "4"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 4,
+        "stops": [
+          {
+            "name": "IS Guetti",
+            "lat": 46.0366621,
+            "lon": 10.7303948,
+            "departure_time": "10:36",
+            "count": 30
+          }
+        ],
+        "distance_km": 30.18
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Guetti",
+            "luogo_ritrovo": "Scuole – Via Durone, Tione",
+            "departure_time": "10:30",
+            "return_time": "17:30",
+            "count": 30,
+            "lat": 46.0366621,
+            "lon": 10.7303948,
+            "coords_missing": false
+          },
+          {
+            "name": "IS Tione Enaip",
+            "luogo_ritrovo": "nan",
+            "departure_time": "nan",
+            "return_time": "nan",
+            "count": 8,
+            "lat": null,
+            "lon": null,
+            "coords_missing": true
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "2"
+    },
+    {
+      "jaccard": 0.0,
+      "planner": {
+        "vehicle_id": 5,
+        "stops": [
+          {
+            "name": "IS Primiero",
+            "lat": 46.1761699,
+            "lon": 11.8286583,
+            "departure_time": "09:52",
+            "count": 27
+          }
+        ],
+        "distance_km": 52.23
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IS Martini + Students Staff",
+            "luogo_ritrovo": "c/o IS Martini - Via Perlasca 4, Mezzolombardo",
+            "departure_time": "10:30",
+            "return_time": "17:00",
+            "count": 13,
+            "lat": 46.2177667,
+            "lon": 11.0938593,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "5"
+    }
+  ],
+  "unmatched_planner": [],
+  "unmatched_gt": []
+}

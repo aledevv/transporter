@@ -1,0 +1,470 @@
+{
+  "event": {
+    "name": "Piano-Viaggi_Palla-Tamburello_22-aprile-2026",
+    "destination": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.625,
+    "bus_count": 1.0,
+    "combined": 0.775
+  },
+  "destination": {
+    "name": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
+    "lat": 46.3416416,
+    "lon": 11.0366402
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 2,
+        "stops": [
+          {
+            "name": "IC FONDO",
+            "lat": 46.3940922,
+            "lon": 11.0538911,
+            "departure_time": "08:15",
+            "count": 26
+          },
+          {
+            "name": "IC CLES",
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "departure_time": "08:26",
+            "count": 26
+          }
+        ],
+        "distance_km": 8.0
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CLES",
+            "luogo_ritrovo": "Piazza Fiera - Cles",
+            "departure_time": "08:30",
+            "return_time": "16:45",
+            "count": 26,
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FONDO",
+            "luogo_ritrovo": "Via Canestrini - Revò",
+            "departure_time": "08:15",
+            "return_time": "17:00",
+            "count": 26,
+            "lat": 46.3940922,
+            "lon": 11.0538911,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "6"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 5,
+        "stops": [
+          {
+            "name": "IC MEZZOCORONA",
+            "lat": 46.2129389,
+            "lon": 11.1139953,
+            "departure_time": "07:58",
+            "count": 18
+          },
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "lat": 46.2117854,
+            "lon": 11.0961895,
+            "departure_time": "08:05",
+            "count": 9
+          },
+          {
+            "name": "IS MARTINO MARTINI – Students staff",
+            "lat": 46.2177667,
+            "lon": 11.0938593,
+            "departure_time": "08:10",
+            "count": 20
+          }
+        ],
+        "distance_km": 15.39
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC MEZZOCORONA",
+            "luogo_ritrovo": "Via Fornai 1 - Mezzocorona",
+            "departure_time": "07:50",
+            "return_time": "17:20",
+            "count": 18,
+            "lat": 46.2129389,
+            "lon": 11.1139953,
+            "coords_missing": false
+          },
+          {
+            "name": "IC MEZZOLOMBARDO PAGANELLA",
+            "luogo_ritrovo": "Via degli Alpini 17 - Mezzolombardo",
+            "departure_time": "08:10",
+            "return_time": "17:00",
+            "count": 9,
+            "lat": 46.2117854,
+            "lon": 11.0961895,
+            "coords_missing": false
+          },
+          {
+            "name": "IS MARTINO MARTINI – Students staff",
+            "luogo_ritrovo": "Via Perlasca 4 - Mezzolombardo",
+            "departure_time": "08:00",
+            "return_time": "17:10",
+            "count": 20,
+            "lat": 46.2177667,
+            "lon": 11.0938593,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "3"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 6,
+        "stops": [
+          {
+            "name": "IC TIONE",
+            "lat": 46.0302545,
+            "lon": 10.7247686,
+            "departure_time": "07:05",
+            "count": 9
+          },
+          {
+            "name": "IC VAL RENDENA",
+            "lat": 46.2269942,
+            "lon": 10.8270157,
+            "departure_time": "07:39",
+            "count": 18
+          }
+        ],
+        "distance_km": 43.44
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+            "departure_time": "07:00",
+            "return_time": "18:15",
+            "count": 9,
+            "lat": 46.0302545,
+            "lon": 10.7247686,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VAL RENDENA",
+            "luogo_ritrovo": "Piazza Palù, Madonna di Campiglio",
+            "departure_time": "07:45",
+            "return_time": "17:30",
+            "count": 18,
+            "lat": 46.2269942,
+            "lon": 10.8270157,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "2"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 3,
+        "stops": [
+          {
+            "name": "IC DRO",
+            "lat": 45.9592826,
+            "lon": 10.9101053,
+            "departure_time": "07:11",
+            "count": 26
+          },
+          {
+            "name": "IC VALLE DEI LAGHI",
+            "lat": 45.9942661,
+            "lon": 10.9711025,
+            "departure_time": "07:28",
+            "count": 13
+          },
+          {
+            "name": "IC VALLE DEI LAGHI",
+            "lat": 45.9942661,
+            "lon": 10.9711025,
+            "departure_time": "07:31",
+            "count": 13
+          }
+        ],
+        "distance_km": 38.29
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC DRO",
+            "luogo_ritrovo": "Via S. Antonio 17 - Dro",
+            "departure_time": "07:10",
+            "return_time": "18:00",
+            "count": 26,
+            "lat": 45.9592826,
+            "lon": 10.9101053,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "1"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 4,
+        "stops": [
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "departure_time": "07:18",
+            "count": 26
+          }
+        ],
+        "distance_km": 37.85
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "luogo_ritrovo": "Frazione Gionghi - Lavarone",
+            "departure_time": "06:10",
+            "return_time": "19:20",
+            "count": 26,
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "luogo_ritrovo": "Park Palaghiaccio - Folgaria",
+            "departure_time": "06:50",
+            "return_time": "18:40",
+            "count": 0,
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "luogo_ritrovo": "Fermata Bus - Mezzamonte",
+            "departure_time": "07:05",
+            "return_time": "18:25",
+            "count": 0,
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TRENTO 1",
+            "luogo_ritrovo": "Via Znojmo 24 – Povo - Trento",
+            "departure_time": "07:50",
+            "return_time": "17:40",
+            "count": 18,
+            "lat": 46.053097,
+            "lon": 11.1507557,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "7"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC ISERA - ROVERETO",
+            "lat": 45.8851325,
+            "lon": 11.0239036,
+            "departure_time": "07:30",
+            "count": 26
+          },
+          {
+            "name": "IC VILLA LAGARINA",
+            "lat": 45.9182063,
+            "lon": 11.0311707,
+            "departure_time": "07:40",
+            "count": 25
+          }
+        ],
+        "distance_km": 30.42
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ALA",
+            "luogo_ritrovo": "Via Betta 9 - Ala",
+            "departure_time": "07:20",
+            "return_time": "17:40",
+            "count": 26,
+            "lat": 45.7562382,
+            "lon": 11.0015357,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VILLA LAGARINA",
+            "luogo_ritrovo": "Via Stockstadt Am Rhein, 3 – Villa Lagarina",
+            "departure_time": "07:50",
+            "return_time": "17:15",
+            "count": 25,
+            "lat": 45.9182063,
+            "lon": 11.0311707,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "5"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC ALTA VALLAGARINA",
+            "lat": 45.9419216,
+            "lon": 11.1095435,
+            "departure_time": "07:28",
+            "count": 26
+          },
+          {
+            "name": "IC TRENTO 1",
+            "lat": 46.053097,
+            "lon": 11.1507557,
+            "departure_time": "07:47",
+            "count": 18
+          }
+        ],
+        "distance_km": 31.64
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ALTA VALLAGARINA",
+            "luogo_ritrovo": "Da definire - Besenello",
+            "departure_time": "07:20",
+            "return_time": "17:55",
+            "count": 26,
+            "lat": 45.9419216,
+            "lon": 11.1095435,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ALTA VALLAGARINA",
+            "luogo_ritrovo": "Da definire - Calliano",
+            "departure_time": "07:30",
+            "return_time": "17:45",
+            "count": 0,
+            "lat": 45.9419216,
+            "lon": 11.1095435,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ALTA VALLAGARINA",
+            "luogo_ritrovo": "Da definire - Volano",
+            "departure_time": "07:40",
+            "return_time": "17:35",
+            "count": 0,
+            "lat": 45.9419216,
+            "lon": 11.1095435,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ISERA - ROVERETO",
+            "luogo_ritrovo": "Viale della Vittoria, 43 - Rovereto",
+            "departure_time": "07:00",
+            "return_time": "18:15",
+            "count": 26,
+            "lat": 45.8851325,
+            "lon": 11.0239036,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "8"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 7,
+        "stops": [
+          {
+            "name": "IC RIVA 1",
+            "lat": 45.8879839,
+            "lon": 10.8466447,
+            "departure_time": "06:46",
+            "count": 27
+          },
+          {
+            "name": "IC ALA",
+            "lat": 45.7562382,
+            "lon": 11.0015357,
+            "departure_time": "07:23",
+            "count": 26
+          }
+        ],
+        "distance_km": 52.63
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC RIVA 1",
+            "luogo_ritrovo": "Viale Damiano Chiesa, 10 – Riva del Garda",
+            "departure_time": "06:55",
+            "return_time": "18:20",
+            "count": 27,
+            "lat": 45.8879839,
+            "lon": 10.8466447,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VALLE DEI LAGHI",
+            "luogo_ritrovo": "Via XXV Aprile 7 - Cavedine",
+            "departure_time": "07:30",
+            "return_time": "17:45",
+            "count": 13,
+            "lat": 45.9942661,
+            "lon": 10.9711025,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VALLE DEI LAGHI",
+            "luogo_ritrovo": "Via Roma 3 - Vezzano",
+            "departure_time": "07:50",
+            "return_time": "17:25",
+            "count": 13,
+            "lat": 45.9942661,
+            "lon": 10.9711025,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": null
+      },
+      "gt_fin": "4"
+    }
+  ],
+  "unmatched_planner": [],
+  "unmatched_gt": []
+}

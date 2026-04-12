@@ -1,0 +1,550 @@
+{
+  "event": {
+    "name": "Piano-Giocopallamano_3-marzo-26_con-vettore",
+    "destination": "Centro Sportivo Trento Nord – Gardolo",
+    "capacity": 54
+  },
+  "scores": {
+    "assignment": 0.6061,
+    "bus_count": 0.9091,
+    "combined": 0.7273
+  },
+  "destination": {
+    "name": "Centro Sportivo Trento Nord – Gardolo",
+    "lat": 46.1052838,
+    "lon": 11.1145014
+  },
+  "matched_pairs": [
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 4,
+        "stops": [
+          {
+            "name": "IC RIVA 1",
+            "lat": 45.8877612,
+            "lon": 10.8471007,
+            "departure_time": "07:26",
+            "count": 18
+          },
+          {
+            "name": "IC RIVA 2",
+            "lat": 45.891725,
+            "lon": 10.8508954,
+            "departure_time": "07:30",
+            "count": 23
+          }
+        ],
+        "distance_km": 25.35
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC RIVA 1",
+            "luogo_ritrovo": "Riva Del Garda, Viale Pernici, 21",
+            "departure_time": "07:30",
+            "return_time": "17:00",
+            "count": 18,
+            "lat": 45.8877612,
+            "lon": 10.8471007,
+            "coords_missing": false
+          },
+          {
+            "name": "IC RIVA 2",
+            "luogo_ritrovo": "Riva Del Garda, Viale Grez, 7",
+            "departure_time": "07:35",
+            "return_time": "16:55",
+            "count": 23,
+            "lat": 45.891725,
+            "lon": 10.8508954,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 88.0
+      },
+      "gt_fin": "6"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 7,
+        "stops": [
+          {
+            "name": "IC LEVICO TERME",
+            "lat": 45.9950588,
+            "lon": 11.2566808,
+            "departure_time": "07:40",
+            "count": 21
+          },
+          {
+            "name": "IC PERGINE 1",
+            "lat": 46.0788068,
+            "lon": 11.2780094,
+            "departure_time": "07:59",
+            "count": 21
+          }
+        ],
+        "distance_km": 18.41
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC LEVICO TERME",
+            "luogo_ritrovo": "Caldonazzo, Via Guglielmo Marconi, 9",
+            "departure_time": "07:30",
+            "return_time": "17:00",
+            "count": 21,
+            "lat": 45.9950588,
+            "lon": 11.2566808,
+            "coords_missing": false
+          },
+          {
+            "name": "IC PERGINE 1",
+            "luogo_ritrovo": "Canezza, Fermata Trentino Trasporti",
+            "departure_time": "08:00",
+            "return_time": "16:30",
+            "count": 21,
+            "lat": 46.0788068,
+            "lon": 11.2780094,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 62.0
+      },
+      "gt_fin": "4"
+    },
+    {
+      "jaccard": 1.0,
+      "planner": {
+        "vehicle_id": 11,
+        "stops": [
+          {
+            "name": "IC CHIESE",
+            "lat": 45.9419975,
+            "lon": 10.6405,
+            "departure_time": "06:58",
+            "count": 16
+          },
+          {
+            "name": "IC TIONE",
+            "lat": 46.0338494,
+            "lon": 10.7460879,
+            "departure_time": "07:23",
+            "count": 15
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "lat": 46.0241478,
+            "lon": 10.8660956,
+            "departure_time": "07:42",
+            "count": 16
+          }
+        ],
+        "distance_km": 38.39
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CHIESE",
+            "luogo_ritrovo": "Pieve di Bono, Via Fiera, 1",
+            "departure_time": "07:00",
+            "return_time": "17:25",
+            "count": 16,
+            "lat": 45.9419975,
+            "lon": 10.6405,
+            "coords_missing": false
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "luogo_ritrovo": "Comano Terme, Fermata Bus Scuola Primaria Campo",
+            "departure_time": "07:45",
+            "return_time": "16:45",
+            "count": 16,
+            "lat": 46.0241478,
+            "lon": 10.8660956,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "Borgo Lares, Via Fucina, 10",
+            "departure_time": "07:25",
+            "return_time": "17:00",
+            "count": 15,
+            "lat": 46.0338494,
+            "lon": 10.7460879,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 130.0
+      },
+      "gt_fin": "3"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC ALTA VAL DI SOLE",
+            "lat": 46.3107355,
+            "lon": 10.7325498,
+            "departure_time": "07:07",
+            "count": 18
+          }
+        ],
+        "distance_km": 36.38
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC ALTA VAL DI SOLE",
+            "luogo_ritrovo": "Ossana, Via S Michele, 11",
+            "departure_time": "07:05",
+            "return_time": "17:20",
+            "count": 18,
+            "lat": 46.3107355,
+            "lon": 10.7325498,
+            "coords_missing": false
+          },
+          {
+            "name": "IC CLES",
+            "luogo_ritrovo": "Cles, Piazza Fiera",
+            "departure_time": "07:40",
+            "return_time": "16:40",
+            "count": 21,
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 140.0
+      },
+      "gt_fin": "1"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC BORGO VALSUGANA",
+            "lat": 45.9912519,
+            "lon": 11.6709586,
+            "departure_time": "07:18",
+            "count": 12
+          },
+          {
+            "name": "IC STRIGNO TESINO",
+            "lat": 46.0652116,
+            "lon": 11.5101031,
+            "departure_time": "07:39",
+            "count": 16
+          }
+        ],
+        "distance_km": 29.59
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC STRIGNO TESINO",
+            "luogo_ritrovo": "Scurelle, Via XV Agosto, 68",
+            "departure_time": "07:50",
+            "return_time": "16:40",
+            "count": 16,
+            "lat": 46.0652116,
+            "lon": 11.5101031,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 196.0
+      },
+      "gt_fin": "11"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 3,
+        "stops": [
+          {
+            "name": "IC TAIO",
+            "lat": 46.3206186,
+            "lon": 11.0661736,
+            "departure_time": "07:47",
+            "count": 20
+          }
+        ],
+        "distance_km": 16.49
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC TAIO",
+            "luogo_ritrovo": "Taio, Piazza Della Chiesa",
+            "departure_time": "07:50",
+            "return_time": "16:40",
+            "count": 20,
+            "lat": 46.3206186,
+            "lon": 11.0661736,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TUENNO",
+            "luogo_ritrovo": "Ville D’Anaunia, Via Maistrelli, 11",
+            "departure_time": "07:30",
+            "return_time": "17:00",
+            "count": 25,
+            "lat": 46.3304899,
+            "lon": 11.0250292,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 82.0
+      },
+      "gt_fin": "7"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 5,
+        "stops": [
+          {
+            "name": "IC DRO",
+            "lat": 45.9614465,
+            "lon": 10.9108906,
+            "departure_time": "07:42",
+            "count": 27
+          }
+        ],
+        "distance_km": 18.7
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC DRO",
+            "luogo_ritrovo": "Dro, Piazza Repubblica, 1",
+            "departure_time": "07:40",
+            "return_time": "16:50",
+            "count": 27,
+            "lat": 45.9614465,
+            "lon": 10.9108906,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VEZZANO",
+            "luogo_ritrovo": "Vezzano, Via Roma, 3",
+            "departure_time": "08:05",
+            "return_time": "16:25",
+            "count": 16,
+            "lat": 46.0794117,
+            "lon": 11.0022582,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 68.0
+      },
+      "gt_fin": "5"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 6,
+        "stops": [
+          {
+            "name": "IC LADINO DI FASSA",
+            "lat": 46.4350756,
+            "lon": 11.6902056,
+            "departure_time": "06:56",
+            "count": 18
+          }
+        ],
+        "distance_km": 41.98
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC LADINO DI FASSA",
+            "luogo_ritrovo": "San Giovanni, Strada Dolomites, 6",
+            "departure_time": "06:40",
+            "return_time": "17:50",
+            "count": 18,
+            "lat": 46.4350756,
+            "lon": 11.6902056,
+            "coords_missing": false
+          },
+          {
+            "name": "IC MEZZOCORONA",
+            "luogo_ritrovo": "San Michele all’Adige, Via Biasi, 1",
+            "departure_time": "08:10",
+            "return_time": "16:20",
+            "count": 19,
+            "lat": 46.1921066,
+            "lon": 11.1334061,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 184.0
+      },
+      "gt_fin": "8"
+    },
+    {
+      "jaccard": 0.5,
+      "planner": {
+        "vehicle_id": 8,
+        "stops": [
+          {
+            "name": "IC MEZZANO SANTA CROCE",
+            "lat": 46.1630679,
+            "lon": 11.8178119,
+            "departure_time": "06:49",
+            "count": 16
+          }
+        ],
+        "distance_km": 45.42
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC BORGO VALSUGANA",
+            "luogo_ritrovo": "Tezze di Grigno, Via Nazionale, 4",
+            "departure_time": "07:30",
+            "return_time": "17:00",
+            "count": 12,
+            "lat": 45.9912519,
+            "lon": 11.6709586,
+            "coords_missing": false
+          },
+          {
+            "name": "IC MEZZANO SANTA CROCE",
+            "luogo_ritrovo": "Mezzano, Via Molaren, 29",
+            "departure_time": "06:40",
+            "return_time": "17:50",
+            "count": 16,
+            "lat": 46.1630679,
+            "lon": 11.8178119,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 196.0
+      },
+      "gt_fin": "2"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 9,
+        "stops": [
+          {
+            "name": "IC MEZZOLOMBARDO-PAGANELLA",
+            "lat": 46.219181,
+            "lon": 11.0487784,
+            "departure_time": "07:46",
+            "count": 26
+          },
+          {
+            "name": "IC MEZZOCORONA",
+            "lat": 46.1921066,
+            "lon": 11.1334061,
+            "departure_time": "08:03",
+            "count": 19
+          }
+        ],
+        "distance_km": 15.28
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC MEZZOLOMBARDO-PAGANELLA",
+            "luogo_ritrovo": "Spormaggiore, Via Alt Spaur, 5",
+            "departure_time": "07:40",
+            "return_time": "16:50",
+            "count": 26,
+            "lat": 46.219181,
+            "lon": 11.0487784,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TRENTO 6",
+            "luogo_ritrovo": "Trento, Via Aldo Schmid, 4",
+            "departure_time": "08:15",
+            "return_time": "16:15",
+            "count": 17,
+            "lat": 46.0822444,
+            "lon": 11.118196,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 56.0
+      },
+      "gt_fin": "9"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 10,
+        "stops": [
+          {
+            "name": "IC VEZZANO",
+            "lat": 46.0794117,
+            "lon": 11.0022582,
+            "departure_time": "07:19",
+            "count": 16
+          },
+          {
+            "name": "IC TRENTO 6",
+            "lat": 46.0822444,
+            "lon": 11.118196,
+            "departure_time": "07:37",
+            "count": 17
+          },
+          {
+            "name": "IC CIVEZZANO",
+            "lat": 46.1407965,
+            "lon": 11.1961458,
+            "departure_time": "08:01",
+            "count": 18
+          }
+        ],
+        "distance_km": 27.4
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "IC CIVEZZANO",
+            "luogo_ritrovo": "Albiano, Fermata Bus Chiesa",
+            "departure_time": "08:05",
+            "return_time": "16:25",
+            "count": 18,
+            "lat": 46.1407965,
+            "lon": 11.1961458,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 26.0
+      },
+      "gt_fin": "10"
+    }
+  ],
+  "unmatched_planner": [
+    {
+      "vehicle_id": 2,
+      "stops": [
+        {
+          "name": "IC TUENNO",
+          "lat": 46.3304899,
+          "lon": 11.0250292,
+          "departure_time": "07:29",
+          "count": 25
+        },
+        {
+          "name": "IC CLES",
+          "lat": 46.3682701,
+          "lon": 11.0345527,
+          "departure_time": "07:38",
+          "count": 21
+        }
+      ],
+      "distance_km": 23.85
+    }
+  ],
+  "unmatched_gt": []
+}
