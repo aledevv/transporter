@@ -56,6 +56,8 @@ def test_enrich_gt_with_coords_adds_fields():
     assert s["lat"] == 45.756
     assert s["lon"] == 11.001
     assert s["coords_missing"] is False
+    original_stop = gt["7"]["stops"][0]
+    assert "lat" not in original_stop  # original stop dict not mutated
 
 def test_enrich_gt_with_coords_marks_missing():
     from tools.compare_lib import enrich_gt_with_coords
@@ -68,3 +70,4 @@ def test_enrich_gt_with_coords_marks_missing():
     result = enrich_gt_with_coords(gt, {})
     assert result["7"]["stops"][0]["coords_missing"] is True
     assert result["7"]["stops"][0]["lat"] is None
+    assert result["7"]["stops"][0]["lon"] is None
