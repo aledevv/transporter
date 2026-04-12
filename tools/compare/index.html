@@ -110,6 +110,21 @@ const ROUTE_COLORS = [
 let mapP = null, mapG = null;
 let plannerLayers = [], gtLayers = [];
 
+// ── Utilities ──
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str ?? '');
+  return d.innerHTML;
+}
+
+function parseMinutes(t) {
+  if (!t || typeof t !== 'string') return null;
+  const parts = t.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  return (Number.isNaN(h) || Number.isNaN(m)) ? null : h * 60 + m;
+}
+
 // ── Bootstrap ──
 fetch('data/index.json')
   .then(r => r.json())
@@ -252,7 +267,7 @@ function drawRoute(map, stops, dest, color) {
       className: '', iconAnchor: [5, 5]
     });
     L.marker([stop.lat, stop.lon], { icon })
-      .bindTooltip(`${stop.name}<br>${stop.departure_time || ''} · ${stop.count || ''}p`, { sticky: true })
+      .bindTooltip(`${esc(stop.name)}<br>${esc(stop.departure_time || '')} · ${stop.count || ''}p`, { sticky: true })
       .addTo(map);
   });
 
@@ -364,11 +379,9 @@ function alignStops(pStops, gStops) {
       tag = 'add'; // planner-only
     } else {
       usedG.add(ps.name);
-      const tDiff = Math.abs(
-        (gs.departure_time && ps.departure_time)
-          ? parseMinutes(ps.departure_time) - parseMinutes(gs.departure_time)
-          : 0
-      );
+      const pMin = parseMinutes(ps.departure_time);
+      const gMin = parseMinutes(gs.departure_time);
+      const tDiff = (pMin !== null && gMin !== null) ? Math.abs(pMin - gMin) : 0;
       tag = tDiff > 5 ? 'chg' : 'same';
     }
     rows.push({ p: ps, g: gs || null, tag });
@@ -384,9 +397,6 @@ function alignStops(pStops, gStops) {
   return rows;
 }
 
-function parseMinutes(t) {
-  try { const [h, m] = t.split(':'); return +h * 60 + +m; } catch { return 0; }
-}
 
 function renderStopCell(stop, num, tag, isGt = false) {
   if (!stop) {
@@ -402,8 +412,8 @@ function renderStopCell(stop, num, tag, isGt = false) {
   const ret = (isGt && stop.return_time) ? `<span style="color:#475569;font-size:9px" title="rientro"> /${stop.return_time}</span>` : '';
   return `<div class="stop-row ${rowClass}">
     <span class="snum">${num}</span>
-    <span class="sname">${stop.name}${warnCoords}</span>
-    <span class="stime">${stop.departure_time || '—'}${ret}</span>
+    <span class="sname">${esc(stop.name)}${warnCoords}</span>
+    <span class="stime">${esc(stop.departure_time || '—')}${ret}</span>
     <span class="spax">${stop.count || ''}p</span>
     <span class="dtag ${tagClass}">${tagLabel}</span>
   </div>`;
@@ -418,7 +428,7 @@ function renderUnmatchedBus(bus, label, color) {
       <span>${label}</span>
       <span style="color:#475569;font-size:10px">· ${bus.stops?.length || 0} fermate · ${bus.distance_km ?? '—'} km</span>
     </div>
-    ${stops.map(s => `<div class="ub-stop">${s.name} <span style="color:#475569">${s.departure_time || ''}</span></div>`).join('')}
+    ${stops.map(s => `<div class="ub-stop">${esc(s.name)} <span style="color:#475569">${esc(s.departure_time || '')}</span></div>`).join('')}
     ${more > 0 ? `<div class="ub-stop" style="color:#475569">+${more} altri...</div>` : ''}
   </div>`;
 }
