@@ -97,7 +97,7 @@ def _jaccard(a: set, b: set) -> float:
     return len(a & b) / len(union) if union else 1.0
 
 
-def match_buses(planner_buses: dict, gt_buses: dict):
+def match_buses(planner_buses: dict, gt_buses: dict) -> tuple[list[dict], list, list]:
     """
     Match planner buses to GT buses maximising Jaccard similarity.
 

@@ -106,4 +106,17 @@ def test_match_buses_ordered_by_descending_jaccard():
     p = {"bus0": {"A", "B"}, "bus1": {"C"}}
     g = {"fin1": {"A", "B"}, "fin2": {"C", "X", "Y"}}
     pairs, _, _ = match_buses(p, g)
-    assert pairs[0]["jaccard"] >= pairs[1]["jaccard"]
+    assert pairs[0]["jaccard"] == 1.0
+    import pytest
+    assert pairs[1]["jaccard"] == pytest.approx(1/3, rel=1e-3)
+
+def test_match_buses_empty_inputs_return_empty_lists():
+    from tools.compare_lib import match_buses
+    pairs, up, ug = match_buses({}, {})
+    assert pairs == [] and up == [] and ug == []
+
+def test_match_buses_empty_planner_returns_all_gt_unmatched():
+    from tools.compare_lib import match_buses
+    g = {"fin1": {"A", "B"}, "fin2": {"C"}}
+    pairs, up, ug = match_buses({}, g)
+    assert pairs == [] and up == [] and len(ug) == 2
