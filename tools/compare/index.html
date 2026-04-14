@@ -6,6 +6,7 @@
 <title>BusPlan Compare</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
@@ -13,6 +14,18 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 #topbar{background:#161b2e;border-bottom:1px solid #334155;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:1000}
 #topbar .logo{font-weight:700;font-size:15px;color:#60a5fa;letter-spacing:.5px}
 #evSelect{background:#1e2130;border:1px solid #334155;color:#e2e8f0;padding:5px 10px;border-radius:6px;font-size:12px;max-width:360px}
+.nav-btn{background:#1e2130;border:1px solid #334155;color:#94a3b8;width:26px;height:26px;border-radius:5px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s,color .15s}
+.nav-btn:hover{background:#334155;color:#e2e8f0}
+.nav-btn:disabled{opacity:.3;cursor:default}
+/* ── Summary ── */
+#summary{background:#0d1117;border-top:2px solid #334155;padding:10px 16px;display:none}
+#summary h4{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.summary-row{display:flex;gap:24px;flex-wrap:wrap;font-size:11px}
+.summary-item{display:flex;flex-direction:column;gap:2px}
+.summary-label{color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.summary-val{color:#cbd5e1;font-weight:600}
+.summary-delta{font-size:10px}
+.summary-delta.better{color:#4ade80}.summary-delta.worse{color:#f87171}.summary-delta.neutral{color:#94a3b8}
 .score-chip{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:3px 10px;font-size:11px;display:flex;gap:6px;align-items:center}
 .score-chip .val{font-weight:700}
 .green .val{color:#4ade80}.yellow .val{color:#fbbf24}.red .val{color:#f87171}
@@ -24,7 +37,7 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .colh .pill{background:rgba(255,255,255,.08);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:400}
 /* ── Maps ── */
 #maps{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #334155}
-#mapP,#mapG{height:220px}
+#mapP,#mapG{height:330px}
 #mapP{border-right:1px solid #334155}
 /* ── Bus pairs ── */
 #buses{overflow:auto}
@@ -71,13 +84,38 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .unmatched-bus .ub-stop{font-size:10px;color:#64748b;padding:2px 0}
 /* ── Empty state ── */
 #empty{display:flex;align-items:center;justify-content:center;height:200px;color:#475569;font-size:14px}
+/* ── Legend ── */
+#legend{background:#0d1117;border-top:2px solid #334155;padding:12px 16px;display:none}
+#legend h4{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.legend-grid{display:flex;flex-wrap:wrap;gap:16px}
+.legend-group{display:flex;flex-direction:column;gap:4px;min-width:160px}
+.legend-group-title{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:#94a3b8}
+.leg-tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;min-width:22px;text-align:center}
+.leg-line{width:28px;height:3px;border-radius:2px;background:#60a5fa}
+.leg-line.dashed{background:none;border-top:3px dashed #60a5fa}
+.km-est{color:#60a5fa;font-size:9px;font-weight:600;margin-left:2px}
+/* ── Arrow toggle ── */
+.arrow-toggle{display:flex;align-items:center;gap:7px;font-size:11px;color:#94a3b8;cursor:pointer;user-select:none;margin-left:4px}
+.arrow-toggle input{display:none}
+.arrow-toggle .track{width:30px;height:16px;background:#1e293b;border:1px solid #334155;border-radius:8px;position:relative;transition:background .2s}
+.arrow-toggle input:checked + .track{background:#1d4ed8;border-color:#3b82f6}
+.arrow-toggle .track::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#64748b;transition:transform .2s,background .2s}
+.arrow-toggle input:checked + .track::after{transform:translateX(14px);background:#fff}
 </style>
 </head>
 <body>
 
 <div id="topbar">
   <span class="logo">BusPlan Compare</span>
+  <button class="nav-btn" id="prevBtn" title="Evento precedente (←)" onclick="navigateEvent(-1)">&#8249;</button>
   <select id="evSelect"><option value="">— scegli un evento —</option></select>
+  <button class="nav-btn" id="nextBtn" title="Evento successivo (→)" onclick="navigateEvent(1)">&#8250;</button>
+  <label class="arrow-toggle" title="Mostra/nascondi frecce di direzione">
+    <input type="checkbox" id="arrowToggle" checked onchange="toggleArrows(this.checked)">
+    <span class="track"></span>
+    Frecce
+  </label>
   <div id="scoreChips" style="display:none;display:flex;gap:8px;flex-wrap:wrap"></div>
 </div>
 
@@ -96,6 +134,41 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 </div>
 
 <div id="buses"></div>
+
+<div id="summary"></div>
+
+<div id="legend">
+  <h4>Legenda</h4>
+  <div class="legend-grid">
+    <div class="legend-group">
+      <div class="legend-group-title">Fermate</div>
+      <div class="legend-item"><span class="leg-tag same">=</span> Fermata comune, orario ok (&le;5 min)</div>
+      <div class="legend-item"><span class="leg-tag chg">Δt</span> Fermata comune, orario diverso (&gt;5 min)</div>
+      <div class="legend-item"><span class="leg-tag add">+</span> Solo nel Planner (aggiunta)</div>
+      <div class="legend-item"><span class="leg-tag rem">–</span> Solo nel GT (rimossa)</div>
+      <div class="legend-item"><span class="warn-coords" style="font-size:11px">⚠</span> Coordinate non trovate</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-group-title">Percorsi sulla mappa</div>
+      <div class="legend-item"><div class="leg-line"></div> Fermate identiche (J = 1.0)</div>
+      <div class="legend-item"><div class="leg-line dashed"></div> Fermate diverse (J &lt; 1.0)</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-group-title">Score</div>
+      <div class="legend-item"><span class="jbadge jg" style="font-size:10px">J:0.xx</span> Jaccard: |A∩B| / |A∪B| tra le fermate</div>
+      <div class="legend-item"><span class="score-chip green" style="padding:1px 6px;font-size:10px">≥ 70%</span> Buono</div>
+      <div class="legend-item"><span class="score-chip yellow" style="padding:1px 6px;font-size:10px">40–70%</span> Parziale</div>
+      <div class="legend-item"><span class="score-chip red" style="padding:1px 6px;font-size:10px">&lt; 40%</span> Scarso</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-group-title">Distanze</div>
+      <div class="legend-item"><span class="km-delta better">▼</span> Planner più corto del GT</div>
+      <div class="legend-item"><span class="km-delta worse">▲</span> Planner più lungo del GT</div>
+      <div class="legend-item"><span class="km-est">~</span> Distanza GT stimata via OSRM (mancante nell'Excel)</div>
+    </div>
+  </div>
+</div>
+
 <div id="empty">Seleziona un evento dal menu in alto</div>
 
 <script>
@@ -109,6 +182,8 @@ const ROUTE_COLORS = [
 
 let mapP = null, mapG = null;
 let plannerLayers = [], gtLayers = [];
+let arrowDecorators = [];   // all L.polylineDecorator instances
+let showArrows = true;
 
 // ── Utilities ──
 function esc(str) {
@@ -137,13 +212,47 @@ fetch('data/index.json')
       sel.appendChild(opt);
     });
     sel.addEventListener('change', () => {
-      if (sel.value) loadEvent(sel.value);
+      if (sel.value) { loadEvent(sel.value); updateNavButtons(); }
     });
+    // Auto-load first event
+    if (index.length > 0) {
+      sel.value = index[0].slug;
+      loadEvent(index[0].slug);
+    }
+    updateNavButtons();
   })
   .catch(() => {
     document.getElementById('empty').textContent =
       'Errore: avvia il server con: cd tools/compare && python3 -m http.server 8080';
   });
+
+// ── Navigation ──
+function navigateEvent(dir) {
+  const sel = document.getElementById('evSelect');
+  const opts = Array.from(sel.options).filter(o => o.value);
+  const cur = opts.findIndex(o => o.value === sel.value);
+  const next = cur + dir;
+  if (next >= 0 && next < opts.length) {
+    sel.value = opts[next].value;
+    loadEvent(sel.value);
+    updateNavButtons();
+  }
+}
+
+function updateNavButtons() {
+  const sel = document.getElementById('evSelect');
+  const opts = Array.from(sel.options).filter(o => o.value);
+  const cur = opts.findIndex(o => o.value === sel.value);
+  document.getElementById('prevBtn').disabled = cur <= 0;
+  document.getElementById('nextBtn').disabled = cur < 0 || cur >= opts.length - 1;
+}
+
+document.addEventListener('keydown', e => {
+  // Don't hijack arrow keys when select is focused
+  if (document.activeElement && document.activeElement.id === 'evSelect') return;
+  if (e.key === 'ArrowLeft')  navigateEvent(-1);
+  if (e.key === 'ArrowRight') navigateEvent(1);
+});
 
 // ── Score chips ──
 function scoreColor(v) {
@@ -176,6 +285,7 @@ function renderEvent(data) {
   document.getElementById('empty').style.display = 'none';
   document.getElementById('colheaders').style.display = 'grid';
   document.getElementById('maps').style.display = 'grid';
+  document.getElementById('legend').style.display = 'block';
 
   const nP = data.matched_pairs.length + data.unmatched_planner.length;
   const nG = data.matched_pairs.length + data.unmatched_gt.length;
@@ -186,6 +296,71 @@ function renderEvent(data) {
 
   initMaps(data);
   renderBusPairs(data);
+  renderSummary(data);
+}
+
+// ── Summary (km + departure delta, planner side) ──
+function renderSummary(data) {
+  const el = document.getElementById('summary');
+
+  // Total km
+  let totalPKm = 0, totalGKm = 0, gKmAvail = true;
+  data.matched_pairs.forEach(p => {
+    if (typeof p.planner.distance_km === 'number') totalPKm += p.planner.distance_km;
+    if (typeof p.gt.distance_km === 'number') totalGKm += p.gt.distance_km; else gKmAvail = false;
+  });
+  data.unmatched_planner.forEach(b => { if (typeof b.distance_km === 'number') totalPKm += b.distance_km; });
+  data.unmatched_gt.forEach(b => {
+    if (typeof b.distance_km === 'number') totalGKm += b.distance_km; else gKmAvail = false;
+  });
+
+  // Earliest departure
+  let minPDep = Infinity, minGDep = Infinity;
+  const allPStops = [...data.matched_pairs.flatMap(p => p.planner.stops),
+                     ...data.unmatched_planner.flatMap(b => b.stops)];
+  const allGStops = [...data.matched_pairs.flatMap(p => p.gt.stops),
+                     ...data.unmatched_gt.flatMap(b => b.stops)];
+  allPStops.forEach(s => { const m = parseMinutes(s.departure_time); if (m !== null) minPDep = Math.min(minPDep, m); });
+  allGStops.forEach(s => { const m = parseMinutes(s.departure_time); if (m !== null) minGDep = Math.min(minGDep, m); });
+
+  const fmtMin = m => {
+    if (!isFinite(m)) return '—';
+    return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+  };
+
+  // km delta
+  let kmDeltaHtml = '';
+  if (gKmAvail && totalGKm > 0) {
+    const d = totalPKm - totalGKm;
+    const cls = d > 0 ? 'worse' : d < 0 ? 'better' : 'neutral';
+    const arrow = d > 0 ? '▲' : d < 0 ? '▼' : '=';
+    kmDeltaHtml = `<span class="summary-delta ${cls}">${arrow} ${d > 0 ? '+' : ''}${d.toFixed(1)} km vs GT</span>`;
+  }
+
+  // departure delta
+  let depDeltaHtml = '';
+  if (isFinite(minPDep) && isFinite(minGDep)) {
+    const d = minPDep - minGDep;
+    const cls = d < -5 ? 'worse' : d > 5 ? 'better' : 'neutral';
+    const sign = d > 0 ? '+' : '';
+    depDeltaHtml = `<span class="summary-delta ${cls}">${sign}${d} min vs GT</span>`;
+  }
+
+  el.style.display = 'block';
+  el.innerHTML = `
+    <h4>Riepilogo Planner</h4>
+    <div class="summary-row">
+      <div class="summary-item">
+        <span class="summary-label">Km totali</span>
+        <span class="summary-val">${totalPKm.toFixed(1)} km</span>
+        ${kmDeltaHtml}
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Prima partenza</span>
+        <span class="summary-val">${fmtMin(minPDep)}</span>
+        ${depDeltaHtml}
+      </div>
+    </div>`;
 }
 
 // ── Maps ──
@@ -195,6 +370,7 @@ function initMaps(data) {
   if (mapG) { mapG.remove(); mapG = null; }
   plannerLayers = [];
   gtLayers = [];
+  arrowDecorators = [];
 
   mapP = L.map('mapP', { zoomControl: false });
   mapG = L.map('mapG', { zoomControl: false });
@@ -209,26 +385,15 @@ function initMaps(data) {
   const dest = data.destination;
   const allCoords = [];
 
-  // Draw each matched pair
-  data.matched_pairs.forEach((pair, idx) => {
-    const color = ROUTE_COLORS[idx % ROUTE_COLORS.length];
-    const pLayer = drawRoute(mapP, pair.planner.stops, dest, color);
-    const gLayer = drawRoute(mapG, pair.gt.stops, dest, color);
-    if (pLayer) plannerLayers.push({ id: idx, layer: pLayer, color });
-    if (gLayer) gtLayers.push({ id: idx, layer: gLayer, color });
+  // Collect all coords first for immediate bounds fitting
+  data.matched_pairs.forEach(pair => {
     allCoords.push(...pair.planner.stops.filter(s => s.lat).map(s => [s.lat, s.lon]));
     allCoords.push(...pair.gt.stops.filter(s => s.lat).map(s => [s.lat, s.lon]));
   });
-
-  // Unmatched buses (grey)
-  data.unmatched_planner.forEach(bus => {
-    drawRoute(mapP, bus.stops, dest, '#64748b');
-    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon]));
-  });
-  data.unmatched_gt.forEach(bus => {
-    drawRoute(mapG, bus.stops, dest, '#64748b');
-    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon]));
-  });
+  data.unmatched_planner.forEach(bus =>
+    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon])));
+  data.unmatched_gt.forEach(bus =>
+    bus.stops.filter(s => s.lat).forEach(s => allCoords.push([s.lat, s.lon])));
 
   // Destination marker on both maps
   if (dest.lat && dest.lon) {
@@ -241,29 +406,70 @@ function initMaps(data) {
     allCoords.push([dest.lat, dest.lon]);
   }
 
-  // Fit both maps to same bounds
+  // Fit bounds immediately from known stop coords (no need to wait for OSRM)
   if (allCoords.length > 0) {
     const bounds = L.latLngBounds(allCoords);
     mapP.fitBounds(bounds, { padding: [10, 10] });
     mapG.fitBounds(bounds, { padding: [10, 10] });
   }
+
+  // Draw routes in sequence with a small delay so OSRM doesn't rate-limit us.
+  // Markers are drawn immediately inside drawRoute; only the polyline is async.
+  const routeJobs = [];
+  data.matched_pairs.forEach((pair, idx) => {
+    const color = ROUTE_COLORS[idx % ROUTE_COLORS.length];
+    // Dashed when stop sets differ (jaccard < 1), solid when they match perfectly
+    const dashed = pair.jaccard < 1.0;
+    routeJobs.push({ map: mapP, stops: pair.planner.stops, pairIdx: idx, color, dashed });
+    routeJobs.push({ map: mapG, stops: pair.gt.stops,     pairIdx: idx, color, dashed, isGt: true });
+  });
+  // Unmatched buses always dashed — no counterpart to compare against
+  data.unmatched_planner.forEach(bus =>
+    routeJobs.push({ map: mapP, stops: bus.stops, color: '#64748b', dashed: true }));
+  data.unmatched_gt.forEach(bus =>
+    routeJobs.push({ map: mapG, stops: bus.stops, color: '#64748b', dashed: true }));
+
+  (async () => {
+    for (const job of routeJobs) {
+      const { layer, distanceKm } = await drawRoute(job.map, job.stops, dest, job.color, job.dashed);
+      if (layer) {
+        if (job.pairIdx != null) {
+          if (job.isGt) gtLayers.push({ id: job.pairIdx, layer, color: job.color });
+          else          plannerLayers.push({ id: job.pairIdx, layer, color: job.color });
+        }
+        // Attach direction arrows
+        const dec = L.polylineDecorator(layer, {
+          patterns: [{
+            offset: '12%', repeat: '28%',
+            symbol: L.Symbol.arrowHead({
+              pixelSize: 9,
+              polygon: false,
+              pathOptions: { stroke: true, color: job.color, weight: 2.5, opacity: 0.9 }
+            })
+          }]
+        });
+        if (showArrows) dec.addTo(job.map);
+        arrowDecorators.push({ dec, map: job.map });
+      }
+      // If this is a GT route and the Excel had no distance, fill in OSRM estimate
+      if (job.isGt && job.pairIdx != null && distanceKm != null) {
+        updateGtKm(job.pairIdx, distanceKm);
+      }
+      await new Promise(r => setTimeout(r, 80)); // small gap — avoids OSRM 429s
+    }
+  })();
 }
 
-function drawRoute(map, stops, dest, color) {
+async function drawRoute(map, stops, dest, color, dashed = false) {
   const validStops = stops.filter(s => s.lat != null && s.lon != null);
   if (validStops.length === 0) return null;
 
-  const latlngs = validStops.map(s => [s.lat, s.lon]);
-  if (dest.lat && dest.lon) latlngs.push([dest.lat, dest.lon]);
-
-  const line = L.polyline(latlngs, { color, weight: 2.5, opacity: 0.85 }).addTo(map);
-
-  // School markers
+  // Draw markers immediately (don't wait for OSRM)
   validStops.forEach(stop => {
     const icon = L.divIcon({
       html: `<div style="
         background:${color};border-radius:50%;width:10px;height:10px;
-        border:2px solid rgba(255,255,255,0.7)"></div>`,
+        border:2px solid rgba(255,255,255,0.7);z-index:500"></div>`,
       className: '', iconAnchor: [5, 5]
     });
     L.marker([stop.lat, stop.lon], { icon })
@@ -271,7 +477,62 @@ function drawRoute(map, stops, dest, color) {
       .addTo(map);
   });
 
-  return line;
+  // Build waypoints array (lon,lat order for OSRM)
+  const waypoints = validStops.map(s => [s.lon, s.lat]);
+  if (dest.lat && dest.lon) waypoints.push([dest.lon, dest.lat]);
+
+  // Try OSRM for real road geometry
+  if (waypoints.length >= 2) {
+    const coordStr = waypoints.map(([lon, lat]) => `${lon},${lat}`).join(';');
+    try {
+      const res = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`,
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if (res.ok) {
+        const json = await res.json();
+        if (json.routes && json.routes[0]) {
+          // OSRM returns [lon, lat]; Leaflet wants [lat, lon]
+          const latlngs = json.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+          const distanceKm = json.routes[0].distance / 1000;
+          const style = dashed
+            ? { color, weight: 3, opacity: 0.85, dashArray: '8 6' }
+            : { color, weight: 3, opacity: 0.9 };
+          return { layer: L.polyline(latlngs, style).addTo(map), distanceKm };
+        }
+      }
+    } catch (_) { /* OSRM unavailable — fall through */ }
+  }
+
+  // OSRM failed — skip the polyline entirely rather than drawing a misleading air-line.
+  return { layer: null, distanceKm: null };
+}
+
+function updateGtKm(pairIdx, distanceKm) {
+  const valEl = document.getElementById(`gt-km-val-${pairIdx}`);
+  if (!valEl) return;
+  // Only fill in if Excel had no distance (showing '—')
+  if (valEl.textContent.trim() !== '—') return;
+  const rounded = distanceKm.toFixed(1);
+  valEl.innerHTML = `~${rounded} <span class="km-est" title="Stimato via OSRM">OSRM</span>`;
+
+  // Recalculate delta now that we have a GT distance
+  const deltaEl = document.getElementById(`km-delta-${pairIdx}`);
+  if (!deltaEl) return;
+  const pKm = parseFloat(deltaEl.dataset.pkm);
+  if (isNaN(pKm)) return;
+  const delta = pKm - distanceKm;
+  const cls = delta > 0 ? 'worse' : 'better';
+  const arrow = delta > 0 ? '▲' : '▼';
+  deltaEl.innerHTML = `<span class="km-delta ${cls}">${arrow} ${delta > 0 ? '+' : ''}${delta.toFixed(1)} km</span>`;
+}
+
+function toggleArrows(show) {
+  showArrows = show;
+  arrowDecorators.forEach(({ dec, map }) => {
+    if (show) dec.addTo(map);
+    else dec.remove();
+  });
 }
 
 function highlightBus(pairIdx) {
@@ -307,8 +568,9 @@ function renderBusPairs(data) {
     const kmDelta = (typeof pKm === 'number' && typeof gKm === 'number')
       ? (pKm - gKm).toFixed(1) : null;
     const deltaClass = kmDelta !== null ? (parseFloat(kmDelta) > 0 ? 'worse' : 'better') : '';
+    const deltaArrow = kmDelta !== null ? (parseFloat(kmDelta) > 0 ? '▲' : '▼') : '';
     const deltaStr = kmDelta !== null
-      ? `<span class="km-delta ${deltaClass}">(${parseFloat(kmDelta) > 0 ? '+' : ''}${kmDelta} km)</span>`
+      ? `<span class="km-delta ${deltaClass}">${deltaArrow} ${parseFloat(kmDelta) > 0 ? '+' : ''}${kmDelta} km</span>`
       : '';
 
     const pStops = pair.planner.stops || [];
@@ -339,8 +601,8 @@ function renderBusPairs(data) {
         <div class="stops-col">${rows.map((r, i) => renderStopCell(r.g, i + 1, r.tag, true)).join('')}</div>
       </div>
       <div class="km-row">
-        <div class="km-cell pc">Dist.: <span class="km-val">${pKm} km</span> ${deltaStr}</div>
-        <div class="km-cell">Dist. GT: <span class="km-val">${gKm} km</span></div>
+        <div class="km-cell pc">Planner: <span class="km-val">${typeof pKm === 'number' ? pKm.toFixed(1) : pKm} km</span> <span id="km-delta-${idx}" data-pkm="${typeof pKm === 'number' ? pKm : ''}">${deltaStr}</span></div>
+        <div class="km-cell">GT: <span id="gt-km-val-${idx}" class="km-val">${typeof gKm === 'number' ? gKm.toFixed(1) : gKm}</span> km</div>
       </div>`;
 
     container.appendChild(section);
