@@ -1,15 +1,15 @@
 {
   "IC BASSA VAL DI SOLE": {
-    "lat": 46.3527626,
-    "lon": 10.9147106
+    "lat": 46.352824,
+    "lon": 10.9147096
   },
   "IC BRENTONICO": {
-    "lat": 45.8186444,
-    "lon": 10.95719
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CAVALESE": {
-    "lat": 46.2909029,
-    "lon": 11.468204
+    "lat": 46.2909522,
+    "lon": 11.4662487
   },
   "IC CIVEZZANO": {
     "lat": 46.0928072,
@@ -20,20 +20,20 @@
     "lon": 10.870972
   },
   "IC LADINO DI FASSA": {
-    "lat": 46.4279413,
-    "lon": 11.6831041
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC PRIMIERO": {
-    "lat": 46.1757319,
-    "lon": 11.8297215
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ROSMINI ROVERETO": {
-    "lat": 45.9001919,
-    "lon": 11.0363944
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ROVERETO EST": {
-    "lat": 45.9001919,
-    "lon": 11.0363944
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ROVERETO SUD": {
     "lat": 45.8704688,
@@ -44,47 +44,63 @@
     "lon": 10.7407245
   },
   "IC VALLE DI LEDRO": {
-    "lat": 45.8951472,
-    "lon": 10.7206859
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS BONPORTI TRENTO": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS DA VINCI TRENTO": {
-    "lat": 46.0582218,
-    "lon": 11.1125459
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ENAIP CLES": {
     "lat": 46.3682701,
     "lon": 11.0345527
   },
   "IS ENAIP OSSANA": {
-    "lat": 46.3074694,
-    "lon": 10.7393033
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ENAIP VILLAZZANO": {
-    "lat": 46.0582218,
-    "lon": 11.1125459
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS GUETTI TIONE": {
-    "lat": 46.0339593,
-    "lon": 10.7267173
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS MAFFEI RIVA DEL GARDA": {
-    "lat": 45.894842,
-    "lon": 10.8496061
+    "lat": 45.8919799,
+    "lon": 10.8451423
   },
   "IS MARCONI ROVERETO": {
     "lat": 45.9117604,
     "lon": 11.0419398
   },
   "IS PERGINE 2": {
-    "lat": 46.0649029,
-    "lon": 11.2295763
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS PILATI CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
   },
   "IS PRIMIERO": {
-    "lat": 46.0605799,
-    "lon": 11.7629655
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSA BIANCA": {
-    "lat": 46.3119217,
-    "lon": 11.5994861
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS ROVERETO FONTANA": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS RUSSEL CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
   }
 }

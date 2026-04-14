@@ -1,4 +1,12 @@
 {
+  "ENAIP CLES": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "ENAIP VILLAZZANO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
   "IC ALTA VAL DI SOLE": {
     "lat": 46.3107355,
     "lon": 10.7325498
@@ -8,83 +16,127 @@
     "lon": 11.0250292
   },
   "IC BRENTONICO": {
-    "lat": 45.8192863,
-    "lon": 10.9562624
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CHIESE": {
-    "lat": 45.9414422,
-    "lon": 10.6392502
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC DAME INGLESI ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC FONDO-REVO’": {
-    "lat": 46.437594,
-    "lon": 11.1388241
+    "lat": 46.4373706,
+    "lon": 11.1377944
   },
   "IC GIUDICARIE ESTERIORI": {
     "lat": 46.0359577,
     "lon": 10.870972
   },
   "IC ISERA ROVERETO": {
-    "lat": 45.9009049,
-    "lon": 11.0389004
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC LADINO DI FASSA": {
-    "lat": 46.4279413,
-    "lon": 11.6831041
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC LAVIS": {
-    "lat": 46.1374325,
-    "lon": 11.113553
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC MEZZOLOMBARDO PAGANELLA": {
-    "lat": 46.2140353,
-    "lon": 11.0926169
+    "lat": 46.2134796,
+    "lon": 11.093278
   },
   "IC PERGINE 1": {
-    "lat": 46.0612304,
-    "lon": 11.2375736
+    "lat": 46.0616648,
+    "lon": 11.2377788
+  },
+  "IC PERGINE 2": {
+    "lat": 46.0616648,
+    "lon": 11.2377788
   },
   "IC PRIMIERO": {
-    "lat": 46.0036974,
-    "lon": 11.8146763
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC PRIMIERO / IS PRIMIERO": {
-    "lat": 46.1770769,
-    "lon": 11.829606
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC TIONE": {
-    "lat": 46.0339593,
-    "lon": 10.7267173
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC TRENTO 2": {
-    "lat": 46.0569638,
-    "lon": 11.1125554
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VAL RENDENA": {
-    "lat": 46.1596838,
-    "lon": 10.7664831
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VILLA LAGARINA": {
-    "lat": 45.9182063,
-    "lon": 11.0311707
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS BORGO VALSUGANA": {
-    "lat": 46.051538,
-    "lon": 11.453705
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS CLES PILATI": {
     "lat": 46.3682701,
     "lon": 11.0345527
   },
+  "IS CLES RUSSEL": {
+    "lat": 46.3682701,
+    "lon": 11.0345527
+  },
+  "IS DA VINCI TRENTO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS ENAIP TIONE": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS FILZI ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS FONTANA ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS GUETTI TIONE": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS MARCONI ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS MARTINI MEZZOLOMBARDO": {
+    "lat": 46.2134796,
+    "lon": 11.093278
+  },
+  "IS PRATI TRENTO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
   "IS ROSA BIANCA": {
-    "lat": 46.2899642,
-    "lon": 11.4637424
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSMINI ROVERETO Squadra + Students Staff": {
-    "lat": 45.9009049,
-    "lon": 11.0389004
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS TRENTO PERTINI": {
-    "lat": 46.0569638,
-    "lon": 11.1125554
+    "lat": 46.0697,
+    "lon": 11.1211
   }
 }

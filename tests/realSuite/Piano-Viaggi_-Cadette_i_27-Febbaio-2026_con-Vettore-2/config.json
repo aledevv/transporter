@@ -1,5 +1,7 @@
 {
   "destination": "Trento Nord - Gardolo – Centro Sportivo",
   "capacity": 54,
-  "orario_fine_manifestazione": "16:00"
+  "orario_fine_manifestazione": "16:00",
+  "destination_lat": 46.1052838,
+  "destination_lon": 11.1145014
 }

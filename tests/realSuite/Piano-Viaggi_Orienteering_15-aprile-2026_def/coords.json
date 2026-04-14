@@ -1,7 +1,7 @@
 {
   "IC ALDENO MATTARELLO": {
-    "lat": 45.9768882,
-    "lon": 11.0922044
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ALTA VAL DI SOLE": {
     "lat": 46.3107355,
@@ -12,20 +12,20 @@
     "lon": 11.1540986
   },
   "IC CENTRO VALSUGANA": {
-    "lat": 46.070336,
-    "lon": 11.477498
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CIVEZZANO": {
-    "lat": 46.0858914,
-    "lon": 11.2027147
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC GIUDICARIE ESTERIORI": {
     "lat": 46.0359577,
     "lon": 10.870972
   },
   "IC LEVICO TERME": {
-    "lat": 46.0136198,
-    "lon": 11.3083459
+    "lat": 46.0136493,
+    "lon": 11.3073263
   },
   "IC MEZZANO SANTA CROCE": {
     "lat": 46.1630679,
@@ -36,64 +36,68 @@
     "lon": 11.0059181
   },
   "IC MORI": {
-    "lat": 45.8521713,
-    "lon": 10.9855725
+    "lat": 45.8518449,
+    "lon": 10.9806653
   },
   "IC PRIMIERO": {
-    "lat": 46.1754795,
-    "lon": 11.8281534
+    "lat": 46.174476,
+    "lon": 11.8281336
   },
   "IC TRENTO 3": {
     "lat": 46.059076,
     "lon": 11.1242264
   },
   "IC TRENTO 6": {
-    "lat": 46.0696817,
-    "lon": 11.1139055
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC TRENTO 7": {
-    "lat": 46.3693051,
-    "lon": 11.0326891
+    "lat": 46.6743355,
+    "lon": 11.1486166
   },
   "IC VAL RENDENA": {
-    "lat": 46.2269942,
-    "lon": 10.8270157
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VALLE DEI LAGHI-DRO": {
-    "lat": 46.0794117,
-    "lon": 11.0022582
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VALLE DI LEDRO": {
     "lat": 45.8951472,
     "lon": 10.7206859
   },
   "IC VIGOLO VATTARO": {
-    "lat": 46.0048443,
-    "lon": 11.1983809
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS AGRARIO SAN MICHELE A/A": {
-    "lat": 46.1898894,
-    "lon": 11.1332781
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS DA VINCI": {
-    "lat": 46.0696817,
-    "lon": 11.1139055
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS DEGASPERI BORGO VALSUGANA": {
-    "lat": 46.0521471,
-    "lon": 11.4612149
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS ENAIP PRIMIERO + IS PRIMIERO": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ENAIP TIONE": {
-    "lat": 46.0364673,
-    "lon": 10.7311417
+    "lat": 46.0374423,
+    "lon": 10.7288396
   },
   "IS GALILEI TRENTO": {
-    "lat": 46.0618552,
-    "lon": 11.1333403
+    "lat": 46.0622558,
+    "lon": 11.132845
   },
   "IS LEVICO TERME BARELLI": {
-    "lat": 46.0132999,
-    "lon": 11.3013427
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS MARCONI ROVERETO": {
     "lat": 45.9117604,
@@ -108,32 +112,32 @@
     "lon": 11.0938593
   },
   "IS PERGINE VALSUGANA CURIE": {
-    "lat": 46.0612304,
-    "lon": 11.2375736
+    "lat": 46.0616648,
+    "lon": 11.2377788
   },
   "IS PILATI CLES": {
     "lat": 46.3693051,
     "lon": 11.0326891
   },
   "IS PRIMIERO": {
-    "lat": 46.0296622,
-    "lon": 11.7632823
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSA BIANCA CAVALESE": {
-    "lat": 46.2902101,
-    "lon": 11.4649719
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSMINI ROVERETO": {
-    "lat": 45.8956087,
-    "lon": 11.0396196
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSMINI TRENTO": {
     "lat": 46.059076,
     "lon": 11.1242264
   },
   "IS SOPHIE SCHOOL": {
-    "lat": 46.0696817,
-    "lon": 11.1139055
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS TESERO ENAIP": {
     "lat": 46.2874466,

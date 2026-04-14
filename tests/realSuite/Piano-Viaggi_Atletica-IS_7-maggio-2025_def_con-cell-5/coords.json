@@ -1,50 +1,58 @@
 {
+  "IS Buonarroti Trento": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
   "IS Degasperi Borgo Valsugana": {
-    "lat": 46.055486,
-    "lon": 11.4634048
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS Enaip Tione": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Floriani Riva del Garda": {
-    "lat": 45.8916755,
-    "lon": 10.84294
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Guetti Tione": {
-    "lat": 46.0374423,
-    "lon": 10.7288396
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Maffei Riva del Garda": {
-    "lat": 45.8881718,
-    "lon": 10.8443478
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Martini Mezzolombardo": {
-    "lat": 46.2177194,
-    "lon": 11.0932726
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Pertini Trento": {
-    "lat": 46.0653633,
-    "lon": 11.1006012
+    "lat": 46.0659767,
+    "lon": 11.1026923
   },
   "IS Pilati CLES": {
     "lat": 46.3682701,
     "lon": 11.0345527
   },
   "IS Rosmini Trento": {
-    "lat": 46.062099,
-    "lon": 11.1239096
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS Russell CLES": {
-    "lat": 46.3682701,
-    "lon": 11.0345527
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "Liceo Da Vinci Trento": {
-    "lat": 46.0599819,
-    "lon": 11.1190264
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "Liceo Da Vinci Trento (pullman con pedana)": {
-    "lat": 46.0599819,
-    "lon": 11.1190264
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "Linguistico SCHOLL Trento": {
-    "lat": 46.0653633,
-    "lon": 11.1006012
+    "lat": 46.0697,
+    "lon": 11.1211
   }
 }

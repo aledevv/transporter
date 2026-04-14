@@ -8,99 +8,135 @@
     "lon": 11.0014206
   },
   "IC ALDENO-MATTARELLO": {
-    "lat": 46.0068229,
-    "lon": 11.1306398
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC BASSA VAL DI SOLE": {
-    "lat": 46.3533505,
-    "lon": 10.9163663
+    "lat": 46.352824,
+    "lon": 10.9147096
   },
   "IC BRENTONICO": {
-    "lat": 45.8186444,
-    "lon": 10.95719
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CAVALESE": {
-    "lat": 46.2902101,
-    "lon": 11.4649719
+    "lat": 46.2909522,
+    "lon": 11.4662487
   },
   "IC GIUDICARIE ESTERIORI": {
     "lat": 46.0359577,
     "lon": 10.870972
   },
   "IC ISERA ROVERETO": {
-    "lat": 45.90294,
-    "lon": 11.0380953
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC LAVIS": {
-    "lat": 46.1374325,
-    "lon": 11.113553
+    "lat": 46.1380913,
+    "lon": 11.1133091
   },
   "IC MEZZOCORONA": {
     "lat": 46.2129389,
     "lon": 11.1139953
   },
   "IC MEZZOLOMBARDO PAGANELLA": {
-    "lat": 46.2177519,
-    "lon": 11.0482682
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC PERGINE 2": {
-    "lat": 46.0649029,
-    "lon": 11.2295763
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC ROVERETO EST": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC ROVERETO NORD": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC TIONE": {
     "lat": 46.0302545,
     "lon": 10.7247686
   },
   "IC TRENTO SACRO CUORE": {
-    "lat": 46.0696467,
-    "lon": 11.1122739
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VAL RENDENA": {
     "lat": 46.100445,
     "lon": 10.7407245
   },
   "IC VIGOLO VATTARO": {
-    "lat": 46.0048443,
-    "lon": 11.1983809
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VILLA LAGARINA": {
-    "lat": 45.9182063,
-    "lon": 11.0311707
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ENAIP CLES": {
     "lat": 46.3682701,
     "lon": 11.0345527
   },
   "IS ENAIP OSSANA": {
-    "lat": 46.3074694,
-    "lon": 10.7393033
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS ENAIP TIONE": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS ENAIP VILLAZZANO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS FILZI ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS FONTANA ROVERETO": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS GUETTI TIONE": {
-    "lat": 46.0339593,
-    "lon": 10.7267173
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS LINGUISTICO SCHOLL TRENTO": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS MAFFEI RIVA DEL GARDA": {
-    "lat": 45.8941822,
-    "lon": 10.8431194
+    "lat": 45.8919799,
+    "lon": 10.8451423
   },
   "IS MARCONI ROVERETO": {
     "lat": 45.9117604,
     "lon": 11.0419398
   },
+  "IS PERTINI TRENTO": {
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
   "IS ROSA BIANCA": {
-    "lat": 46.3119217,
-    "lon": 11.5994861
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS ROSMINI ROVERETO": {
-    "lat": 45.90294,
-    "lon": 11.0380953
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS TIONE GUETTI-Students staff": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS TRENTO TAMBOSI": {
-    "lat": 46.0696467,
-    "lon": 11.1122739
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IS VITTORIA BONPORTI TRENTO": {
-    "lat": 46.0696467,
-    "lon": 11.1122739
+    "lat": 46.0697,
+    "lon": 11.1211
   }
 }

@@ -1,51 +1,63 @@
 {
+  "Centro Sportivo Sopramonte": {
+    "lat": 46.0702838,
+    "lon": 11.0565967
+  },
+  "Centro Sportivo Tn Nord - Gardolo": {
+    "lat": 46.1047342,
+    "lon": 11.1147719
+  },
   "IC ALA": {
     "lat": 45.7562382,
     "lon": 11.0015357
   },
   "IC ALDENO MATTARELLO": {
-    "lat": 46.0116034,
-    "lon": 11.1319752
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ALTA VAL DI SOLE": {
-    "lat": 46.3107355,
-    "lon": 10.7325498
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ARCO": {
-    "lat": 45.918401,
-    "lon": 10.8883301
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC ARCO GARDA": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC AVIO": {
-    "lat": 45.7359737,
-    "lon": 10.9439825
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC BASSA ANAUNIA TUENNO": {
-    "lat": 46.3304899,
-    "lon": 11.0250292
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC BASSA ANAUNIA-TUENNO": {
-    "lat": 46.3304899,
-    "lon": 11.0250292
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC BASSA VAL DI SOLE": {
-    "lat": 46.3526129,
-    "lon": 10.914342
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CHIESE (cadetti)": {
-    "lat": 45.9419975,
-    "lon": 10.6405
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC CLES": {
     "lat": 46.3682701,
     "lon": 11.0345527
   },
   "IC FOLGARIA LAVARONE": {
-    "lat": 45.9409204,
-    "lon": 11.2717007
+    "lat": 45.9394693,
+    "lon": 11.2739378
   },
   "IC FONDO REVO'": {
-    "lat": 46.4206135,
-    "lon": 11.0878481
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC GIUDICARIE ESTERIORI": {
     "lat": 46.0359577,
@@ -56,43 +68,55 @@
     "lon": 11.0239036
   },
   "IC LAVIS": {
-    "lat": 46.1374325,
-    "lon": 11.113553
+    "lat": 46.1380913,
+    "lon": 11.1133091
   },
   "IC MEZZOLOMBARDO": {
-    "lat": 46.219181,
-    "lon": 11.0487784
+    "lat": 46.2189608,
+    "lon": 11.048443
   },
   "IC PERGINE 1": {
     "lat": 46.067046,
     "lon": 11.2453364
   },
   "IC PRIMIERO": {
-    "lat": 46.1851629,
-    "lon": 11.8311111
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC RIVA 1 (cadetti)": {
-    "lat": 45.8981342,
-    "lon": 10.8452329
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC RIVA 2": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ROVERETO EST": {
-    "lat": 45.8909414,
-    "lon": 11.0347273
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IC ROVERETO NORD": {
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC ROVERETO SUD": {
-    "lat": 45.8814267,
-    "lon": 11.0354632
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC TAIO": {
-    "lat": 46.3205899,
-    "lon": 11.0668144
+    "lat": 46.3205505,
+    "lon": 11.0654295
   },
   "IC TIONE": {
-    "lat": 46.0302545,
-    "lon": 10.7247686
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "IC VALLE DEI LAGHI DRO": {
-    "lat": 45.9592826,
-    "lon": 10.9101053
+    "lat": 46.0697,
+    "lon": 11.1211
+  },
+  "IS DON MILANI (Students staff)": {
+    "lat": 46.0697,
+    "lon": 11.1211
   }
 }
