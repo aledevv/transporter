@@ -1,7 +1,5 @@
 {
-  "destination": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
+  "destination": "Unknown",
   "capacity": 54,
-  "orario_fine_manifestazione": "15:00",
-  "destination_lat": 46.103651,
-  "destination_lon": 11.114801
+  "orario_fine_manifestazione": "15:00"
 }

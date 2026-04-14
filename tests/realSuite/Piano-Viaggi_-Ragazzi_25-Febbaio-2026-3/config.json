@@ -1,7 +1,5 @@
 {
-  "destination": "Istituto Tecnico Tecnologico Guglielmo Marconi, 1, Via Padre Faustino Monti, Sant'Ilario, Rovereto, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38068, Italy",
+  "destination": "Rovereto – Palestra IS Marconi",
   "capacity": 54,
-  "orario_fine_manifestazione": "16:00",
-  "destination_lat": 45.9117604,
-  "destination_lon": 11.0419398
+  "orario_fine_manifestazione": "16:00"
 }

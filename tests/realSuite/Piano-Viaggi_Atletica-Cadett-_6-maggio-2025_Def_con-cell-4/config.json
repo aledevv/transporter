@@ -1,7 +1,5 @@
 {
   "destination": "Rovereto – Stadio Quercia",
   "capacity": 54,
-  "orario_fine_manifestazione": "17:00",
-  "destination_lat": 45.9009827,
-  "destination_lon": 11.0375717
+  "orario_fine_manifestazione": "17:00"
 }

@@ -1,7 +1,5 @@
 {
   "destination": "Centro sportivo Trento Nord - Trento",
   "capacity": 54,
-  "orario_fine_manifestazione": "14:30",
-  "destination_lat": 46.1052838,
-  "destination_lon": 11.1145014
+  "orario_fine_manifestazione": "14:30"
 }
