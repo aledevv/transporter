@@ -45,6 +45,7 @@ def test_extract_schools_no_istituto_column():
 # Padel ha IS GUETTI (Luogo Ritrovo=NaN) e IS FILZI ROVERETO (Luogo Ritrovo=NaN)
 PADEL = REALSUITE / "archive" / "Piani-viaggio_Padel_10-dic-25_def2_con-VETTORE_structured.xlsx"
 
+
 def test_extract_schools_includes_grouped_schools():
     """Scuole con Luogo Ritrovo vuoto ereditano l'indirizzo del predecessore."""
     from prepare_realSuite import extract_schools_from_structured
@@ -52,6 +53,7 @@ def test_extract_schools_includes_grouped_schools():
     names = df["Nome"].tolist()
     assert "IS GUETTI" in names, f"IS GUETTI mancante; scuole trovate: {names}"
     assert "IS FILZI ROVERETO" in names, f"IS FILZI ROVERETO mancante; scuole trovate: {names}"
+
 
 def test_extract_schools_grouped_school_inherits_address():
     """IS GUETTI eredita l'indirizzo di IS ENAIP di TIONE."""
@@ -64,6 +66,7 @@ def test_extract_schools_grouped_school_inherits_address():
         f"Indirizzo errato: {guetti.iloc[0]['Indirizzo']!r}"
     )
 
+
 def test_extract_schools_grouped_school_zero_demand():
     """IS GUETTI ha Persone=NaN → Partecipanti=0."""
     from prepare_realSuite import extract_schools_from_structured
@@ -71,9 +74,11 @@ def test_extract_schools_grouped_school_zero_demand():
     guetti = df[df["Nome"] == "IS GUETTI"]
     assert guetti.iloc[0]["Partecipanti"] == 0
 
+
 def test_extract_schools_grouped_school_with_demand():
     """IS FILZI ROVERETO ha Persone=9 → Partecipanti=9."""
     from prepare_realSuite import extract_schools_from_structured
     df = extract_schools_from_structured(PADEL)
     filzi = df[df["Nome"] == "IS FILZI ROVERETO"]
+    assert len(filzi) == 1
     assert filzi.iloc[0]["Partecipanti"] == 9

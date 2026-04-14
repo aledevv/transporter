@@ -39,7 +39,7 @@ def extract_schools_from_structured(xlsx_path: Path) -> pd.DataFrame:
 
     # Propagate FIN# and pickup address to grouped schools (same stop, same bus)
     df["FIN #"]         = df["FIN #"].ffill()
-    df["Luogo Ritrovo"] = df["Luogo Ritrovo"].ffill()
+    df["Luogo Ritrovo"] = df.groupby("FIN #")["Luogo Ritrovo"].transform("ffill")
 
     out = pd.DataFrame({
         "Nome":         df["Istituto"].astype(str).str.strip(),
