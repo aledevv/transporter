@@ -12,11 +12,11 @@
   {
     "slug": "piani-viaggio-padel-10-dic-25-def2-con-vettore",
     "name": "Piani-viaggio_Padel_10-dic-25_def2_con-VETTORE",
-    "destination": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
+    "destination": "Unknown",
     "scores": {
-      "assignment": 0.6667,
-      "bus_count": 0.75,
-      "combined": 0.7
+      "assignment": 0.5893,
+      "bus_count": 0.5,
+      "combined": 0.5536
     }
   },
   {
@@ -32,37 +32,37 @@
   {
     "slug": "piano-viaggi-corsa-campestre-ic-cadett-13-marzo-25",
     "name": "Piano-Viaggi-Corsa-Campestre_IC_Cadett-_13-marzo-25",
-    "destination": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+    "destination": "Villa Lagarina – Località Giardini",
     "scores": {
-      "assignment": 0.6579,
-      "bus_count": 0.9048,
-      "combined": 0.7566
+      "assignment": 0.405,
+      "bus_count": 0.9524,
+      "combined": 0.624
     }
   },
   {
     "slug": "piano-viaggi-corsa-campestre-ic-ragazz-14-marzo-25-2",
     "name": "Piano-Viaggi-Corsa-Campestre_IC_Ragazz-_14-marzo-25-2",
-    "destination": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+    "destination": "Villa Lagarina – Località Giardini",
     "scores": {
-      "assignment": 0.5382,
+      "assignment": 0.3029,
       "bus_count": 0.8947,
-      "combined": 0.6808
+      "combined": 0.5397
     }
   },
   {
     "slug": "piano-viaggi-corsa-campestre-is-12-marzo-25-con-cel-3",
     "name": "Piano-Viaggi-Corsa-Campestre_IS_12-marzo-25_con-cel-3",
-    "destination": "Villa Lagarina, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, Italy",
+    "destination": "Villa Lagarina – Località Giardini",
     "scores": {
-      "assignment": 0.6042,
+      "assignment": 0.3896,
       "bus_count": 1.0,
-      "combined": 0.7625
+      "combined": 0.6338
     }
   },
   {
     "slug": "piano-viaggi-gdg-24-marzo-26-def-con-vettore-4",
     "name": "Piano-Viaggi-GdG_24-marzo-26-Def-con-Vettore-4",
-    "destination": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
+    "destination": "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3",
     "scores": {
       "assignment": 0.7222,
       "bus_count": 1.0,
@@ -84,9 +84,9 @@
     "name": "Piano-Viaggi-_Sci-Alpino-Selected-IC-e-IS_27-gen-26-Def_con-vettore",
     "destination": "Fondo Grande Folgaria",
     "scores": {
-      "assignment": 0.4762,
-      "bus_count": 0.7,
-      "combined": 0.5657
+      "assignment": 0.3318,
+      "bus_count": 0.8,
+      "combined": 0.5191
     }
   },
   {
@@ -94,19 +94,19 @@
     "name": "Piano-Viaggi_-Cadette_i_27-Febbaio-2026_con-Vettore-2",
     "destination": "Trento Nord - Gardolo – Centro Sportivo",
     "scores": {
-      "assignment": 0.5426,
-      "bus_count": 1.0,
-      "combined": 0.7256
+      "assignment": 0.3758,
+      "bus_count": 0.625,
+      "combined": 0.4755
     }
   },
   {
     "slug": "piano-viaggi-ragazzi-25-febbaio-2026-3",
     "name": "Piano-Viaggi_-Ragazzi_25-Febbaio-2026-3",
-    "destination": "Istituto Tecnico Tecnologico Guglielmo Marconi, 1, Via Padre Faustino Monti, Sant'Ilario, Rovereto, Comunità della Vallagarina, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38068, Italy",
+    "destination": "Rovereto – Palestra IS Marconi",
     "scores": {
-      "assignment": 0.5389,
+      "assignment": 0.5524,
       "bus_count": 0.75,
-      "combined": 0.6233
+      "combined": 0.6314
     }
   },
   {
@@ -114,9 +114,9 @@
     "name": "Piano-Viaggi_Atletica-Cadett-_6-maggio-2025_Def_con-cell-4",
     "destination": "Rovereto – Stadio Quercia",
     "scores": {
-      "assignment": 0.6029,
-      "bus_count": 0.9444,
-      "combined": 0.7395
+      "assignment": 0.5625,
+      "bus_count": 0.8889,
+      "combined": 0.6931
     }
   },
   {
@@ -124,9 +124,9 @@
     "name": "Piano-Viaggi_Atletica-IS_7-maggio-2025_def_con-cell-5",
     "destination": "Rovereto – Stadio Quercia",
     "scores": {
-      "assignment": 0.6905,
-      "bus_count": 0.875,
-      "combined": 0.7643
+      "assignment": 0.375,
+      "bus_count": 1.0,
+      "combined": 0.625
     }
   },
   {
@@ -152,7 +152,7 @@
   {
     "slug": "piano-viaggi-giochiamo-alle-olimpiadi-21-ottobre-2025-gardolo",
     "name": "Piano-Viaggi_Giochiamo-alle-Olimpiadi_21-ottobre-2025_Gardolo",
-    "destination": "Via 4 Novembre (1918), Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38121, Italy",
+    "destination": "Centro Sportivo di Gardolo – Trento Nord",
     "scores": {
       "assignment": 0.7333,
       "bus_count": 0.8,
@@ -182,17 +182,17 @@
   {
     "slug": "piano-viaggi-orienteering-15-aprile-2026-def",
     "name": "Piano-Viaggi_Orienteering_15-aprile-2026_def",
-    "destination": "Lake Fit, Via del Lido, Lido, Miola, Baselga di Piné, Comunità Alta Valsugana e Bersntol, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38057, Italy",
+    "destination": "Centro Sportivo Lungolago Serraia - Baselga di Pinè",
     "scores": {
-      "assignment": 0.598,
+      "assignment": 0.6422,
       "bus_count": 0.8824,
-      "combined": 0.7118
+      "combined": 0.7382
     }
   },
   {
     "slug": "piano-viaggi-palla-tamburello-22-aprile-2026",
     "name": "Piano-Viaggi_Palla-Tamburello_22-aprile-2026",
-    "destination": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
+    "destination": "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo",
     "scores": {
       "assignment": 0.625,
       "bus_count": 1.0,
@@ -202,21 +202,21 @@
   {
     "slug": "piano-viaggi-scacchi-18-feb-25-def",
     "name": "Piano-Viaggi_Scacchi_18-feb-25_DEF",
-    "destination": "TSM-Trentino School of Management, 40, Via Giuseppe Giusti, San Pio Decimo, San Giuseppe - Santa Chiara, Sardagna, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+    "destination": "TSM, Via Giusti 40, Trento",
     "scores": {
-      "assignment": 0.3714,
-      "bus_count": 0.875,
-      "combined": 0.5729
+      "assignment": 0.417,
+      "bus_count": 1.0,
+      "combined": 0.6502
     }
   },
   {
     "slug": "piano-viaggi-volley-s3-tn-nord-e-sopramonte-4-dic-25-def3-con-vettore-e-cell",
     "name": "Piano-Viaggi_Volley-S3_Tn-Nord-e-Sopramonte_4-dic-25_def3_con-VETTORE-e-CELL",
-    "destination": "Via di Mura, Bondone, Sopramonte, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38123, Italy",
+    "destination": "1° tappa Sopramonte, Via di Mura 11 / 2° tappa Trento Nord – Gardolo, Via 4 Novembre 23/4",
     "scores": {
-      "assignment": 0.3463,
+      "assignment": 0.3139,
       "bus_count": 0.75,
-      "combined": 0.5078
+      "combined": 0.4883
     }
   },
   {
@@ -224,15 +224,15 @@
     "name": "Piano-viaggi-SNOWBOARD-FONDO-29-GENNAIO-CON-VETTORE",
     "destination": "Passo Coe",
     "scores": {
-      "assignment": 0.65,
+      "assignment": 0.4537,
       "bus_count": 0.9,
-      "combined": 0.75
+      "combined": 0.6322
     }
   },
   {
     "slug": "piano-viaggi-tennis-tavolo-ic-con-vettore-e-cel-24-nov-25",
     "name": "Piano-viaggi_TENNIS-TAVOLO-IC_con-vettore-e-cel_24-nov-25",
-    "destination": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+    "destination": "Centro Sportivo \"Pala Vela\" - Trento",
     "scores": {
       "assignment": 0.75,
       "bus_count": 0.5,
@@ -242,11 +242,11 @@
   {
     "slug": "piano-viaggi-tennistavolo-is-28-nov-25-con-vettore",
     "name": "Piano-viaggi_Tennistavolo_IS_28-nov-25-CON-VETTORE",
-    "destination": "Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38122, Italy",
+    "destination": "CENTRO SPORTIVO Vela-Piedicastello, Via Doss Trento – TRENTO",
     "scores": {
-      "assignment": 0.4667,
-      "bus_count": 1.0,
-      "combined": 0.68
+      "assignment": 0.6667,
+      "bus_count": 0.8,
+      "combined": 0.72
     }
   },
   {
@@ -254,9 +254,9 @@
     "name": "Sci-alpino-School_IC-IS_28-gen-2026_CON-VETTORI",
     "destination": "Fondo Grande Folgaria",
     "scores": {
-      "assignment": 0.4562,
-      "bus_count": 0.7273,
-      "combined": 0.5647
+      "assignment": 0.3648,
+      "bus_count": 0.8182,
+      "combined": 0.5462
     }
   },
   {
@@ -264,9 +264,9 @@
     "name": "VOLLEY-S4_IC_Piano-viaggi_19-novembre-2025-def",
     "destination": "Centro sportivo Trento Nord - Trento",
     "scores": {
-      "assignment": 0.7444,
-      "bus_count": 1.0,
-      "combined": 0.8467
+      "assignment": 0.385,
+      "bus_count": 0.8333,
+      "combined": 0.5643
     }
   },
   {

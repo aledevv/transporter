@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Piano-Viaggi_Giochiamo-alle-Olimpiadi_21-ottobre-2025_Gardolo",
-    "destination": "Via 4 Novembre (1918), Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38121, Italy",
+    "destination": "Centro Sportivo di Gardolo – Trento Nord",
     "capacity": 54
   },
   "scores": {
@@ -10,9 +10,9 @@
     "combined": 0.76
   },
   "destination": {
-    "name": "Via 4 Novembre (1918), Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38121, Italy",
-    "lat": 46.1005929,
-    "lon": 11.1128756
+    "name": "Centro Sportivo di Gardolo – Trento Nord",
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

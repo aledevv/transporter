@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Piano-viaggi_TENNIS-TAVOLO-IC_con-vettore-e-cel_24-nov-25",
-    "destination": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
+    "destination": "Centro Sportivo \"Pala Vela\" - Trento",
     "capacity": 54
   },
   "scores": {
@@ -10,9 +10,9 @@
     "combined": 0.65
   },
   "destination": {
-    "name": "Centro sportivo Vela, 23b, Via Dòs Trento, Piedicastello, Centro Storico - Piedicastello, Vela, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31822, Italy",
-    "lat": 46.0755872,
-    "lon": 11.107593
+    "name": "Centro Sportivo \"Pala Vela\" - Trento",
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

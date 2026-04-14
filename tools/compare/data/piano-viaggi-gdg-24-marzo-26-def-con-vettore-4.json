@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Piano-Viaggi-GdG_24-marzo-26-Def-con-Vettore-4",
-    "destination": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
+    "destination": "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3",
     "capacity": 54
   },
   "scores": {
@@ -10,9 +10,9 @@
     "combined": 0.8333
   },
   "destination": {
-    "name": "Via alle Albere, Pianezze, Aldeno, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38060, Italy",
-    "lat": 45.9677978,
-    "lon": 11.0913554
+    "name": "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3",
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

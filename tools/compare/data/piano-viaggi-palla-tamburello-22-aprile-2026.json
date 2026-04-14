@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Piano-Viaggi_Palla-Tamburello_22-aprile-2026",
-    "destination": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
+    "destination": "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo",
     "capacity": 54
   },
   "scores": {
@@ -10,9 +10,9 @@
     "combined": 0.775
   },
   "destination": {
-    "name": "Via di Santo Spirito, Rallo, Ville d'Anaunia, Comunità della Val di Non, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38028, Italy",
-    "lat": 46.3416416,
-    "lon": 11.0366402
+    "name": "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo",
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

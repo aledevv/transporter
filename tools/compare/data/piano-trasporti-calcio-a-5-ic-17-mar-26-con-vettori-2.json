@@ -11,8 +11,8 @@
   },
   "destination": {
     "name": "Centro Sportivo Melta di Gardolo",
-    "lat": 46.0974,
-    "lon": 11.1173373
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

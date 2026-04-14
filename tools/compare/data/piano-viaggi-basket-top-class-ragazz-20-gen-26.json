@@ -11,8 +11,8 @@
   },
   "destination": {
     "name": "Centro sportivo Trento Nord - Trento",
-    "lat": 46.1052838,
-    "lon": 11.1145014
+    "lat": null,
+    "lon": null
   },
   "matched_pairs": [
     {

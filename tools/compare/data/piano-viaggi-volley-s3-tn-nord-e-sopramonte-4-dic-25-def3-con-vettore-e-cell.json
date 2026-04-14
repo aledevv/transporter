@@ -1,258 +1,166 @@
 {
   "event": {
     "name": "Piano-Viaggi_Volley-S3_Tn-Nord-e-Sopramonte_4-dic-25_def3_con-VETTORE-e-CELL",
-    "destination": "Via di Mura, Bondone, Sopramonte, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38123, Italy",
+    "destination": "1° tappa Sopramonte, Via di Mura 11 / 2° tappa Trento Nord – Gardolo, Via 4 Novembre 23/4",
     "capacity": 54
   },
   "scores": {
-    "assignment": 0.3463,
+    "assignment": 0.3139,
     "bus_count": 0.75,
-    "combined": 0.5078
+    "combined": 0.4883
   },
   "destination": {
-    "name": "Via di Mura, Bondone, Sopramonte, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 38123, Italy",
-    "lat": 46.0697152,
-    "lon": 11.053162
+    "name": "1° tappa Sopramonte, Via di Mura 11 / 2° tappa Trento Nord – Gardolo, Via 4 Novembre 23/4",
+    "lat": 46.0697,
+    "lon": 11.1211
   },
   "matched_pairs": [
     {
-      "jaccard": 0.6,
+      "jaccard": 0.5,
       "planner": {
         "vehicle_id": 6,
         "stops": [
           {
-            "name": "IC CHIESE (cadetti)",
-            "lat": 45.9419975,
-            "lon": 10.6405,
+            "name": "IC CLES",
+            "lat": 46.3682701,
+            "lon": 11.0345527,
+            "departure_time": "06:11",
+            "count": 16
+          },
+          {
+            "name": "IC TAIO",
+            "lat": 46.3205505,
+            "lon": 11.0654295,
+            "departure_time": "06:24",
+            "count": 12
+          },
+          {
+            "name": "IC TAIO",
+            "lat": 46.3205505,
+            "lon": 11.0654295,
             "departure_time": "06:35",
-            "count": 8
+            "count": 4
           },
           {
-            "name": "IC TIONE",
-            "lat": 46.0302545,
-            "lon": 10.7247686,
-            "departure_time": "06:56",
-            "count": 8
-          },
-          {
-            "name": "IC TIONE",
-            "lat": 46.0302545,
-            "lon": 10.7247686,
+            "name": "IC MEZZOLOMBARDO",
+            "lat": 46.2189608,
+            "lon": 11.048443,
             "departure_time": "06:59",
             "count": 8
           },
           {
-            "name": "IC GIUDICARIE ESTERIORI",
-            "lat": 46.0359577,
-            "lon": 10.870972,
-            "departure_time": "07:17",
-            "count": 16
+            "name": "IC MEZZOLOMBARDO",
+            "lat": 46.2189608,
+            "lon": 11.048443,
+            "departure_time": "07:11",
+            "count": 8
           }
         ],
-        "distance_km": 31.16
+        "distance_km": 35.52
       },
       "gt": {
         "stops": [
-          {
-            "name": "Centro Sportivo Sopramonte",
-            "luogo_ritrovo": "Sopramonte - Via di Mura 11",
-            "departure_time": "08:05",
-            "return_time": "16:20",
-            "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "Centro Sportivo Tn Nord - Gardolo",
-            "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
-            "departure_time": "08:30",
-            "return_time": "16:00",
-            "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "IC CHIESE (cadetti)",
-            "luogo_ritrovo": "Pieve di Bono, Via Fiera 1 loc. Creto",
-            "departure_time": "06:35",
-            "return_time": "18:05",
-            "count": 8,
-            "lat": 45.9419975,
-            "lon": 10.6405,
-            "coords_missing": false
-          },
-          {
-            "name": "IC GIUDICARIE ESTERIORI",
-            "luogo_ritrovo": "Comano Terme, Via San Giovanni Bosco 14",
-            "departure_time": "07:25",
-            "return_time": "17:05",
-            "count": 16,
-            "lat": 46.0359577,
-            "lon": 10.870972,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TIONE",
-            "luogo_ritrovo": "Roncone, Via Nazionale 20",
-            "departure_time": "06:45",
-            "return_time": "17:55",
-            "count": 8,
-            "lat": 46.0302545,
-            "lon": 10.7247686,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TIONE",
-            "luogo_ritrovo": "Tione, Via Circonvalazione 44",
-            "departure_time": "07:05",
-            "return_time": "17:25",
-            "count": 8,
-            "lat": 46.0302545,
-            "lon": 10.7247686,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 132.0
-      },
-      "gt_fin": "7"
-    },
-    {
-      "jaccard": 0.4,
-      "planner": {
-        "vehicle_id": 8,
-        "stops": [
-          {
-            "name": "IC ALTA VAL DI SOLE",
-            "lat": 46.3107355,
-            "lon": 10.7325498,
-            "departure_time": "06:01",
-            "count": 16
-          },
-          {
-            "name": "IC BASSA VAL DI SOLE",
-            "lat": 46.3526129,
-            "lon": 10.914342,
-            "departure_time": "06:22",
-            "count": 16
-          },
           {
             "name": "IC FONDO REVO'",
-            "lat": 46.4206135,
-            "lon": 11.0878481,
-            "departure_time": "06:48",
-            "count": 16
-          }
-        ],
-        "distance_km": 49.96
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALTA VAL DI SOLE",
-            "luogo_ritrovo": "Ossana - SSPG - Via San Michele, 11",
+            "luogo_ritrovo": "Novella, Fermata Bus VVF, Via Canestrini",
             "departure_time": "06:10",
             "return_time": "18:15",
             "count": 8,
-            "lat": 46.3107355,
-            "lon": 10.7325498,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
-            "name": "IC BASSA ANAUNIA TUENNO",
-            "luogo_ritrovo": "Tuenno - SSPG – V.le D'Anaunia, Via Maistrelli 11",
+            "name": "IC MEZZOLOMBARDO",
+            "luogo_ritrovo": "Spormaggiore, Via Alt Spaur, 5",
             "departure_time": "07:25",
-            "return_time": "17:00",
+            "return_time": "16:55",
             "count": 8,
-            "lat": 46.3304899,
-            "lon": 11.0250292,
+            "lat": 46.2189608,
+            "lon": 11.048443,
             "coords_missing": false
           },
           {
-            "name": "IC BASSA VAL DI SOLE",
-            "luogo_ritrovo": "Malé, Nuova stazione FTM",
-            "departure_time": "06:40",
-            "return_time": "17:45",
-            "count": 8,
-            "lat": 46.3526129,
-            "lon": 10.914342,
+            "name": "IC MEZZOLOMBARDO",
+            "luogo_ritrovo": "Mezzolombardo, Via degli Alpini 17",
+            "departure_time": "07:50",
+            "return_time": "16:35",
+            "count": 0,
+            "lat": 46.2189608,
+            "lon": 11.048443,
             "coords_missing": false
           },
           {
-            "name": "IC CLES",
-            "luogo_ritrovo": "Cles, Piazza Fiera",
-            "departure_time": "07:10",
-            "return_time": "17:15",
+            "name": "IC TAIO",
+            "luogo_ritrovo": "Taio, Piazza della Chiesa",
+            "departure_time": "07:00",
+            "return_time": "17:25",
             "count": 8,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
+            "lat": 46.3205505,
+            "lon": 11.0654295,
             "coords_missing": false
           }
         ],
-        "distance_km": 160.0
+        "distance_km": 142.0
       },
-      "gt_fin": "5"
+      "gt_fin": "6"
     },
     {
       "jaccard": 0.3333,
       "planner": {
-        "vehicle_id": 0,
+        "vehicle_id": 2,
         "stops": [
           {
-            "name": "IC ISERA ROVERETO",
-            "lat": 45.8851325,
-            "lon": 11.0239036,
-            "departure_time": "07:01",
+            "name": "IC ROVERETO NORD",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:22",
             "count": 16
           },
           {
             "name": "IC ROVERETO EST",
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "departure_time": "07:06",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:25",
             "count": 16
           },
           {
-            "name": "IC ROVERETO SUD",
-            "lat": 45.8814267,
-            "lon": 11.0354632,
-            "departure_time": "07:12",
+            "name": "IC FOLGARIA LAVARONE",
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "departure_time": "07:28",
+            "count": 8
+          },
+          {
+            "name": "IC CHIESE (cadetti)",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:31",
             "count": 8
           }
         ],
-        "distance_km": 19.71
+        "distance_km": 0.0
       },
       "gt": {
         "stops": [
           {
             "name": "IC ALA",
             "luogo_ritrovo": "Ala, Via Betta 9",
-            "departure_time": "06:35",
-            "return_time": "17:20",
+            "departure_time": "06:45",
+            "return_time": "17:15",
             "count": 8,
             "lat": 45.7562382,
             "lon": 11.0015357,
             "coords_missing": false
           },
           {
-            "name": "IC ALDENO MATTARELLO",
-            "luogo_ritrovo": "Mattarello, Via Torre Franca (fermata bus \"Al Parco\")",
-            "departure_time": "07:35",
-            "return_time": "16:20",
-            "count": 8,
-            "lat": 46.0116034,
-            "lon": 11.1319752,
-            "coords_missing": false
-          },
-          {
             "name": "IC ROVERETO EST",
             "luogo_ritrovo": "Rovereto, P.le Orsi – Fermata corriere davanti IPIA Veronesi",
-            "departure_time": "07:10",
+            "departure_time": "07:15",
             "return_time": "16:45",
             "count": 8,
-            "lat": 45.8909414,
-            "lon": 11.0347273,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
@@ -261,173 +169,60 @@
             "departure_time": "nan",
             "return_time": "nan",
             "count": 8,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "IC ROVERETO SUD",
-            "luogo_ritrovo": "Rovereto, Parcheggio Ronchi",
-            "departure_time": "07:00",
-            "return_time": "16:55",
-            "count": 8,
-            "lat": 45.8814267,
-            "lon": 11.0354632,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 102.0
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC RIVA 1 (cadetti)",
-            "lat": 45.8981342,
-            "lon": 10.8452329,
-            "departure_time": "06:53",
-            "count": 8
-          },
-          {
-            "name": "IC ARCO",
-            "lat": 45.918401,
-            "lon": 10.8883301,
-            "departure_time": "07:05",
-            "count": 14
-          },
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "lat": 45.9592826,
-            "lon": 10.9101053,
-            "departure_time": "07:15",
-            "count": 16
-          }
-        ],
-        "distance_km": 23.45
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "Centro Sportivo Sopramonte",
-            "luogo_ritrovo": "Sopramonte - Via di Mura 11",
-            "departure_time": "08:10",
-            "return_time": "16:20",
-            "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "Centro Sportivo Tn Nord - Gardolo",
-            "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
-            "departure_time": "08:30",
-            "return_time": "16:00",
-            "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "IC RIVA 1 (cadetti)",
-            "luogo_ritrovo": "Riva del Garda, piazzale centro Sportivo Malossini, Via delle Ginestre 3",
-            "departure_time": "06:45",
-            "return_time": "17:45",
-            "count": 8,
-            "lat": 45.8981342,
-            "lon": 10.8452329,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
-            "name": "IC RIVA 2",
+            "name": "IS DON MILANI (Students staff)",
             "luogo_ritrovo": "nan",
             "departure_time": "nan",
             "return_time": "nan",
             "count": 16,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "luogo_ritrovo": "Drò, Via S. Antonio 17",
-            "departure_time": "07:10",
-            "return_time": "17:15",
-            "count": 16,
-            "lat": 45.9592826,
-            "lon": 10.9101053,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "luogo_ritrovo": "Cavedine, Piazza Italia",
-            "departure_time": "07:30",
-            "return_time": "16:55",
-            "count": 0,
-            "lat": 45.9592826,
-            "lon": 10.9101053,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "luogo_ritrovo": "Vezzano, Via Roma (fermata farmacia)",
-            "departure_time": "07:55",
-            "return_time": "16:35",
-            "count": 0,
-            "lat": 45.9592826,
-            "lon": 10.9101053,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           }
         ],
-        "distance_km": 106.0
+        "distance_km": 100.0
       },
-      "gt_fin": "9"
+      "gt_fin": "4"
     },
     {
       "jaccard": 0.3333,
       "planner": {
-        "vehicle_id": 2,
+        "vehicle_id": 3,
         "stops": [
           {
-            "name": "IC BASSA ANAUNIA TUENNO",
-            "lat": 46.3304899,
-            "lon": 11.0250292,
-            "departure_time": "06:38",
-            "count": 8
-          },
-          {
-            "name": "IC BASSA ANAUNIA-TUENNO",
-            "lat": 46.3304899,
-            "lon": 11.0250292,
-            "departure_time": "06:41",
-            "count": 8
-          },
-          {
-            "name": "IC CLES",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "06:50",
+            "name": "IC RIVA 2",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:22",
             "count": 16
           },
           {
-            "name": "IC TAIO",
-            "lat": 46.3205899,
-            "lon": 11.0668144,
-            "departure_time": "07:03",
-            "count": 4
+            "name": "IC RIVA 1 (cadetti)",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:25",
+            "count": 8
           },
           {
-            "name": "IC TAIO",
-            "lat": 46.3205899,
-            "lon": 11.0668144,
-            "departure_time": "07:06",
-            "count": 12
+            "name": "IC BASSA VAL DI SOLE",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:28",
+            "count": 16
+          },
+          {
+            "name": "IC BASSA ANAUNIA-TUENNO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:31",
+            "count": 8
           }
         ],
-        "distance_km": 27.98
+        "distance_km": 0.0
       },
       "gt": {
         "stops": [
@@ -437,8 +232,8 @@
             "departure_time": "06:10",
             "return_time": "18:15",
             "count": 8,
-            "lat": 46.3107355,
-            "lon": 10.7325498,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
@@ -447,8 +242,8 @@
             "departure_time": "07:25",
             "return_time": "17:00",
             "count": 8,
-            "lat": 46.3304899,
-            "lon": 11.0250292,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
@@ -457,8 +252,8 @@
             "departure_time": "06:40",
             "return_time": "17:45",
             "count": 8,
-            "lat": 46.3526129,
-            "lon": 10.914342,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
@@ -479,186 +274,121 @@
     {
       "jaccard": 0.3333,
       "planner": {
-        "vehicle_id": 3,
+        "vehicle_id": 4,
         "stops": [
           {
-            "name": "IC FOLGARIA LAVARONE",
-            "lat": 45.9409204,
-            "lon": 11.2717007,
-            "departure_time": "06:54",
+            "name": "IC BASSA ANAUNIA TUENNO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:22",
             "count": 8
           },
           {
-            "name": "IC FOLGARIA LAVARONE",
-            "lat": 45.9409204,
-            "lon": 11.2717007,
-            "departure_time": "06:57",
-            "count": 8
+            "name": "IC AVIO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:25",
+            "count": 16
+          },
+          {
+            "name": "IC ARCO GARDA",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:28",
+            "count": 16
+          },
+          {
+            "name": "IC ARCO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:31",
+            "count": 14
           }
         ],
-        "distance_km": 24.29
+        "distance_km": 0.0
       },
       "gt": {
         "stops": [
           {
             "name": "Centro Sportivo Sopramonte",
             "luogo_ritrovo": "Sopramonte - Via di Mura 11",
-            "departure_time": "08:30",
-            "return_time": "16:00",
+            "departure_time": "08:05",
+            "return_time": "16:20",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
           },
           {
             "name": "Centro Sportivo Tn Nord - Gardolo",
             "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
-            "departure_time": "08:10",
-            "return_time": "16:20",
+            "departure_time": "08:30",
+            "return_time": "16:00",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
-          },
-          {
-            "name": "IC FOLGARIA LAVARONE",
-            "luogo_ritrovo": "Lavarone, Frazione Gionghi, 107/6",
-            "departure_time": "06:50",
-            "return_time": "17:40",
-            "count": 8,
-            "lat": 45.9409204,
-            "lon": 11.2717007,
+            "lat": 46.1047342,
+            "lon": 11.1147719,
             "coords_missing": false
           },
           {
-            "name": "IC FOLGARIA LAVARONE",
-            "luogo_ritrovo": "Folgaria, park Palaghiaccio",
-            "departure_time": "07:20",
-            "return_time": "17:10",
-            "count": 8,
-            "lat": 45.9409204,
-            "lon": 11.2717007,
+            "name": "IC ARCO",
+            "luogo_ritrovo": "Arco, park Foro Borio",
+            "departure_time": "07:00",
+            "return_time": "17:20",
+            "count": 14,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC ARCO GARDA",
+            "luogo_ritrovo": "nan",
+            "departure_time": "nan",
+            "return_time": "nan",
+            "count": 16,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           }
         ],
-        "distance_km": 116.0
+        "distance_km": 86.0
       },
-      "gt_fin": "11"
+      "gt_fin": "10"
     },
     {
       "jaccard": 0.3333,
       "planner": {
-        "vehicle_id": 7,
+        "vehicle_id": 5,
         "stops": [
-          {
-            "name": "IC MEZZOLOMBARDO",
-            "lat": 46.219181,
-            "lon": 11.0487784,
-            "departure_time": "06:06",
-            "count": 8
-          },
-          {
-            "name": "IC MEZZOLOMBARDO",
-            "lat": 46.219181,
-            "lon": 11.0487784,
-            "departure_time": "06:09",
-            "count": 8
-          },
           {
             "name": "IC LAVIS",
-            "lat": 46.1374325,
-            "lon": 11.113553,
-            "departure_time": "06:32",
+            "lat": 46.1380913,
+            "lon": 11.1133091,
+            "departure_time": "07:06",
             "count": 8
           },
           {
-            "name": "IC ALDENO MATTARELLO",
-            "lat": 46.0116034,
-            "lon": 11.1319752,
-            "departure_time": "06:54",
-            "count": 8
+            "name": "Centro Sportivo Tn Nord - Gardolo",
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "departure_time": "07:16",
+            "count": 0
           },
-          {
-            "name": "IC PERGINE 1",
-            "lat": 46.067046,
-            "lon": 11.2453364,
-            "departure_time": "07:20",
-            "count": 16
-          }
-        ],
-        "distance_km": 44.69
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC FONDO REVO'",
-            "luogo_ritrovo": "Novella, Fermata Bus VVF, Via Canestrini",
-            "departure_time": "06:25",
-            "return_time": "18:00",
-            "count": 8,
-            "lat": 46.4206135,
-            "lon": 11.0878481,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LAVIS",
-            "luogo_ritrovo": "Lavis, Via Sette 13/a",
-            "departure_time": "08:10",
-            "return_time": "16:15",
-            "count": 8,
-            "lat": 46.1374325,
-            "lon": 11.113553,
-            "coords_missing": false
-          },
-          {
-            "name": "IC MEZZOLOMBARDO",
-            "luogo_ritrovo": "Mezzolombardo, Via degli Alpini 17",
-            "departure_time": "07:45",
-            "return_time": "16:40",
-            "count": 8,
-            "lat": 46.219181,
-            "lon": 11.0487784,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TAIO",
-            "luogo_ritrovo": "Coredo, Piazza della Chiesa",
-            "departure_time": "07:00",
-            "return_time": "17:25",
-            "count": 4,
-            "lat": 46.3205899,
-            "lon": 11.0668144,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TAIO",
-            "luogo_ritrovo": "Taio, Piazza della Chiesa",
-            "departure_time": "07:15",
-            "return_time": "17:10",
-            "count": 4,
-            "lat": 46.3205899,
-            "lon": 11.0668144,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 106.0
-      },
-      "gt_fin": "3"
-    },
-    {
-      "jaccard": 0.25,
-      "planner": {
-        "vehicle_id": 4,
-        "stops": [
           {
             "name": "IC PRIMIERO",
-            "lat": 46.1851629,
-            "lon": 11.8311111,
-            "departure_time": "06:07",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:28",
+            "count": 16
+          },
+          {
+            "name": "IC FONDO REVO'",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:31",
             "count": 16
           }
         ],
-        "distance_km": 49.46
+        "distance_km": 8.45
       },
       "gt": {
         "stops": [
@@ -668,9 +398,9 @@
             "departure_time": "08:30",
             "return_time": "16:00",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
           },
           {
             "name": "Centro Sportivo Tn Nord - Gardolo",
@@ -678,9 +408,9 @@
             "departure_time": "08:10",
             "return_time": "16:20",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "coords_missing": false
           },
           {
             "name": "IC PERGINE 1",
@@ -698,8 +428,8 @@
             "departure_time": "06:10",
             "return_time": "18:10",
             "count": 16,
-            "lat": 46.1851629,
-            "lon": 11.8311111,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           }
         ],
@@ -708,26 +438,33 @@
       "gt_fin": "12"
     },
     {
-      "jaccard": 0.2,
+      "jaccard": 0.3333,
       "planner": {
-        "vehicle_id": 5,
+        "vehicle_id": 7,
         "stops": [
           {
-            "name": "IC ALA",
-            "lat": 45.7562382,
-            "lon": 11.0015357,
-            "departure_time": "06:51",
+            "name": "IC TIONE",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "06:10",
+            "count": 8
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "lat": 46.0359577,
+            "lon": 10.870972,
+            "departure_time": "06:40",
             "count": 16
           },
           {
-            "name": "IC AVIO",
-            "lat": 45.7359737,
-            "lon": 10.9439825,
-            "departure_time": "07:02",
-            "count": 16
+            "name": "IC VALLE DEI LAGHI DRO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:04",
+            "count": 0
           }
         ],
-        "distance_km": 26.1
+        "distance_km": 37.89
       },
       "gt": {
         "stops": [
@@ -737,9 +474,9 @@
             "departure_time": "08:05",
             "return_time": "16:20",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
           },
           {
             "name": "Centro Sportivo Tn Nord - Gardolo",
@@ -747,9 +484,188 @@
             "departure_time": "08:30",
             "return_time": "16:00",
             "count": 0,
-            "lat": null,
-            "lon": null,
-            "coords_missing": true
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "coords_missing": false
+          },
+          {
+            "name": "IC CHIESE (cadetti)",
+            "luogo_ritrovo": "Pieve di Bono, Via Fiera 1 loc. Creto",
+            "departure_time": "06:35",
+            "return_time": "18:05",
+            "count": 8,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC GIUDICARIE ESTERIORI",
+            "luogo_ritrovo": "Comano Terme, Via San Giovanni Bosco 14",
+            "departure_time": "07:25",
+            "return_time": "17:05",
+            "count": 16,
+            "lat": 46.0359577,
+            "lon": 10.870972,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "Roncone, Via Nazionale 20",
+            "departure_time": "06:45",
+            "return_time": "17:55",
+            "count": 8,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC TIONE",
+            "luogo_ritrovo": "Tione, Via Circonvalazione 44",
+            "departure_time": "07:05",
+            "return_time": "17:25",
+            "count": 8,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 132.0
+      },
+      "gt_fin": "7"
+    },
+    {
+      "jaccard": 0.3333,
+      "planner": {
+        "vehicle_id": 8,
+        "stops": [
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "departure_time": "06:09",
+            "count": 8
+          },
+          {
+            "name": "IC PERGINE 1",
+            "lat": 46.067046,
+            "lon": 11.2453364,
+            "departure_time": "06:43",
+            "count": 16
+          },
+          {
+            "name": "IC ALTA VAL DI SOLE",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:04",
+            "count": 16
+          },
+          {
+            "name": "IC ALDENO MATTARELLO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:07",
+            "count": 8
+          },
+          {
+            "name": "Centro Sportivo Sopramonte",
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "departure_time": "07:21",
+            "count": 0
+          }
+        ],
+        "distance_km": 36.08
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "Centro Sportivo Sopramonte",
+            "luogo_ritrovo": "Sopramonte - Via di Mura 11",
+            "departure_time": "08:30",
+            "return_time": "16:00",
+            "count": 0,
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
+          },
+          {
+            "name": "Centro Sportivo Tn Nord - Gardolo",
+            "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
+            "departure_time": "08:10",
+            "return_time": "16:20",
+            "count": 0,
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "luogo_ritrovo": "Lavarone, Frazione Gionghi, 107/6",
+            "departure_time": "06:50",
+            "return_time": "17:40",
+            "count": 8,
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "coords_missing": false
+          },
+          {
+            "name": "IC FOLGARIA LAVARONE",
+            "luogo_ritrovo": "Folgaria, park Palaghiaccio",
+            "departure_time": "07:20",
+            "return_time": "17:10",
+            "count": 8,
+            "lat": 45.9394693,
+            "lon": 11.2739378,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 116.0
+      },
+      "gt_fin": "11"
+    },
+    {
+      "jaccard": 0.2,
+      "planner": {
+        "vehicle_id": 1,
+        "stops": [
+          {
+            "name": "IC ALA",
+            "lat": 45.7562382,
+            "lon": 11.0015357,
+            "departure_time": "06:42",
+            "count": 16
+          },
+          {
+            "name": "IC ISERA ROVERETO",
+            "lat": 45.8851325,
+            "lon": 11.0239036,
+            "departure_time": "07:04",
+            "count": 16
+          }
+        ],
+        "distance_km": 23.8
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "Centro Sportivo Sopramonte",
+            "luogo_ritrovo": "Sopramonte - Via di Mura 11",
+            "departure_time": "08:05",
+            "return_time": "16:20",
+            "count": 0,
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
+          },
+          {
+            "name": "Centro Sportivo Tn Nord - Gardolo",
+            "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
+            "departure_time": "08:30",
+            "return_time": "16:00",
+            "count": 0,
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "coords_missing": false
           },
           {
             "name": "IC AVIO",
@@ -757,8 +673,8 @@
             "departure_time": "06:20",
             "return_time": "17:45",
             "count": 16,
-            "lat": 45.7359737,
-            "lon": 10.9439825,
+            "lat": 46.0697,
+            "lon": 11.1211,
             "coords_missing": false
           },
           {
@@ -775,6 +691,126 @@
         "distance_km": 136.0
       },
       "gt_fin": "8"
+    },
+    {
+      "jaccard": 0.125,
+      "planner": {
+        "vehicle_id": 0,
+        "stops": [
+          {
+            "name": "IC ROVERETO SUD",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:19",
+            "count": 8
+          },
+          {
+            "name": "IC TIONE",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:22",
+            "count": 8
+          },
+          {
+            "name": "IC VALLE DEI LAGHI DRO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:25",
+            "count": 16
+          },
+          {
+            "name": "IC VALLE DEI LAGHI DRO",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:28",
+            "count": 0
+          },
+          {
+            "name": "IS DON MILANI (Students staff)",
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "departure_time": "07:31",
+            "count": 16
+          }
+        ],
+        "distance_km": 0.0
+      },
+      "gt": {
+        "stops": [
+          {
+            "name": "Centro Sportivo Sopramonte",
+            "luogo_ritrovo": "Sopramonte - Via di Mura 11",
+            "departure_time": "08:10",
+            "return_time": "16:20",
+            "count": 0,
+            "lat": 46.0702838,
+            "lon": 11.0565967,
+            "coords_missing": false
+          },
+          {
+            "name": "Centro Sportivo Tn Nord - Gardolo",
+            "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
+            "departure_time": "08:30",
+            "return_time": "16:00",
+            "count": 0,
+            "lat": 46.1047342,
+            "lon": 11.1147719,
+            "coords_missing": false
+          },
+          {
+            "name": "IC RIVA 1 (cadetti)",
+            "luogo_ritrovo": "Riva del Garda, piazzale centro Sportivo Malossini, Via delle Ginestre 3",
+            "departure_time": "06:45",
+            "return_time": "17:45",
+            "count": 8,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC RIVA 2",
+            "luogo_ritrovo": "nan",
+            "departure_time": "nan",
+            "return_time": "nan",
+            "count": 16,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VALLE DEI LAGHI DRO",
+            "luogo_ritrovo": "Drò, Via S. Antonio 17",
+            "departure_time": "07:10",
+            "return_time": "17:15",
+            "count": 16,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VALLE DEI LAGHI DRO",
+            "luogo_ritrovo": "Cavedine, Piazza Italia",
+            "departure_time": "07:30",
+            "return_time": "16:55",
+            "count": 0,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          },
+          {
+            "name": "IC VALLE DEI LAGHI DRO",
+            "luogo_ritrovo": "Vezzano, Via Roma (fermata farmacia)",
+            "departure_time": "07:55",
+            "return_time": "16:35",
+            "count": 0,
+            "lat": 46.0697,
+            "lon": 11.1211,
+            "coords_missing": false
+          }
+        ],
+        "distance_km": 106.0
+      },
+      "gt_fin": "9"
     }
   ],
   "unmatched_planner": [],
@@ -782,69 +818,33 @@
     {
       "stops": [
         {
-          "name": "Centro Sportivo Sopramonte",
-          "luogo_ritrovo": "Sopramonte - Via di Mura 11",
-          "departure_time": "08:05",
-          "return_time": "16:20",
-          "count": 0,
-          "lat": null,
-          "lon": null,
-          "coords_missing": true
-        },
-        {
-          "name": "Centro Sportivo Tn Nord - Gardolo",
-          "luogo_ritrovo": "Gardolo - Via 4 Novembre 23/4",
-          "departure_time": "08:30",
-          "return_time": "16:00",
-          "count": 0,
-          "lat": null,
-          "lon": null,
-          "coords_missing": true
-        },
-        {
-          "name": "IC ARCO",
-          "luogo_ritrovo": "Arco, park Foro Borio",
-          "departure_time": "07:00",
-          "return_time": "17:20",
-          "count": 14,
-          "lat": 45.918401,
-          "lon": 10.8883301,
-          "coords_missing": false
-        },
-        {
-          "name": "IC ARCO GARDA",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 16,
-          "lat": null,
-          "lon": null,
-          "coords_missing": true
-        }
-      ],
-      "distance_km": 86.0,
-      "fin": "10"
-    },
-    {
-      "stops": [
-        {
           "name": "IC ALA",
           "luogo_ritrovo": "Ala, Via Betta 9",
-          "departure_time": "06:45",
-          "return_time": "17:15",
+          "departure_time": "06:35",
+          "return_time": "17:20",
           "count": 8,
           "lat": 45.7562382,
           "lon": 11.0015357,
           "coords_missing": false
         },
         {
+          "name": "IC ALDENO MATTARELLO",
+          "luogo_ritrovo": "Mattarello, Via Torre Franca (fermata bus \"Al Parco\")",
+          "departure_time": "07:35",
+          "return_time": "16:20",
+          "count": 8,
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
+        },
+        {
           "name": "IC ROVERETO EST",
           "luogo_ritrovo": "Rovereto, P.le Orsi – Fermata corriere davanti IPIA Veronesi",
-          "departure_time": "07:15",
+          "departure_time": "07:10",
           "return_time": "16:45",
           "count": 8,
-          "lat": 45.8909414,
-          "lon": 11.0347273,
+          "lat": 46.0697,
+          "lon": 11.1211,
           "coords_missing": false
         },
         {
@@ -853,69 +853,125 @@
           "departure_time": "nan",
           "return_time": "nan",
           "count": 8,
-          "lat": null,
-          "lon": null,
-          "coords_missing": true
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
         },
         {
-          "name": "IS DON MILANI (Students staff)",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 16,
-          "lat": null,
-          "lon": null,
-          "coords_missing": true
+          "name": "IC ROVERETO SUD",
+          "luogo_ritrovo": "Rovereto, Parcheggio Ronchi",
+          "departure_time": "07:00",
+          "return_time": "16:55",
+          "count": 8,
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
         }
       ],
-      "distance_km": 100.0,
-      "fin": "4"
+      "distance_km": 102.0,
+      "fin": "1"
+    },
+    {
+      "stops": [
+        {
+          "name": "IC ALTA VAL DI SOLE",
+          "luogo_ritrovo": "Ossana - SSPG - Via San Michele, 11",
+          "departure_time": "06:10",
+          "return_time": "18:15",
+          "count": 8,
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
+        },
+        {
+          "name": "IC BASSA ANAUNIA TUENNO",
+          "luogo_ritrovo": "Tuenno - SSPG – V.le D'Anaunia, Via Maistrelli 11",
+          "departure_time": "07:25",
+          "return_time": "17:00",
+          "count": 8,
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
+        },
+        {
+          "name": "IC BASSA VAL DI SOLE",
+          "luogo_ritrovo": "Malé, Nuova stazione FTM",
+          "departure_time": "06:40",
+          "return_time": "17:45",
+          "count": 8,
+          "lat": 46.0697,
+          "lon": 11.1211,
+          "coords_missing": false
+        },
+        {
+          "name": "IC CLES",
+          "luogo_ritrovo": "Cles, Piazza Fiera",
+          "departure_time": "07:10",
+          "return_time": "17:15",
+          "count": 8,
+          "lat": 46.3682701,
+          "lon": 11.0345527,
+          "coords_missing": false
+        }
+      ],
+      "distance_km": 160.0,
+      "fin": "5"
     },
     {
       "stops": [
         {
           "name": "IC FONDO REVO'",
           "luogo_ritrovo": "Novella, Fermata Bus VVF, Via Canestrini",
-          "departure_time": "06:10",
-          "return_time": "18:15",
+          "departure_time": "06:25",
+          "return_time": "18:00",
           "count": 8,
-          "lat": 46.4206135,
-          "lon": 11.0878481,
+          "lat": 46.0697,
+          "lon": 11.1211,
           "coords_missing": false
         },
         {
-          "name": "IC MEZZOLOMBARDO",
-          "luogo_ritrovo": "Spormaggiore, Via Alt Spaur, 5",
-          "departure_time": "07:25",
-          "return_time": "16:55",
+          "name": "IC LAVIS",
+          "luogo_ritrovo": "Lavis, Via Sette 13/a",
+          "departure_time": "08:10",
+          "return_time": "16:15",
           "count": 8,
-          "lat": 46.219181,
-          "lon": 11.0487784,
+          "lat": 46.1380913,
+          "lon": 11.1133091,
           "coords_missing": false
         },
         {
           "name": "IC MEZZOLOMBARDO",
           "luogo_ritrovo": "Mezzolombardo, Via degli Alpini 17",
-          "departure_time": "07:50",
-          "return_time": "16:35",
-          "count": 0,
-          "lat": 46.219181,
-          "lon": 11.0487784,
+          "departure_time": "07:45",
+          "return_time": "16:40",
+          "count": 8,
+          "lat": 46.2189608,
+          "lon": 11.048443,
+          "coords_missing": false
+        },
+        {
+          "name": "IC TAIO",
+          "luogo_ritrovo": "Coredo, Piazza della Chiesa",
+          "departure_time": "07:00",
+          "return_time": "17:25",
+          "count": 4,
+          "lat": 46.3205505,
+          "lon": 11.0654295,
           "coords_missing": false
         },
         {
           "name": "IC TAIO",
           "luogo_ritrovo": "Taio, Piazza della Chiesa",
-          "departure_time": "07:00",
-          "return_time": "17:25",
-          "count": 8,
-          "lat": 46.3205899,
-          "lon": 11.0668144,
+          "departure_time": "07:15",
+          "return_time": "17:10",
+          "count": 4,
+          "lat": 46.3205505,
+          "lon": 11.0654295,
           "coords_missing": false
         }
       ],
-      "distance_km": 142.0,
-      "fin": "6"
+      "distance_km": 106.0,
+      "fin": "3"
     }
   ]
 }
