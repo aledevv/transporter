@@ -1,5 +1,7 @@
 {
   "destination": "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3",
   "capacity": 54,
-  "orario_fine_manifestazione": "12:30"
+  "orario_fine_manifestazione": "12:30",
+  "destination_lat": 46.0697,
+  "destination_lon": 11.1211
 }

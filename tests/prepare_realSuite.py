@@ -141,21 +141,20 @@ def run_extract():
         # Copy groundtruth
         shutil.copy2(xlsx, out_dir / "groundtruth.xlsx")
 
-        # Write config.json — preserve existing valid destination if present
+        # Write config.json — merge with existing to preserve destination_lat/lon
+        # and any other fields added by later phases (geocode, etc.)
         existing_config_path = out_dir / "config.json"
-        existing_dest = None
+        config: dict = {}
         if existing_config_path.exists():
             try:
-                existing = json.loads(existing_config_path.read_text(encoding="utf-8"))
-                if existing.get("destination") and existing["destination"] != "Unknown":
-                    existing_dest = existing["destination"]
+                config = json.loads(existing_config_path.read_text(encoding="utf-8"))
             except Exception:
                 pass
-        config = {
-            "destination": existing_dest or get_event_destination(xlsx),
-            "capacity": _get_capacity(xlsx),
-            "orario_fine_manifestazione": _get_fine_manifestazione(xlsx),
-        }
+        # Override only the fields produced by extract; preserve everything else
+        config["capacity"] = _get_capacity(xlsx)
+        config["orario_fine_manifestazione"] = _get_fine_manifestazione(xlsx)
+        if not config.get("destination") or config["destination"] == "Unknown":
+            config["destination"] = get_event_destination(xlsx)
         (out_dir / "config.json").write_text(
             json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
         )
@@ -250,6 +249,19 @@ def run_geocode():
         matrix_path = ev_dir / "time_matrix.json"
 
         if coords_path.exists() and matrix_path.exists():
+            # Still patch destination_lat/lon into config if missing
+            config_path = ev_dir / "config.json"
+            if config_path.exists():
+                config = json.loads(config_path.read_text(encoding="utf-8"))
+                if "destination_lat" not in config and config.get("destination"):
+                    dest_lat, dest_lon = geo.get_coordinates(config["destination"])
+                    config["destination_lat"] = dest_lat
+                    config["destination_lon"] = dest_lon
+                    config_path.write_text(
+                        json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    print(f"[geocode] {ev_dir.name}: patched destination lat/lon.")
+                    continue
             print(f"[geocode] {ev_dir.name}: already done — skipping.")
             continue
 
