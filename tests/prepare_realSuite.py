@@ -27,25 +27,29 @@ PENDING_DIR = REALSUITE_DIR / "pending"
 
 def extract_schools_from_structured(xlsx_path: Path) -> pd.DataFrame:
     """
-    Read the 'Per Istituto' sheet and return a DataFrame with columns:
+    Read the 'Dettaglio Completo' sheet and return a DataFrame with columns:
       Nome, Indirizzo, Partecipanti
-    Drops rows where any of these is null/empty.
+    Schools with empty Luogo Ritrovo inherit the address of the preceding stop
+    on the same bus (forward-fill). Schools with empty Persone get Partecipanti=0.
     Deduplicates by (Nome, Indirizzo), summing Partecipanti.
     NO Istituto grouping column — planner must discover proximity itself.
     """
-    df = pd.read_excel(xlsx_path, sheet_name="Per Istituto")
+    df = pd.read_excel(xlsx_path, sheet_name="Dettaglio Completo")
     df.columns = [c.strip() for c in df.columns]
 
+    # Propagate FIN# and pickup address to grouped schools (same stop, same bus)
+    df["FIN #"]         = df["FIN #"].ffill()
+    df["Luogo Ritrovo"] = df["Luogo Ritrovo"].ffill()
+
     out = pd.DataFrame({
-        "Nome": df["Istituto"].astype(str).str.strip(),
-        "Indirizzo": df["Luogo Ritrovo"].astype(str).str.strip(),
-        "Partecipanti": pd.to_numeric(df["Persone"], errors="coerce"),
+        "Nome":         df["Istituto"].astype(str).str.strip(),
+        "Indirizzo":    df["Luogo Ritrovo"].astype(str).str.strip(),
+        "Partecipanti": pd.to_numeric(df["Persone"], errors="coerce").fillna(0),
     })
 
-    # Drop rows with missing or empty values
+    # Drop rows with no school name or no address (footer/empty rows)
     out = out[out["Nome"].notna() & (out["Nome"] != "") & (out["Nome"].str.lower() != "nan")]
     out = out[out["Indirizzo"].notna() & (out["Indirizzo"] != "") & (out["Indirizzo"].str.lower() != "nan")]
-    out = out[out["Partecipanti"].notna()]
 
     # Deduplicate: same (Nome, Indirizzo) → sum Partecipanti
     out = out.groupby(["Nome", "Indirizzo"], as_index=False).agg({"Partecipanti": "sum"})
