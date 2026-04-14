@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Piani-viaggio_Padel_10-dic-25_def2_con-VETTORE",
-    "destination": "Unknown",
+    "destination": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
     "capacity": 54
   },
   "scores": {
@@ -10,9 +10,9 @@
     "combined": 0.5536
   },
   "destination": {
-    "name": "Unknown",
-    "lat": 45.4063234,
-    "lon": 11.8742173
+    "name": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
+    "lat": 46.103651,
+    "lon": 11.114801
   },
   "matched_pairs": [
     {
@@ -24,25 +24,25 @@
             "name": "IS FLORIANI RIVA DEL GARDA",
             "lat": 45.8940205,
             "lon": 10.8420112,
-            "departure_time": "07:22",
+            "departure_time": "06:50",
             "count": 5
           },
           {
             "name": "IS DON MILANI ROVERETO",
             "lat": 45.8909414,
             "lon": 11.0347273,
-            "departure_time": "07:55",
+            "departure_time": "07:23",
             "count": 7
           },
           {
             "name": "IS FILZI ROVERETO",
             "lat": 45.8909414,
             "lon": 11.0347273,
-            "departure_time": "07:58",
+            "departure_time": "07:26",
             "count": 9
           }
         ],
-        "distance_km": 67.64
+        "distance_km": 29.34
       },
       "gt": {
         "stops": [
@@ -146,7 +146,7 @@
             "count": 9
           }
         ],
-        "distance_km": 81.43
+        "distance_km": 27.43
       },
       "gt": {
         "stops": [

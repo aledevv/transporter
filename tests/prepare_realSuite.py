@@ -141,9 +141,18 @@ def run_extract():
         # Copy groundtruth
         shutil.copy2(xlsx, out_dir / "groundtruth.xlsx")
 
-        # Write config.json
+        # Write config.json — preserve existing valid destination if present
+        existing_config_path = out_dir / "config.json"
+        existing_dest = None
+        if existing_config_path.exists():
+            try:
+                existing = json.loads(existing_config_path.read_text(encoding="utf-8"))
+                if existing.get("destination") and existing["destination"] != "Unknown":
+                    existing_dest = existing["destination"]
+            except Exception:
+                pass
         config = {
-            "destination": get_event_destination(xlsx),
+            "destination": existing_dest or get_event_destination(xlsx),
             "capacity": _get_capacity(xlsx),
             "orario_fine_manifestazione": _get_fine_manifestazione(xlsx),
         }
