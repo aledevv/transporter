@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 import pandas as pd
 import os
@@ -11,6 +11,8 @@ from geocoder import GeocodingService
 from optimizer import VRPSolver
 from address_corrector import AddressCorrector
 import gemini_agent as _gemini_agent
+import tempfile
+from document_generator import generate_piano_viaggi, generate_richiesta_servizio
 from scripts.find_overlaps import find_bus_overlaps
 
 address_corrector = AddressCorrector()
@@ -1619,6 +1621,61 @@ def places_autocomplete():
         })
 
     return jsonify({'predictions': predictions, 'status': 'OK'}), 200
+
+
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'template_documents')
+PIANO_VIAGGI_TEMPLATE   = os.path.join(TEMPLATES_DIR, 'Piano_Viaggi_TIPO.docx')
+RICHIESTA_TEMPLATE      = os.path.join(TEMPLATES_DIR, 'Richiesta servizioTIPO_nome evento_data.docx')
+
+
+@app.route('/api/export_document', methods=['POST'])
+def export_document():
+    """
+    Generate a Word document from a template and return it as a download.
+
+    Body (JSON):
+      doc_type        : 'piano_viaggi' | 'richiesta_servizio'
+      format          : 'docx'  (pdf not supported yet)
+      event_name      : str
+      date            : str (already formatted Italian date, e.g. "15 aprile 2026")
+      destination     : str
+      start_time      : str (HH:MM)
+      end_time        : str (HH:MM)
+      exclude_autonomia : bool
+      routes          : list of route objects from /api/optimize
+    """
+    data = request.get_json()
+    doc_type = data.get('doc_type', 'piano_viaggi')
+
+    template_path = RICHIESTA_TEMPLATE if doc_type == 'richiesta_servizio' else PIANO_VIAGGI_TEMPLATE
+    if not os.path.exists(template_path):
+        return jsonify({'error': f'Template non trovato: {template_path}'}), 500
+
+    try:
+        tmp = tempfile.NamedTemporaryFile(suffix='.docx', delete=False)
+        tmp.close()
+        out_path = tmp.name
+
+        generator = generate_richiesta_servizio if doc_type == 'richiesta_servizio' else generate_piano_viaggi
+        generator(template_path, out_path, data)
+
+        base_name = 'Richiesta_Servizio' if doc_type == 'richiesta_servizio' else 'Piano_Viaggi'
+        event_slug = (data.get('event_name') or 'Evento').replace(' ', '_')
+        download_name = f'{base_name}_{event_slug}.docx'
+
+        response = send_file(out_path, as_attachment=True, download_name=download_name,
+                             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+        @response.call_on_close
+        def _cleanup():
+            try:
+                os.remove(out_path)
+            except OSError:
+                pass
+
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/download/<path:filename>', methods=['GET'])
