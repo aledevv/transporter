@@ -1,0 +1,5 @@
+app.py:130: unused variable 'default_city' (100% confidence)
+app.py:405: unreachable code after 'return' (100% confidence)
+experiments/savings_solver/optimizer_savings.py:208: unused variable 'kwargs' (100% confidence)
+optimizer_v2.py:204: unused variable 'kwargs' (100% confidence)
+scripts/compare_plans.py:126: unused variable 'format_version' (100% confidence)

@@ -1,0 +1,257 @@
+{
+  "basket-cadetti-e-piano-viaggi-21-gennaio-2026-def-con-vettore": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Carico bilanciato"
+    ],
+    "comment": "In questo caso GT ci mette meno in termini di percorso ma anche parte qualche minuto dopo (diminuendo il tempo di tragitto totale)",
+    "timestamp": "2026-04-14T19:55:52.596Z"
+  },
+  "piani-viaggio-padel-10-dic-25-def2-con-vettore": {
+    "vote": "human",
+    "chips": [
+      "Orari migliori",
+      "Carico bilanciato",
+      "Più efficiente"
+    ],
+    "comment": "In questo caso non ha senso fare tutte quelle fermate per poi avere molti km in più e anche metterci di più in termini di tempo.",
+    "timestamp": "2026-04-14T19:55:12.404Z"
+  },
+  "piano-giocopallamano-3-marzo-26-con-vettore": {
+    "vote": "human",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:15:05.208Z"
+  },
+  "piano-viaggi-corsa-campestre-ic-cadett-13-marzo-25": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno bus",
+      "Meno km",
+      "Orari migliori",
+      "Più efficiente"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:15:26.941Z"
+  },
+  "piano-viaggi-corsa-campestre-ic-ragazz-14-marzo-25-2": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno bus",
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:15:36.658Z"
+  },
+  "piano-viaggi-corsa-campestre-is-12-marzo-25-con-cel-3": {
+    "vote": "human",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:15:53.056Z"
+  },
+  "piano-viaggi-gdg-24-marzo-26-def-con-vettore-4": {
+    "vote": "optimizer",
+    "chips": [
+      "Orari migliori"
+    ],
+    "comment": "percorso con stessa lunghezza in pratica",
+    "timestamp": "2026-04-14T20:16:32.510Z"
+  },
+  "piano-viaggi-giocopallamano-3-marzo-26": {
+    "vote": "human",
+    "chips": [
+      "Meno bus",
+      "Meno km",
+      "Orari migliori",
+      "Errore evidente"
+    ],
+    "comment": "GT vince in maniera schiacciante, i bus un più aumentano esponenzialmente il tempo e km.",
+    "timestamp": "2026-04-14T20:21:02.816Z"
+  },
+  "piano-viaggi-sci-alpino-selected-ic-e-is-27-gen-26-def-con-vettore": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:21:12.409Z"
+  },
+  "piano-viaggi-cadette-i-27-febbaio-2026-con-vettore-2": {
+    "vote": "human",
+    "chips": [
+      "Orari migliori"
+    ],
+    "comment": "Ci mette molto meno tempo",
+    "timestamp": "2026-04-14T20:21:37.811Z"
+  },
+  "piano-viaggi-ragazzi-25-febbaio-2026-3": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:21:49.827Z"
+  },
+  "piano-viaggi-atletica-cadett-6-maggio-2025-def-con-cell-4": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:22:09.441Z"
+  },
+  "piano-viaggi-atletica-is-7-maggio-2025-def-con-cell-5": {
+    "vote": "human",
+    "chips": [
+      "Orari migliori"
+    ],
+    "comment": "In questo caso preferisco metterci meno tempo, perchè per le persone stare in viaggio per 20+ min può essere pesante.",
+    "timestamp": "2026-04-14T20:23:09.855Z"
+  },
+  "piano-viaggi-atletica-ragazz-8-maggio-2025-def-con-cell": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km",
+      "Più efficiente"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:23:34.894Z"
+  },
+  "piano-viaggi-basket-top-class-ragazz-20-gen-26": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "Sopratutto per il tempo",
+    "timestamp": "2026-04-14T20:23:53.008Z"
+  },
+  "piano-viaggi-giochiamo-alle-olimpiadi-21-ottobre-2025-gardolo": {
+    "vote": "human",
+    "chips": [
+      "Errore evidente"
+    ],
+    "comment": "peggio sia in km che tempo",
+    "timestamp": "2026-04-14T20:24:14.156Z"
+  },
+  "piano-viaggi-giochiamo-alle-olimpiadi-21-ottobre-2025-gardolo-bus-tn-trasporti": {
+    "vote": "optimizer",
+    "chips": [
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:24:21.677Z"
+  },
+  "piano-viaggi-gioco-volley-8-gennaio-2026-4-def-con-vettore-ed-integrazione": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:24:31.928Z"
+  },
+  "piano-viaggi-orienteering-15-aprile-2026-def": {
+    "vote": "optimizer",
+    "chips": [],
+    "comment": "",
+    "timestamp": "2026-04-14T20:24:42.261Z"
+  },
+  "piano-viaggi-palla-tamburello-22-aprile-2026": {
+    "vote": "human",
+    "chips": [
+      "Meno bus",
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:25:11.838Z"
+  },
+  "piano-viaggi-scacchi-18-feb-25-def": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Orari migliori",
+      "Carico bilanciato"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:25:39.647Z"
+  },
+  "piano-viaggi-volley-s3-tn-nord-e-sopramonte-4-dic-25-def3-con-vettore-e-cell": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno bus",
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:26:10.177Z"
+  },
+  "piano-viaggi-snowboard-fondo-29-gennaio-con-vettore": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:26:52.212Z"
+  },
+  "piano-viaggi-tennis-tavolo-ic-con-vettore-e-cel-24-nov-25": {
+    "vote": "human",
+    "chips": [
+      "Meno bus",
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:04.512Z"
+  },
+  "piano-viaggi-tennistavolo-is-28-nov-25-con-vettore": {
+    "vote": "human",
+    "chips": [
+      "Meno bus",
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:15.646Z"
+  },
+  "sci-alpino-school-ic-is-28-gen-2026-con-vettori": {
+    "vote": "optimizer",
+    "chips": [
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:23.147Z"
+  },
+  "volley-s4-ic-piano-viaggi-19-novembre-2025-def": {
+    "vote": "human",
+    "chips": [
+      "Meno bus",
+      "Meno km"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:33.479Z"
+  },
+  "piano-trasporti-calcio-a-5-ic-17-mar-26-con-vettori-2": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:42.413Z"
+  },
+  "piano-trasporti-calcio-a-5-ic-18-mar-26-con-vettori-3": {
+    "vote": "human",
+    "chips": [
+      "Meno km",
+      "Orari migliori"
+    ],
+    "comment": "",
+    "timestamp": "2026-04-14T20:27:46.163Z"
+  }
+}
