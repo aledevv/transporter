@@ -111,6 +111,12 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
   <button class="nav-btn" id="prevBtn" title="Evento precedente (←)" onclick="navigateEvent(-1)">&#8249;</button>
   <select id="evSelect"><option value="">— scegli un evento —</option></select>
   <button class="nav-btn" id="nextBtn" title="Evento successivo (→)" onclick="navigateEvent(1)">&#8250;</button>
+  <label style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-left:6px">Solver</label>
+  <select id="solverSelect" onchange="setActiveSolver(this.value)">
+    <option value="v2">V2 — Human-style</option>
+    <option value="v1">V1 — OR-Tools</option>
+    <option value="v1improved">V1-improved</option>
+  </select>
   <label class="arrow-toggle" title="Mostra/nascondi frecce di direzione">
     <input type="checkbox" id="arrowToggle" checked onchange="toggleArrows(this.checked)">
     <span class="track"></span>
@@ -121,7 +127,7 @@ body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 
 <div id="colheaders" style="display:none">
   <div class="colh ph">
-    <span>Planner V2</span><span id="pSummary" class="pill"></span>
+    <span>PLANNER</span><span id="pSummary" class="pill"></span>
   </div>
   <div class="colh gh">
     <span>Ground Truth</span><span id="gSummary" class="pill"></span>
@@ -185,6 +191,15 @@ let plannerLayers = [], gtLayers = [];
 let arrowDecorators = [];   // all L.polylineDecorator instances
 let showArrows = true;
 
+let currentData  = null;
+let currentSolver = 'v2';
+const SOLVER_LABELS = {
+  v1:         'V1 — OR-TOOLS',
+  v2:         'V2 — HUMAN-STYLE',
+  v1improved: 'V1-IMPROVED',
+};
+const BUSPLAN_SOLVER_KEY = 'busplan_solver';
+
 // ── Utilities ──
 function esc(str) {
   const d = document.createElement('div');
@@ -214,6 +229,11 @@ fetch('data/index.json')
     sel.addEventListener('change', () => {
       if (sel.value) { loadEvent(sel.value); updateNavButtons(); }
     });
+    // Restore solver selection
+    try {
+      const savedSolver = localStorage.getItem(BUSPLAN_SOLVER_KEY);
+      if (savedSolver) document.getElementById('solverSelect').value = savedSolver;
+    } catch (_) {}
     // Auto-load first event
     if (index.length > 0) {
       sel.value = index[0].slug;
@@ -278,7 +298,11 @@ function renderScoreChips(scores, nP, nG) {
 function loadEvent(slug) {
   fetch(`data/${slug}.json`)
     .then(r => r.json())
-    .then(data => renderEvent(data));
+    .then(data => {
+      currentData = data;
+      const savedSolver = (() => { try { return localStorage.getItem(BUSPLAN_SOLVER_KEY); } catch(_){} return null; })();
+      setActiveSolver(savedSolver || 'v2');
+    });
 }
 
 function renderEvent(data) {
@@ -293,6 +317,8 @@ function renderEvent(data) {
   renderScoreChips(data.scores, nP, nG);
   document.getElementById('pSummary').textContent = `${nP} bus`;
   document.getElementById('gSummary').textContent = `${nG} bus`;
+  const phSpan = document.querySelector('#colheaders .colh.ph > span:first-child');
+  if (phSpan) phSpan.textContent = SOLVER_LABELS[currentSolver] || 'PLANNER';
 
   initMaps(data);
   renderBusPairs(data);
@@ -361,6 +387,31 @@ function renderSummary(data) {
         ${depDeltaHtml}
       </div>
     </div>`;
+}
+
+// ── Solver selection ──
+function setActiveSolver(key) {
+  if (!currentData) return;
+  const plannerData = currentData.planners && currentData.planners[key];
+  if (!plannerData) {
+    const fallback = (currentData.planners?.['v2'])
+      ? 'v2'
+      : Object.keys(currentData.planners ?? {})[0] ?? null;
+    if (!fallback) { console.error('No solver data available for this event'); return; }
+    console.warn('Solver', key, 'not available — falling back to', fallback);
+    key = fallback;
+  }
+  currentSolver = key;
+  document.getElementById('solverSelect').value = key;
+  try { localStorage.setItem(BUSPLAN_SOLVER_KEY, key); } catch (_) {}
+  const pd = currentData.planners[key];
+  renderEvent({
+    ...currentData,
+    matched_pairs:     pd.matched_pairs,
+    unmatched_planner: pd.unmatched_planner,
+    unmatched_gt:      pd.unmatched_gt,
+    scores:            pd.scores,
+  });
 }
 
 // ── Maps ──
