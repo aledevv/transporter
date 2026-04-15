@@ -8,6 +8,7 @@ import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
+import FixtureTool from './components/FixtureTool';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -92,6 +93,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isA
 
 function App() {
     const [schools, setSchools] = useState([]);
+    const [activeTab, setActiveTab] = useState('app'); // 'app' | 'tools'
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
@@ -332,7 +334,38 @@ function App() {
 
             {/* Main Content */}
             <main className="flex-grow container mx-auto px-4 py-8">
-                <div className="space-y-8">
+                {/* Tab bar */}
+                <div className="flex gap-2 mb-6 border-b border-gray-200">
+                    <button
+                        onClick={() => setActiveTab('app')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                            activeTab === 'app'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        Pianificazione
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('tools')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                            activeTab === 'tools'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        Strumenti
+                    </button>
+                </div>
+
+                {activeTab === 'tools' && (
+                    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Verifica Indirizzi Fixture</h2>
+                        <FixtureTool />
+                    </section>
+                )}
+
+                {activeTab === 'app' && <div className="space-y-8">
                     {/* Section 1: Upload */}
                     <section ref={uploadRef} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">1. Importazione Dati</h2>
@@ -519,7 +552,7 @@ function App() {
                             />
                         </section>
                     )}
-                </div>
+                </div>}
             </main>
 
             {/* Footer */}
