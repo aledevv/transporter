@@ -323,3 +323,72 @@ class TestMergeClustersDetourCap:
             clusters, self.demands, self.school_matrix, self.capacity,
         )
         assert len(result) == 1
+
+
+# -----------------------------------------------------------------------
+# HumanStyleSolver — max_detour_minutes wiring
+# -----------------------------------------------------------------------
+
+class TestHumanStyleSolverDetour:
+    def _make_time_matrix(self, school_times_from_depot, inter_school):
+        """
+        Build a (N+2)x(N+2) time matrix: 0=depot, 1..N=schools, N+1=dummy.
+        school_times_from_depot: list of depot→school times (school-space)
+        inter_school: NxN school-to-school matrix (school-space)
+        """
+        n = len(school_times_from_depot)
+        size = n + 2
+        m = [[0] * size for _ in range(size)]
+        for i, t in enumerate(school_times_from_depot, start=1):
+            m[0][i] = t
+            m[i][0] = t  # symmetric
+        for i in range(n):
+            for j in range(n):
+                m[i + 1][j + 1] = inter_school[i][j]
+        return m
+
+    def test_max_detour_minutes_param_accepted(self):
+        # Smoke test: HumanStyleSolver accepts max_detour_minutes without error
+        n = 2
+        tm = self._make_time_matrix([600, 600], [[0, 600], [600, 0]])
+        demands = [0, 5, 5, 0]
+        solver = HumanStyleSolver(
+            time_matrix=tm,
+            demands=demands,
+            vehicle_capacity=20,
+            max_detour_minutes=30,
+        )
+        assert solver.max_detour_seconds == 30 * 60
+
+    def test_tight_detour_cap_keeps_clusters_separate(self):
+        # Two groups of schools equidistant from depot but in opposite directions:
+        # Group East: schools [0,1] at 3600s from depot, 60s apart
+        # Group West: schools [2,3] at 3600s from depot, 60s apart
+        # Inter-group distance: 7200s (they're far from each other)
+        #
+        # route_time([0,1]) ≈ 2*3600 + 60 = 7260s
+        # route_time([2,3]) ≈ 2*3600 + 60 = 7260s
+        # route_time([0,1,2,3]): depot→0(3600)→1(60)→2(7200)→3(60)→depot(3600) = 14520s
+        # detour_cost = 14520 - max(7260, 7260) = 7260s >> 600s → blocked
+        n = 4
+        inter = [
+            [0,    60,   7200, 7200],
+            [60,   0,    7200, 7200],
+            [7200, 7200, 0,    60  ],
+            [7200, 7200, 60,   0   ],
+        ]
+        depot_times = [3600, 3600, 3600, 3600]
+        tm = self._make_time_matrix(depot_times, inter)
+        demands = [0, 10, 10, 10, 10, 0]
+        solver = HumanStyleSolver(
+            time_matrix=tm,
+            demands=demands,
+            vehicle_capacity=40,
+            cluster_threshold_minutes=5,    # tight: each group clusters separately (60s < 5min=300s threshold)
+            max_merge_minutes=120,          # allow merge based on distance alone
+            max_detour_minutes=10,          # tight detour cap: blocks the east+west merge
+        )
+        sol = solver.solve()
+        assert sol is not None
+        # Should have 2 buses: east group and west group — not merged into 1
+        assert sol["used_vehicles"] == 2
