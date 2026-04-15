@@ -58,3 +58,26 @@ class TestComputeRouteMetrics:
         result = compute_route_metrics({"routes": []}, [], [[0]], None)
         assert result["total_km"] == 0.0
         assert result["max_route_min"] == 0.0
+
+    def test_distance_ignored_for_zero_time_legs(self):
+        # school1 and school2 are at the same geocoded location → time=0, but
+        # distance_matrix has a stale non-zero value from a different source.
+        # Expected: km=0 for that leg (don't use distance when time=0).
+        # Route: depot(0) → school1(1) → school2(2) → depot(0)
+        # time_matrix[1][2] = 0 (same location), distance_matrix[1][2] = 5000m (stale)
+        time_matrix = [
+            [0, 120, 120],
+            [120, 0, 0],    # school1→school2: 0 (same location)
+            [120, 0, 0],
+        ]
+        dist_matrix = [
+            [0, 10000, 10000],
+            [10000, 0, 5000],   # stale non-zero for same-location pair
+            [10000, 5000, 0],
+        ]
+        schools = [{"name": "S1", "demand": 5}, {"name": "S2", "demand": 5}]
+        sol = self._make_solution([[0, 1, 2, 0]])
+        result = compute_route_metrics(sol, schools, time_matrix, dist_matrix)
+        # Only the legs with t>0 contribute: 0→1(10km) + 2→0(10km) = 20km
+        # Leg 1→2 has t=0 → skipped → 0 km
+        assert result["total_km"] == 20.0

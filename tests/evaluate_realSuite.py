@@ -179,7 +179,12 @@ def compute_route_metrics(
             t = time_matrix[a][b]
             route_sec += t
             if distance_matrix is not None:
-                route_km += distance_matrix[a][b] / 1000.0   # meters → km
+                # Use distance_matrix only when time > 0; same-location pairs
+                # (time=0, different nodes) have an unreliable distance value
+                # in some fixtures where time and distance matrices were
+                # generated from different coordinate sets.
+                if t > 0:
+                    route_km += distance_matrix[a][b] / 1000.0   # meters → km
             else:
                 route_km += (t / 3600.0) * 30.0              # time × 30 km/h
 
