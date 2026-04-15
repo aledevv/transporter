@@ -4,863 +4,2571 @@
     "destination": "Fondo Grande Folgaria",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.3648,
-    "bus_count": 0.8182,
-    "combined": 0.5462
-  },
+  "arrival_time": "07:40",
   "destination": {
     "name": "Fondo Grande Folgaria",
     "lat": 45.8924055,
     "lon": 11.1896302
   },
-  "matched_pairs": [
-    {
-      "jaccard": 0.75,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "ENAIP TESERO",
-            "lat": 46.2874466,
-            "lon": 11.5125733,
-            "departure_time": "05:57",
-            "count": 14
-          },
-          {
-            "name": "IC CAVALESE",
-            "lat": 46.2909522,
-            "lon": 11.4662487,
-            "departure_time": "06:05",
-            "count": 10
-          },
-          {
-            "name": "IS ROSA BIANCA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:08",
-            "count": 9
-          }
-        ],
-        "distance_km": 47.2
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "ENAIP TESERO",
-            "luogo_ritrovo": "Tesero, Via Caltrezza, 13",
-            "departure_time": "06:10",
-            "return_time": "16:50",
-            "count": 14,
-            "lat": 46.2874466,
-            "lon": 11.5125733,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CAVALESE",
-            "luogo_ritrovo": "Cavalese, stazione autocorriere",
-            "departure_time": "06:20",
-            "return_time": "16:40",
-            "count": 10,
-            "lat": 46.2909522,
-            "lon": 11.4662487,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LAVIS",
-            "luogo_ritrovo": "Lavis, Via Carlo Sette, 13/A",
-            "departure_time": "07:05",
-            "return_time": "15:45",
-            "count": 10,
-            "lat": 46.1380913,
-            "lon": 11.1133091,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ROSA BIANCA",
-            "luogo_ritrovo": "Predazzo, Fermata Bus Corso Degasperi",
-            "departure_time": "06:00",
-            "return_time": "17:00",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ROSA BIANCA",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 204.0
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 0.6667,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC BASSA VAL DI SOLE",
-            "lat": 46.352824,
-            "lon": 10.9147096,
-            "departure_time": "06:01",
-            "count": 10
-          },
-          {
-            "name": "IS ENAIP CLES",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "06:22",
-            "count": 10
-          }
-        ],
-        "distance_km": 47.17
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC BASSA VAL DI SOLE",
-            "luogo_ritrovo": "Malé, Stazione FTM",
-            "departure_time": "06:20",
-            "return_time": "16:40",
-            "count": 10,
-            "lat": 46.352824,
-            "lon": 10.9147096,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ENAIP CLES",
-            "luogo_ritrovo": "Cles, Piazza Fiera",
-            "departure_time": "06:40",
-            "return_time": "16:20",
-            "count": 10,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ENAIP OSSANA",
-            "luogo_ritrovo": "Ossana, Via S. Antonio",
-            "departure_time": "06:00",
-            "return_time": "17:00",
-            "count": 3,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 204.0
-      },
-      "gt_fin": "2"
-    },
-    {
-      "jaccard": 0.4286,
-      "planner": {
-        "vehicle_id": 7,
-        "stops": [
-          {
-            "name": "IC ALA",
-            "lat": 45.7564167,
-            "lon": 11.0014206,
-            "departure_time": "05:53",
-            "count": 10
-          },
-          {
-            "name": "IS MARCONI ROVERETO",
-            "lat": 45.9117604,
-            "lon": 11.0419398,
-            "departure_time": "06:19",
-            "count": 8
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 3
-          },
-          {
-            "name": "IC ISERA ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 10
-          },
-          {
-            "name": "IC BRENTONICO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 9
-          },
-          {
-            "name": "IC ALDENO-MATTARELLO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:57",
-            "count": 10
-          }
-        ],
-        "distance_km": 44.79
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALA",
-            "luogo_ritrovo": "Via Betta, Ala",
-            "departure_time": "06:25",
-            "return_time": "16:15",
-            "count": 10,
-            "lat": 45.7564167,
-            "lon": 11.0014206,
-            "coords_missing": false
-          },
-          {
-            "name": "IC BRENTONICO",
-            "luogo_ritrovo": "SSPG, Via F. Calzolari, 2, Brentonico",
-            "departure_time": "06:00",
-            "return_time": "16:40",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VILLA LAGARINA",
-            "luogo_ritrovo": "SSPG - Via Stockstadt am Rhein, 3, Villa Lagarina",
-            "departure_time": "07:00",
-            "return_time": "15:50",
-            "count": 10,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MARCONI ROVERETO",
-            "luogo_ritrovo": "Rovereto, Via Monti, 1",
-            "departure_time": "07:10",
-            "return_time": "15:40",
-            "count": 8,
-            "lat": 45.9117604,
-            "lon": 11.0419398,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 176.0
-      },
-      "gt_fin": "9"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IS ROSMINI ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 16
-          },
-          {
-            "name": "IS ROSA BIANCA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 9
-          },
-          {
-            "name": "IS PERTINI TRENTO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 14
-          },
-          {
-            "name": "IS LINGUISTICO SCHOLL TRENTO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:57",
-            "count": 13
-          }
-        ],
-        "distance_km": 20.01
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALDENO-MATTARELLO",
-            "luogo_ritrovo": "Mattarello, Via Torrefranca, fermata Bus al parco",
-            "departure_time": "07:05",
-            "return_time": "15:55",
-            "count": 10,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ALDENO-MATTARELLO",
-            "luogo_ritrovo": "Aldeno, Via Filzi, Fermata corriere",
-            "departure_time": "07:15",
-            "return_time": "15:45",
-            "count": 0,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS LINGUISTICO SCHOLL TRENTO",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 13,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS PERTINI TRENTO",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 14,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS TRENTO TAMBOSI",
-            "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
-            "departure_time": "06:50",
-            "return_time": "16:10",
-            "count": 14,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 80.0
-      },
-      "gt_fin": "10"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 8,
-        "stops": [
-          {
-            "name": "IC VAL RENDENA",
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "departure_time": "05:23",
-            "count": 2
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "departure_time": "05:35",
-            "count": 4
-          },
-          {
-            "name": "IC TIONE",
-            "lat": 46.0302545,
-            "lon": 10.7247686,
-            "departure_time": "05:50",
-            "count": 12
-          },
-          {
-            "name": "IC GIUDICARIE ESTERIORI",
-            "lat": 46.0359577,
-            "lon": 10.870972,
-            "departure_time": "06:08",
-            "count": 10
-          },
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "lat": 45.8919799,
-            "lon": 10.8451423,
-            "departure_time": "06:36",
-            "count": 17
-          }
-        ],
-        "distance_km": 62.37
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC GIUDICARIE ESTERIORI",
-            "luogo_ritrovo": "Ponte Arche, Via S. Giovanni Bosco, 14",
-            "departure_time": "06:40",
-            "return_time": "16:20",
-            "count": 10,
-            "lat": 46.0359577,
-            "lon": 10.870972,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TRENTO SACRO CUORE",
-            "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
-            "departure_time": "07:15",
-            "return_time": "15:45",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "luogo_ritrovo": "Madonna di Campiglio, Piazzale Brenta, Loc. Palù",
-            "departure_time": "05:40",
-            "return_time": "17:25",
-            "count": 3,
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "luogo_ritrovo": "Pinzolo, Viale della Pace, 10",
-            "departure_time": "05:55",
-            "return_time": "17:10",
-            "count": 2,
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "luogo_ritrovo": "Spiazzo, Frazione Fisto, 108",
-            "departure_time": "06:10",
-            "return_time": "16:55",
-            "count": 4,
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ENAIP VILLAZZANO",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 7,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 206.0
-      },
-      "gt_fin": "11"
-    },
-    {
-      "jaccard": 0.2857,
-      "planner": {
-        "vehicle_id": 6,
-        "stops": [
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "05:56",
-            "count": 3
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:19",
-            "count": 3
-          },
-          {
-            "name": "IC MEZZOCORONA",
-            "lat": 46.2129389,
-            "lon": 11.1139953,
-            "departure_time": "06:26",
-            "count": 9
-          },
-          {
-            "name": "IC TRENTO SACRO CUORE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 9
-          },
-          {
-            "name": "IC ROVERETO NORD",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 10
-          },
-          {
-            "name": "IC ROVERETO EST",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 9
-          },
-          {
-            "name": "IC PERGINE 2",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:57",
-            "count": 9
-          }
-        ],
-        "distance_km": 42.54
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC MEZZOCORONA",
-            "luogo_ritrovo": "Mezzocorona, Via Fornai 1",
-            "departure_time": "06:40",
-            "return_time": "15:50",
-            "count": 9,
-            "lat": 46.2129389,
-            "lon": 11.1139953,
-            "coords_missing": false
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "luogo_ritrovo": "Andalo, Piazza San Vito, 1",
-            "departure_time": "06:00",
-            "return_time": "16:30",
-            "count": 3,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "luogo_ritrovo": "Spormaggiore, Fermata bus",
-            "departure_time": "06:15",
-            "return_time": "16:15",
-            "count": 3,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "luogo_ritrovo": "Mezzolombardo, Via degli Alpini, 17",
-            "departure_time": "06:30",
-            "return_time": "16:00",
-            "count": 3,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS VITTORIA BONPORTI TRENTO",
-            "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
-            "departure_time": "07:05",
-            "return_time": "15:40",
-            "count": 17,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 148.0
-      },
-      "gt_fin": "7"
-    },
-    {
-      "jaccard": 0.2,
-      "planner": {
-        "vehicle_id": 4,
-        "stops": [
-          {
-            "name": "IS FILZI ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 17
-          },
-          {
-            "name": "IS ENAIP TIONE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 14
-          },
-          {
-            "name": "IC VIGOLO VATTARO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 9
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "lat": 46.100445,
-            "lon": 10.7407245,
-            "departure_time": "06:57",
-            "count": 3
-          }
-        ],
-        "distance_km": 20.01
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC PERGINE 2",
-            "luogo_ritrovo": "Pergine, Via Dante, Fermata Tentazioni",
-            "departure_time": "06:40",
-            "return_time": "16:00",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VIGOLO VATTARO",
-            "luogo_ritrovo": "Fermata bus - Vigolo Vattaro",
-            "departure_time": "07:20",
-            "return_time": "15:40",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 76.0
-      },
-      "gt_fin": "5"
-    },
-    {
-      "jaccard": 0.1429,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IC ALDENO-MATTARELLO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:45",
-            "count": 0
-          },
-          {
-            "name": "IS TIONE GUETTI-Students staff",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 16
-          },
-          {
-            "name": "IS TRENTO TAMBOSI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 14
-          },
-          {
-            "name": "IS VITTORIA BONPORTI TRENTO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 17
-          },
-          {
-            "name": "IS ENAIP VILLAZZANO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:57",
-            "count": 7
-          }
-        ],
-        "distance_km": 20.01
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS ENAIP TIONE",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 14,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS GUETTI TIONE",
-            "luogo_ritrovo": "Tione, Stazione autocorriere",
-            "departure_time": "06:20",
-            "return_time": "16:40",
-            "count": 18,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS TIONE GUETTI-Students staff",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 16,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 150.0
-      },
-      "gt_fin": "4"
-    },
-    {
-      "jaccard": 0.1429,
-      "planner": {
-        "vehicle_id": 5,
-        "stops": [
-          {
-            "name": "IC LAVIS",
-            "lat": 46.1380913,
-            "lon": 11.1133091,
-            "departure_time": "06:33",
-            "count": 10
-          },
-          {
-            "name": "IS GUETTI TIONE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:48",
-            "count": 18
-          },
-          {
-            "name": "IS FONTANA ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:51",
-            "count": 10
-          },
-          {
-            "name": "IS ENAIP OSSANA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:54",
-            "count": 3
-          },
-          {
-            "name": "IC VILLA LAGARINA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:57",
-            "count": 10
-          }
-        ],
-        "distance_km": 26.32
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS FONTANA ROVERETO",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 10,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "luogo_ritrovo": "Riva del Garda, Stazione autocorriere",
-            "departure_time": "06:30",
-            "return_time": "16:15",
-            "count": 17,
-            "lat": 45.8919799,
-            "lon": 10.8451423,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ROSMINI ROVERETO",
-            "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
-            "departure_time": "07:00",
-            "return_time": "15:45",
-            "count": 16,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 94.0
-      },
-      "gt_fin": "3"
-    }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": [
-    {
-      "stops": [
+  "planners": {
+    "v2": {
+      "matched_pairs": [
         {
-          "name": "IC ISERA ROVERETO",
-          "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
-          "departure_time": "07:00",
-          "return_time": "15:40",
-          "count": 10,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.75,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "departure_time": "05:57",
+                "count": 14
+              },
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "departure_time": "06:05",
+                "count": 10
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:08",
+                "count": 9
+              }
+            ],
+            "distance_km": 47.2
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "luogo_ritrovo": "Tesero, Via Caltrezza, 13",
+                "departure_time": "06:10",
+                "return_time": "16:50",
+                "count": 14,
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CAVALESE",
+                "luogo_ritrovo": "Cavalese, stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Lavis, Via Carlo Sette, 13/A",
+                "departure_time": "07:05",
+                "return_time": "15:45",
+                "count": 10,
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "Predazzo, Fermata Bus Corso Degasperi",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "1"
         },
         {
-          "name": "IC ROVERETO EST",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 9,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "departure_time": "06:01",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:22",
+                "count": 10
+              }
+            ],
+            "distance_km": 47.17
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malé, Stazione FTM",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:40",
+                "return_time": "16:20",
+                "count": 10,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via S. Antonio",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "2"
         },
         {
-          "name": "IC ROVERETO NORD",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 10,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.4286,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC ALA",
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "departure_time": "05:53",
+                "count": 10
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "departure_time": "06:19",
+                "count": 8
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 3
+              },
+              {
+                "name": "IC ISERA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 10
+              },
+              {
+                "name": "IC BRENTONICO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 10
+              }
+            ],
+            "distance_km": 44.79
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Via Betta, Ala",
+                "departure_time": "06:25",
+                "return_time": "16:15",
+                "count": 10,
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "coords_missing": false
+              },
+              {
+                "name": "IC BRENTONICO",
+                "luogo_ritrovo": "SSPG, Via F. Calzolari, 2, Brentonico",
+                "departure_time": "06:00",
+                "return_time": "16:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "luogo_ritrovo": "SSPG - Via Stockstadt am Rhein, 3, Villa Lagarina",
+                "departure_time": "07:00",
+                "return_time": "15:50",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Via Monti, 1",
+                "departure_time": "07:10",
+                "return_time": "15:40",
+                "count": 8,
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 176.0
+          },
+          "gt_fin": "9"
         },
         {
-          "name": "IS FILZI ROVERETO",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 17,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 16
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 9
+              },
+              {
+                "name": "IS PERTINI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 14
+              },
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 13
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Mattarello, Via Torrefranca, fermata Bus al parco",
+                "departure_time": "07:05",
+                "return_time": "15:55",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Aldeno, Via Filzi, Fermata corriere",
+                "departure_time": "07:15",
+                "return_time": "15:45",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 13,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PERTINI TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "06:50",
+                "return_time": "16:10",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 80.0
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 8,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:23",
+                "count": 2
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:35",
+                "count": 4
+              },
+              {
+                "name": "IC TIONE",
+                "lat": 46.0302545,
+                "lon": 10.7247686,
+                "departure_time": "05:50",
+                "count": 12
+              },
+              {
+                "name": "IC GIUDICARIE ESTERIORI",
+                "lat": 46.0359577,
+                "lon": 10.870972,
+                "departure_time": "06:08",
+                "count": 10
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "departure_time": "06:36",
+                "count": 17
+              }
+            ],
+            "distance_km": 62.37
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC GIUDICARIE ESTERIORI",
+                "luogo_ritrovo": "Ponte Arche, Via S. Giovanni Bosco, 14",
+                "departure_time": "06:40",
+                "return_time": "16:20",
+                "count": 10,
+                "lat": 46.0359577,
+                "lon": 10.870972,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TRENTO SACRO CUORE",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "07:15",
+                "return_time": "15:45",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "luogo_ritrovo": "Madonna di Campiglio, Piazzale Brenta, Loc. Palù",
+                "departure_time": "05:40",
+                "return_time": "17:25",
+                "count": 3,
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "luogo_ritrovo": "Pinzolo, Viale della Pace, 10",
+                "departure_time": "05:55",
+                "return_time": "17:10",
+                "count": 2,
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "luogo_ritrovo": "Spiazzo, Frazione Fisto, 108",
+                "departure_time": "06:10",
+                "return_time": "16:55",
+                "count": 4,
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP VILLAZZANO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 7,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 206.0
+          },
+          "gt_fin": "11"
+        },
+        {
+          "jaccard": 0.2857,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "05:56",
+                "count": 3
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:19",
+                "count": 3
+              },
+              {
+                "name": "IC MEZZOCORONA",
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "departure_time": "06:26",
+                "count": 9
+              },
+              {
+                "name": "IC TRENTO SACRO CUORE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 10
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 9
+              }
+            ],
+            "distance_km": 42.54
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOCORONA",
+                "luogo_ritrovo": "Mezzocorona, Via Fornai 1",
+                "departure_time": "06:40",
+                "return_time": "15:50",
+                "count": 9,
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Andalo, Piazza San Vito, 1",
+                "departure_time": "06:00",
+                "return_time": "16:30",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Spormaggiore, Fermata bus",
+                "departure_time": "06:15",
+                "return_time": "16:15",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via degli Alpini, 17",
+                "departure_time": "06:30",
+                "return_time": "16:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "07:05",
+                "return_time": "15:40",
+                "count": 17,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 148.0
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.2,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 17
+              },
+              {
+                "name": "IS ENAIP TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 14
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "06:57",
+                "count": 3
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Via Dante, Fermata Tentazioni",
+                "departure_time": "06:40",
+                "return_time": "16:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "luogo_ritrovo": "Fermata bus - Vigolo Vattaro",
+                "departure_time": "07:20",
+                "return_time": "15:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 76.0
+          },
+          "gt_fin": "5"
+        },
+        {
+          "jaccard": 0.1429,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 0
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 16
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 14
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 17
+              },
+              {
+                "name": "IS ENAIP VILLAZZANO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 7
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP TIONE",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "luogo_ritrovo": "Tione, Stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 150.0
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.1429,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "06:33",
+                "count": 10
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 18
+              },
+              {
+                "name": "IS FONTANA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 3
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 10
+              }
+            ],
+            "distance_km": 26.32
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS FONTANA ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, Stazione autocorriere",
+                "departure_time": "06:30",
+                "return_time": "16:15",
+                "count": 17,
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+                "departure_time": "07:00",
+                "return_time": "15:45",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 94.0
+          },
+          "gt_fin": "3"
         }
       ],
-      "distance_km": 46.0,
-      "fin": "6"
-    },
-    {
-      "stops": [
+      "unmatched_planner": [],
+      "unmatched_gt": [
         {
-          "name": "IC TIONE",
-          "luogo_ritrovo": "Tione, Via Circonvallazione, 44",
-          "departure_time": "06:10",
-          "return_time": "16:40",
-          "count": 12,
-          "lat": 46.0302545,
-          "lon": 10.7247686,
-          "coords_missing": false
+          "stops": [
+            {
+              "name": "IC ISERA ROVERETO",
+              "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+              "departure_time": "07:00",
+              "return_time": "15:40",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO EST",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO NORD",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS FILZI ROVERETO",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 17,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 46.0,
+          "fin": "6"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TIONE",
+              "luogo_ritrovo": "Tione, Via Circonvallazione, 44",
+              "departure_time": "06:10",
+              "return_time": "16:40",
+              "count": 12,
+              "lat": 46.0302545,
+              "lon": 10.7247686,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 150.0,
+          "fin": "8"
         }
       ],
-      "distance_km": 150.0,
-      "fin": "8"
+      "scores": {
+        "assignment": 0.3648,
+        "bus_count": 0.8182,
+        "combined": 0.5462
+      }
+    },
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.8,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "departure_time": "05:41",
+                "count": 14
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "05:49",
+                "count": 9
+              },
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "departure_time": "05:52",
+                "count": 10
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "06:42",
+                "count": 10
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 9
+              }
+            ],
+            "distance_km": 52.5
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "luogo_ritrovo": "Tesero, Via Caltrezza, 13",
+                "departure_time": "06:10",
+                "return_time": "16:50",
+                "count": 14,
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CAVALESE",
+                "luogo_ritrovo": "Cavalese, stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Lavis, Via Carlo Sette, 13/A",
+                "departure_time": "07:05",
+                "return_time": "15:45",
+                "count": 10,
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "Predazzo, Fermata Bus Corso Degasperi",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "departure_time": "06:04",
+                "count": 17
+              },
+              {
+                "name": "IC ALA",
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "departure_time": "06:41",
+                "count": 10
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "departure_time": "07:07",
+                "count": 8
+              }
+            ],
+            "distance_km": 44.32
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Via Betta, Ala",
+                "departure_time": "06:25",
+                "return_time": "16:15",
+                "count": 10,
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "coords_missing": false
+              },
+              {
+                "name": "IC BRENTONICO",
+                "luogo_ritrovo": "SSPG, Via F. Calzolari, 2, Brentonico",
+                "departure_time": "06:00",
+                "return_time": "16:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "luogo_ritrovo": "SSPG - Via Stockstadt am Rhein, 3, Villa Lagarina",
+                "departure_time": "07:00",
+                "return_time": "15:50",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Via Monti, 1",
+                "departure_time": "07:10",
+                "return_time": "15:40",
+                "count": 8,
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 176.0
+          },
+          "gt_fin": "9"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "departure_time": "05:45",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:06",
+                "count": 10
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 10
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 17
+              },
+              {
+                "name": "IS ENAIP VILLAZZANO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 7
+              }
+            ],
+            "distance_km": 50.39
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malé, Stazione FTM",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:40",
+                "return_time": "16:20",
+                "count": 10,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via S. Antonio",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 8,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:03",
+                "count": 2
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:15",
+                "count": 4
+              },
+              {
+                "name": "IC TIONE",
+                "lat": 46.0302545,
+                "lon": 10.7247686,
+                "departure_time": "05:30",
+                "count": 12
+              },
+              {
+                "name": "IC GIUDICARIE ESTERIORI",
+                "lat": 46.0359577,
+                "lon": 10.870972,
+                "departure_time": "05:48",
+                "count": 10
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:16",
+                "count": 3
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:39",
+                "count": 3
+              },
+              {
+                "name": "IC MEZZOCORONA",
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "departure_time": "06:46",
+                "count": 9
+              }
+            ],
+            "distance_km": 69.76
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOCORONA",
+                "luogo_ritrovo": "Mezzocorona, Via Fornai 1",
+                "departure_time": "06:40",
+                "return_time": "15:50",
+                "count": 9,
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Andalo, Piazza San Vito, 1",
+                "departure_time": "06:00",
+                "return_time": "16:30",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Spormaggiore, Fermata bus",
+                "departure_time": "06:15",
+                "return_time": "16:15",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via degli Alpini, 17",
+                "departure_time": "06:30",
+                "return_time": "16:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "07:05",
+                "return_time": "15:40",
+                "count": 17,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 148.0
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:42",
+                "count": 10
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 14
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 0
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 3
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 18
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 9
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Mattarello, Via Torrefranca, fermata Bus al parco",
+                "departure_time": "07:05",
+                "return_time": "15:55",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Aldeno, Via Filzi, Fermata corriere",
+                "departure_time": "07:15",
+                "return_time": "15:45",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 13,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PERTINI TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "06:50",
+                "return_time": "16:10",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 80.0
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 0.1667,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC TRENTO SACRO CUORE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 9
+              },
+              {
+                "name": "IC ISERA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 10
+              },
+              {
+                "name": "IC BRENTONICO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 9
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 17
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Via Dante, Fermata Tentazioni",
+                "departure_time": "06:40",
+                "return_time": "16:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "luogo_ritrovo": "Fermata bus - Vigolo Vattaro",
+                "departure_time": "07:20",
+                "return_time": "15:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 76.0
+          },
+          "gt_fin": "5"
+        },
+        {
+          "jaccard": 0.1667,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IS PERTINI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 14
+              },
+              {
+                "name": "IS ENAIP TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 14
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 16
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 10
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS FONTANA ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, Stazione autocorriere",
+                "departure_time": "06:30",
+                "return_time": "16:15",
+                "count": 17,
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+                "departure_time": "07:00",
+                "return_time": "15:45",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 94.0
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.125,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:42",
+                "count": 13
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 16
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "06:48",
+                "count": 3
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 9
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 3
+              },
+              {
+                "name": "IS FONTANA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 10
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP TIONE",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "luogo_ritrovo": "Tione, Stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 150.0
+          },
+          "gt_fin": "4"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC GIUDICARIE ESTERIORI",
+              "luogo_ritrovo": "Ponte Arche, Via S. Giovanni Bosco, 14",
+              "departure_time": "06:40",
+              "return_time": "16:20",
+              "count": 10,
+              "lat": 46.0359577,
+              "lon": 10.870972,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO SACRO CUORE",
+              "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+              "departure_time": "07:15",
+              "return_time": "15:45",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Madonna di Campiglio, Piazzale Brenta, Loc. Palù",
+              "departure_time": "05:40",
+              "return_time": "17:25",
+              "count": 3,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Pinzolo, Viale della Pace, 10",
+              "departure_time": "05:55",
+              "return_time": "17:10",
+              "count": 2,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Spiazzo, Frazione Fisto, 108",
+              "departure_time": "06:10",
+              "return_time": "16:55",
+              "count": 4,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ENAIP VILLAZZANO",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 7,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 206.0,
+          "fin": "11"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC ISERA ROVERETO",
+              "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+              "departure_time": "07:00",
+              "return_time": "15:40",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO EST",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO NORD",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS FILZI ROVERETO",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 17,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 46.0,
+          "fin": "6"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TIONE",
+              "luogo_ritrovo": "Tione, Via Circonvallazione, 44",
+              "departure_time": "06:10",
+              "return_time": "16:40",
+              "count": 12,
+              "lat": 46.0302545,
+              "lon": 10.7247686,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 150.0,
+          "fin": "8"
+        }
+      ],
+      "scores": {
+        "assignment": 0.3219,
+        "bus_count": 0.7273,
+        "combined": 0.484
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "departure_time": "06:00",
+                "count": 14
+              },
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "departure_time": "06:08",
+                "count": 10
+              }
+            ],
+            "distance_km": 47.2
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ENAIP TESERO",
+                "luogo_ritrovo": "Tesero, Via Caltrezza, 13",
+                "departure_time": "06:10",
+                "return_time": "16:50",
+                "count": 14,
+                "lat": 46.2874466,
+                "lon": 11.5125733,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CAVALESE",
+                "luogo_ritrovo": "Cavalese, stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.2909522,
+                "lon": 11.4662487,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Lavis, Via Carlo Sette, 13/A",
+                "departure_time": "07:05",
+                "return_time": "15:45",
+                "count": 10,
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "Predazzo, Fermata Bus Corso Degasperi",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "departure_time": "05:31",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "05:52",
+                "count": 10
+              },
+              {
+                "name": "IC MEZZOCORONA",
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "departure_time": "06:23",
+                "count": 9
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "06:39",
+                "count": 10
+              },
+              {
+                "name": "IC ISERA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 3
+              }
+            ],
+            "distance_km": 56.49
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malé, Stazione FTM",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 10,
+                "lat": 46.352824,
+                "lon": 10.9147096,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:40",
+                "return_time": "16:20",
+                "count": 10,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via S. Antonio",
+                "departure_time": "06:00",
+                "return_time": "17:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 204.0
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:22",
+                "count": 3
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 14
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 17
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 0
+              },
+              {
+                "name": "IC BRENTONICO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 10
+              }
+            ],
+            "distance_km": 30.43
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOCORONA",
+                "luogo_ritrovo": "Mezzocorona, Via Fornai 1",
+                "departure_time": "06:40",
+                "return_time": "15:50",
+                "count": 9,
+                "lat": 46.2129389,
+                "lon": 11.1139953,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Andalo, Piazza San Vito, 1",
+                "departure_time": "06:00",
+                "return_time": "16:30",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Spormaggiore, Fermata bus",
+                "departure_time": "06:15",
+                "return_time": "16:15",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via degli Alpini, 17",
+                "departure_time": "06:30",
+                "return_time": "16:00",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS VITTORIA BONPORTI TRENTO",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "07:05",
+                "return_time": "15:40",
+                "count": 17,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 148.0
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS ENAIP VILLAZZANO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:42",
+                "count": 7
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:45",
+                "count": 9
+              },
+              {
+                "name": "IC TRENTO SACRO CUORE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 10
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 9
+              }
+            ],
+            "distance_km": 20.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Via Dante, Fermata Tentazioni",
+                "departure_time": "06:40",
+                "return_time": "16:00",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "luogo_ritrovo": "Fermata bus - Vigolo Vattaro",
+                "departure_time": "07:20",
+                "return_time": "15:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 76.0
+          },
+          "gt_fin": "5"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "05:51",
+                "count": 9
+              },
+              {
+                "name": "IS PERTINI TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 14
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 18
+              },
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 13
+              }
+            ],
+            "distance_km": 48.9
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Mattarello, Via Torrefranca, fermata Bus al parco",
+                "departure_time": "07:05",
+                "return_time": "15:55",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ALDENO-MATTARELLO",
+                "luogo_ritrovo": "Aldeno, Via Filzi, Fermata corriere",
+                "departure_time": "07:15",
+                "return_time": "15:45",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS LINGUISTICO SCHOLL TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 13,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PERTINI TRENTO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TRENTO TAMBOSI",
+                "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+                "departure_time": "06:50",
+                "return_time": "16:10",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 80.0
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC TIONE",
+                "lat": 46.0302545,
+                "lon": 10.7247686,
+                "departure_time": "05:44",
+                "count": 12
+              },
+              {
+                "name": "IC GIUDICARIE ESTERIORI",
+                "lat": 46.0359577,
+                "lon": 10.870972,
+                "departure_time": "06:02",
+                "count": 10
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "departure_time": "06:30",
+                "count": 17
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "departure_time": "07:07",
+                "count": 8
+              }
+            ],
+            "distance_km": 52.85
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TIONE",
+                "luogo_ritrovo": "Tione, Via Circonvallazione, 44",
+                "departure_time": "06:10",
+                "return_time": "16:40",
+                "count": 12,
+                "lat": 46.0302545,
+                "lon": 10.7247686,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 150.0
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 8,
+            "stops": [
+              {
+                "name": "IC ALA",
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "departure_time": "06:46",
+                "count": 10
+              }
+            ],
+            "distance_km": 25.82
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Via Betta, Ala",
+                "departure_time": "06:25",
+                "return_time": "16:15",
+                "count": 10,
+                "lat": 45.7564167,
+                "lon": 11.0014206,
+                "coords_missing": false
+              },
+              {
+                "name": "IC BRENTONICO",
+                "luogo_ritrovo": "SSPG, Via F. Calzolari, 2, Brentonico",
+                "departure_time": "06:00",
+                "return_time": "16:40",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "luogo_ritrovo": "SSPG - Via Stockstadt am Rhein, 3, Villa Lagarina",
+                "departure_time": "07:00",
+                "return_time": "15:50",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Via Monti, 1",
+                "departure_time": "07:10",
+                "return_time": "15:40",
+                "count": 8,
+                "lat": 45.9117604,
+                "lon": 11.0419398,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 176.0
+          },
+          "gt_fin": "9"
+        },
+        {
+          "jaccard": 0.1429,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:08",
+                "count": 3
+              },
+              {
+                "name": "IS FONTANA ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 10
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 17
+              },
+              {
+                "name": "IC VILLA LAGARINA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 10
+              },
+              {
+                "name": "IS ENAIP TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 14
+              }
+            ],
+            "distance_km": 38.91
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP TIONE",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS GUETTI TIONE",
+                "luogo_ritrovo": "Tione, Stazione autocorriere",
+                "departure_time": "06:20",
+                "return_time": "16:40",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 150.0
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.1429,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:34",
+                "count": 2
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "05:46",
+                "count": 4
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.100445,
+                "lon": 10.7407245,
+                "departure_time": "06:45",
+                "count": 3
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:48",
+                "count": 3
+              },
+              {
+                "name": "IS TIONE GUETTI-Students staff",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:51",
+                "count": 16
+              },
+              {
+                "name": "IS ROSA BIANCA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:54",
+                "count": 9
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:57",
+                "count": 16
+              }
+            ],
+            "distance_km": 52.84
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS FONTANA ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, Stazione autocorriere",
+                "departure_time": "06:30",
+                "return_time": "16:15",
+                "count": 17,
+                "lat": 45.8919799,
+                "lon": 10.8451423,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+                "departure_time": "07:00",
+                "return_time": "15:45",
+                "count": 16,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 94.0
+          },
+          "gt_fin": "3"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC GIUDICARIE ESTERIORI",
+              "luogo_ritrovo": "Ponte Arche, Via S. Giovanni Bosco, 14",
+              "departure_time": "06:40",
+              "return_time": "16:20",
+              "count": 10,
+              "lat": 46.0359577,
+              "lon": 10.870972,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO SACRO CUORE",
+              "luogo_ritrovo": "Trento, Park Area Ex Italcementi",
+              "departure_time": "07:15",
+              "return_time": "15:45",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Madonna di Campiglio, Piazzale Brenta, Loc. Palù",
+              "departure_time": "05:40",
+              "return_time": "17:25",
+              "count": 3,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Pinzolo, Viale della Pace, 10",
+              "departure_time": "05:55",
+              "return_time": "17:10",
+              "count": 2,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Spiazzo, Frazione Fisto, 108",
+              "departure_time": "06:10",
+              "return_time": "16:55",
+              "count": 4,
+              "lat": 46.100445,
+              "lon": 10.7407245,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ENAIP VILLAZZANO",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 7,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 206.0,
+          "fin": "11"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC ISERA ROVERETO",
+              "luogo_ritrovo": "Rovereto, Parcheggio - Stadio Quercia",
+              "departure_time": "07:00",
+              "return_time": "15:40",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO EST",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO NORD",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS FILZI ROVERETO",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 17,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 46.0,
+          "fin": "6"
+        }
+      ],
+      "scores": {
+        "assignment": 0.3095,
+        "bus_count": 0.8182,
+        "combined": 0.513
+      }
     }
-  ]
+  }
 }

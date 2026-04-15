@@ -4,665 +4,1968 @@
     "destination": "Rovereto – Palestra IS Marconi",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.5524,
-    "bus_count": 0.75,
-    "combined": 0.6314
-  },
+  "arrival_time": "07:40",
   "destination": {
     "name": "Rovereto – Palestra IS Marconi",
     "lat": 46.0697,
     "lon": 11.1211
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IC ALA",
-            "lat": 45.7562382,
-            "lon": 11.0015357,
-            "departure_time": "06:45",
-            "count": 5
-          },
-          {
-            "name": "IC ROVERETO EST",
-            "lat": 45.8909487,
-            "lon": 11.0361115,
-            "departure_time": "07:07",
-            "count": 5
-          },
-          {
-            "name": "IC ROVERETO NORD",
-            "lat": 45.8935846,
-            "lon": 11.0436421,
-            "departure_time": "07:11",
-            "count": 5
-          }
-        ],
-        "distance_km": 23.75
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALA",
-            "luogo_ritrovo": "Ala, Via Betta 9",
-            "departure_time": "07:30",
-            "return_time": "16:45",
-            "count": 5,
-            "lat": 45.7562382,
-            "lon": 11.0015357,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ROVERETO EST",
-            "luogo_ritrovo": "Rovereto, Corso Rosmini 24",
-            "departure_time": "07:55",
-            "return_time": "16:20",
-            "count": 5,
-            "lat": 45.8909487,
-            "lon": 11.0361115,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ROVERETO NORD",
-            "luogo_ritrovo": "Rovereto, Corso Bettini 67",
-            "departure_time": "08:05",
-            "return_time": "16:10",
-            "count": 5,
-            "lat": 45.8935846,
-            "lon": 11.0436421,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 5,
-        "stops": [
-          {
-            "name": "IC LADINO DI FASSA",
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "departure_time": "06:04",
-            "count": 1
-          },
-          {
-            "name": "IC CAVALESE",
-            "lat": 46.2904945,
-            "lon": 11.4606222,
-            "departure_time": "06:40",
-            "count": 6
-          }
-        ],
-        "distance_km": 45.59
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC CAVALESE",
-            "luogo_ritrovo": "Cavalese, Piazza Verdi 6",
-            "departure_time": "06:55",
-            "return_time": "17:20",
-            "count": 6,
-            "lat": 46.2904945,
-            "lon": 11.4606222,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "luogo_ritrovo": "Campitello di Fassa, Fermata Bus Piazza",
-            "departure_time": "06:00",
-            "return_time": "18:15",
-            "count": 3,
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "luogo_ritrovo": "San Jan, Strada Dolomites 67",
-            "departure_time": "06:10",
-            "return_time": "18:05",
-            "count": 1,
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "luogo_ritrovo": "Moena, Fermata Bus “Te Volto”",
-            "departure_time": "06:25",
-            "return_time": "17:50",
-            "count": 2,
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "2"
-    },
-    {
-      "jaccard": 0.4167,
-      "planner": {
-        "vehicle_id": 4,
-        "stops": [
-          {
-            "name": "IC BASSA VAL DI SOLE",
-            "lat": 46.3535408,
-            "lon": 10.9169984,
-            "departure_time": "04:19",
-            "count": 5
-          },
-          {
-            "name": "IC CLES",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "04:41",
-            "count": 8
-          },
-          {
-            "name": "IC REVO’",
-            "lat": 46.3205505,
-            "lon": 11.0654295,
-            "departure_time": "04:54",
-            "count": 5
-          },
-          {
-            "name": "IC TAIO",
-            "lat": 46.3205505,
-            "lon": 11.0654295,
-            "departure_time": "04:57",
-            "count": 6
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "lat": 46.2117854,
-            "lon": 11.0961895,
-            "departure_time": "05:17",
-            "count": 5
-          },
-          {
-            "name": "IC LAVIS",
-            "lat": 46.1374325,
-            "lon": 11.113553,
-            "departure_time": "05:33",
-            "count": 5
-          },
-          {
-            "name": "IC CEMBRA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "05:44",
-            "count": 2
-          },
-          {
-            "name": "IC CEMBRA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "05:57",
-            "count": 1
-          },
-          {
-            "name": "IC ARCO GARDASCUOLA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:28",
-            "count": 5
-          },
-          {
-            "name": "IC ALDENO MATTARELLO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "06:31",
-            "count": 2
-          },
-          {
-            "name": "IC PERGINE 1",
-            "lat": 46.067046,
-            "lon": 11.2453364,
-            "departure_time": "06:50",
-            "count": 5
-          },
-          {
-            "name": "IC VEZZANO",
-            "lat": 46.0794117,
-            "lon": 11.0022582,
-            "departure_time": "07:22",
-            "count": 5
-          }
-        ],
-        "distance_km": 84.41
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC BASSA VAL DI SOLE",
-            "luogo_ritrovo": "Malè, Stazione Nuova",
-            "departure_time": "06:15",
-            "return_time": "18:00",
-            "count": 5,
-            "lat": 46.3535408,
-            "lon": 10.9169984,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CLES",
-            "luogo_ritrovo": "Cles, Piazza Fiera",
-            "departure_time": "06:50",
-            "return_time": "17:25",
-            "count": 8,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
-          },
-          {
-            "name": "IC FONDO",
-            "luogo_ritrovo": "Revò, Fermata Bus Vigili del Fuoco",
-            "departure_time": "06:40",
-            "return_time": "17:35",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "luogo_ritrovo": "Mezzolombardo, Via Degli Alpini 17",
-            "departure_time": "07:35",
-            "return_time": "16:40",
-            "count": 5,
-            "lat": 46.2117854,
-            "lon": 11.0961895,
-            "coords_missing": false
-          },
-          {
-            "name": "IC REVO’",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 5,
-            "lat": 46.3205505,
-            "lon": 11.0654295,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TAIO",
-            "luogo_ritrovo": "Taio, Piazza della Chiesa",
-            "departure_time": "07:05",
-            "return_time": "17:10",
-            "count": 6,
-            "lat": 46.3205505,
-            "lon": 11.0654295,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "3"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "lat": 46.070336,
-            "lon": 11.477498,
-            "departure_time": "06:56",
-            "count": 3
-          }
-        ],
-        "distance_km": 20.65
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "luogo_ritrovo": "Telve, Piazza Maggiore",
-            "departure_time": "06:45",
-            "return_time": "17:35",
-            "count": 3,
-            "lat": 46.070336,
-            "lon": 11.477498,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "luogo_ritrovo": "Roncegno, Fermata \"Il Picchio\"",
-            "departure_time": "07:00",
-            "return_time": "17:20",
-            "count": 3,
-            "lat": 46.070336,
-            "lon": 11.477498,
-            "coords_missing": false
-          },
-          {
-            "name": "IC PERGINE 1",
-            "luogo_ritrovo": "Pergine, Via dei Caduti 39",
-            "departure_time": "07:30",
-            "return_time": "16:50",
-            "count": 5,
-            "lat": 46.067046,
-            "lon": 11.2453364,
-            "coords_missing": false
-          },
-          {
-            "name": "IC PERGINE 2",
-            "luogo_ritrovo": "Pergine, Viale Dante, fermata \"Tentazioni\"",
-            "departure_time": "07:40",
-            "return_time": "16:40",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "4"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IC VAL RENDENA",
-            "lat": 46.1609081,
-            "lon": 10.7664696,
-            "departure_time": "06:33",
-            "count": 5
-          }
-        ],
-        "distance_km": 32.06
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ARCO GARDASCUOLA",
-            "luogo_ritrovo": "Arco, Stazione Corriere",
-            "departure_time": "07:35",
-            "return_time": "16:40",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VAL RENDENA",
-            "luogo_ritrovo": "Pinzolo, Via Collini Borciol 18",
-            "departure_time": "05:55",
-            "return_time": "18:20",
-            "count": 5,
-            "lat": 46.1609081,
-            "lon": 10.7664696,
-            "coords_missing": false
-          },
-          {
-            "name": "IC VALLE DI LEDRO",
-            "luogo_ritrovo": "Ledro, Fermata Bus Scuola",
-            "departure_time": "07:05",
-            "return_time": "17:10",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "6"
-    },
-    {
-      "jaccard": 0.2308,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IC CEMBRA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:01",
-            "count": 2
-          },
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "lat": 46.070336,
-            "lon": 11.477498,
-            "departure_time": "07:04",
-            "count": 3
-          },
-          {
-            "name": "IC FOLGARIA-LAVARONE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:07",
-            "count": 5
-          },
-          {
-            "name": "IC FONDO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:10",
-            "count": 5
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "departure_time": "07:13",
-            "count": 3
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "lat": 46.4279413,
-            "lon": 11.6831041,
-            "departure_time": "07:16",
-            "count": 2
-          },
-          {
-            "name": "IC PERGINE 2",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:19",
-            "count": 5
-          },
-          {
-            "name": "IC TRENTO 3",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:22",
-            "count": 5
-          },
-          {
-            "name": "IC TRENTO 6",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:25",
-            "count": 5
-          },
-          {
-            "name": "IC TRENTO 7",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:28",
-            "count": 5
-          },
-          {
-            "name": "IC VALLE DI LEDRO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:31",
-            "count": 5
-          },
-          {
-            "name": "IC VIGOLO VATTARO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:34",
-            "count": 5
-          },
-          {
-            "name": "IC ALDENO MATTARELLO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:37",
-            "count": 3
-          }
-        ],
-        "distance_km": 0.0
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALDENO MATTARELLO",
-            "luogo_ritrovo": "Mattarello, Fermata Bus “Parco Torre Franca”",
-            "departure_time": "07:45",
-            "return_time": "16:30",
-            "count": 3,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ALDENO MATTARELLO",
-            "luogo_ritrovo": "Aldeno, Via Filzi, Fermata Bus",
-            "departure_time": "07:55",
-            "return_time": "16:20",
-            "count": 2,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CEMBRA",
-            "luogo_ritrovo": "Segonzano, Fermata \"Snack Bar\"",
-            "departure_time": "06:35",
-            "return_time": "17:40",
-            "count": 2,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CEMBRA",
-            "luogo_ritrovo": "Cembra, Via Negritelle 1",
-            "departure_time": "06:50",
-            "return_time": "17:25",
-            "count": 1,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC CEMBRA",
-            "luogo_ritrovo": "Giovo, Via Al Grec 2",
-            "departure_time": "07:05",
-            "return_time": "17:10",
-            "count": 2,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC LAVIS",
-            "luogo_ritrovo": "Lavis, Via Sette 13",
-            "departure_time": "07:20",
-            "return_time": "16:55",
-            "count": 5,
-            "lat": 46.1374325,
-            "lon": 11.113553,
-            "coords_missing": false
-          },
-          {
-            "name": "IC TRENTO 7",
-            "luogo_ritrovo": "Gardolo, Parcheggio Palazzetto Trento Nord",
-            "departure_time": "07:30",
-            "return_time": "16:45",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "5"
-    }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": [
-    {
-      "stops": [
+  "planners": {
+    "v2": {
+      "matched_pairs": [
         {
-          "name": "IC FOLGARIA-LAVARONE",
-          "luogo_ritrovo": "Folgaria, Fermata Bus Palaghiaccio",
-          "departure_time": "07:45",
-          "return_time": "16:30",
-          "count": 5,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC ALA",
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "departure_time": "06:45",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "departure_time": "07:07",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "07:11",
+                "count": 5
+              }
+            ],
+            "distance_km": 23.75
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Ala, Via Betta 9",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 5,
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "Rovereto, Corso Rosmini 24",
+                "departure_time": "07:55",
+                "return_time": "16:20",
+                "count": 5,
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "luogo_ritrovo": "Rovereto, Corso Bettini 67",
+                "departure_time": "08:05",
+                "return_time": "16:10",
+                "count": 5,
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
         },
         {
-          "name": "IC VIGOLO VATTARO",
-          "luogo_ritrovo": "Vigolo Vattaro, Fermata Bus",
-          "departure_time": "07:15",
-          "return_time": "17:00",
-          "count": 5,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "06:04",
+                "count": 1
+              },
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2904945,
+                "lon": 11.4606222,
+                "departure_time": "06:40",
+                "count": 6
+              }
+            ],
+            "distance_km": 45.59
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CAVALESE",
+                "luogo_ritrovo": "Cavalese, Piazza Verdi 6",
+                "departure_time": "06:55",
+                "return_time": "17:20",
+                "count": 6,
+                "lat": 46.2904945,
+                "lon": 11.4606222,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "Campitello di Fassa, Fermata Bus Piazza",
+                "departure_time": "06:00",
+                "return_time": "18:15",
+                "count": 3,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "San Jan, Strada Dolomites 67",
+                "departure_time": "06:10",
+                "return_time": "18:05",
+                "count": 1,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "Moena, Fermata Bus “Te Volto”",
+                "departure_time": "06:25",
+                "return_time": "17:50",
+                "count": 2,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.4167,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "departure_time": "04:19",
+                "count": 5
+              },
+              {
+                "name": "IC CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "04:41",
+                "count": 8
+              },
+              {
+                "name": "IC REVO’",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "04:54",
+                "count": 5
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "04:57",
+                "count": 6
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "departure_time": "05:17",
+                "count": 5
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1374325,
+                "lon": 11.113553,
+                "departure_time": "05:33",
+                "count": 5
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "05:44",
+                "count": 2
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "05:57",
+                "count": 1
+              },
+              {
+                "name": "IC ARCO GARDASCUOLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:28",
+                "count": 5
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:31",
+                "count": 2
+              },
+              {
+                "name": "IC PERGINE 1",
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "departure_time": "06:50",
+                "count": 5
+              },
+              {
+                "name": "IC VEZZANO",
+                "lat": 46.0794117,
+                "lon": 11.0022582,
+                "departure_time": "07:22",
+                "count": 5
+              }
+            ],
+            "distance_km": 84.41
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malè, Stazione Nuova",
+                "departure_time": "06:15",
+                "return_time": "18:00",
+                "count": 5,
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:50",
+                "return_time": "17:25",
+                "count": 8,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IC FONDO",
+                "luogo_ritrovo": "Revò, Fermata Bus Vigili del Fuoco",
+                "departure_time": "06:40",
+                "return_time": "17:35",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via Degli Alpini 17",
+                "departure_time": "07:35",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "coords_missing": false
+              },
+              {
+                "name": "IC REVO’",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 5,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "Taio, Piazza della Chiesa",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 6,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "06:56",
+                "count": 3
+              }
+            ],
+            "distance_km": 20.65
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Telve, Piazza Maggiore",
+                "departure_time": "06:45",
+                "return_time": "17:35",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Roncegno, Fermata \"Il Picchio\"",
+                "departure_time": "07:00",
+                "return_time": "17:20",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 1",
+                "luogo_ritrovo": "Pergine, Via dei Caduti 39",
+                "departure_time": "07:30",
+                "return_time": "16:50",
+                "count": 5,
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Viale Dante, fermata \"Tentazioni\"",
+                "departure_time": "07:40",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.1609081,
+                "lon": 10.7664696,
+                "departure_time": "06:33",
+                "count": 5
+              }
+            ],
+            "distance_km": 32.06
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ARCO GARDASCUOLA",
+                "luogo_ritrovo": "Arco, Stazione Corriere",
+                "departure_time": "07:35",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "luogo_ritrovo": "Pinzolo, Via Collini Borciol 18",
+                "departure_time": "05:55",
+                "return_time": "18:20",
+                "count": 5,
+                "lat": 46.1609081,
+                "lon": 10.7664696,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DI LEDRO",
+                "luogo_ritrovo": "Ledro, Fermata Bus Scuola",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.2308,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:01",
+                "count": 2
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "07:04",
+                "count": 3
+              },
+              {
+                "name": "IC FOLGARIA-LAVARONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:07",
+                "count": 5
+              },
+              {
+                "name": "IC FONDO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:10",
+                "count": 5
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:13",
+                "count": 3
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:16",
+                "count": 2
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:19",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:22",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 6",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:25",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 7",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:28",
+                "count": 5
+              },
+              {
+                "name": "IC VALLE DI LEDRO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:31",
+                "count": 5
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 5
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 3
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "luogo_ritrovo": "Mattarello, Fermata Bus “Parco Torre Franca”",
+                "departure_time": "07:45",
+                "return_time": "16:30",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "luogo_ritrovo": "Aldeno, Via Filzi, Fermata Bus",
+                "departure_time": "07:55",
+                "return_time": "16:20",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Segonzano, Fermata \"Snack Bar\"",
+                "departure_time": "06:35",
+                "return_time": "17:40",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Cembra, Via Negritelle 1",
+                "departure_time": "06:50",
+                "return_time": "17:25",
+                "count": 1,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Giovo, Via Al Grec 2",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Lavis, Via Sette 13",
+                "departure_time": "07:20",
+                "return_time": "16:55",
+                "count": 5,
+                "lat": 46.1374325,
+                "lon": 11.113553,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TRENTO 7",
+                "luogo_ritrovo": "Gardolo, Parcheggio Palazzetto Trento Nord",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "5"
         }
       ],
-      "distance_km": null,
-      "fin": "8"
-    },
-    {
-      "stops": [
+      "unmatched_planner": [],
+      "unmatched_gt": [
         {
-          "name": "IC TRENTO 3",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 5,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "stops": [
+            {
+              "name": "IC FOLGARIA-LAVARONE",
+              "luogo_ritrovo": "Folgaria, Fermata Bus Palaghiaccio",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VIGOLO VATTARO",
+              "luogo_ritrovo": "Vigolo Vattaro, Fermata Bus",
+              "departure_time": "07:15",
+              "return_time": "17:00",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "8"
         },
         {
-          "name": "IC TRENTO 6",
-          "luogo_ritrovo": "Trento, Parcheggio Ex Area Italcementi",
-          "departure_time": "07:45",
-          "return_time": "16:30",
-          "count": 5,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
-        },
-        {
-          "name": "IC VEZZANO",
-          "luogo_ritrovo": "Vezzano, Via Roma 3",
-          "departure_time": "07:25",
-          "return_time": "16:50",
-          "count": 5,
-          "lat": 46.0794117,
-          "lon": 11.0022582,
-          "coords_missing": false
+          "stops": [
+            {
+              "name": "IC TRENTO 3",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO 6",
+              "luogo_ritrovo": "Trento, Parcheggio Ex Area Italcementi",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VEZZANO",
+              "luogo_ritrovo": "Vezzano, Via Roma 3",
+              "departure_time": "07:25",
+              "return_time": "16:50",
+              "count": 5,
+              "lat": 46.0794117,
+              "lon": 11.0022582,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "7"
         }
       ],
-      "distance_km": null,
-      "fin": "7"
+      "scores": {
+        "assignment": 0.5524,
+        "bus_count": 0.75,
+        "combined": 0.6314
+      }
+    },
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "06:47",
+                "count": 3
+              },
+              {
+                "name": "IC PERGINE 1",
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "departure_time": "07:19",
+                "count": 5
+              }
+            ],
+            "distance_km": 23.73
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Telve, Piazza Maggiore",
+                "departure_time": "06:45",
+                "return_time": "17:35",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Roncegno, Fermata \"Il Picchio\"",
+                "departure_time": "07:00",
+                "return_time": "17:20",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 1",
+                "luogo_ritrovo": "Pergine, Via dei Caduti 39",
+                "departure_time": "07:30",
+                "return_time": "16:50",
+                "count": 5,
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Viale Dante, fermata \"Tentazioni\"",
+                "departure_time": "07:40",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.6,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC ALA",
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "departure_time": "06:39",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "departure_time": "07:01",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "07:05",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 5
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 5
+              }
+            ],
+            "distance_km": 23.75
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Ala, Via Betta 9",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 5,
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "Rovereto, Corso Rosmini 24",
+                "departure_time": "07:55",
+                "return_time": "16:20",
+                "count": 5,
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "luogo_ritrovo": "Rovereto, Corso Bettini 67",
+                "departure_time": "08:05",
+                "return_time": "16:10",
+                "count": 5,
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.4545,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.1609081,
+                "lon": 10.7664696,
+                "departure_time": "04:55",
+                "count": 5
+              },
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "departure_time": "05:42",
+                "count": 5
+              },
+              {
+                "name": "IC CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:04",
+                "count": 8
+              },
+              {
+                "name": "IC REVO’",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "06:17",
+                "count": 5
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "06:20",
+                "count": 6
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "departure_time": "06:40",
+                "count": 5
+              },
+              {
+                "name": "IC VEZZANO",
+                "lat": 46.0794117,
+                "lon": 11.0022582,
+                "departure_time": "07:13",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 6",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:31",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 7",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 5
+              },
+              {
+                "name": "IC VALLE DI LEDRO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 5
+              }
+            ],
+            "distance_km": 68.48
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malè, Stazione Nuova",
+                "departure_time": "06:15",
+                "return_time": "18:00",
+                "count": 5,
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:50",
+                "return_time": "17:25",
+                "count": 8,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IC FONDO",
+                "luogo_ritrovo": "Revò, Fermata Bus Vigili del Fuoco",
+                "departure_time": "06:40",
+                "return_time": "17:35",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via Degli Alpini 17",
+                "departure_time": "07:35",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "coords_missing": false
+              },
+              {
+                "name": "IC REVO’",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 5,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "Taio, Piazza della Chiesa",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 6,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.2727,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "05:20",
+                "count": 1
+              },
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2904945,
+                "lon": 11.4606222,
+                "departure_time": "05:56",
+                "count": 6
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:31",
+                "count": 1
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "06:44",
+                "count": 2
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1374325,
+                "lon": 11.113553,
+                "departure_time": "06:55",
+                "count": 5
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:10",
+                "count": 2
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:13",
+                "count": 3
+              },
+              {
+                "name": "IC ARCO GARDASCUOLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:16",
+                "count": 5
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:19",
+                "count": 2
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "07:22",
+                "count": 3
+              },
+              {
+                "name": "IC FOLGARIA-LAVARONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:25",
+                "count": 5
+              },
+              {
+                "name": "IC FONDO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:28",
+                "count": 5
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:31",
+                "count": 3
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:34",
+                "count": 2
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 5
+              }
+            ],
+            "distance_km": 49.3
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "luogo_ritrovo": "Mattarello, Fermata Bus “Parco Torre Franca”",
+                "departure_time": "07:45",
+                "return_time": "16:30",
+                "count": 3,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "luogo_ritrovo": "Aldeno, Via Filzi, Fermata Bus",
+                "departure_time": "07:55",
+                "return_time": "16:20",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Segonzano, Fermata \"Snack Bar\"",
+                "departure_time": "06:35",
+                "return_time": "17:40",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Cembra, Via Negritelle 1",
+                "departure_time": "06:50",
+                "return_time": "17:25",
+                "count": 1,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CEMBRA",
+                "luogo_ritrovo": "Giovo, Via Al Grec 2",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 2,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Lavis, Via Sette 13",
+                "departure_time": "07:20",
+                "return_time": "16:55",
+                "count": 5,
+                "lat": 46.1374325,
+                "lon": 11.113553,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TRENTO 7",
+                "luogo_ritrovo": "Gardolo, Parcheggio Palazzetto Trento Nord",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "5"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC ARCO GARDASCUOLA",
+              "luogo_ritrovo": "Arco, Stazione Corriere",
+              "departure_time": "07:35",
+              "return_time": "16:40",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VAL RENDENA",
+              "luogo_ritrovo": "Pinzolo, Via Collini Borciol 18",
+              "departure_time": "05:55",
+              "return_time": "18:20",
+              "count": 5,
+              "lat": 46.1609081,
+              "lon": 10.7664696,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VALLE DI LEDRO",
+              "luogo_ritrovo": "Ledro, Fermata Bus Scuola",
+              "departure_time": "07:05",
+              "return_time": "17:10",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "6"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC CAVALESE",
+              "luogo_ritrovo": "Cavalese, Piazza Verdi 6",
+              "departure_time": "06:55",
+              "return_time": "17:20",
+              "count": 6,
+              "lat": 46.2904945,
+              "lon": 11.4606222,
+              "coords_missing": false
+            },
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "Campitello di Fassa, Fermata Bus Piazza",
+              "departure_time": "06:00",
+              "return_time": "18:15",
+              "count": 3,
+              "lat": 46.4279413,
+              "lon": 11.6831041,
+              "coords_missing": false
+            },
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "San Jan, Strada Dolomites 67",
+              "departure_time": "06:10",
+              "return_time": "18:05",
+              "count": 1,
+              "lat": 46.4279413,
+              "lon": 11.6831041,
+              "coords_missing": false
+            },
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "Moena, Fermata Bus “Te Volto”",
+              "departure_time": "06:25",
+              "return_time": "17:50",
+              "count": 2,
+              "lat": 46.4279413,
+              "lon": 11.6831041,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "2"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC FOLGARIA-LAVARONE",
+              "luogo_ritrovo": "Folgaria, Fermata Bus Palaghiaccio",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VIGOLO VATTARO",
+              "luogo_ritrovo": "Vigolo Vattaro, Fermata Bus",
+              "departure_time": "07:15",
+              "return_time": "17:00",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "8"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TRENTO 3",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO 6",
+              "luogo_ritrovo": "Trento, Parcheggio Ex Area Italcementi",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VEZZANO",
+              "luogo_ritrovo": "Vezzano, Via Roma 3",
+              "departure_time": "07:25",
+              "return_time": "16:50",
+              "count": 5,
+              "lat": 46.0794117,
+              "lon": 11.0022582,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "7"
+        }
+      ],
+      "scores": {
+        "assignment": 0.4985,
+        "bus_count": 0.5,
+        "combined": 0.4991
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "06:47",
+                "count": 3
+              },
+              {
+                "name": "IC PERGINE 1",
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "departure_time": "07:19",
+                "count": 5
+              }
+            ],
+            "distance_km": 23.73
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Telve, Piazza Maggiore",
+                "departure_time": "06:45",
+                "return_time": "17:35",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Roncegno, Fermata \"Il Picchio\"",
+                "departure_time": "07:00",
+                "return_time": "17:20",
+                "count": 3,
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 1",
+                "luogo_ritrovo": "Pergine, Via dei Caduti 39",
+                "departure_time": "07:30",
+                "return_time": "16:50",
+                "count": 5,
+                "lat": 46.067046,
+                "lon": 11.2453364,
+                "coords_missing": false
+              },
+              {
+                "name": "IC PERGINE 2",
+                "luogo_ritrovo": "Pergine, Viale Dante, fermata \"Tentazioni\"",
+                "departure_time": "07:40",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "departure_time": "06:02",
+                "count": 5
+              },
+              {
+                "name": "IC CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:24",
+                "count": 8
+              },
+              {
+                "name": "IC REVO’",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "06:37",
+                "count": 5
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "06:40",
+                "count": 6
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "departure_time": "07:00",
+                "count": 5
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1374325,
+                "lon": 11.113553,
+                "departure_time": "07:16",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:31",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 6",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 5
+              },
+              {
+                "name": "IC TRENTO 7",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 5
+              }
+            ],
+            "distance_km": 36.34
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC BASSA VAL DI SOLE",
+                "luogo_ritrovo": "Malè, Stazione Nuova",
+                "departure_time": "06:15",
+                "return_time": "18:00",
+                "count": 5,
+                "lat": 46.3535408,
+                "lon": 10.9169984,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "06:50",
+                "return_time": "17:25",
+                "count": 8,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IC FONDO",
+                "luogo_ritrovo": "Revò, Fermata Bus Vigili del Fuoco",
+                "departure_time": "06:40",
+                "return_time": "17:35",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "Mezzolombardo, Via Degli Alpini 17",
+                "departure_time": "07:35",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.2117854,
+                "lon": 11.0961895,
+                "coords_missing": false
+              },
+              {
+                "name": "IC REVO’",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 5,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "Taio, Piazza della Chiesa",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 6,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.4286,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC ALA",
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "departure_time": "06:30",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "departure_time": "06:52",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "06:56",
+                "count": 5
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:25",
+                "count": 5
+              },
+              {
+                "name": "IC VALLE DI LEDRO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:28",
+                "count": 5
+              },
+              {
+                "name": "IC ARCO GARDASCUOLA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:31",
+                "count": 5
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 3
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 2
+              }
+            ],
+            "distance_km": 23.75
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALA",
+                "luogo_ritrovo": "Ala, Via Betta 9",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 5,
+                "lat": 45.7562382,
+                "lon": 11.0015357,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "Rovereto, Corso Rosmini 24",
+                "departure_time": "07:55",
+                "return_time": "16:20",
+                "count": 5,
+                "lat": 45.8909487,
+                "lon": 11.0361115,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "luogo_ritrovo": "Rovereto, Corso Bettini 67",
+                "departure_time": "08:05",
+                "return_time": "16:10",
+                "count": 5,
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC CAVALESE",
+                "lat": 46.2904945,
+                "lon": 11.4606222,
+                "departure_time": "06:29",
+                "count": 6
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:04",
+                "count": 1
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:17",
+                "count": 2
+              }
+            ],
+            "distance_km": 31.83
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CAVALESE",
+                "luogo_ritrovo": "Cavalese, Piazza Verdi 6",
+                "departure_time": "06:55",
+                "return_time": "17:20",
+                "count": 6,
+                "lat": 46.2904945,
+                "lon": 11.4606222,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "Campitello di Fassa, Fermata Bus Piazza",
+                "departure_time": "06:00",
+                "return_time": "18:15",
+                "count": 3,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "San Jan, Strada Dolomites 67",
+                "departure_time": "06:10",
+                "return_time": "18:05",
+                "count": 1,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "luogo_ritrovo": "Moena, Fermata Bus “Te Volto”",
+                "departure_time": "06:25",
+                "return_time": "17:50",
+                "count": 2,
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC VAL RENDENA",
+                "lat": 46.1609081,
+                "lon": 10.7664696,
+                "departure_time": "06:30",
+                "count": 5
+              },
+              {
+                "name": "IC VEZZANO",
+                "lat": 46.0794117,
+                "lon": 11.0022582,
+                "departure_time": "07:22",
+                "count": 5
+              }
+            ],
+            "distance_km": 32.83
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ARCO GARDASCUOLA",
+                "luogo_ritrovo": "Arco, Stazione Corriere",
+                "departure_time": "07:35",
+                "return_time": "16:40",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VAL RENDENA",
+                "luogo_ritrovo": "Pinzolo, Via Collini Borciol 18",
+                "departure_time": "05:55",
+                "return_time": "18:20",
+                "count": 5,
+                "lat": 46.1609081,
+                "lon": 10.7664696,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DI LEDRO",
+                "luogo_ritrovo": "Ledro, Fermata Bus Scuola",
+                "departure_time": "07:05",
+                "return_time": "17:10",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.1429,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "05:50",
+                "count": 1
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:19",
+                "count": 3
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.4279413,
+                "lon": 11.6831041,
+                "departure_time": "07:22",
+                "count": 2
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.070336,
+                "lon": 11.477498,
+                "departure_time": "07:25",
+                "count": 3
+              },
+              {
+                "name": "IC CEMBRA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:28",
+                "count": 2
+              },
+              {
+                "name": "IC FOLGARIA-LAVARONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:31",
+                "count": 5
+              },
+              {
+                "name": "IC FONDO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:34",
+                "count": 5
+              },
+              {
+                "name": "IC PERGINE 2",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:37",
+                "count": 5
+              }
+            ],
+            "distance_km": 43.38
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC FOLGARIA-LAVARONE",
+                "luogo_ritrovo": "Folgaria, Fermata Bus Palaghiaccio",
+                "departure_time": "07:45",
+                "return_time": "16:30",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VIGOLO VATTARO",
+                "luogo_ritrovo": "Vigolo Vattaro, Fermata Bus",
+                "departure_time": "07:15",
+                "return_time": "17:00",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC ALDENO MATTARELLO",
+              "luogo_ritrovo": "Mattarello, Fermata Bus “Parco Torre Franca”",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 3,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ALDENO MATTARELLO",
+              "luogo_ritrovo": "Aldeno, Via Filzi, Fermata Bus",
+              "departure_time": "07:55",
+              "return_time": "16:20",
+              "count": 2,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC CEMBRA",
+              "luogo_ritrovo": "Segonzano, Fermata \"Snack Bar\"",
+              "departure_time": "06:35",
+              "return_time": "17:40",
+              "count": 2,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC CEMBRA",
+              "luogo_ritrovo": "Cembra, Via Negritelle 1",
+              "departure_time": "06:50",
+              "return_time": "17:25",
+              "count": 1,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC CEMBRA",
+              "luogo_ritrovo": "Giovo, Via Al Grec 2",
+              "departure_time": "07:05",
+              "return_time": "17:10",
+              "count": 2,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC LAVIS",
+              "luogo_ritrovo": "Lavis, Via Sette 13",
+              "departure_time": "07:20",
+              "return_time": "16:55",
+              "count": 5,
+              "lat": 46.1374325,
+              "lon": 11.113553,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO 7",
+              "luogo_ritrovo": "Gardolo, Parcheggio Palazzetto Trento Nord",
+              "departure_time": "07:30",
+              "return_time": "16:45",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "5"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TRENTO 3",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC TRENTO 6",
+              "luogo_ritrovo": "Trento, Parcheggio Ex Area Italcementi",
+              "departure_time": "07:45",
+              "return_time": "16:30",
+              "count": 5,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC VEZZANO",
+              "luogo_ritrovo": "Vezzano, Via Roma 3",
+              "departure_time": "07:25",
+              "return_time": "16:50",
+              "count": 5,
+              "lat": 46.0794117,
+              "lon": 11.0022582,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "7"
+        }
+      ],
+      "scores": {
+        "assignment": 0.3869,
+        "bus_count": 0.75,
+        "combined": 0.5321
+      }
     }
-  ]
+  }
 }

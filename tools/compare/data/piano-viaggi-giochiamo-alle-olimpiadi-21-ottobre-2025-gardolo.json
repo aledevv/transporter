@@ -4,517 +4,1500 @@
     "destination": "Centro Sportivo di Gardolo – Trento Nord",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.7333,
-    "bus_count": 0.8,
-    "combined": 0.76
-  },
+  "arrival_time": "08:47",
   "destination": {
     "name": "Centro Sportivo di Gardolo – Trento Nord",
     "lat": 46.0697,
     "lon": 11.1211
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IC Aldeno-Mattarello",
-            "lat": 45.9740453,
-            "lon": 11.0939904,
-            "departure_time": "08:21",
-            "count": 14
-          },
-          {
-            "name": "IC Aldeno-Mattarello",
-            "lat": 45.9740453,
-            "lon": 11.0939904,
-            "departure_time": "08:24",
-            "count": 39
-          }
-        ],
-        "distance_km": 10.14
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Aldeno-Mattarello",
-            "luogo_ritrovo": "Via 25 Aprile, Aldeno",
-            "departure_time": "08:20",
-            "return_time": "16:10",
-            "count": 39,
-            "lat": 45.9740453,
-            "lon": 11.0939904,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Aldeno-Mattarello",
-            "luogo_ritrovo": "Piazza Condini Romagnano",
-            "departure_time": "08:35",
-            "return_time": "15:55",
-            "count": 14,
-            "lat": 45.9740453,
-            "lon": 11.0939904,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "9"
-    },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IC Chiese",
-            "lat": 45.9111517,
-            "lon": 10.6129391,
-            "departure_time": "07:31",
-            "count": 26
-          },
-          {
-            "name": "IC Tione",
-            "lat": 45.9759977,
-            "lon": 10.6642601,
-            "departure_time": "07:44",
-            "count": 16
-          }
-        ],
-        "distance_km": 35.53
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Chiese",
-            "luogo_ritrovo": "Via Lamarmora, 13 - Borgo Chiese",
-            "departure_time": "07:20",
-            "return_time": "17:10",
-            "count": 26,
-            "lat": 45.9111517,
-            "lon": 10.6129391,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Tione",
-            "luogo_ritrovo": "Roncone (centro scolastico provvisorio), via Nazionale, 20",
-            "departure_time": "07:40",
-            "return_time": "16:50",
-            "count": 16,
-            "lat": 45.9759977,
-            "lon": 10.6642601,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Tione",
-            "luogo_ritrovo": "Ragoli, fermata bus davanti alla Posta in via Trento",
-            "departure_time": "08:05",
-            "return_time": "16:25",
-            "count": 0,
-            "lat": 45.9759977,
-            "lon": 10.6642601,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "6"
-    },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IC Folgaria-Lavarone-Luserna",
-            "lat": 45.939208,
-            "lon": 11.2684221,
-            "departure_time": "08:01",
-            "count": 30
-          }
-        ],
-        "distance_km": 21.79
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Folgaria-Lavarone-Luserna",
-            "luogo_ritrovo": "Scuola Gionghi di Lavarone",
-            "departure_time": "07:45",
-            "return_time": "16:45",
-            "count": 30,
-            "lat": 45.939208,
-            "lon": 11.2684221,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Folgaria-Lavarone-Luserna",
-            "luogo_ritrovo": "Palaghiaccio Folgaria",
-            "departure_time": "08:10",
-            "return_time": "16:20",
-            "count": 0,
-            "lat": 45.939208,
-            "lon": 11.2684221,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "7"
-    },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 4,
-        "stops": [
-          {
-            "name": "IC Ladino di Fassa",
-            "lat": 46.3762452,
-            "lon": 11.6587433,
-            "departure_time": "07:30",
-            "count": 20
-          }
-        ],
-        "distance_km": 37.31
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Ladino di Fassa",
-            "luogo_ritrovo": "Hotel Trentino, fermata autobus Via Lowy, 96, 38035, Moena",
-            "departure_time": "07:05",
-            "return_time": "17:15",
-            "count": 20,
-            "lat": 46.3762452,
-            "lon": 11.6587433,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 8,
-        "stops": [
-          {
-            "name": "IC Val Rendena",
-            "lat": 46.1593579,
-            "lon": 10.7666183,
-            "departure_time": "07:32",
-            "count": 17
-          },
-          {
-            "name": "STUDENTS STAFF – IS GUETTI",
-            "lat": 46.0373696,
-            "lon": 10.7309219,
-            "departure_time": "07:55",
-            "count": 17
-          }
-        ],
-        "distance_km": 35.12
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Val Rendena",
-            "luogo_ritrovo": "Viale della Pace 10 Pinzolo",
-            "departure_time": "07:00",
-            "return_time": "17:15",
-            "count": 17,
-            "lat": 46.1593579,
-            "lon": 10.7666183,
-            "coords_missing": false
-          },
-          {
-            "name": "STUDENTS STAFF – IS GUETTI",
-            "luogo_ritrovo": "IS Guetti, Via Durone 53, Tione",
-            "departure_time": "07:30",
-            "return_time": "16:45",
-            "count": 17,
-            "lat": 46.0373696,
-            "lon": 10.7309219,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "10"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC Altopiano di Pinè",
-            "lat": 46.1653496,
-            "lon": 11.3003405,
-            "departure_time": "08:13",
-            "count": 28
-          }
-        ],
-        "distance_km": 15.88
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Altopiano di Pinè",
-            "luogo_ritrovo": "Scuola di Bedollo, Via Giacomo Bresadola",
-            "departure_time": "07:55",
-            "return_time": "16:30",
-            "count": 28,
-            "lat": 46.1653496,
-            "lon": 11.3003405,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Altopiano di Pinè",
-            "luogo_ritrovo": "Scuola Baselga di Pine, via del 26 maggio",
-            "departure_time": "08:10",
-            "return_time": "16:15",
-            "count": 0,
-            "lat": 46.1653496,
-            "lon": 11.3003405,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Civezzano",
-            "luogo_ritrovo": "Scuola di Civezzano, via Telvana 6",
-            "departure_time": "08:35",
-            "return_time": "15:50",
-            "count": 24,
-            "lat": 46.0911818,
-            "lon": 11.1785965,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "2"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 5,
-        "stops": [
-          {
-            "name": "IC Mezzano Santa Croce",
-            "lat": 46.1630679,
-            "lon": 11.8178119,
-            "departure_time": "07:15",
-            "count": 16
-          }
-        ],
-        "distance_km": 44.88
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Mezzano Santa Croce",
-            "luogo_ritrovo": "Via Molaren, 29 - Mezzano (TN)",
-            "departure_time": "06:50",
-            "return_time": "17:45",
-            "count": 16,
-            "lat": 46.1630679,
-            "lon": 11.8178119,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Vigolo Vattaro",
-            "luogo_ritrovo": "Fermata autocorriere Vigolo Vattaro",
-            "departure_time": "08:20",
-            "return_time": "16:10",
-            "count": 27,
-            "lat": 46.0048443,
-            "lon": 11.1983809,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "4"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 6,
-        "stops": [
-          {
-            "name": "IC Riva 2",
-            "lat": 45.9196144,
-            "lon": 10.8310998,
-            "departure_time": "07:52",
-            "count": 18
-          }
-        ],
-        "distance_km": 26.08
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Riva 2",
-            "luogo_ritrovo": "Via dei laghi, 47 - 38060 Tenno",
-            "departure_time": "07:25",
-            "return_time": "17:05",
-            "count": 18,
-            "lat": 45.9196144,
-            "lon": 10.8310998,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Rovereto Est",
-            "luogo_ritrovo": "Piazzale Orsi, fermata scuola CFP Veronesi Rovereto",
-            "departure_time": "08:20",
-            "return_time": "16:10",
-            "count": 20,
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "3"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 7,
-        "stops": [
-          {
-            "name": "IC Taio",
-            "lat": 46.3524231,
-            "lon": 11.0928623,
-            "departure_time": "08:04",
-            "count": 20
-          }
-        ],
-        "distance_km": 20.29
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Lavis",
-            "luogo_ritrovo": "Scuola Primaria A. Frank: Piazza SS Filippo e Giacomo 1, Zambana",
-            "departure_time": "08:45",
-            "return_time": "15:45",
-            "count": 18,
-            "lat": 46.1514385,
-            "lon": 11.0969865,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Taio",
-            "luogo_ritrovo": "Via delle scuole, Coredo",
-            "departure_time": "08:00",
-            "return_time": "16:30",
-            "count": 20,
-            "lat": 46.3524231,
-            "lon": 11.0928623,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "8"
-    },
-    {
-      "jaccard": 0.3333,
-      "planner": {
-        "vehicle_id": 9,
-        "stops": [
-          {
-            "name": "IC Pergine 1",
-            "lat": 46.0665465,
-            "lon": 11.2372947,
-            "departure_time": "08:20",
-            "count": 24
-          },
-          {
-            "name": "IC Civezzano",
-            "lat": 46.0911818,
-            "lon": 11.1785965,
-            "departure_time": "08:32",
-            "count": 24
-          }
-        ],
-        "distance_km": 11.0
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC Pergine 1",
-            "luogo_ritrovo": "Via Monte Cristallo, 4 - Pergine Valsugana",
-            "departure_time": "08:35",
-            "return_time": "15:55",
-            "count": 24,
-            "lat": 46.0665465,
-            "lon": 11.2372947,
-            "coords_missing": false
-          },
-          {
-            "name": "IC Pergine 2",
-            "luogo_ritrovo": "Via delle Nazioni Unite, 44, 38057, Canale, TN",
-            "departure_time": "08:25",
-            "return_time": "16:05",
-            "count": 32,
-            "lat": 46.0400047,
-            "lon": 11.2337461,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "5"
-    }
-  ],
-  "unmatched_planner": [
-    {
-      "vehicle_id": 10,
-      "stops": [
+  "planners": {
+    "v2": {
+      "matched_pairs": [
         {
-          "name": "IC Pergine 2",
-          "lat": 46.0400047,
-          "lon": 11.2337461,
-          "departure_time": "08:09",
-          "count": 32
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:21",
+                "count": 14
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:24",
+                "count": 39
+              }
+            ],
+            "distance_km": 10.14
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Via 25 Aprile, Aldeno",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 39,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Piazza Condini Romagnano",
+                "departure_time": "08:35",
+                "return_time": "15:55",
+                "count": 14,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "9"
         },
         {
-          "name": "IC Lavis",
-          "lat": 46.1514385,
-          "lon": 11.0969865,
-          "departure_time": "08:34",
-          "count": 18
-        }
-      ],
-      "distance_km": 16.8
-    },
-    {
-      "vehicle_id": 11,
-      "stops": [
-        {
-          "name": "IC Rovereto Est",
-          "lat": 45.8909414,
-          "lon": 11.0347273,
-          "departure_time": "07:48",
-          "count": 20
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "departure_time": "07:31",
+                "count": 26
+              },
+              {
+                "name": "IC Tione",
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "departure_time": "07:44",
+                "count": 16
+              }
+            ],
+            "distance_km": 35.53
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "luogo_ritrovo": "Via Lamarmora, 13 - Borgo Chiese",
+                "departure_time": "07:20",
+                "return_time": "17:10",
+                "count": 26,
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Roncone (centro scolastico provvisorio), via Nazionale, 20",
+                "departure_time": "07:40",
+                "return_time": "16:50",
+                "count": 16,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Ragoli, fermata bus davanti alla Posta in via Trento",
+                "departure_time": "08:05",
+                "return_time": "16:25",
+                "count": 0,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
         },
         {
-          "name": "IC Vigolo Vattaro",
-          "lat": 46.0048443,
-          "lon": 11.1983809,
-          "departure_time": "08:21",
-          "count": 27
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "departure_time": "08:01",
+                "count": 30
+              }
+            ],
+            "distance_km": 21.79
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Scuola Gionghi di Lavarone",
+                "departure_time": "07:45",
+                "return_time": "16:45",
+                "count": 30,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Palaghiaccio Folgaria",
+                "departure_time": "08:10",
+                "return_time": "16:20",
+                "count": 0,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC Ladino di Fassa",
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "departure_time": "07:30",
+                "count": 20
+              }
+            ],
+            "distance_km": 37.31
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Ladino di Fassa",
+                "luogo_ritrovo": "Hotel Trentino, fermata autobus Via Lowy, 96, 38035, Moena",
+                "departure_time": "07:05",
+                "return_time": "17:15",
+                "count": 20,
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 8,
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "departure_time": "07:32",
+                "count": 17
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:55",
+                "count": 17
+              }
+            ],
+            "distance_km": 35.12
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "luogo_ritrovo": "Viale della Pace 10 Pinzolo",
+                "departure_time": "07:00",
+                "return_time": "17:15",
+                "count": 17,
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "coords_missing": false
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "luogo_ritrovo": "IS Guetti, Via Durone 53, Tione",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 17,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC Altopiano di Pinè",
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "departure_time": "08:13",
+                "count": 28
+              }
+            ],
+            "distance_km": 15.88
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola di Bedollo, Via Giacomo Bresadola",
+                "departure_time": "07:55",
+                "return_time": "16:30",
+                "count": 28,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola Baselga di Pine, via del 26 maggio",
+                "departure_time": "08:10",
+                "return_time": "16:15",
+                "count": 0,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Civezzano",
+                "luogo_ritrovo": "Scuola di Civezzano, via Telvana 6",
+                "departure_time": "08:35",
+                "return_time": "15:50",
+                "count": 24,
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "07:15",
+                "count": 16
+              }
+            ],
+            "distance_km": 44.88
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano (TN)",
+                "departure_time": "06:50",
+                "return_time": "17:45",
+                "count": 16,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Vigolo Vattaro",
+                "luogo_ritrovo": "Fermata autocorriere Vigolo Vattaro",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 27,
+                "lat": 46.0048443,
+                "lon": 11.1983809,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IC Riva 2",
+                "lat": 45.9196144,
+                "lon": 10.8310998,
+                "departure_time": "07:52",
+                "count": 18
+              }
+            ],
+            "distance_km": 26.08
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Riva 2",
+                "luogo_ritrovo": "Via dei laghi, 47 - 38060 Tenno",
+                "departure_time": "07:25",
+                "return_time": "17:05",
+                "count": 18,
+                "lat": 45.9196144,
+                "lon": 10.8310998,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Rovereto Est",
+                "luogo_ritrovo": "Piazzale Orsi, fermata scuola CFP Veronesi Rovereto",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 20,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC Taio",
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "departure_time": "08:04",
+                "count": 20
+              }
+            ],
+            "distance_km": 20.29
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Lavis",
+                "luogo_ritrovo": "Scuola Primaria A. Frank: Piazza SS Filippo e Giacomo 1, Zambana",
+                "departure_time": "08:45",
+                "return_time": "15:45",
+                "count": 18,
+                "lat": 46.1514385,
+                "lon": 11.0969865,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Taio",
+                "luogo_ritrovo": "Via delle scuole, Coredo",
+                "departure_time": "08:00",
+                "return_time": "16:30",
+                "count": 20,
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 9,
+            "stops": [
+              {
+                "name": "IC Pergine 1",
+                "lat": 46.0665465,
+                "lon": 11.2372947,
+                "departure_time": "08:20",
+                "count": 24
+              },
+              {
+                "name": "IC Civezzano",
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "departure_time": "08:32",
+                "count": 24
+              }
+            ],
+            "distance_km": 11.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Pergine 1",
+                "luogo_ritrovo": "Via Monte Cristallo, 4 - Pergine Valsugana",
+                "departure_time": "08:35",
+                "return_time": "15:55",
+                "count": 24,
+                "lat": 46.0665465,
+                "lon": 11.2372947,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Pergine 2",
+                "luogo_ritrovo": "Via delle Nazioni Unite, 44, 38057, Canale, TN",
+                "departure_time": "08:25",
+                "return_time": "16:05",
+                "count": 32,
+                "lat": 46.0400047,
+                "lon": 11.2337461,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "5"
         }
       ],
-      "distance_km": 26.86
+      "unmatched_planner": [
+        {
+          "vehicle_id": 10,
+          "stops": [
+            {
+              "name": "IC Pergine 2",
+              "lat": 46.0400047,
+              "lon": 11.2337461,
+              "departure_time": "08:09",
+              "count": 32
+            },
+            {
+              "name": "IC Lavis",
+              "lat": 46.1514385,
+              "lon": 11.0969865,
+              "departure_time": "08:34",
+              "count": 18
+            }
+          ],
+          "distance_km": 16.8
+        },
+        {
+          "vehicle_id": 11,
+          "stops": [
+            {
+              "name": "IC Rovereto Est",
+              "lat": 45.8909414,
+              "lon": 11.0347273,
+              "departure_time": "07:48",
+              "count": 20
+            },
+            {
+              "name": "IC Vigolo Vattaro",
+              "lat": 46.0048443,
+              "lon": 11.1983809,
+              "departure_time": "08:21",
+              "count": 27
+            }
+          ],
+          "distance_km": 26.86
+        }
+      ],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.7333,
+        "bus_count": 0.8,
+        "combined": 0.76
+      }
+    },
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:21",
+                "count": 14
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:24",
+                "count": 39
+              }
+            ],
+            "distance_km": 10.14
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Via 25 Aprile, Aldeno",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 39,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Piazza Condini Romagnano",
+                "departure_time": "08:35",
+                "return_time": "15:55",
+                "count": 14,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "9"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC Altopiano di Pinè",
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "departure_time": "08:04",
+                "count": 28
+              },
+              {
+                "name": "IC Civezzano",
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "departure_time": "08:32",
+                "count": 24
+              }
+            ],
+            "distance_km": 19.26
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola di Bedollo, Via Giacomo Bresadola",
+                "departure_time": "07:55",
+                "return_time": "16:30",
+                "count": 28,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola Baselga di Pine, via del 26 maggio",
+                "departure_time": "08:10",
+                "return_time": "16:15",
+                "count": 0,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Civezzano",
+                "luogo_ritrovo": "Scuola di Civezzano, via Telvana 6",
+                "departure_time": "08:35",
+                "return_time": "15:50",
+                "count": 24,
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IC Taio",
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "departure_time": "08:00",
+                "count": 20
+              },
+              {
+                "name": "IC Lavis",
+                "lat": 46.1514385,
+                "lon": 11.0969865,
+                "departure_time": "08:34",
+                "count": 18
+              }
+            ],
+            "distance_km": 21.44
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Lavis",
+                "luogo_ritrovo": "Scuola Primaria A. Frank: Piazza SS Filippo e Giacomo 1, Zambana",
+                "departure_time": "08:45",
+                "return_time": "15:45",
+                "count": 18,
+                "lat": 46.1514385,
+                "lon": 11.0969865,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Taio",
+                "luogo_ritrovo": "Via delle scuole, Coredo",
+                "departure_time": "08:00",
+                "return_time": "16:30",
+                "count": 20,
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "departure_time": "07:31",
+                "count": 26
+              },
+              {
+                "name": "IC Tione",
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "departure_time": "07:44",
+                "count": 16
+              }
+            ],
+            "distance_km": 35.53
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "luogo_ritrovo": "Via Lamarmora, 13 - Borgo Chiese",
+                "departure_time": "07:20",
+                "return_time": "17:10",
+                "count": 26,
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Roncone (centro scolastico provvisorio), via Nazionale, 20",
+                "departure_time": "07:40",
+                "return_time": "16:50",
+                "count": 16,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Ragoli, fermata bus davanti alla Posta in via Trento",
+                "departure_time": "08:05",
+                "return_time": "16:25",
+                "count": 0,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "departure_time": "06:52",
+                "count": 17
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:15",
+                "count": 17
+              },
+              {
+                "name": "IC Riva 2",
+                "lat": 45.9196144,
+                "lon": 10.8310998,
+                "departure_time": "07:52",
+                "count": 18
+              }
+            ],
+            "distance_km": 53.7
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "luogo_ritrovo": "Viale della Pace 10 Pinzolo",
+                "departure_time": "07:00",
+                "return_time": "17:15",
+                "count": 17,
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "coords_missing": false
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "luogo_ritrovo": "IS Guetti, Via Durone 53, Tione",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 17,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC Pergine 2",
+                "lat": 46.0400047,
+                "lon": 11.2337461,
+                "departure_time": "08:29",
+                "count": 32
+              }
+            ],
+            "distance_km": 7.9
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Pergine 1",
+                "luogo_ritrovo": "Via Monte Cristallo, 4 - Pergine Valsugana",
+                "departure_time": "08:35",
+                "return_time": "15:55",
+                "count": 24,
+                "lat": 46.0665465,
+                "lon": 11.2372947,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Pergine 2",
+                "luogo_ritrovo": "Via delle Nazioni Unite, 44, 38057, Canale, TN",
+                "departure_time": "08:25",
+                "return_time": "16:05",
+                "count": 32,
+                "lat": 46.0400047,
+                "lon": 11.2337461,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "5"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "06:32",
+                "count": 16
+              },
+              {
+                "name": "IC Ladino di Fassa",
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "departure_time": "07:30",
+                "count": 20
+              }
+            ],
+            "distance_km": 65.08
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Ladino di Fassa",
+                "luogo_ritrovo": "Hotel Trentino, fermata autobus Via Lowy, 96, 38035, Moena",
+                "departure_time": "07:05",
+                "return_time": "17:15",
+                "count": 20,
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 9,
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "departure_time": "07:34",
+                "count": 30
+              },
+              {
+                "name": "IC Rovereto Est",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "08:17",
+                "count": 20
+              }
+            ],
+            "distance_km": 33.97
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Scuola Gionghi di Lavarone",
+                "departure_time": "07:45",
+                "return_time": "16:45",
+                "count": 30,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Palaghiaccio Folgaria",
+                "departure_time": "08:10",
+                "return_time": "16:20",
+                "count": 0,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC Vigolo Vattaro",
+                "lat": 46.0048443,
+                "lon": 11.1983809,
+                "departure_time": "08:11",
+                "count": 27
+              },
+              {
+                "name": "IC Pergine 1",
+                "lat": 46.0665465,
+                "lon": 11.2372947,
+                "departure_time": "08:30",
+                "count": 24
+              }
+            ],
+            "distance_km": 15.4
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano (TN)",
+                "departure_time": "06:50",
+                "return_time": "17:45",
+                "count": 16,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Vigolo Vattaro",
+                "luogo_ritrovo": "Fermata autocorriere Vigolo Vattaro",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 27,
+                "lat": 46.0048443,
+                "lon": 11.1983809,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC Riva 2",
+              "luogo_ritrovo": "Via dei laghi, 47 - 38060 Tenno",
+              "departure_time": "07:25",
+              "return_time": "17:05",
+              "count": 18,
+              "lat": 45.9196144,
+              "lon": 10.8310998,
+              "coords_missing": false
+            },
+            {
+              "name": "IC Rovereto Est",
+              "luogo_ritrovo": "Piazzale Orsi, fermata scuola CFP Veronesi Rovereto",
+              "departure_time": "08:20",
+              "return_time": "16:10",
+              "count": 20,
+              "lat": 45.8909414,
+              "lon": 11.0347273,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "3"
+        }
+      ],
+      "scores": {
+        "assignment": 0.7222,
+        "bus_count": 0.9,
+        "combined": 0.7933
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "departure_time": "07:31",
+                "count": 26
+              },
+              {
+                "name": "IC Tione",
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "departure_time": "07:44",
+                "count": 16
+              }
+            ],
+            "distance_km": 35.53
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Chiese",
+                "luogo_ritrovo": "Via Lamarmora, 13 - Borgo Chiese",
+                "departure_time": "07:20",
+                "return_time": "17:10",
+                "count": 26,
+                "lat": 45.9111517,
+                "lon": 10.6129391,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Roncone (centro scolastico provvisorio), via Nazionale, 20",
+                "departure_time": "07:40",
+                "return_time": "16:50",
+                "count": 16,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Tione",
+                "luogo_ritrovo": "Ragoli, fermata bus davanti alla Posta in via Trento",
+                "departure_time": "08:05",
+                "return_time": "16:25",
+                "count": 0,
+                "lat": 45.9759977,
+                "lon": 10.6642601,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC Taio",
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "departure_time": "08:00",
+                "count": 20
+              },
+              {
+                "name": "IC Lavis",
+                "lat": 46.1514385,
+                "lon": 11.0969865,
+                "departure_time": "08:34",
+                "count": 18
+              }
+            ],
+            "distance_km": 21.44
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Lavis",
+                "luogo_ritrovo": "Scuola Primaria A. Frank: Piazza SS Filippo e Giacomo 1, Zambana",
+                "departure_time": "08:45",
+                "return_time": "15:45",
+                "count": 18,
+                "lat": 46.1514385,
+                "lon": 11.0969865,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Taio",
+                "luogo_ritrovo": "Via delle scuole, Coredo",
+                "departure_time": "08:00",
+                "return_time": "16:30",
+                "count": 20,
+                "lat": 46.3524231,
+                "lon": 11.0928623,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "departure_time": "07:32",
+                "count": 17
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:55",
+                "count": 17
+              }
+            ],
+            "distance_km": 35.12
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Val Rendena",
+                "luogo_ritrovo": "Viale della Pace 10 Pinzolo",
+                "departure_time": "07:00",
+                "return_time": "17:15",
+                "count": 17,
+                "lat": 46.1593579,
+                "lon": 10.7666183,
+                "coords_missing": false
+              },
+              {
+                "name": "STUDENTS STAFF – IS GUETTI",
+                "luogo_ritrovo": "IS Guetti, Via Durone 53, Tione",
+                "departure_time": "07:30",
+                "return_time": "16:45",
+                "count": 17,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "10"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:21",
+                "count": 14
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "departure_time": "08:24",
+                "count": 39
+              }
+            ],
+            "distance_km": 10.14
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Via 25 Aprile, Aldeno",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 39,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Aldeno-Mattarello",
+                "luogo_ritrovo": "Piazza Condini Romagnano",
+                "departure_time": "08:35",
+                "return_time": "15:55",
+                "count": 14,
+                "lat": 45.9740453,
+                "lon": 11.0939904,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "9"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 9,
+            "stops": [
+              {
+                "name": "IC Riva 2",
+                "lat": 45.9196144,
+                "lon": 10.8310998,
+                "departure_time": "07:37",
+                "count": 18
+              },
+              {
+                "name": "IC Rovereto Est",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "08:17",
+                "count": 20
+              }
+            ],
+            "distance_km": 32.51
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Riva 2",
+                "luogo_ritrovo": "Via dei laghi, 47 - 38060 Tenno",
+                "departure_time": "07:25",
+                "return_time": "17:05",
+                "count": 18,
+                "lat": 45.9196144,
+                "lon": 10.8310998,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Rovereto Est",
+                "luogo_ritrovo": "Piazzale Orsi, fermata scuola CFP Veronesi Rovereto",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 20,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC Ladino di Fassa",
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "departure_time": "07:15",
+                "count": 20
+              },
+              {
+                "name": "IC Altopiano di Pinè",
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "departure_time": "08:13",
+                "count": 28
+              }
+            ],
+            "distance_km": 43.43
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Ladino di Fassa",
+                "luogo_ritrovo": "Hotel Trentino, fermata autobus Via Lowy, 96, 38035, Moena",
+                "departure_time": "07:05",
+                "return_time": "17:15",
+                "count": 20,
+                "lat": 46.3762452,
+                "lon": 11.6587433,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "departure_time": "07:54",
+                "count": 30
+              },
+              {
+                "name": "IC Pergine 1",
+                "lat": 46.0665465,
+                "lon": 11.2372947,
+                "departure_time": "08:30",
+                "count": 24
+              }
+            ],
+            "distance_km": 23.9
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Scuola Gionghi di Lavarone",
+                "departure_time": "07:45",
+                "return_time": "16:45",
+                "count": 30,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Folgaria-Lavarone-Luserna",
+                "luogo_ritrovo": "Palaghiaccio Folgaria",
+                "departure_time": "08:10",
+                "return_time": "16:20",
+                "count": 0,
+                "lat": 45.939208,
+                "lon": 11.2684221,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC Vigolo Vattaro",
+                "lat": 46.0048443,
+                "lon": 11.1983809,
+                "departure_time": "08:08",
+                "count": 27
+              },
+              {
+                "name": "IC Civezzano",
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "departure_time": "08:32",
+                "count": 24
+              }
+            ],
+            "distance_km": 17.17
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola di Bedollo, Via Giacomo Bresadola",
+                "departure_time": "07:55",
+                "return_time": "16:30",
+                "count": 28,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Altopiano di Pinè",
+                "luogo_ritrovo": "Scuola Baselga di Pine, via del 26 maggio",
+                "departure_time": "08:10",
+                "return_time": "16:15",
+                "count": 0,
+                "lat": 46.1653496,
+                "lon": 11.3003405,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Civezzano",
+                "luogo_ritrovo": "Scuola di Civezzano, via Telvana 6",
+                "departure_time": "08:35",
+                "return_time": "15:50",
+                "count": 24,
+                "lat": 46.0911818,
+                "lon": 11.1785965,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 8,
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "07:10",
+                "count": 16
+              },
+              {
+                "name": "IC Pergine 2",
+                "lat": 46.0400047,
+                "lon": 11.2337461,
+                "departure_time": "08:29",
+                "count": 32
+              }
+            ],
+            "distance_km": 46.05
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC Mezzano Santa Croce",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano (TN)",
+                "departure_time": "06:50",
+                "return_time": "17:45",
+                "count": 16,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              },
+              {
+                "name": "IC Vigolo Vattaro",
+                "luogo_ritrovo": "Fermata autocorriere Vigolo Vattaro",
+                "departure_time": "08:20",
+                "return_time": "16:10",
+                "count": 27,
+                "lat": 46.0048443,
+                "lon": 11.1983809,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC Pergine 1",
+              "luogo_ritrovo": "Via Monte Cristallo, 4 - Pergine Valsugana",
+              "departure_time": "08:35",
+              "return_time": "15:55",
+              "count": 24,
+              "lat": 46.0665465,
+              "lon": 11.2372947,
+              "coords_missing": false
+            },
+            {
+              "name": "IC Pergine 2",
+              "luogo_ritrovo": "Via delle Nazioni Unite, 44, 38057, Canale, TN",
+              "departure_time": "08:25",
+              "return_time": "16:05",
+              "count": 32,
+              "lat": 46.0400047,
+              "lon": 11.2337461,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "5"
+        }
+      ],
+      "scores": {
+        "assignment": 0.7407,
+        "bus_count": 0.9,
+        "combined": 0.8044
+      }
     }
-  ],
-  "unmatched_gt": []
+  }
 }

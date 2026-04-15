@@ -4,478 +4,1364 @@
     "destination": "TSM, Via Giusti 40, Trento",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.417,
-    "bus_count": 1.0,
-    "combined": 0.6502
-  },
+  "arrival_time": "08:16",
   "destination": {
     "name": "TSM, Via Giusti 40, Trento",
     "lat": 46.0697,
     "lon": 11.1211
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 6,
-        "stops": [
-          {
-            "name": "IS TIONE GUETTI",
-            "lat": 46.0373696,
-            "lon": 10.7309219,
-            "departure_time": "07:26",
-            "count": 10
-          }
-        ],
-        "distance_km": 23.75
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS TIONE GUETTI",
-            "luogo_ritrovo": "Via Durone 53, Tione",
-            "departure_time": "11:10",
-            "return_time": "17:45",
-            "count": 10,
-            "lat": 46.0373696,
-            "lon": 10.7309219,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "7"
+  "planners": {
+    "v2": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:26",
+                "count": 10
+              }
+            ],
+            "distance_km": 23.75
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS TIONE GUETTI",
+                "luogo_ritrovo": "Via Durone 53, Tione",
+                "departure_time": "11:10",
+                "return_time": "17:45",
+                "count": 10,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "departure_time": "07:40",
+                "count": 13
+              }
+            ],
+            "distance_km": 16.76
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Pizzeria \"Il Picchio\" - Roncegno",
+                "departure_time": "07:30",
+                "return_time": "13:00",
+                "count": 13,
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
+                "departure_time": "06:15",
+                "return_time": "14:20",
+                "count": 7,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "07:31",
+                "count": 9
+              }
+            ],
+            "distance_km": 21.16
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "11:00",
+                "return_time": "17:50",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Via Perlasca 4, Mezzolombardo",
+                "departure_time": "11:45",
+                "return_time": "17:05",
+                "count": 12,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:22",
+                "count": 13
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:27",
+                "count": 0
+              },
+              {
+                "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+                "lat": 45.8884667,
+                "lon": 11.0258202,
+                "departure_time": "07:34",
+                "count": 14
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "departure_time": "07:40",
+                "count": 10
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "07:47",
+                "count": 9
+              }
+            ],
+            "distance_km": 20.6
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+                "luogo_ritrovo": "Via Torre Franca, fermata bus \"Al Parco\" - Mattarello",
+                "departure_time": "08:10",
+                "return_time": "12:20",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+                "luogo_ritrovo": "Via Unione, 23 - Rovereto",
+                "departure_time": "07:30",
+                "return_time": "13:00",
+                "count": 14,
+                "lat": 45.8884667,
+                "lon": 11.0258202,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "luogo_ritrovo": "Via Livenza 1 - Rovereto",
+                "departure_time": "07:15",
+                "return_time": "13:15",
+                "count": 13,
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "luogo_ritrovo": "Via Benacense, 32 - Rovereto",
+                "departure_time": "07:20",
+                "return_time": "13:10",
+                "count": 0,
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "departure_time": "07:23",
+                "count": 22
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "07:28",
+                "count": 5
+              }
+            ],
+            "distance_km": 24.14
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Via Balista 2, Rovereto",
+                "departure_time": "11:20",
+                "return_time": "17:40",
+                "count": 10,
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale dei Tigli, 43 - Riva del Garda",
+                "departure_time": "10:20",
+                "return_time": "18:40",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale Martiri, Fermata autobus - Riva del Garda",
+                "departure_time": "10:30",
+                "return_time": "18:30",
+                "count": 22,
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Via Monti, n. 1 – Rovereto, Parcheggio di fronte all'Istituto Marconi",
+                "departure_time": "11:50",
+                "return_time": "17:05",
+                "count": 11,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Via Piomarta c/o Palazzetto Sport - Rovereto",
+                "departure_time": "11:35",
+                "return_time": "17:20",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.2857,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC ROVERETO LA VELA Primaria 1°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:01",
+                "count": 20
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 2°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:04",
+                "count": 0
+              },
+              {
+                "name": "IC TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:07",
+                "count": 13
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 11
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 5
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "nan",
+                "count": 22,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 1°",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "13:00",
+                "count": 20,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 2°",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "12:50",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "luogo_ritrovo": "Corso Bettini 67 - Rovereto",
+                "departure_time": "07:50",
+                "return_time": "12:40",
+                "count": 9,
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 7,
+            "stops": [
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:38",
+                "count": 12
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "07:55",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 22
+              },
+              {
+                "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 9
+              }
+            ],
+            "distance_km": 13.4
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC LAVIS",
+                "luogo_ritrovo": "Via Carlo Sette, 13/a - Lavis",
+                "departure_time": "08:00",
+                "return_time": "12:30",
+                "count": 9,
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "06:42",
+                "count": 7
+              }
+            ],
+            "distance_km": 45.77
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TIONE",
+                "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+                "departure_time": "07:15",
+                "return_time": "13:15",
+                "count": 13,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "5"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.417,
+        "bus_count": 1.0,
+        "combined": 0.6502
+      }
     },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "lat": 46.0496773,
-            "lon": 11.4109127,
-            "departure_time": "07:40",
-            "count": 13
-          }
-        ],
-        "distance_km": 16.76
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC CENTRO VALSUGANA",
-            "luogo_ritrovo": "Pizzeria \"Il Picchio\" - Roncegno",
-            "departure_time": "07:30",
-            "return_time": "13:00",
-            "count": 13,
-            "lat": 46.0496773,
-            "lon": 11.4109127,
-            "coords_missing": false
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "07:10",
+                "count": 9
+              },
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:38",
+                "count": 12
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "07:55",
+                "count": 9
+              },
+              {
+                "name": "IC TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 13
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 11
+              }
+            ],
+            "distance_km": 25.94
           },
-          {
-            "name": "IC MEZZANO SANTA CROCE",
-            "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
-            "departure_time": "06:15",
-            "return_time": "14:20",
-            "count": 7,
-            "lat": 46.1630679,
-            "lon": 11.8178119,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "4"
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "11:00",
+                "return_time": "17:50",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Via Perlasca 4, Mezzolombardo",
+                "departure_time": "11:45",
+                "return_time": "17:05",
+                "count": 12,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:24",
+                "count": 13
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:29",
+                "count": 0
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "departure_time": "07:37",
+                "count": 10
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "07:44",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 22
+              }
+            ],
+            "distance_km": 19.05
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "nan",
+                "count": 22,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 1°",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "13:00",
+                "count": 20,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 2°",
+                "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+                "departure_time": "07:40",
+                "return_time": "12:50",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "luogo_ritrovo": "Corso Bettini 67 - Rovereto",
+                "departure_time": "07:50",
+                "return_time": "12:40",
+                "count": 9,
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "06:24",
+                "count": 7
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "departure_time": "07:28",
+                "count": 13
+              },
+              {
+                "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:04",
+                "count": 9
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:07",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 2°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 0
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 1°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 20
+              }
+            ],
+            "distance_km": 47.73
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Pizzeria \"Il Picchio\" - Roncegno",
+                "departure_time": "07:30",
+                "return_time": "13:00",
+                "count": 13,
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
+                "departure_time": "06:15",
+                "return_time": "14:20",
+                "count": 7,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.2857,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "06:28",
+                "count": 10
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "07:11",
+                "count": 5
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "departure_time": "07:15",
+                "count": 22
+              },
+              {
+                "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+                "lat": 45.8884667,
+                "lon": 11.0258202,
+                "departure_time": "07:45",
+                "count": 14
+              }
+            ],
+            "distance_km": 49.38
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Via Balista 2, Rovereto",
+                "departure_time": "11:20",
+                "return_time": "17:40",
+                "count": 10,
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale dei Tigli, 43 - Riva del Garda",
+                "departure_time": "10:20",
+                "return_time": "18:40",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale Martiri, Fermata autobus - Riva del Garda",
+                "departure_time": "10:30",
+                "return_time": "18:30",
+                "count": 22,
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Via Monti, n. 1 – Rovereto, Parcheggio di fronte all'Istituto Marconi",
+                "departure_time": "11:50",
+                "return_time": "17:05",
+                "count": 11,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Via Piomarta c/o Palazzetto Sport - Rovereto",
+                "departure_time": "11:35",
+                "return_time": "17:20",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "6"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+              "luogo_ritrovo": "Via Torre Franca, fermata bus \"Al Parco\" - Mattarello",
+              "departure_time": "08:10",
+              "return_time": "12:20",
+              "count": 9,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+              "luogo_ritrovo": "Via Unione, 23 - Rovereto",
+              "departure_time": "07:30",
+              "return_time": "13:00",
+              "count": 14,
+              "lat": 45.8884667,
+              "lon": 11.0258202,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO SUD",
+              "luogo_ritrovo": "Via Livenza 1 - Rovereto",
+              "departure_time": "07:15",
+              "return_time": "13:15",
+              "count": 13,
+              "lat": 45.8704688,
+              "lon": 11.0307145,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO SUD",
+              "luogo_ritrovo": "Via Benacense, 32 - Rovereto",
+              "departure_time": "07:20",
+              "return_time": "13:10",
+              "count": 0,
+              "lat": 45.8704688,
+              "lon": 11.0307145,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "2"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC LAVIS",
+              "luogo_ritrovo": "Via Carlo Sette, 13/a - Lavis",
+              "departure_time": "08:00",
+              "return_time": "12:30",
+              "count": 9,
+              "lat": 46.1380913,
+              "lon": 11.1133091,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "3"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TIONE",
+              "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+              "departure_time": "07:15",
+              "return_time": "13:15",
+              "count": 13,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "5"
+        },
+        {
+          "stops": [
+            {
+              "name": "IS TIONE GUETTI",
+              "luogo_ritrovo": "Via Durone 53, Tione",
+              "departure_time": "11:10",
+              "return_time": "17:45",
+              "count": 10,
+              "lat": 46.0373696,
+              "lon": 10.7309219,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "7"
+        }
+      ],
+      "scores": {
+        "assignment": 0.3381,
+        "bus_count": 0.5,
+        "combined": 0.4029
+      }
     },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 4,
-        "stops": [
-          {
-            "name": "IS CLES PILATI",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "07:31",
-            "count": 9
-          }
-        ],
-        "distance_km": 21.16
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS CLES PILATI",
-            "luogo_ritrovo": "Piazza Fiera, Cles",
-            "departure_time": "11:00",
-            "return_time": "17:50",
-            "count": 9,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "departure_time": "06:30",
+                "count": 7
+              },
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "departure_time": "07:34",
+                "count": 13
+              },
+              {
+                "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 22
+              }
+            ],
+            "distance_km": 47.73
           },
-          {
-            "name": "IS MARTINI MEZZOLOMBARDO",
-            "luogo_ritrovo": "Via Perlasca 4, Mezzolombardo",
-            "departure_time": "11:45",
-            "return_time": "17:05",
-            "count": 12,
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "8"
-    },
-    {
-      "jaccard": 0.4,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IC ROVERETO SUD",
-            "lat": 45.8704688,
-            "lon": 11.0307145,
-            "departure_time": "07:22",
-            "count": 13
+          "gt": {
+            "stops": [
+              {
+                "name": "IC CENTRO VALSUGANA",
+                "luogo_ritrovo": "Pizzeria \"Il Picchio\" - Roncegno",
+                "departure_time": "07:30",
+                "return_time": "13:00",
+                "count": 13,
+                "lat": 46.0496773,
+                "lon": 11.4109127,
+                "coords_missing": false
+              },
+              {
+                "name": "IC MEZZANO SANTA CROCE",
+                "luogo_ritrovo": "Via Molaren, 29 - Mezzano",
+                "departure_time": "06:15",
+                "return_time": "14:20",
+                "count": 7,
+                "lat": 46.1630679,
+                "lon": 11.8178119,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IC ROVERETO SUD",
-            "lat": 45.8704688,
-            "lon": 11.0307145,
-            "departure_time": "07:27",
-            "count": 0
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:23",
+                "count": 10
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 5
+              }
+            ],
+            "distance_km": 23.75
           },
-          {
-            "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
-            "lat": 45.8884667,
-            "lon": 11.0258202,
-            "departure_time": "07:34",
-            "count": 14
+          "gt": {
+            "stops": [
+              {
+                "name": "IS TIONE GUETTI",
+                "luogo_ritrovo": "Via Durone 53, Tione",
+                "departure_time": "11:10",
+                "return_time": "17:45",
+                "count": 10,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IS DON MILANI ROVERETO",
-            "lat": 45.8956769,
-            "lon": 11.0319254,
-            "departure_time": "07:40",
-            "count": 10
+          "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "07:10",
+                "count": 9
+              },
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:38",
+                "count": 12
+              },
+              {
+                "name": "IC LAVIS",
+                "lat": 46.1380913,
+                "lon": 11.1133091,
+                "departure_time": "07:55",
+                "count": 9
+              },
+              {
+                "name": "IC TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:10",
+                "count": 13
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 11
+              }
+            ],
+            "distance_km": 25.94
           },
-          {
-            "name": "IC ROVERETO NORD",
-            "lat": 45.8935846,
-            "lon": 11.0436421,
-            "departure_time": "07:47",
-            "count": 9
-          }
-        ],
-        "distance_km": 20.6
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ALDENO MATTARELLO – Scuola secondaria",
-            "luogo_ritrovo": "Via Torre Franca, fermata bus \"Al Parco\" - Mattarello",
-            "departure_time": "08:10",
-            "return_time": "12:20",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "11:00",
+                "return_time": "17:50",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Via Perlasca 4, Mezzolombardo",
+                "departure_time": "11:45",
+                "return_time": "17:05",
+                "count": 12,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
-            "luogo_ritrovo": "Via Unione, 23 - Rovereto",
-            "departure_time": "07:30",
-            "return_time": "13:00",
-            "count": 14,
-            "lat": 45.8884667,
-            "lon": 11.0258202,
-            "coords_missing": false
+          "gt_fin": "8"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:19",
+                "count": 0
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "departure_time": "07:23",
+                "count": 13
+              },
+              {
+                "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+                "lat": 45.8884667,
+                "lon": 11.0258202,
+                "departure_time": "07:31",
+                "count": 14
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "departure_time": "07:37",
+                "count": 10
+              },
+              {
+                "name": "IC ROVERETO NORD",
+                "lat": 45.8935846,
+                "lon": 11.0436421,
+                "departure_time": "07:44",
+                "count": 9
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 2°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 0
+              }
+            ],
+            "distance_km": 20.81
           },
-          {
-            "name": "IC ROVERETO SUD",
-            "luogo_ritrovo": "Via Livenza 1 - Rovereto",
-            "departure_time": "07:15",
-            "return_time": "13:15",
-            "count": 13,
-            "lat": 45.8704688,
-            "lon": 11.0307145,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO MATTARELLO – Scuola secondaria",
+                "luogo_ritrovo": "Via Torre Franca, fermata bus \"Al Parco\" - Mattarello",
+                "departure_time": "08:10",
+                "return_time": "12:20",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ISERA-ROVERETO – Scuola primaria F.lli Filzi",
+                "luogo_ritrovo": "Via Unione, 23 - Rovereto",
+                "departure_time": "07:30",
+                "return_time": "13:00",
+                "count": 14,
+                "lat": 45.8884667,
+                "lon": 11.0258202,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "luogo_ritrovo": "Via Livenza 1 - Rovereto",
+                "departure_time": "07:15",
+                "return_time": "13:15",
+                "count": 13,
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO SUD",
+                "luogo_ritrovo": "Via Benacense, 32 - Rovereto",
+                "departure_time": "07:20",
+                "return_time": "13:10",
+                "count": 0,
+                "lat": 45.8704688,
+                "lon": 11.0307145,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IC ROVERETO SUD",
-            "luogo_ritrovo": "Via Benacense, 32 - Rovereto",
-            "departure_time": "07:20",
-            "return_time": "13:10",
-            "count": 0,
-            "lat": 45.8704688,
-            "lon": 11.0307145,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "2"
-    },
-    {
-      "jaccard": 0.4,
-      "planner": {
-        "vehicle_id": 5,
-        "stops": [
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "lat": 45.8883178,
-            "lon": 10.8443531,
-            "departure_time": "07:23",
-            "count": 22
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "departure_time": "07:20",
+                "count": 22
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "07:25",
+                "count": 5
+              },
+              {
+                "name": "IC ROVERETO LA VELA Primaria 1°",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:13",
+                "count": 20
+              }
+            ],
+            "distance_km": 24.14
           },
-          {
-            "name": "IS FLORIANI RIVA DEL GARDA",
-            "lat": 45.8940205,
-            "lon": 10.8420112,
-            "departure_time": "07:28",
-            "count": 5
-          }
-        ],
-        "distance_km": 24.14
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS DON MILANI ROVERETO",
-            "luogo_ritrovo": "Via Balista 2, Rovereto",
-            "departure_time": "11:20",
-            "return_time": "17:40",
-            "count": 10,
-            "lat": 45.8956769,
-            "lon": 11.0319254,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Via Balista 2, Rovereto",
+                "departure_time": "11:20",
+                "return_time": "17:40",
+                "count": 10,
+                "lat": 45.8956769,
+                "lon": 11.0319254,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale dei Tigli, 43 - Riva del Garda",
+                "departure_time": "10:20",
+                "return_time": "18:40",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Viale Martiri, Fermata autobus - Riva del Garda",
+                "departure_time": "10:30",
+                "return_time": "18:30",
+                "count": 22,
+                "lat": 45.8883178,
+                "lon": 10.8443531,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MARCONI ROVERETO",
+                "luogo_ritrovo": "Via Monti, n. 1 – Rovereto, Parcheggio di fronte all'Istituto Marconi",
+                "departure_time": "11:50",
+                "return_time": "17:05",
+                "count": 11,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROSMINI ROVERETO",
+                "luogo_ritrovo": "Via Piomarta c/o Palazzetto Sport - Rovereto",
+                "departure_time": "11:35",
+                "return_time": "17:20",
+                "count": 5,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IS FLORIANI RIVA DEL GARDA",
-            "luogo_ritrovo": "Viale dei Tigli, 43 - Riva del Garda",
-            "departure_time": "10:20",
-            "return_time": "18:40",
-            "count": 5,
-            "lat": 45.8940205,
-            "lon": 10.8420112,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "luogo_ritrovo": "Viale Martiri, Fermata autobus - Riva del Garda",
-            "departure_time": "10:30",
-            "return_time": "18:30",
-            "count": 22,
-            "lat": 45.8883178,
-            "lon": 10.8443531,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MARCONI ROVERETO",
-            "luogo_ritrovo": "Via Monti, n. 1 – Rovereto, Parcheggio di fronte all'Istituto Marconi",
-            "departure_time": "11:50",
-            "return_time": "17:05",
-            "count": 11,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ROSMINI ROVERETO",
-            "luogo_ritrovo": "Via Piomarta c/o Palazzetto Sport - Rovereto",
-            "departure_time": "11:35",
-            "return_time": "17:20",
-            "count": 5,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "6"
-    },
-    {
-      "jaccard": 0.2857,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IC ROVERETO LA VELA Primaria 1°",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:01",
-            "count": 20
-          },
-          {
-            "name": "IC ROVERETO LA VELA Primaria 2°",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:04",
-            "count": 0
-          },
-          {
-            "name": "IC TIONE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:07",
-            "count": 13
-          },
-          {
-            "name": "IS MARCONI ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:10",
-            "count": 11
-          },
-          {
-            "name": "IS ROSMINI ROVERETO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:13",
-            "count": 5
-          }
-        ],
-        "distance_km": 0.0
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC ROVERETO EST",
-            "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
-            "departure_time": "07:40",
-            "return_time": "nan",
-            "count": 22,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ROVERETO LA VELA Primaria 1°",
-            "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
-            "departure_time": "07:40",
-            "return_time": "13:00",
-            "count": 20,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ROVERETO LA VELA Primaria 2°",
-            "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
-            "departure_time": "07:40",
-            "return_time": "12:50",
-            "count": 0,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IC ROVERETO NORD",
-            "luogo_ritrovo": "Corso Bettini 67 - Rovereto",
-            "departure_time": "07:50",
-            "return_time": "12:40",
-            "count": 9,
-            "lat": 45.8935846,
-            "lon": 11.0436421,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 0.25,
-      "planner": {
-        "vehicle_id": 7,
-        "stops": [
-          {
-            "name": "IS MARTINI MEZZOLOMBARDO",
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "departure_time": "07:38",
-            "count": 12
-          },
-          {
-            "name": "IC LAVIS",
-            "lat": 46.1380913,
-            "lon": 11.1133091,
-            "departure_time": "07:55",
-            "count": 9
-          },
-          {
-            "name": "IC ROVERETO EST",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:10",
-            "count": 22
-          },
-          {
-            "name": "IC ALDENO MATTARELLO – Scuola secondaria",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "08:13",
-            "count": 9
-          }
-        ],
-        "distance_km": 13.4
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC LAVIS",
-            "luogo_ritrovo": "Via Carlo Sette, 13/a - Lavis",
-            "departure_time": "08:00",
-            "return_time": "12:30",
-            "count": 9,
-            "lat": 46.1380913,
-            "lon": 11.1133091,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "3"
-    },
-    {
-      "jaccard": 0.0,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IC MEZZANO SANTA CROCE",
-            "lat": 46.1630679,
-            "lon": 11.8178119,
-            "departure_time": "06:42",
-            "count": 7
-          }
-        ],
-        "distance_km": 45.77
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC TIONE",
-            "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
-            "departure_time": "07:15",
-            "return_time": "13:15",
-            "count": 13,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "5"
+          "gt_fin": "6"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC LAVIS",
+              "luogo_ritrovo": "Via Carlo Sette, 13/a - Lavis",
+              "departure_time": "08:00",
+              "return_time": "12:30",
+              "count": 9,
+              "lat": 46.1380913,
+              "lon": 11.1133091,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "3"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC ROVERETO EST",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "departure_time": "07:40",
+              "return_time": "nan",
+              "count": 22,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO LA VELA Primaria 1°",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "departure_time": "07:40",
+              "return_time": "13:00",
+              "count": 20,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO LA VELA Primaria 2°",
+              "luogo_ritrovo": "Piazzale Achille Leoni - Rovereto",
+              "departure_time": "07:40",
+              "return_time": "12:50",
+              "count": 0,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IC ROVERETO NORD",
+              "luogo_ritrovo": "Corso Bettini 67 - Rovereto",
+              "departure_time": "07:50",
+              "return_time": "12:40",
+              "count": 9,
+              "lat": 45.8935846,
+              "lon": 11.0436421,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "1"
+        },
+        {
+          "stops": [
+            {
+              "name": "IC TIONE",
+              "luogo_ritrovo": "Via Circonvalazione 44 - Tione",
+              "departure_time": "07:15",
+              "return_time": "13:15",
+              "count": 13,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": null,
+          "fin": "5"
+        }
+      ],
+      "scores": {
+        "assignment": 0.4133,
+        "bus_count": 0.625,
+        "combined": 0.498
+      }
     }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": []
+  }
 }

@@ -4,183 +4,540 @@
     "destination": "Centro Sportivo Trento Nord – Gardolo",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.75,
-    "bus_count": 1.0,
-    "combined": 0.85
-  },
+  "arrival_time": "08:44",
   "destination": {
     "name": "Centro Sportivo Trento Nord – Gardolo",
     "lat": 46.1052838,
     "lon": 11.1145014
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "SACRO CUORE Trento",
-            "lat": 46.0650544,
-            "lon": 11.1239945,
-            "departure_time": "08:31",
-            "count": 49
-          }
-        ],
-        "distance_km": 5.24
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "SACRO CUORE Trento",
-            "luogo_ritrovo": "Trento, fermata Piazza Fiera",
-            "departure_time": "08:19",
-            "return_time": "15:48",
-            "count": 0,
-            "lat": 46.0650544,
-            "lon": 11.1239945,
-            "coords_missing": false
+  "planners": {
+    "v2": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "departure_time": "08:31",
+                "count": 49
+              }
+            ],
+            "distance_km": 5.24
           },
-          {
-            "name": "SACRO CUORE Trento",
-            "luogo_ritrovo": "Trento, fermata Piazza Fiera",
-            "departure_time": "08:34",
-            "return_time": "16:03",
-            "count": 49,
-            "lat": 46.0650544,
-            "lon": 11.1239945,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "Linea 3"
+          "gt": {
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:19",
+                "return_time": "15:48",
+                "count": 0,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:34",
+                "return_time": "16:03",
+                "count": 49,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 3"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "departure_time": "08:32",
+                "count": 39
+              }
+            ],
+            "distance_km": 4.72
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "Cognola - Trento (Linea 10)",
+                "departure_time": "08:14",
+                "return_time": "16:11",
+                "count": 39,
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 10+3"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "departure_time": "08:32",
+                "count": 49
+              }
+            ],
+            "distance_km": 4.6
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "luogo_ritrovo": "Gocciadoro Arcate, capolinea bus n. 7 - Trento",
+                "departure_time": "08:05",
+                "return_time": "15:34",
+                "count": 20,
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:30",
+                "return_time": "15:54",
+                "count": 0,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:50",
+                "return_time": "16:14",
+                "count": 49,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 7"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "departure_time": "08:19",
+                "count": 20
+              },
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "departure_time": "08:31",
+                "count": 30
+              }
+            ],
+            "distance_km": 10.27
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "luogo_ritrovo": "da Giusti Arcivescovile - Trento",
+                "departure_time": "08:23",
+                "return_time": "16:19",
+                "count": 30,
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 4"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.75,
+        "bus_count": 1.0,
+        "combined": 0.85
+      }
     },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IC TRENTO 2",
-            "lat": 46.0766303,
-            "lon": 11.1417281,
-            "departure_time": "08:32",
-            "count": 39
-          }
-        ],
-        "distance_km": 4.72
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC TRENTO 2",
-            "luogo_ritrovo": "Cognola - Trento (Linea 10)",
-            "departure_time": "08:14",
-            "return_time": "16:11",
-            "count": 39,
-            "lat": 46.0766303,
-            "lon": 11.1417281,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "Linea 10+3"
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "departure_time": "08:32",
+                "count": 39
+              }
+            ],
+            "distance_km": 4.72
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "Cognola - Trento (Linea 10)",
+                "departure_time": "08:14",
+                "return_time": "16:11",
+                "count": 39,
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 10+3"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "departure_time": "08:31",
+                "count": 49
+              }
+            ],
+            "distance_km": 5.24
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:19",
+                "return_time": "15:48",
+                "count": 0,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:34",
+                "return_time": "16:03",
+                "count": 49,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 3"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "departure_time": "08:19",
+                "count": 20
+              },
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "departure_time": "08:31",
+                "count": 30
+              }
+            ],
+            "distance_km": 10.27
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "luogo_ritrovo": "da Giusti Arcivescovile - Trento",
+                "departure_time": "08:23",
+                "return_time": "16:19",
+                "count": 30,
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "departure_time": "08:32",
+                "count": 49
+              }
+            ],
+            "distance_km": 4.6
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "luogo_ritrovo": "Gocciadoro Arcate, capolinea bus n. 7 - Trento",
+                "departure_time": "08:05",
+                "return_time": "15:34",
+                "count": 20,
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:30",
+                "return_time": "15:54",
+                "count": 0,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:50",
+                "return_time": "16:14",
+                "count": 49,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 7"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.75,
+        "bus_count": 1.0,
+        "combined": 0.85
+      }
     },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "SACRA FAMIGLIA Trento",
-            "lat": 46.0670185,
-            "lon": 11.1262405,
-            "departure_time": "08:32",
-            "count": 49
-          }
-        ],
-        "distance_km": 4.6
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC TRENTO 3",
-            "luogo_ritrovo": "Gocciadoro Arcate, capolinea bus n. 7 - Trento",
-            "departure_time": "08:05",
-            "return_time": "15:34",
-            "count": 20,
-            "lat": 46.0570654,
-            "lon": 11.1418382,
-            "coords_missing": false
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "departure_time": "08:32",
+                "count": 39
+              }
+            ],
+            "distance_km": 4.72
           },
-          {
-            "name": "SACRA FAMIGLIA Trento",
-            "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
-            "departure_time": "08:30",
-            "return_time": "15:54",
-            "count": 0,
-            "lat": 46.0670185,
-            "lon": 11.1262405,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "Cognola - Trento (Linea 10)",
+                "departure_time": "08:14",
+                "return_time": "16:11",
+                "count": 39,
+                "lat": 46.0766303,
+                "lon": 11.1417281,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "SACRA FAMIGLIA Trento",
-            "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
-            "departure_time": "08:50",
-            "return_time": "16:14",
-            "count": 49,
-            "lat": 46.0670185,
-            "lon": 11.1262405,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "Linea 7"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IC TRENTO 3",
-            "lat": 46.0570654,
-            "lon": 11.1418382,
-            "departure_time": "08:19",
-            "count": 20
+          "gt_fin": "Linea 10+3"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "departure_time": "08:31",
+                "count": 49
+              }
+            ],
+            "distance_km": 5.24
           },
-          {
-            "name": "ARCIVESCOVILE Trento",
-            "lat": 46.059321,
-            "lon": 11.1190444,
-            "departure_time": "08:31",
-            "count": 30
-          }
-        ],
-        "distance_km": 10.27
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "ARCIVESCOVILE Trento",
-            "luogo_ritrovo": "da Giusti Arcivescovile - Trento",
-            "departure_time": "08:23",
-            "return_time": "16:19",
-            "count": 30,
-            "lat": 46.059321,
-            "lon": 11.1190444,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "Linea 4"
+          "gt": {
+            "stops": [
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:19",
+                "return_time": "15:48",
+                "count": 0,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRO CUORE Trento",
+                "luogo_ritrovo": "Trento, fermata Piazza Fiera",
+                "departure_time": "08:34",
+                "return_time": "16:03",
+                "count": 49,
+                "lat": 46.0650544,
+                "lon": 11.1239945,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 3"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "departure_time": "08:19",
+                "count": 20
+              },
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "departure_time": "08:31",
+                "count": 30
+              }
+            ],
+            "distance_km": 10.27
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "ARCIVESCOVILE Trento",
+                "luogo_ritrovo": "da Giusti Arcivescovile - Trento",
+                "departure_time": "08:23",
+                "return_time": "16:19",
+                "count": 30,
+                "lat": 46.059321,
+                "lon": 11.1190444,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "departure_time": "08:32",
+                "count": 49
+              }
+            ],
+            "distance_km": 4.6
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 3",
+                "luogo_ritrovo": "Gocciadoro Arcate, capolinea bus n. 7 - Trento",
+                "departure_time": "08:05",
+                "return_time": "15:34",
+                "count": 20,
+                "lat": 46.0570654,
+                "lon": 11.1418382,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:30",
+                "return_time": "15:54",
+                "count": 0,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              },
+              {
+                "name": "SACRA FAMIGLIA Trento",
+                "luogo_ritrovo": "S. Francesco Porta Nuova - Trento",
+                "departure_time": "08:50",
+                "return_time": "16:14",
+                "count": 49,
+                "lat": 46.0670185,
+                "lon": 11.1262405,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "Linea 7"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.75,
+        "bus_count": 1.0,
+        "combined": 0.85
+      }
     }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": []
+  }
 }

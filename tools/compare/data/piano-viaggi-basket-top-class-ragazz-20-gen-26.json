@@ -4,116 +4,352 @@
     "destination": "Centro sportivo Trento Nord - Trento",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 1.0,
-    "bus_count": 1.0,
-    "combined": 1.0
-  },
+  "arrival_time": "07:59",
   "destination": {
     "name": "Centro sportivo Trento Nord - Trento",
     "lat": 46.1052838,
     "lon": 11.1145014
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "lat": 46.0797928,
-            "lon": 11.0018196,
-            "departure_time": "07:26",
-            "count": 24
+  "planners": {
+    "v2": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "departure_time": "07:26",
+                "count": 24
+              },
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "departure_time": "07:47",
+                "count": 23
+              }
+            ],
+            "distance_km": 14.35
           },
-          {
-            "name": "IC TRENTO 2",
-            "lat": 46.0745703,
-            "lon": 11.1438385,
-            "departure_time": "07:47",
-            "count": 23
-          }
-        ],
-        "distance_km": 14.35
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC TRENTO 2",
-            "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
-            "departure_time": "08:10",
-            "return_time": "14:50",
-            "count": 23,
-            "lat": 46.0745703,
-            "lon": 11.1438385,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
+                "departure_time": "08:10",
+                "return_time": "14:50",
+                "count": 23,
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
+                "departure_time": "07:40",
+                "return_time": "15:20",
+                "count": 24,
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IC VALLE DEI LAGHI DRO",
-            "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
-            "departure_time": "07:40",
-            "return_time": "15:20",
-            "count": 24,
-            "lat": 46.0797928,
-            "lon": 11.0018196,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "2"
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "departure_time": "06:54",
+                "count": 25
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "departure_time": "07:24",
+                "count": 21
+              }
+            ],
+            "distance_km": 30.23
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "ANDALO, Piazza S. Vito n. 1",
+                "departure_time": "07:40",
+                "return_time": "15:15",
+                "count": 25,
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "TAIO, Piazza della Chiesa",
+                "departure_time": "06:55",
+                "return_time": "16:00",
+                "count": 21,
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 1.0,
+        "bus_count": 1.0,
+        "combined": 1.0
+      }
     },
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "lat": 46.1657078,
-            "lon": 11.0059181,
-            "departure_time": "06:54",
-            "count": 25
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "departure_time": "06:54",
+                "count": 25
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "departure_time": "07:24",
+                "count": 21
+              }
+            ],
+            "distance_km": 30.23
           },
-          {
-            "name": "IC TAIO",
-            "lat": 46.3206186,
-            "lon": 11.0661736,
-            "departure_time": "07:24",
-            "count": 21
-          }
-        ],
-        "distance_km": 30.23
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IC MEZZOLOMBARDO PAGANELLA",
-            "luogo_ritrovo": "ANDALO, Piazza S. Vito n. 1",
-            "departure_time": "07:40",
-            "return_time": "15:15",
-            "count": 25,
-            "lat": 46.1657078,
-            "lon": 11.0059181,
-            "coords_missing": false
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "ANDALO, Piazza S. Vito n. 1",
+                "departure_time": "07:40",
+                "return_time": "15:15",
+                "count": 25,
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "TAIO, Piazza della Chiesa",
+                "departure_time": "06:55",
+                "return_time": "16:00",
+                "count": 21,
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
           },
-          {
-            "name": "IC TAIO",
-            "luogo_ritrovo": "TAIO, Piazza della Chiesa",
-            "departure_time": "06:55",
-            "return_time": "16:00",
-            "count": 21,
-            "lat": 46.3206186,
-            "lon": 11.0661736,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": null
-      },
-      "gt_fin": "1"
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "departure_time": "07:26",
+                "count": 24
+              },
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "departure_time": "07:47",
+                "count": 23
+              }
+            ],
+            "distance_km": 14.35
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
+                "departure_time": "08:10",
+                "return_time": "14:50",
+                "count": 23,
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
+                "departure_time": "07:40",
+                "return_time": "15:20",
+                "count": 24,
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 1.0,
+        "bus_count": 1.0,
+        "combined": 1.0
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "departure_time": "07:20",
+                "count": 25
+              }
+            ],
+            "distance_km": 18.32
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "ANDALO, Piazza S. Vito n. 1",
+                "departure_time": "07:40",
+                "return_time": "15:15",
+                "count": 25,
+                "lat": 46.1657078,
+                "lon": 11.0059181,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "TAIO, Piazza della Chiesa",
+                "departure_time": "06:55",
+                "return_time": "16:00",
+                "count": 21,
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "departure_time": "07:47",
+                "count": 23
+              }
+            ],
+            "distance_km": 4.92
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
+                "departure_time": "08:10",
+                "return_time": "14:50",
+                "count": 23,
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
+                "departure_time": "07:40",
+                "return_time": "15:20",
+                "count": 24,
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": null
+          },
+          "gt_fin": "2"
+        }
+      ],
+      "unmatched_planner": [
+        {
+          "vehicle_id": 2,
+          "stops": [
+            {
+              "name": "IC TAIO",
+              "lat": 46.3206186,
+              "lon": 11.0661736,
+              "departure_time": "07:24",
+              "count": 21
+            }
+          ],
+          "distance_km": 16.49
+        },
+        {
+          "vehicle_id": 3,
+          "stops": [
+            {
+              "name": "IC VALLE DEI LAGHI DRO",
+              "lat": 46.0797928,
+              "lon": 11.0018196,
+              "departure_time": "07:37",
+              "count": 24
+            }
+          ],
+          "distance_km": 9.86
+        }
+      ],
+      "unmatched_gt": [],
+      "scores": {
+        "assignment": 0.5,
+        "bus_count": 0.0,
+        "combined": 0.3
+      }
     }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": []
+  }
 }

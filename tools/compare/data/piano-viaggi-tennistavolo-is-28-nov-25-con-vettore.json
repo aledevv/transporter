@@ -4,289 +4,840 @@
     "destination": "CENTRO SPORTIVO Vela-Piedicastello, Via Doss Trento – TRENTO",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.6667,
-    "bus_count": 0.8,
-    "combined": 0.72
-  },
+  "arrival_time": "07:30",
   "destination": {
     "name": "CENTRO SPORTIVO Vela-Piedicastello, Via Doss Trento – TRENTO",
     "lat": 46.0697,
     "lon": 11.1211
   },
-  "matched_pairs": [
-    {
-      "jaccard": 1.0,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IS TIONE ENAIP",
-            "lat": 46.0364673,
-            "lon": 10.7311417,
-            "departure_time": "06:36",
-            "count": 9
-          },
-          {
-            "name": "IS TIONE GUETTI",
-            "lat": 46.0364673,
-            "lon": 10.7311417,
-            "departure_time": "06:39",
-            "count": 13
-          }
-        ],
-        "distance_km": 24.28
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS TIONE ENAIP",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 9,
-            "lat": 46.0364673,
-            "lon": 10.7311417,
-            "coords_missing": false
-          },
-          {
-            "name": "IS TIONE GUETTI",
-            "luogo_ritrovo": "Via Durone, Tione",
-            "departure_time": "07:00",
-            "return_time": "17:00",
-            "count": 13,
-            "lat": 46.0364673,
-            "lon": 10.7311417,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 84.0
-      },
-      "gt_fin": "1"
-    },
-    {
-      "jaccard": 0.6667,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IS CLES PILATI",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "06:42",
-            "count": 9
-          },
-          {
-            "name": "IS CLES RUSSELL",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "06:45",
-            "count": 17
-          }
-        ],
-        "distance_km": 21.16
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS CLES PILATI",
-            "luogo_ritrovo": "Piazza Fiera, Cles",
-            "departure_time": "07:00",
-            "return_time": "17:00",
-            "count": 9,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
-          },
-          {
-            "name": "IS CLES RUSSELL",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 17,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MEZZOLOMBARDO MARTINI",
-            "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
-            "departure_time": "07:35",
-            "return_time": "16:25",
-            "count": 14,
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 82.0
-      },
-      "gt_fin": "2"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 2,
-        "stops": [
-          {
-            "name": "IS ROVERETO DON MILANI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:18",
-            "count": 10
-          },
-          {
-            "name": "IS ROVERETO MARCONI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:21",
-            "count": 13
-          },
-          {
-            "name": "IS ROVERETO ROSMINI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:24",
-            "count": 14
-          },
-          {
-            "name": "IS PRIMIERO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:27",
-            "count": 15
-          }
-        ],
-        "distance_km": 0.0
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS ROVERETO DON MILANI",
-            "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
-            "departure_time": "07:25",
-            "return_time": "16:35",
-            "count": 10,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ROVERETO ROSMINI",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 14,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 64.0
-      },
-      "gt_fin": "4"
-    },
-    {
-      "jaccard": 0.5,
-      "planner": {
-        "vehicle_id": 3,
-        "stops": [
-          {
-            "name": "IS MEZZOLOMBARDO MARTINI",
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "departure_time": "06:56",
-            "count": 14
-          },
-          {
-            "name": "IS BORGO VALSUGANA DEGASPERI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:21",
-            "count": 18
-          },
-          {
-            "name": "IS RIVA DEL GARDA MAFFEI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:24",
-            "count": 20
-          },
-          {
-            "name": "IS PRIMIERO",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:27",
-            "count": 0
-          }
-        ],
-        "distance_km": 11.01
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS BORGO VALSUGANA DEGASPERI",
-            "luogo_ritrovo": "Autostazione Borgo Est, Borgo Valsugana",
-            "departure_time": "07:15",
-            "return_time": "16:00",
-            "count": 18,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS PRIMIERO",
-            "luogo_ritrovo": "Via delle Fonti, 10, Transacqua, Fiera di Primiero",
-            "departure_time": "06:10",
-            "return_time": "17:55",
-            "count": 15,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS PRIMIERO",
-            "luogo_ritrovo": "Loc. Ponte Serra (fermata corriere), Lamon BL",
-            "departure_time": "06:40",
-            "return_time": "17:25",
-            "count": 0,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 196.0
-      },
-      "gt_fin": "5"
-    }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": [
-    {
-      "stops": [
+  "planners": {
+    "v2": {
+      "matched_pairs": [
         {
-          "name": "IS RIVA DEL GARDA MAFFEI",
-          "luogo_ritrovo": "Fermata Autobus - Viale dei Martiri, Riva del Garda",
-          "departure_time": "06:45",
-          "return_time": "17:15",
-          "count": 20,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:36",
+                "count": 9
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:39",
+                "count": 13
+              }
+            ],
+            "distance_km": 24.28
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "luogo_ritrovo": "Via Durone, Tione",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 13,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 84.0
+          },
+          "gt_fin": "1"
         },
         {
-          "name": "IS ROVERETO MARCONI",
-          "luogo_ritrovo": "Viale Nazionale, fermata bus di fronte I.T.I., Rovereto",
-          "departure_time": "07:30",
-          "return_time": "16:30",
-          "count": 13,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:42",
+                "count": 9
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:45",
+                "count": 17
+              }
+            ],
+            "distance_km": 21.16
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 17,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
+                "departure_time": "07:35",
+                "return_time": "16:25",
+                "count": 14,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 82.0
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:18",
+                "count": 10
+              },
+              {
+                "name": "IS ROVERETO MARCONI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 13
+              },
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 14
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 15
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
+                "departure_time": "07:25",
+                "return_time": "16:35",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 64.0
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "06:56",
+                "count": 14
+              },
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 18
+              },
+              {
+                "name": "IS RIVA DEL GARDA MAFFEI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 20
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 0
+              }
+            ],
+            "distance_km": 11.01
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "luogo_ritrovo": "Autostazione Borgo Est, Borgo Valsugana",
+                "departure_time": "07:15",
+                "return_time": "16:00",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Via delle Fonti, 10, Transacqua, Fiera di Primiero",
+                "departure_time": "06:10",
+                "return_time": "17:55",
+                "count": 15,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Loc. Ponte Serra (fermata corriere), Lamon BL",
+                "departure_time": "06:40",
+                "return_time": "17:25",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 196.0
+          },
+          "gt_fin": "5"
         }
       ],
-      "distance_km": 96.0,
-      "fin": "3"
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IS RIVA DEL GARDA MAFFEI",
+              "luogo_ritrovo": "Fermata Autobus - Viale dei Martiri, Riva del Garda",
+              "departure_time": "06:45",
+              "return_time": "17:15",
+              "count": 20,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ROVERETO MARCONI",
+              "luogo_ritrovo": "Viale Nazionale, fermata bus di fronte I.T.I., Rovereto",
+              "departure_time": "07:30",
+              "return_time": "16:30",
+              "count": 13,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 96.0,
+          "fin": "3"
+        }
+      ],
+      "scores": {
+        "assignment": 0.6667,
+        "bus_count": 0.8,
+        "combined": 0.72
+      }
+    },
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.75,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:31",
+                "count": 9
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:34",
+                "count": 17
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:02",
+                "count": 14
+              },
+              {
+                "name": "IS ROVERETO MARCONI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 13
+              }
+            ],
+            "distance_km": 23.55
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 17,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
+                "departure_time": "07:35",
+                "return_time": "16:25",
+                "count": 14,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 82.0
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:27",
+                "count": 9
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:30",
+                "count": 13
+              },
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 18
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 0
+              },
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 10
+              }
+            ],
+            "distance_km": 24.28
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "luogo_ritrovo": "Autostazione Borgo Est, Borgo Valsugana",
+                "departure_time": "07:15",
+                "return_time": "16:00",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Via delle Fonti, 10, Transacqua, Fiera di Primiero",
+                "departure_time": "06:10",
+                "return_time": "17:55",
+                "count": 15,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Loc. Ponte Serra (fermata corriere), Lamon BL",
+                "departure_time": "06:40",
+                "return_time": "17:25",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 196.0
+          },
+          "gt_fin": "5"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 14
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 15
+              },
+              {
+                "name": "IS RIVA DEL GARDA MAFFEI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 20
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS RIVA DEL GARDA MAFFEI",
+                "luogo_ritrovo": "Fermata Autobus - Viale dei Martiri, Riva del Garda",
+                "departure_time": "06:45",
+                "return_time": "17:15",
+                "count": 20,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROVERETO MARCONI",
+                "luogo_ritrovo": "Viale Nazionale, fermata bus di fronte I.T.I., Rovereto",
+                "departure_time": "07:30",
+                "return_time": "16:30",
+                "count": 13,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 96.0
+          },
+          "gt_fin": "3"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IS ROVERETO DON MILANI",
+              "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
+              "departure_time": "07:25",
+              "return_time": "16:35",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ROVERETO ROSMINI",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 14,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 64.0,
+          "fin": "4"
+        },
+        {
+          "stops": [
+            {
+              "name": "IS TIONE ENAIP",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 9,
+              "lat": 46.0364673,
+              "lon": 10.7311417,
+              "coords_missing": false
+            },
+            {
+              "name": "IS TIONE GUETTI",
+              "luogo_ritrovo": "Via Durone, Tione",
+              "departure_time": "07:00",
+              "return_time": "17:00",
+              "count": 13,
+              "lat": 46.0364673,
+              "lon": 10.7311417,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 84.0,
+          "fin": "1"
+        }
+      ],
+      "scores": {
+        "assignment": 0.4667,
+        "bus_count": 0.6,
+        "combined": 0.52
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.6,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:28",
+                "count": 9
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:31",
+                "count": 17
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "06:59",
+                "count": 14
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 0
+              },
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 10
+              }
+            ],
+            "distance_km": 23.55
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 17,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
+                "departure_time": "07:35",
+                "return_time": "16:25",
+                "count": 14,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 82.0
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:30",
+                "count": 9
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:33",
+                "count": 13
+              },
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 18
+              },
+              {
+                "name": "IS ROVERETO MARCONI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 13
+              }
+            ],
+            "distance_km": 24.28
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "luogo_ritrovo": "Via Durone, Tione",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 13,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 84.0
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.25,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 14
+              },
+              {
+                "name": "IS PRIMIERO",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 15
+              },
+              {
+                "name": "IS RIVA DEL GARDA MAFFEI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 20
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS BORGO VALSUGANA DEGASPERI",
+                "luogo_ritrovo": "Autostazione Borgo Est, Borgo Valsugana",
+                "departure_time": "07:15",
+                "return_time": "16:00",
+                "count": 18,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Via delle Fonti, 10, Transacqua, Fiera di Primiero",
+                "departure_time": "06:10",
+                "return_time": "17:55",
+                "count": 15,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS PRIMIERO",
+                "luogo_ritrovo": "Loc. Ponte Serra (fermata corriere), Lamon BL",
+                "departure_time": "06:40",
+                "return_time": "17:25",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 196.0
+          },
+          "gt_fin": "5"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IS RIVA DEL GARDA MAFFEI",
+              "luogo_ritrovo": "Fermata Autobus - Viale dei Martiri, Riva del Garda",
+              "departure_time": "06:45",
+              "return_time": "17:15",
+              "count": 20,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ROVERETO MARCONI",
+              "luogo_ritrovo": "Viale Nazionale, fermata bus di fronte I.T.I., Rovereto",
+              "departure_time": "07:30",
+              "return_time": "16:30",
+              "count": 13,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 96.0,
+          "fin": "3"
+        },
+        {
+          "stops": [
+            {
+              "name": "IS ROVERETO DON MILANI",
+              "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
+              "departure_time": "07:25",
+              "return_time": "16:35",
+              "count": 10,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS ROVERETO ROSMINI",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 14,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 64.0,
+          "fin": "4"
+        }
+      ],
+      "scores": {
+        "assignment": 0.45,
+        "bus_count": 0.6,
+        "combined": 0.51
+      }
     }
-  ]
+  }
 }

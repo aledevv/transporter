@@ -4,231 +4,693 @@
     "destination": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
     "capacity": 54
   },
-  "scores": {
-    "assignment": 0.5893,
-    "bus_count": 0.5,
-    "combined": 0.5536
-  },
+  "arrival_time": "07:57",
   "destination": {
     "name": "Volée Bistrò, 19, Via 8 Marzo, Melta di Gardolo, Gardolo, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino – Alto Adige/Südtirol, 31821, Italy",
     "lat": 46.103651,
     "lon": 11.114801
   },
-  "matched_pairs": [
-    {
-      "jaccard": 0.75,
-      "planner": {
-        "vehicle_id": 1,
-        "stops": [
-          {
-            "name": "IS FLORIANI RIVA DEL GARDA",
-            "lat": 45.8940205,
-            "lon": 10.8420112,
-            "departure_time": "06:50",
-            "count": 5
-          },
-          {
-            "name": "IS DON MILANI ROVERETO",
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "departure_time": "07:23",
-            "count": 7
-          },
-          {
-            "name": "IS FILZI ROVERETO",
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "departure_time": "07:26",
-            "count": 9
-          }
-        ],
-        "distance_km": 29.34
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS DON MILANI ROVERETO",
-            "luogo_ritrovo": "Rovereto, P.le Orsi",
-            "departure_time": "08:25",
-            "return_time": "15:35",
-            "count": 7,
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "coords_missing": false
-          },
-          {
-            "name": "IS FILZI ROVERETO",
-            "luogo_ritrovo": "nan",
-            "departure_time": "nan",
-            "return_time": "nan",
-            "count": 9,
-            "lat": 45.8909414,
-            "lon": 11.0347273,
-            "coords_missing": false
-          },
-          {
-            "name": "IS FLORIANI RIVA DEL GARDA",
-            "luogo_ritrovo": "Riva del Garda, V.le dei Tigli 43",
-            "departure_time": "07:30",
-            "return_time": "16:30",
-            "count": 5,
-            "lat": 45.8940205,
-            "lon": 10.8420112,
-            "coords_missing": false
-          },
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "luogo_ritrovo": "Riva del Garda, V.le Martiri, fermata autobus",
-            "departure_time": "07:40",
-            "return_time": "16:20",
-            "count": 9,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 110.0
-      },
-      "gt_fin": "3"
-    },
-    {
-      "jaccard": 0.4286,
-      "planner": {
-        "vehicle_id": 0,
-        "stops": [
-          {
-            "name": "IS ENAIP CLES",
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "departure_time": "06:42",
-            "count": 5
-          },
-          {
-            "name": "IS M. MARTINI MEZZOLOMBARDO",
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "departure_time": "07:10",
-            "count": 9
-          },
-          {
-            "name": "IC LADINO DI FASSA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:35",
-            "count": 7
-          },
-          {
-            "name": "IS ENAIP OSSANA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:38",
-            "count": 7
-          },
-          {
-            "name": "IS ENAIP di TIONE",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:41",
-            "count": 17
-          },
-          {
-            "name": "IS GUETTI",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:44",
-            "count": 0
-          },
-          {
-            "name": "IS MAFFEI RIVA DEL GARDA",
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "departure_time": "07:47",
-            "count": 9
-          }
-        ],
-        "distance_km": 27.43
-      },
-      "gt": {
-        "stops": [
-          {
-            "name": "IS ENAIP CLES",
-            "luogo_ritrovo": "Cles, Piazza Fiera",
-            "departure_time": "07:50",
-            "return_time": "16:00",
-            "count": 5,
-            "lat": 46.3682701,
-            "lon": 11.0345527,
-            "coords_missing": false
-          },
-          {
-            "name": "IS ENAIP OSSANA",
-            "luogo_ritrovo": "Ossana, Via di S. Antonio 1 – di fronte scuola",
-            "departure_time": "07:00",
-            "return_time": "16:50",
-            "count": 7,
-            "lat": 46.0697,
-            "lon": 11.1211,
-            "coords_missing": false
-          },
-          {
-            "name": "IS M. MARTINI MEZZOLOMBARDO",
-            "luogo_ritrovo": "Mezzolombardo, Via Perlasca 4",
-            "departure_time": "08:30",
-            "return_time": "15:20",
-            "count": 9,
-            "lat": 46.2177667,
-            "lon": 11.0938593,
-            "coords_missing": false
-          }
-        ],
-        "distance_km": 138.0
-      },
-      "gt_fin": "1"
-    }
-  ],
-  "unmatched_planner": [],
-  "unmatched_gt": [
-    {
-      "stops": [
+  "planners": {
+    "v2": {
+      "matched_pairs": [
         {
-          "name": "IC LADINO DI FASSA",
-          "luogo_ritrovo": "San Jan, Via Soraperra, 6",
-          "departure_time": "07:00",
-          "return_time": "17:00",
-          "count": 7,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
-        }
-      ],
-      "distance_km": 190.0,
-      "fin": "4"
-    },
-    {
-      "stops": [
-        {
-          "name": "IS ENAIP di TIONE",
-          "luogo_ritrovo": "Tione, Via Durone 53 – fermata davanti alla scuola I.I.L. Guetti",
-          "departure_time": "07:50",
-          "return_time": "16:00",
-          "count": 17,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.75,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "06:50",
+                "count": 5
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:23",
+                "count": 7
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:26",
+                "count": 9
+              }
+            ],
+            "distance_km": 29.34
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Rovereto, P.le Orsi",
+                "departure_time": "08:25",
+                "return_time": "15:35",
+                "count": 7,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le dei Tigli 43",
+                "departure_time": "07:30",
+                "return_time": "16:30",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le Martiri, fermata autobus",
+                "departure_time": "07:40",
+                "return_time": "16:20",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 110.0
+          },
+          "gt_fin": "3"
         },
         {
-          "name": "IS GUETTI",
-          "luogo_ritrovo": "nan",
-          "departure_time": "nan",
-          "return_time": "nan",
-          "count": 0,
-          "lat": 46.0697,
-          "lon": 11.1211,
-          "coords_missing": false
+          "jaccard": 0.4286,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:42",
+                "count": 5
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:10",
+                "count": 9
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:35",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:38",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP di TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:41",
+                "count": 17
+              },
+              {
+                "name": "IS GUETTI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:44",
+                "count": 0
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:47",
+                "count": 9
+              }
+            ],
+            "distance_km": 27.43
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "07:50",
+                "return_time": "16:00",
+                "count": 5,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via di S. Antonio 1 – di fronte scuola",
+                "departure_time": "07:00",
+                "return_time": "16:50",
+                "count": 7,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Mezzolombardo, Via Perlasca 4",
+                "departure_time": "08:30",
+                "return_time": "15:20",
+                "count": 9,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 138.0
+          },
+          "gt_fin": "1"
         }
       ],
-      "distance_km": 94.0,
-      "fin": "2"
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "San Jan, Via Soraperra, 6",
+              "departure_time": "07:00",
+              "return_time": "17:00",
+              "count": 7,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 190.0,
+          "fin": "4"
+        },
+        {
+          "stops": [
+            {
+              "name": "IS ENAIP di TIONE",
+              "luogo_ritrovo": "Tione, Via Durone 53 – fermata davanti alla scuola I.I.L. Guetti",
+              "departure_time": "07:50",
+              "return_time": "16:00",
+              "count": 17,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS GUETTI",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 0,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 94.0,
+          "fin": "2"
+        }
+      ],
+      "scores": {
+        "assignment": 0.5893,
+        "bus_count": 0.5,
+        "combined": 0.5536
+      }
+    },
+    "v1": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.75,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "06:50",
+                "count": 5
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:23",
+                "count": 7
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:26",
+                "count": 9
+              }
+            ],
+            "distance_km": 29.34
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Rovereto, P.le Orsi",
+                "departure_time": "08:25",
+                "return_time": "15:35",
+                "count": 7,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le dei Tigli 43",
+                "departure_time": "07:30",
+                "return_time": "16:30",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le Martiri, fermata autobus",
+                "departure_time": "07:40",
+                "return_time": "16:20",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 110.0
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.4286,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:42",
+                "count": 5
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:10",
+                "count": 9
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:35",
+                "count": 9
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:38",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:41",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP di TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:44",
+                "count": 17
+              },
+              {
+                "name": "IS GUETTI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:47",
+                "count": 0
+              }
+            ],
+            "distance_km": 27.43
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "07:50",
+                "return_time": "16:00",
+                "count": 5,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via di S. Antonio 1 – di fronte scuola",
+                "departure_time": "07:00",
+                "return_time": "16:50",
+                "count": 7,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Mezzolombardo, Via Perlasca 4",
+                "departure_time": "08:30",
+                "return_time": "15:20",
+                "count": 9,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 138.0
+          },
+          "gt_fin": "1"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "San Jan, Via Soraperra, 6",
+              "departure_time": "07:00",
+              "return_time": "17:00",
+              "count": 7,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 190.0,
+          "fin": "4"
+        },
+        {
+          "stops": [
+            {
+              "name": "IS ENAIP di TIONE",
+              "luogo_ritrovo": "Tione, Via Durone 53 – fermata davanti alla scuola I.I.L. Guetti",
+              "departure_time": "07:50",
+              "return_time": "16:00",
+              "count": 17,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            },
+            {
+              "name": "IS GUETTI",
+              "luogo_ritrovo": "nan",
+              "departure_time": "nan",
+              "return_time": "nan",
+              "count": 0,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 94.0,
+          "fin": "2"
+        }
+      ],
+      "scores": {
+        "assignment": 0.5893,
+        "bus_count": 0.5,
+        "combined": 0.5536
+      }
+    },
+    "v1improved": {
+      "matched_pairs": [
+        {
+          "jaccard": 0.75,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "departure_time": "06:50",
+                "count": 5
+              },
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:23",
+                "count": 7
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "departure_time": "07:26",
+                "count": 9
+              }
+            ],
+            "distance_km": 29.34
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS DON MILANI ROVERETO",
+                "luogo_ritrovo": "Rovereto, P.le Orsi",
+                "departure_time": "08:25",
+                "return_time": "15:35",
+                "count": 7,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FILZI ROVERETO",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 45.8909414,
+                "lon": 11.0347273,
+                "coords_missing": false
+              },
+              {
+                "name": "IS FLORIANI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le dei Tigli 43",
+                "departure_time": "07:30",
+                "return_time": "16:30",
+                "count": 5,
+                "lat": 45.8940205,
+                "lon": 10.8420112,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "luogo_ritrovo": "Riva del Garda, V.le Martiri, fermata autobus",
+                "departure_time": "07:40",
+                "return_time": "16:20",
+                "count": 9,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 110.0
+          },
+          "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "07:06",
+                "count": 5
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:34",
+                "count": 9
+              }
+            ],
+            "distance_km": 23.02
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "07:50",
+                "return_time": "16:00",
+                "count": 5,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "luogo_ritrovo": "Ossana, Via di S. Antonio 1 – di fronte scuola",
+                "departure_time": "07:00",
+                "return_time": "16:50",
+                "count": 7,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS M. MARTINI MEZZOLOMBARDO",
+                "luogo_ritrovo": "Mezzolombardo, Via Perlasca 4",
+                "departure_time": "08:30",
+                "return_time": "15:20",
+                "count": 9,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 138.0
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.4,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IS MAFFEI RIVA DEL GARDA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:35",
+                "count": 9
+              },
+              {
+                "name": "IC LADINO DI FASSA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:38",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP OSSANA",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:41",
+                "count": 7
+              },
+              {
+                "name": "IS ENAIP di TIONE",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:44",
+                "count": 17
+              },
+              {
+                "name": "IS GUETTI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:47",
+                "count": 0
+              }
+            ],
+            "distance_km": 3.88
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ENAIP di TIONE",
+                "luogo_ritrovo": "Tione, Via Durone 53 – fermata davanti alla scuola I.I.L. Guetti",
+                "departure_time": "07:50",
+                "return_time": "16:00",
+                "count": 17,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS GUETTI",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 0,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 94.0
+          },
+          "gt_fin": "2"
+        }
+      ],
+      "unmatched_planner": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC LADINO DI FASSA",
+              "luogo_ritrovo": "San Jan, Via Soraperra, 6",
+              "departure_time": "07:00",
+              "return_time": "17:00",
+              "count": 7,
+              "lat": 46.0697,
+              "lon": 11.1211,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 190.0,
+          "fin": "4"
+        }
+      ],
+      "scores": {
+        "assignment": 0.6056,
+        "bus_count": 0.75,
+        "combined": 0.6633
+      }
     }
-  ]
+  }
 }
