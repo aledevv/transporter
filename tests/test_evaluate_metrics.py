@@ -1,9 +1,9 @@
 """Tests for compute_route_metrics in evaluate_realSuite."""
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
-from tests.evaluate_realSuite import compute_route_metrics
+from evaluate_realSuite import compute_route_metrics
 
 
 class TestComputeRouteMetrics:
