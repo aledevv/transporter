@@ -181,6 +181,14 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const resetRouteShift = (vehicleId) =>
         setRouteShifts(prev => { const n = { ...prev }; delete n[vehicleId]; return n; });
 
+    const resetStopShift = (vehicleId, displayIdx) => {
+        setRouteShifts(prev => {
+            const cur = [...(prev[vehicleId] || [])];
+            cur[displayIdx] = 0;
+            return { ...prev, [vehicleId]: cur };
+        });
+    };
+
     // Advance (negative shift) for whole bus departure
     const getRouteAdvance = (vehicleId) => routeAdvances[vehicleId] || 0;
 
@@ -633,6 +641,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                     const prevStop = curIdx > 0 ? pickupStops[curIdx - 1] : null;
                                                     const prevDist = prevStop?.dist_to_next_km;
                                                     const bufIncrement = (prevDist == null || prevDist < 10) ? 5 : 10;
+                                                    const stopShift = (routeShifts[route.vehicle_id] || [])[curIdx] || 0;
 
                                                     return (
                                                         <div key={sIdx} className="relative -ml-4 pl-4 pt-3">
@@ -698,6 +707,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                             >
                                                                                 <PlusCircle className="w-2.5 h-2.5" />+{bufIncrement}′
                                                                             </button>
+                                                                            {stopShift !== 0 && (
+                                                                                <button
+                                                                                    onClick={() => resetStopShift(route.vehicle_id, curIdx)}
+                                                                                    title="Azzera ritardo di questa fermata"
+                                                                                    className="flex items-center gap-0.5 text-[10px] text-gray-400 hover:text-red-500 font-medium px-1.5 py-0.5 rounded-full border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors"
+                                                                                >
+                                                                                    ×
+                                                                                </button>
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                 </div>
