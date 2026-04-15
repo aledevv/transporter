@@ -172,7 +172,7 @@ class ImprovedVRPSolver:
         if solution is None:
             return None
 
-        return self._format_solution(manager, routing, solution, time_matrix, demands, num_vehicles)
+        return self._format_solution(manager, routing, solution, time_matrix, distance_matrix, demands, num_vehicles)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -184,6 +184,7 @@ class ImprovedVRPSolver:
         routing: pywrapcp.RoutingModel,
         solution,
         time_matrix: list[list[int]],
+        distance_matrix: list[list[int]],
         demands: list[int],
         num_vehicles: int,
     ) -> dict:
@@ -207,7 +208,7 @@ class ImprovedVRPSolver:
 
                 from_node = manager.IndexToNode(prev_index)
                 to_node = manager.IndexToNode(index)
-                route_distance += time_matrix[from_node][to_node]
+                route_distance += distance_matrix[from_node][to_node]
 
             # append end node (destination)
             node = manager.IndexToNode(index)
