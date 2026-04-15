@@ -195,12 +195,48 @@ def derive_arrival_time(gt_buses: dict, schools: list, time_matrix: list) -> str
     return _fmt_time(sorted(arrivals)[len(arrivals) // 2])
 
 
+def compute_gt_route_distances(
+    gt_buses: dict,
+    schools: list,
+    distance_matrix: list[list[int]],
+) -> dict:
+    """
+    Compute distance_km for each GT bus route using the distance matrix.
+
+    Args:
+        gt_buses:        {fin_id: {"stops": [...], ...}} from load_groundtruth_full
+        schools:         [{"name": str, "demand": int}] — same order as distance_matrix nodes 1..N
+        distance_matrix: (N+1)×(N+1) in metres (index 0=dest, 1..N=schools)
+
+    Returns:
+        Updated gt_buses dict with distance_km populated for each bus.
+    """
+    name_to_idx = {s["name"]: i + 1 for i, s in enumerate(schools)}
+    result = {}
+    for fin_id, bus in gt_buses.items():
+        stops = bus.get("stops", [])
+        stop_names = [s["name"] for s in stops if isinstance(s, dict)]
+        total_m = 0
+        for k, name in enumerate(stop_names):
+            idx = name_to_idx.get(name)
+            if idx is None:
+                continue
+            next_name = stop_names[k + 1] if k + 1 < len(stop_names) else None
+            next_idx = name_to_idx.get(next_name) if next_name else 0
+            if next_idx is not None:
+                total_m += distance_matrix[idx][next_idx]
+        distance_km = round(total_m / 1000, 2) if total_m else bus.get("distance_km")
+        result[fin_id] = {**bus, "distance_km": distance_km}
+    return result
+
+
 def format_planner_routes(
     solution: dict,
     schools: list,
     time_matrix: list,
     coords: dict,
     arrival_time: str,
+    distance_matrix: list[list[int]] | None = None,
 ) -> list:
     """
     Convert raw VRP solution to UI-ready route list.
@@ -243,7 +279,8 @@ def format_planner_routes(
             cum -= travel_min + STOP_DWELL_TIME_MIN
             stop_times.insert(0, cum)
 
-        # Build stop list + compute total km (time-matrix estimate).
+        # Build stop list + compute total km.
+        # Prefer distance_matrix (metres) when available; fall back to time-matrix estimate.
         # Dummy-start → first-school leg is excluded (dummy node is zero-cost).
         total_km = 0.0
         stop_list = []
@@ -251,8 +288,11 @@ def format_planner_routes(
             school = schools[node - 1]
             c = resolve_coords(school["name"], coords)
             next_node = school_nodes[k + 1] if k + 1 < len(school_nodes) else 0
-            seg_s = time_matrix[node][next_node]
-            seg_km = round(seg_s / 3600 * AVERAGE_SPEED_KMH, 2)
+            if distance_matrix is not None:
+                seg_km = round(distance_matrix[node][next_node] / 1000, 2)
+            else:
+                seg_s = time_matrix[node][next_node]
+                seg_km = round(seg_s / 3600 * AVERAGE_SPEED_KMH, 2)
             total_km += seg_km
             stop_list.append({
                 "name": school["name"],
