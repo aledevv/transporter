@@ -170,9 +170,12 @@ def compute_route_metrics(
         route_sec = 0
         route_km = 0.0
 
+        n_nodes = len(time_matrix)
         for k in range(len(stops) - 1):
             a = stops[k]["node"]
             b = stops[k + 1]["node"]
+            if a >= n_nodes or b >= n_nodes:
+                continue  # skip dummy start node (index N+1) — 0-cost leg
             t = time_matrix[a][b]
             route_sec += t
             if distance_matrix is not None:
