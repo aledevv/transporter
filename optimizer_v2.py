@@ -277,6 +277,7 @@ class HumanStyleSolver:
         vehicle_capacity: int,
         cluster_threshold_minutes: int = 25,
         max_merge_minutes: int = 35,
+        max_detour_minutes: int = 35,
         fixed_vehicle_cost: int = 0,   # ignored — kept for API compatibility
         starts: Optional[list] = None,  # ignored
         ends: Optional[list] = None,    # ignored
@@ -288,6 +289,7 @@ class HumanStyleSolver:
         self.vehicle_capacity = vehicle_capacity
         self.threshold_seconds = cluster_threshold_minutes * 60
         self.max_merge_seconds = max_merge_minutes * 60
+        self.max_detour_seconds = max_detour_minutes * 60
         self.institutes = institutes
 
     def solve(self) -> Optional[dict]:
@@ -331,11 +333,19 @@ class HumanStyleSolver:
         for c in clusters:
             split_clusters.extend(_split_cluster(c, school_demands, school_matrix, self.vehicle_capacity))
 
-        # Step 2b: Merge under-capacity clusters
-        final_clusters = _merge_clusters(split_clusters, school_demands, school_matrix, self.vehicle_capacity, self.max_merge_seconds)
-
         # Build routes
         depot_row = [self.time_matrix[0][j] for j in school_nodes]  # depot → each school (school-space)
+
+        # Step 2b: Merge under-capacity clusters
+        final_clusters = _merge_clusters(
+            split_clusters,
+            school_demands,
+            school_matrix,
+            self.vehicle_capacity,
+            self.max_merge_seconds,
+            self.max_detour_seconds,
+            depot_row,
+        )
         routes = []
         total_distance = 0
         total_load = 0
@@ -344,7 +354,7 @@ class HumanStyleSolver:
             if not cluster:
                 continue
 
-            ordered = _order_route(cluster, school_matrix, depot_row)
+            ordered = _two_opt(_order_route(cluster, school_matrix, depot_row), school_matrix)
 
             # Convert school-space → node-space and build stops
             stops = []
