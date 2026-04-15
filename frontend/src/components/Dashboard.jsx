@@ -2,12 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { serverTimestamp } from 'firebase/firestore';
 import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building2, PlusCircle, RotateCcw, FileText, X, CalendarDays, Bookmark, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
-import { Document, Paragraph, TextRun, Table, TableRow, TableCell, Packer, WidthType, AlignmentType, HeadingLevel, BorderStyle, ImageRun } from 'docx';
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
 import SchoolEditor from './SchoolEditor';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import API_BASE_URL from '../config';
 
 // Route colors (must match Map.jsx COLORS array)
@@ -16,62 +13,7 @@ const ROUTE_COLORS = [
     '#a855f7', '#f97316', '#ec4899', '#14b8a6'
 ];
 
-// ─── Download Dialog ──────────────────────────────────────────────────────────
-const DownloadDialog = ({ type, docDate, docEventName, onDateChange, onEventNameChange, onConfirm, onCancel }) => (
-    <div className="fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-fade-in">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800 text-base flex items-center gap-2">
-                    {type === 'pdf' ? <Download className="w-4 h-4 text-green-600" /> : <FileText className="w-4 h-4 text-blue-600" />}
-                    Dettagli documento
-                </h3>
-                <button onClick={onCancel} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="space-y-3">
-                <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Data evento</label>
-                    <div className="relative">
-                        <CalendarDays className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
-                        <input
-                            type="date"
-                            value={docDate}
-                            onChange={e => onDateChange(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-                        />
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Nome evento</label>
-                    <input
-                        type="text"
-                        placeholder="es. Gita scolastica 2024"
-                        value={docEventName}
-                        onChange={e => onEventNameChange(e.target.value)}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-                        onKeyDown={e => e.key === 'Enter' && onConfirm()}
-                    />
-                </div>
-            </div>
-            <div className="flex gap-2 mt-5">
-                <button
-                    onClick={onCancel}
-                    className="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                >
-                    Annulla
-                </button>
-                <button
-                    onClick={onConfirm}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium text-white transition-colors flex items-center justify-center gap-1.5 ${type === 'pdf' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                    {type === 'pdf' ? <Download className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                    Scarica {type === 'pdf' ? 'PDF' : 'Word'}
-                </button>
-            </div>
-        </div>
-    </div>
-);
-
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+// ─── Dashboard ───
 const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
@@ -95,10 +37,10 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     // Trip name for saving (editable by user)
     const [tripName, setTripName] = useState('');
 
-    // Download dialog (persisted fields)
-    const [downloadDialog, setDownloadDialog] = useState(null); // null | 'pdf' | 'docx'
+    // Document generation settings (persisted fields)
     const [docDate, setDocDate] = useState('');
     const [docEventName, setDocEventName] = useState('');
+    const [excludeAutonomia, setExcludeAutonomia] = useState(false);
 
     const resultsRef = useRef(null);
     const mapRef = useRef(null);
@@ -109,8 +51,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         }
     }, [results]);
 
+
     useEffect(() => { setResults(null); setRouteShifts({}); setRouteAdvances({}); setTripName(''); }, [schools]);
-    useEffect(() => { setRouteShifts({}); setRouteAdvances({}); }, [results]);
 
     // Track when we're in the middle of restoring a trip (to suppress auto-save)
     const isRestoringRef = React.useRef(false);
@@ -126,8 +68,23 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         setTimeMode(tripToRestore.timeMode);
         setResults(tripToRestore.results);
         setTripName(tripToRestore.label || '');
+        
+        // Restore document generation settings and advanced adjustments
+        setDocEventName(tripToRestore.docEventName || '');
+        setDocDate(tripToRestore.docDate || '');
+        setExcludeAutonomia(tripToRestore.excludeAutonomia || false);
+        setCalculateReturn(tripToRestore.calculateReturn ?? true);
+        setFineManifestazione(tripToRestore.fineManifestazione || '15:00');
+        setRouteShifts(tripToRestore.routeShifts || {});
+        setRouteAdvances(tripToRestore.routeAdvances || {});
+        
         setTimeout(() => { isRestoringRef.current = false; }, 1500);
     }, [tripToRestore]);
+
+    // When user types an event name, use it as the trip name too
+    useEffect(() => {
+        if (docEventName) setTripName(docEventName);
+    }, [docEventName]);
 
     // Debounce tripName changes → rename on Firestore
     useEffect(() => {
@@ -142,7 +99,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         const t = setTimeout(() => {
             if (isRestoringRef.current) return;
             const fields = { destination, destCoords, stage: 'configured' };
-            // Auto-update label only if user hasn't typed a custom name yet
             if (!tripName) {
                 const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 fields.label = `${destination.split(',')[0]} - ${dateStr}`;
@@ -150,7 +106,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             onTripUpdated?.(currentTripId, fields);
         }, 1000);
         return () => clearTimeout(t);
-    }, [destination, destCoords, currentTripId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [destination, destCoords, currentTripId]);
 
     // Auto-save capacity / startTime / timeMode to Firestore (debounced)
     useEffect(() => {
@@ -160,7 +116,27 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             onTripUpdated?.(currentTripId, { capacity: parseInt(capacity), startTime, timeMode });
         }, 1000);
         return () => clearTimeout(t);
-    }, [capacity, startTime, timeMode, currentTripId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [capacity, startTime, timeMode, currentTripId]);
+
+    // Auto-save document generation settings to Firestore (debounced)
+    useEffect(() => {
+        if (!currentTripId || isRestoringRef.current) return;
+        const t = setTimeout(() => {
+            if (isRestoringRef.current) return;
+            onTripUpdated?.(currentTripId, { docEventName, docDate, excludeAutonomia });
+        }, 1000);
+        return () => clearTimeout(t);
+    }, [docEventName, docDate, excludeAutonomia, currentTripId]);
+
+    // Auto-save adjustments and return settings to Firestore (debounced)
+    useEffect(() => {
+        if (!currentTripId || isRestoringRef.current) return;
+        const t = setTimeout(() => {
+            if (isRestoringRef.current) return;
+            onTripUpdated?.(currentTripId, { routeShifts, routeAdvances, calculateReturn, fineManifestazione });
+        }, 1000);
+        return () => clearTimeout(t);
+    }, [routeShifts, routeAdvances, calculateReturn, fineManifestazione, currentTripId]);
 
     // ── helpers ────────────────────────────────────────────────────────────────
     const shiftTime = (timeStr, deltaMin) => {
@@ -195,6 +171,13 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         });
     };
 
+    const subStopShift = (vehicleId, displayIdx) => {
+        setRouteShifts(prev => {
+            const cur = [...(prev[vehicleId] || [])];
+            cur[displayIdx] = (cur[displayIdx] || 0) - 5;
+            return { ...prev, [vehicleId]: cur };
+        });
+    };
     const resetRouteShift = (vehicleId) =>
         setRouteShifts(prev => { const n = { ...prev }; delete n[vehicleId]; return n; });
 
@@ -210,7 +193,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     // ── optimize ───────────────────────────────────────────────────────────────
     const handleOptimize = async () => {
         if (!destination) { setError("Inserisci un indirizzo di destinazione."); return; }
-        setError(''); setLoading(true); setResults(null);
+        setError(''); setLoading(true); setResults(null); setRouteShifts({}); setRouteAdvances({});
         try {
             const endpoint = solver === 'v1' ? '/api/optimize' : '/api/optimize_v2';
             const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
@@ -231,6 +214,10 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                     startTime,
                     timeMode,
                     schools,
+                    calculateReturn,
+                    fineManifestazione,
+                    routeShifts: {},
+                    routeAdvances: {},
                     results: response.data,
                     label: resolvedName,
                     savedAt: serverTimestamp(),
@@ -283,175 +270,70 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         return rows;
     };
 
-    // ── PDF generation ─────────────────────────────────────────────────────────
-    const generatePdf = async () => {
-        const doc = new jsPDF();
-        const totalKm = (results.stats.total_distance / 1000).toFixed(1);
-        const totalKmRT = (results.stats.total_distance / 1000 * 2).toFixed(1);
-
-        doc.setFontSize(20);
-        doc.text("Pianificazione Viaggio", 14, 22);
-        doc.setFontSize(11);
-        if (docDate) doc.text(`Data: ${docDate}`, 14, 30);
-        if (docEventName) doc.text(`Evento: ${docEventName}`, 14, docDate ? 36 : 30);
-        const headerEnd = docDate && docEventName ? 42 : (docDate || docEventName ? 36 : 30);
-        doc.text(`Destinazione: ${destination}`, 14, headerEnd);
-
-        autoTable(doc, {
-            startY: headerEnd + 6,
-            head: [['Metrica', 'Valore']],
-            body: [
-                ['Bus Totali', results.stats.total_buses],
-                ['Passeggeri Totali', results.stats.total_passengers],
-                ['Distanza Totale (solo andata)', `${totalKm} km`],
-                ['Distanza Totale (andata e ritorno)', `${totalKmRT} km`]
-            ],
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] }
-        });
-
-        let finalY = doc.lastAutoTable.finalY + 10;
-
-        results.routes.forEach((route) => {
-            const routeDistKm = (route.outbound.distance / 1000).toFixed(1);
-            if (finalY > 250) { doc.addPage(); finalY = 20; }
-            doc.setFontSize(11);
-            doc.text(`Bus #${route.vehicle_id + 1} — ${route.total_load}/${capacity} pax — ${routeDistKm} km`, 14, finalY);
-
-            const rows = buildStopRows(route).map(r => [
-                r.label, r.address, r.count, r.time, r.return_time
-            ]);
-
-            autoTable(doc, {
-                startY: finalY + 5,
-                head: [['Fermata', 'Indirizzo', 'Pax', 'Orario', 'Rientro']],
-                body: rows,
-                theme: 'grid',
-                headStyles: { fillColor: [52, 152, 219] },
-                columnStyles: { 1: { cellWidth: 70 } }
-            });
-            finalY = doc.lastAutoTable.finalY + 15;
-        });
-
-        // Screenshot
-        const imgData = await mapRef.current?.captureScreenshot();
-        if (imgData) {
-            doc.addPage();
-            doc.setFontSize(16);
-            doc.text("Mappa Percorsi", 14, 20);
+    // ── Document generation (Backend integration) ───────────────────────────────
+    const downloadBackendDocument = async (docType, formatType) => {
+        try {
+            setLoading(true);
             
-            await new Promise(resolve => {
-                const img = new Image();
-                img.onload = () => {
-                    const pdfWidth = doc.internal.pageSize.getWidth();
-                    const width = pdfWidth - 28;
-                    const height = (img.height * width) / img.width;
-                    doc.addImage(imgData, 'JPEG', 14, 30, width, height);
-                    resolve();
-                };
-                img.src = imgData;
-            });
-        }
-
-        doc.save('piano_trasporti.pdf');
-    };
-
-    // ── DOCX generation ────────────────────────────────────────────────────────
-    const generateDocx = async () => {
-        const totalKm = (results.stats.total_distance / 1000).toFixed(1);
-        const totalKmRT = (results.stats.total_distance / 1000 * 2).toFixed(1);
-
-        const noBorder = { top: { style: BorderStyle.NONE, size: 0 }, bottom: { style: BorderStyle.NONE, size: 0 }, left: { style: BorderStyle.NONE, size: 0 }, right: { style: BorderStyle.NONE, size: 0 } };
-
-        const cell = (text, bold = false, shade = false) => new TableCell({
-            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' }, bottom: { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' }, left: { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' }, right: { style: BorderStyle.SINGLE, size: 1, color: 'DDDDDD' } },
-            shading: shade ? { fill: 'EBF3FB' } : undefined,
-            children: [new Paragraph({ children: [new TextRun({ text: String(text || ''), bold, size: 20 })] })],
-        });
-
-        const sections = [];
-
-        // Header
-        sections.push(new Paragraph({ text: 'Pianificazione Viaggio', heading: HeadingLevel.HEADING_1 }));
-        if (docDate) sections.push(new Paragraph({ children: [new TextRun({ text: `Data: ${docDate}`, size: 22 })] }));
-        if (docEventName) sections.push(new Paragraph({ children: [new TextRun({ text: `Evento: ${docEventName}`, size: 22 })] }));
-        sections.push(new Paragraph({ children: [new TextRun({ text: `Destinazione: ${destination}`, size: 22 })] }));
-        sections.push(new Paragraph({ children: [new TextRun({ text: `Bus totali: ${results.stats.total_buses} — Passeggeri: ${results.stats.total_passengers} — Distanza (andata): ${totalKm} km — Distanza (A/R): ${totalKmRT} km`, size: 22 })] }));
-        sections.push(new Paragraph({ text: '' }));
-
-        // Routes
-        results.routes.forEach((route) => {
-            const routeDistKm = (route.outbound.distance / 1000).toFixed(1);
-            sections.push(new Paragraph({
-                children: [new TextRun({ text: `Bus #${route.vehicle_id + 1} — ${route.total_load}/${capacity} pax — ${routeDistKm} km`, bold: true, size: 24 })]
-            }));
-
-            const headerRow = new TableRow({
-                children: [cell('Fermata', true, true), cell('Indirizzo', true, true), cell('Pax', true, true), cell('Orario', true, true), cell('Rientro', true, true)]
-            });
-
-            const dataRows = buildStopRows(route).map(r =>
-                new TableRow({ children: [cell(r.label), cell(r.address), cell(r.count), cell(r.time), cell(r.return_time || '')] })
-            );
-
-            sections.push(new Table({
-                width: { size: 100, type: WidthType.PERCENTAGE },
-                rows: [headerRow, ...dataRows]
-            }));
-            sections.push(new Paragraph({ text: '' }));
-        });
-
-        // Screenshot
-        const imgData = await mapRef.current?.captureScreenshot();
-        if (imgData) {
-            try {
-                const base64Data = imgData.replace(/^data:image\/(png|jpeg);base64,/, "");
-                const binaryString = atob(base64Data);
-                const len = binaryString.length;
-                const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-
-                const imgProps = await new Promise(resolve => {
-                    const img = new Image();
-                    img.onload = () => resolve({ width: img.width, height: img.height });
-                    img.src = imgData;
-                });
-
-                const targetWidth = 600;
-                const targetHeight = (imgProps.height * targetWidth) / imgProps.width;
-
-                sections.push(new Paragraph({ text: '' }));
-                sections.push(new Paragraph({ text: 'Mappa Percorsi', heading: HeadingLevel.HEADING_2 }));
-                sections.push(new Paragraph({
-                    children: [
-                        new ImageRun({
-                            data: bytes,
-                            transformation: { width: targetWidth, height: targetHeight }
-                        })
-                    ],
-                    alignment: AlignmentType.CENTER
-                }));
-            } catch (err) {
-                console.error("Failed to add screenshot to DOCX", err);
+            // Format the pure YYYY-MM-DD string into an Italian localized verbage
+            let formattedDate = docDate;
+            if (docDate) {
+                const d = new Date(docDate + 'T12:00:00');
+                formattedDate = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
             }
+
+            // Apply visual shifts and advances to the routes before sending to backend
+            const shiftedRoutes = results.routes.map(r => {
+                const newRoute = JSON.parse(JSON.stringify(r));
+                const pickupStops = newRoute.outbound.stops.filter(s => s.type === 'pickup');
+                const numPickups = pickupStops.length;
+                const totalShift = getTotalShift(newRoute.vehicle_id, numPickups);
+                const advance = getRouteAdvance(newRoute.vehicle_id);
+                
+                let pickupIdx = 0;
+                newRoute.outbound.stops.forEach(stop => {
+                    if (stop.type === 'destination') {
+                        if (stop.arrival_time) {
+                            stop.arrival_time = shiftTime(stop.arrival_time, totalShift + advance);
+                        }
+                    } else if (stop.type === 'pickup') {
+                        const cumShift = getCumulativeShift(newRoute.vehicle_id, pickupIdx) + advance;
+                        if (stop.departure_time) {
+                            stop.departure_time = shiftTime(stop.departure_time, cumShift);
+                        }
+                        pickupIdx++;
+                    }
+                });
+                return newRoute;
+            });
+
+            const response = await axios.post(`${API_BASE_URL}/api/export_document`, {
+                doc_type: docType,
+                format: formatType,
+                event_name: docEventName,
+                date: formattedDate,
+                destination: destination,
+                start_time: startTime,
+                end_time: fineManifestazione,
+                exclude_autonomia: excludeAutonomia,
+                routes: shiftedRoutes
+            }, { responseType: 'blob' });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const ext = formatType === 'pdf' ? 'pdf' : 'docx';
+            const baseName = docType === 'piano_viaggi' ? 'Piano_Viaggi' : 'Richiesta_Servizio';
+            link.setAttribute('download', `${baseName}_${docEventName || 'Evento'}.${ext}`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Download failed", err);
+            alert("Errore durante la generazione del documento backend.");
+        } finally {
+            setLoading(false);
         }
-
-        const doc = new Document({ sections: [{ children: sections }] });
-        const blob = await Packer.toBlob(doc);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'piano_trasporti.docx'; a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const handleOpenDownload = (type) => setDownloadDialog(type);
-
-    const handleConfirmDownload = async () => {
-        if (downloadDialog === 'pdf') await generatePdf();
-        else await generateDocx();
-        setDownloadDialog(null);
     };
 
     // ── map ────────────────────────────────────────────────────────────────────
@@ -480,19 +362,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Download Dialog */}
-            {downloadDialog && (
-                <DownloadDialog
-                    type={downloadDialog}
-                    docDate={docDate}
-                    docEventName={docEventName}
-                    onDateChange={setDocDate}
-                    onEventNameChange={setDocEventName}
-                    onConfirm={handleConfirmDownload}
-                    onCancel={() => setDownloadDialog(null)}
-                />
-            )}
-
             {/* Top Row: Config (left, full height) | Map (right) */}
             <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
                 {/* Configuration box */}
@@ -728,24 +597,6 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                         </button>
                                                     </div>
                                                 )}
-                                                {/* Advance departure */}
-                                                <div className="ml-auto flex items-center gap-1">
-                                                    <button
-                                                        onClick={() => addRouteAdvance(route.vehicle_id)}
-                                                        title="Anticipa partenza del bus di 5 min"
-                                                        className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-medium px-2 py-0.5 rounded-full border border-blue-200 hover:bg-blue-50 transition-colors"
-                                                    >
-                                                        <Clock className="w-3 h-3" />−5′
-                                                    </button>
-                                                    {advance < 0 && (
-                                                        <div className="flex items-center gap-1">
-                                                            <span className="text-[11px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-medium border border-blue-100">{advance}′</span>
-                                                            <button onClick={() => resetRouteAdvance(route.vehicle_id)} title="Reset anticipo" className="p-0.5 rounded hover:bg-gray-100">
-                                                                <RotateCcw className="w-3 h-3 text-blue-300 hover:text-blue-500" />
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
                                             </div>
                                         </div>
 
@@ -832,13 +683,22 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                                 ↩ {stop.return_time}
                                                                             </span>
                                                                         )}
-                                                                        <button
-                                                                            onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
-                                                                            title={`+${bufIncrement} min a questa e alle successive fermate`}
-                                                                            className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1.5 py-0.5 rounded-full border border-orange-200 hover:bg-orange-50 transition-colors"
-                                                                        >
-                                                                            <PlusCircle className="w-2.5 h-2.5" />+{bufIncrement}′
-                                                                        </button>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <button
+                                                                                onClick={() => subStopShift(route.vehicle_id, curIdx)}
+                                                                                title="-5 min a questa e alle successive fermate"
+                                                                                className="flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 font-medium px-1.5 py-0.5 rounded-full border border-blue-200 hover:bg-blue-50 transition-colors"
+                                                                            >
+                                                                                −5′
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
+                                                                                title={`+${bufIncrement} min a questa e alle successive fermate`}
+                                                                                className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1.5 py-0.5 rounded-full border border-orange-200 hover:bg-orange-50 transition-colors"
+                                                                            >
+                                                                                <PlusCircle className="w-2.5 h-2.5" />+{bufIncrement}′
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
 
@@ -865,35 +725,89 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             })}
                         </div>
 
-                        {/* Trip name + Export */}
-                        <div className="border-t border-gray-100 p-4 bg-gray-50 space-y-3">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-500 mb-1.5 flex items-center gap-1.5">
-                                <Bookmark className="w-3.5 h-3.5 text-blue-400" />
-                                Nome viaggio (salvato nello storico)
-                            </label>
-                            <input
-                                type="text"
-                                value={tripName}
-                                onChange={e => setTripName(e.target.value)}
-                                placeholder={`${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
-                                className="w-full text-sm px-3 py-1.5 rounded-lg border border-gray-200 bg-white focus:ring-2 focus:ring-blue-300 outline-none text-gray-700 placeholder:text-gray-400"
-                            />
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => handleOpenDownload('pdf')}
-                                className="flex-1 py-3 rounded-lg font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 flex items-center justify-center gap-2 shadow-md transition-all"
-                            >
-                                <Download className="w-5 h-5" /> Esporta PDF
-                            </button>
-                            <button
-                                onClick={() => handleOpenDownload('docx')}
-                                className="flex-1 py-3 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 flex items-center justify-center gap-2 shadow-md transition-all"
-                            >
-                                <FileText className="w-5 h-5" /> Esporta Word
-                            </button>
-                        </div>
+                        <div className="border-t border-gray-100 p-4 bg-gray-50 flex flex-col md:flex-row gap-4">
+                            {/* Naming + Event Section */}
+                            <div className="flex-1 space-y-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Nome evento</label>
+                                    <input
+                                        type="text"
+                                        value={docEventName}
+                                        onChange={e => setDocEventName(e.target.value)}
+                                        placeholder="es. Torneo Provinciale"
+                                        className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white focus:ring-2 focus:ring-blue-300 outline-none text-gray-700 placeholder:text-gray-400"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-400 mb-1 flex items-center gap-1.5">
+                                        <Bookmark className="w-3.5 h-3.5" />
+                                        Nome nello storico
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={tripName}
+                                        readOnly
+                                        placeholder={`${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
+                                        className="w-full text-sm px-3 py-2 rounded-lg border border-gray-100 bg-gray-100 outline-none text-gray-400 placeholder:text-gray-300 cursor-default"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Export Section */}
+                            <div className="flex-[1.5] bg-white rounded-xl border border-blue-100 p-4 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-1.5">
+                                    <FileText className="w-4 h-4" />
+                                    Documentazione (Word)
+                                </h4>
+
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Data evento</label>
+                                        <input
+                                            type="date"
+                                            value={docDate}
+                                            onChange={e => setDocDate(e.target.value)}
+                                            className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 outline-none focus:border-blue-400"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">Nome evento</label>
+                                        <input
+                                            type="text"
+                                            value={docEventName}
+                                            readOnly
+                                            className="w-full px-2 py-1.5 text-sm rounded border border-gray-100 bg-gray-100 text-gray-400 cursor-default outline-none"
+                                        />
+                                    </div>
+                                    <div className="col-span-2 pt-1 border-t border-gray-100 mt-1">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                checked={excludeAutonomia}
+                                                onChange={e => setExcludeAutonomia(e.target.checked)}
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">Nascondi scuole in autonomia</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => downloadBackendDocument('piano_viaggi', 'docx')}
+                                        className="flex-1 py-2 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 shadow-sm transition-colors text-sm"
+                                    >
+                                        <Download className="w-4 h-4" /> Piano Viaggi
+                                    </button>
+                                    <button
+                                        onClick={() => downloadBackendDocument('richiesta_servizio', 'docx')}
+                                        className="flex-1 py-2 rounded-lg font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center justify-center gap-2 transition-colors text-sm"
+                                    >
+                                        <FileText className="w-4 h-4" /> Richiesta Preventivo
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
