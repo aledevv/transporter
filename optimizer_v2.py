@@ -95,21 +95,31 @@ def _merge_clusters(
     school_matrix: list,
     capacity: int,
     max_merge_seconds: float = float("inf"),
+    max_detour_seconds: float = float("inf"),
+    depot_row: list = None,
 ) -> list:
     """
     Greedily merge clusters if combined demand fits capacity.
     Picks the pair with minimum inter-cluster travel time (closest schools between groups).
-    Only merges if the inter-cluster distance is within max_merge_seconds.
+
+    Two guards must both pass for a merge to proceed:
+    1. Inter-cluster distance ≤ max_merge_seconds (prevents cross-region grouping)
+    2. Incremental detour cost ≤ max_detour_seconds (prevents chaining):
+       detour_cost = route_time(A∪B) − max(route_time(A), route_time(B))
+       Guard skipped when max_detour_seconds is inf or depot_row is None.
 
     clusters: list of lists of school indices (school-space)
     demands: list[int] (school-space)
     school_matrix: NxN travel-time matrix (school-space)
     capacity: int
-    max_merge_seconds: float — skip merge if closest schools between two clusters
-                               are farther than this (prevents cross-region grouping)
+    max_merge_seconds: float
+    max_detour_seconds: float
+    depot_row: list[int] — depot→school travel times (school-space), required for detour check
 
     Returns the updated clusters list.
     """
+    check_detour = max_detour_seconds < float("inf") and depot_row is not None
+
     changed = True
     while changed:
         changed = False
@@ -121,6 +131,7 @@ def _merge_clusters(
                 combined = sum(demands[k] for k in clusters[i] + clusters[j])
                 if combined > capacity:
                     continue
+
                 inter_dist = min(
                     school_matrix[a][b]
                     for a in clusters[i]
@@ -128,6 +139,17 @@ def _merge_clusters(
                 )
                 if inter_dist > max_merge_seconds:
                     continue
+
+                if check_detour:
+                    time_a = _estimate_route_time(clusters[i], school_matrix, depot_row)
+                    time_b = _estimate_route_time(clusters[j], school_matrix, depot_row)
+                    time_ab = _estimate_route_time(
+                        clusters[i] + clusters[j], school_matrix, depot_row
+                    )
+                    detour_cost = time_ab - max(time_a, time_b)
+                    if detour_cost > max_detour_seconds:
+                        continue
+
                 if inter_dist < best_dist:
                     best_dist = inter_dist
                     best_pair = (i, j)

@@ -272,3 +272,54 @@ class TestTwoOpt:
         original = list(route)
         _two_opt(route, school_matrix)
         assert route == original
+
+
+# -----------------------------------------------------------------------
+# _merge_clusters — detour cap
+# -----------------------------------------------------------------------
+
+from optimizer_v2 import _merge_clusters
+
+class TestMergeClustersDetourCap:
+    def setup_method(self):
+        # 4 schools in a line: 0-1-2-3
+        # school_matrix[i][j] = |i-j| * 60 (seconds)
+        n = 4
+        self.school_matrix = [[abs(i - j) * 60 for j in range(n)] for i in range(n)]
+        self.demands = [10, 10, 10, 10]
+        self.capacity = 40  # all 4 fit
+        # depot at same position as school 0: depot_row = [0, 60, 120, 180]
+        self.depot_row = [i * 60 for i in range(n)]
+
+    def test_merges_without_detour_cap(self):
+        # No detour cap → merges everything into 1 bus
+        clusters = [[0], [1], [2], [3]]
+        result = _merge_clusters(
+            clusters, self.demands, self.school_matrix, self.capacity,
+            max_merge_seconds=float("inf"),
+            max_detour_seconds=float("inf"),
+            depot_row=self.depot_row,
+        )
+        assert len(result) == 1
+        assert sorted(result[0]) == [0, 1, 2, 3]
+
+    def test_no_depot_row_skips_detour_check(self):
+        # When depot_row is None and max_detour_seconds is finite, the detour
+        # check is skipped and only max_merge_seconds applies.
+        clusters = [[0], [1], [2], [3]]
+        result = _merge_clusters(
+            clusters, self.demands, self.school_matrix, self.capacity,
+            max_merge_seconds=float("inf"),
+            max_detour_seconds=1,  # very tight — but no depot_row
+            depot_row=None,
+        )
+        # No detour check without depot_row → all merge
+        assert len(result) == 1
+
+    def test_backward_compat_no_new_params(self):
+        # Old callers that pass only the original 5 params still work.
+        clusters = [[0], [1], [2], [3]]
+        result = _merge_clusters(
+            clusters, self.demands, self.school_matrix, self.capacity,
+        )
+        assert len(result) == 1
