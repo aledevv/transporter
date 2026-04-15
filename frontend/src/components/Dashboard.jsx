@@ -79,6 +79,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [startTime, setStartTime] = useState('08:00');
     const [timeMode, setTimeMode] = useState('arrival');
     const [calculateReturn, setCalculateReturn] = useState(true);
+    const [solver, setSolver] = useState('v2');
     const [fineManifestazione, setFineManifestazione] = useState('15:00');
     const [showEditor, setShowEditor] = useState(startInEditMode);
     const [loading, setLoading] = useState(false);
@@ -211,7 +212,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         if (!destination) { setError("Inserisci un indirizzo di destinazione."); return; }
         setError(''); setLoading(true); setResults(null);
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/optimize_v2`, {
+            const endpoint = solver === 'v1' ? '/api/optimize' : '/api/optimize_v2';
+            const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
                 schools, destination, capacity: parseInt(capacity),
                 dest_lat: destCoords?.lat, dest_lon: destCoords?.lon,
                 start_time: startTime, time_mode: timeMode,
@@ -537,6 +539,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                         <input type="time" className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={startTime} onChange={e => setStartTime(e.target.value)} />
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">{timeMode === 'departure' ? "Orario in cui i bus partono dalla prima scuola." : "Orario in cui TUTTI i bus devono essere a destinazione."}</p>
+                                    {/* Solver selector */}
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">Algoritmo</label>
+                                        <div className="flex bg-gray-200 p-1 rounded-lg">
+                                            <button onClick={() => setSolver('v2')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${solver === 'v2' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>V2 Human Style</button>
+                                            <button onClick={() => setSolver('v1')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${solver === 'v1' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>V1 OR-Tools</button>
+                                        </div>
+                                    </div>
+
                                     {/* Return Time Section */}
                                     <div className="mt-4 border-t pt-4">
                                         <div className="flex items-center gap-2 mb-2">
