@@ -103,10 +103,14 @@ def load_event(ev_dir: Path) -> dict | None:
         for _, row in df.iterrows()
     ]
 
+    dist_path = ev_dir / "distance_matrix.json"
+    distance_matrix = json.loads(dist_path.read_text(encoding="utf-8")) if dist_path.exists() else None
+
     return {
         "name": ev_dir.name,
         "schools": schools,
         "time_matrix": time_matrix,
+        "distance_matrix": distance_matrix,
         "capacity": config.get("capacity", 54),
         "gt_path": gt_path,
     }
@@ -138,6 +142,52 @@ def solution_to_buses(solution: dict, schools: list) -> dict:
         if names:
             result[bus_id] = names
     return result
+
+
+def compute_route_metrics(
+    solution: dict,
+    schools: list,
+    time_matrix: list,
+    distance_matrix: list | None,
+) -> dict:
+    """
+    Compute route-quality metrics independent of ground truth.
+
+    total_km:      sum of km across all buses.
+                   Uses distance_matrix (meters) when provided,
+                   otherwise approximates as time_seconds * 30 km/h.
+    max_route_min: duration of the longest individual bus route (minutes of
+                   pure driving). Captures the worst passenger experience.
+
+    time_matrix / distance_matrix use the same node layout as the solver
+    (0=destination, 1..N=schools).
+    """
+    total_km = 0.0
+    max_route_sec = 0
+
+    for route in solution["routes"]:
+        stops = route["stops"]
+        route_sec = 0
+        route_km = 0.0
+
+        for k in range(len(stops) - 1):
+            a = stops[k]["node"]
+            b = stops[k + 1]["node"]
+            t = time_matrix[a][b]
+            route_sec += t
+            if distance_matrix is not None:
+                route_km += distance_matrix[a][b] / 1000.0   # meters → km
+            else:
+                route_km += (t / 3600.0) * 30.0              # time × 30 km/h
+
+        total_km += route_km
+        if route_sec > max_route_sec:
+            max_route_sec = route_sec
+
+    return {
+        "total_km": round(total_km, 1),
+        "max_route_min": round(max_route_sec / 60.0, 1),
+    }
 
 
 # -----------------------------------------------------------------------
