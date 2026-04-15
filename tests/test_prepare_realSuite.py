@@ -82,3 +82,26 @@ def test_extract_schools_grouped_school_with_demand():
     filzi = df[df["Nome"] == "IS FILZI ROVERETO"]
     assert len(filzi) == 1
     assert filzi.iloc[0]["Partecipanti"] == 9
+
+
+def test_build_coords_json_no_duplicate_key_loss():
+    """Duplicate Nome entries must produce distinct coords.json keys."""
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from prepare_realSuite import _build_coords_json
+
+    schools = [
+        {"name": "IC ALDENO-MATTARELLO", "address": "Via Filzi, Aldeno",       "idx": 0, "lat": 46.00, "lon": 11.10},
+        {"name": "IC ALDENO-MATTARELLO", "address": "Via Torre Franca, Matt.", "idx": 1, "lat": 46.01, "lon": 11.12},
+        {"name": "IC CEMBRA",            "address": "Via Negritelle, Cembra",  "idx": 2, "lat": 46.20, "lon": 11.30},
+    ]
+    result = _build_coords_json(schools)
+
+    assert len(result) == 3, f"Expected 3 keys, got {len(result)}: {list(result)}"
+    assert "IC ALDENO-MATTARELLO"   in result
+    assert "IC ALDENO-MATTARELLO|1" in result
+    assert "IC CEMBRA"              in result
+    # Verify coords_key written back into school dicts
+    assert schools[0]["coords_key"] == "IC ALDENO-MATTARELLO"
+    assert schools[1]["coords_key"] == "IC ALDENO-MATTARELLO|1"
+    assert schools[2]["coords_key"] == "IC CEMBRA"

@@ -228,6 +228,29 @@ def _haversine_m(lat1, lon1, lat2, lon2):
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+def _build_coords_json(schools: list) -> dict:
+    """
+    Build the coords.json dict from a list of school dicts with keys:
+    name, lat, lon, idx.
+
+    First occurrence of a name uses the bare name as key.
+    Subsequent occurrences use "name|idx" so no entry is overwritten.
+    Also writes "coords_key" back into each school dict so callers can
+    use it for coords.json lookups.
+    """
+    seen: dict = {}   # name -> count seen so far
+    result: dict = {}
+    for s in schools:
+        name = s["name"]
+        idx  = s.get("idx", 0)
+        count = seen.get(name, 0)
+        key = name if count == 0 else f"{name}|{idx}"
+        seen[name] = count + 1
+        s["coords_key"] = key
+        result[key] = {"lat": s["lat"], "lon": s["lon"]}
+    return result
+
+
 def run_geocode():
     """Phase 3: geocode schools + destination, sanity-check, write coords.json + time_matrix.json.
 
@@ -284,11 +307,11 @@ def run_geocode():
 
         # Geocode schools
         schools = []
-        for _, row in df.iterrows():
+        for idx, row in df.iterrows():
             name = str(row["Nome"])
             addr = str(row["Indirizzo"])
             lat, lon = geo.get_coordinates(addr)
-            schools.append({"name": name, "lat": lat, "lon": lon})
+            schools.append({"name": name, "address": addr, "idx": int(idx), "lat": lat, "lon": lon})
 
         # Sanity check: flag any school >100 km from its nearest neighbor
         if len(schools) >= 2:
@@ -303,8 +326,8 @@ def run_geocode():
                         f"from all others — check address. Geocoded: ({s['lat']:.4f}, {s['lon']:.4f})"
                     )
 
-        # Write coords.json
-        coords_json = {s["name"]: {"lat": s["lat"], "lon": s["lon"]} for s in schools}
+        # Write coords.json (handles duplicate Nome keys via compound key)
+        coords_json = _build_coords_json(schools)
         coords_path.write_text(
             json.dumps(coords_json, ensure_ascii=False, indent=2), encoding="utf-8"
         )
