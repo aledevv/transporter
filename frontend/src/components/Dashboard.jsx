@@ -743,43 +743,26 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                             })}
                         </div>
 
-                        <div className="border-t border-gray-100 p-4 bg-gray-50 flex flex-col md:flex-row gap-4">
-                            {/* Naming + Event Section */}
-                            <div className="flex-1 space-y-3">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Nome evento</label>
-                                    <input
-                                        type="text"
-                                        value={docEventName}
-                                        onChange={e => setDocEventName(e.target.value)}
-                                        placeholder="es. Torneo Provinciale"
-                                        className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white focus:ring-2 focus:ring-blue-300 outline-none text-gray-700 placeholder:text-gray-400"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-400 mb-1 flex items-center gap-1.5">
-                                        <Bookmark className="w-3.5 h-3.5" />
-                                        Nome nello storico
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={tripName}
-                                        readOnly
-                                        placeholder={`${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
-                                        className="w-full text-sm px-3 py-2 rounded-lg border border-gray-100 bg-gray-100 outline-none text-gray-400 placeholder:text-gray-300 cursor-default"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Export Section */}
-                            <div className="flex-[1.5] bg-white rounded-xl border border-blue-100 p-4 shadow-sm relative overflow-hidden">
+                        <div className="border-t border-gray-100 p-4 bg-gray-50">
+                            {/* Export Section — full width */}
+                            <div className="bg-white rounded-xl border border-blue-100 p-4 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                                 <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-1.5">
                                     <FileText className="w-4 h-4" />
                                     Documentazione (Word)
                                 </h4>
 
-                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Nome evento</label>
+                                        <input
+                                            type="text"
+                                            value={docEventName}
+                                            onChange={e => setDocEventName(e.target.value)}
+                                            placeholder="es. Torneo Provinciale"
+                                            className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 outline-none focus:border-blue-400"
+                                        />
+                                    </div>
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Data evento</label>
                                         <input
@@ -789,26 +772,27 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                             className="w-full px-2 py-1.5 text-sm rounded border border-gray-200 outline-none focus:border-blue-400"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-400 mb-1">Nome evento</label>
+                                </div>
+
+                                {/* Nome storico preview */}
+                                <div className="mb-3 flex items-center gap-1.5 text-xs text-gray-400">
+                                    <Bookmark className="w-3 h-3 flex-shrink-0" />
+                                    <span className="font-medium">Nome storico:</span>
+                                    <span className="truncate italic">
+                                        {tripName || `${destination.split(',')[0]} · ${new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
+                                    </span>
+                                </div>
+
+                                <div className="pt-1 border-t border-gray-100 mb-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
                                         <input
-                                            type="text"
-                                            value={docEventName}
-                                            readOnly
-                                            className="w-full px-2 py-1.5 text-sm rounded border border-gray-100 bg-gray-100 text-gray-400 cursor-default outline-none"
+                                            type="checkbox"
+                                            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                            checked={excludeAutonomia}
+                                            onChange={e => setExcludeAutonomia(e.target.checked)}
                                         />
-                                    </div>
-                                    <div className="col-span-2 pt-1 border-t border-gray-100 mt-1">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input 
-                                                type="checkbox" 
-                                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                                                checked={excludeAutonomia}
-                                                onChange={e => setExcludeAutonomia(e.target.checked)}
-                                            />
-                                            <span className="text-sm font-medium text-gray-700">Nascondi scuole in autonomia</span>
-                                        </label>
-                                    </div>
+                                        <span className="text-sm font-medium text-gray-700">Nascondi scuole in autonomia</span>
+                                    </label>
                                 </div>
 
                                 <div className="flex gap-2">
