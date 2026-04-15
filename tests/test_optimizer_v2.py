@@ -192,3 +192,34 @@ def test_solve_groups_nearby_schools():
 
     assert bus_of(1) == bus_of(2), "Schools 1 and 2 (close) should be on the same bus"
     assert bus_of(3) == bus_of(4), "Schools 3 and 4 (close) should be on the same bus"
+
+
+# -----------------------------------------------------------------------
+# _estimate_route_time
+# -----------------------------------------------------------------------
+
+from optimizer_v2 import _estimate_route_time
+
+class TestEstimateRouteTime:
+    def test_single_school(self):
+        # 1 school: depot→school + school→depot (depot_row approximation)
+        school_matrix = [[0]]
+        depot_row = [100]  # depot→school0 = 100 s
+        # route: depot(100)→school0(100)→depot = 200 s
+        result = _estimate_route_time([0], school_matrix, depot_row)
+        assert result == 200
+
+    def test_two_schools_ordered(self):
+        # school_matrix[0][1] = 30, school_matrix[1][0] = 30
+        # depot_row = [100, 50]  → farthest from depot is school 0
+        # NN order: start at 0 (farthest), then 1
+        # time = depot_row[0] + school_matrix[0][1] + depot_row[1]
+        #      = 100 + 30 + 50 = 180
+        school_matrix = [[0, 30], [30, 0]]
+        depot_row = [100, 50]
+        result = _estimate_route_time([0, 1], school_matrix, depot_row)
+        assert result == 180
+
+    def test_empty_cluster(self):
+        result = _estimate_route_time([], [[0, 10], [10, 0]], [5, 5])
+        assert result == 0

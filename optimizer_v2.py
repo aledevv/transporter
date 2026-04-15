@@ -176,6 +176,30 @@ def _order_route(school_indices: list, school_matrix: list, depot_row: list) -> 
     return visited
 
 
+def _estimate_route_time(
+    school_indices: list,
+    school_matrix: list,
+    depot_row: list,
+) -> int:
+    """
+    Estimate total route time for a cluster: depot → NN-ordered schools → depot.
+
+    Uses the same nearest-neighbor ordering as _order_route.
+    The return leg (last school → depot) is approximated symmetrically
+    using depot_row[last], which is accurate for OSM-routed data.
+
+    Returns travel time in seconds.
+    """
+    if not school_indices:
+        return 0
+    ordered = _order_route(school_indices, school_matrix, depot_row)
+    t = depot_row[ordered[0]]                          # depot → first school
+    for k in range(len(ordered) - 1):
+        t += school_matrix[ordered[k]][ordered[k + 1]] # school → school
+    t += depot_row[ordered[-1]]                        # last school → depot (approx)
+    return int(t)
+
+
 # -----------------------------------------------------------------------
 # HumanStyleSolver
 # -----------------------------------------------------------------------
