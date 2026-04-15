@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import uuid
 import copy
+import json
 from data_loader import DataLoader
 from geocoder import GeocodingService
 from optimizer import VRPSolver
@@ -1416,6 +1417,143 @@ def optimize_v2():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+# ── Fixture address tool ─────────────────────────────────────────────────────
+
+REALSUITE_DIR = os.path.join(os.path.dirname(__file__), 'tests', 'realSuite')
+
+
+@app.route('/api/fixtures', methods=['GET'])
+def list_fixtures():
+    """Return sorted list of fixture directory names that have an input.xlsx."""
+    try:
+        entries = sorted(
+            name for name in os.listdir(REALSUITE_DIR)
+            if os.path.isdir(os.path.join(REALSUITE_DIR, name))
+            and os.path.exists(os.path.join(REALSUITE_DIR, name, 'input.xlsx'))
+            and name not in ('archive', 'pending')
+        )
+        return jsonify({'fixtures': entries}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/fixtures/<fixture_name>', methods=['GET'])
+def get_fixture(fixture_name):
+    """
+    Return config + stops list for one fixture.
+    Each stop includes coords_key recomputed from row order using the same
+    first-seen / compound-key logic as _build_coords_json in prepare_realSuite.py,
+    so duplicate-Nome cases are handled correctly even on legacy files.
+    """
+    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    config_path = os.path.join(ev_dir, 'config.json')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+
+    if not os.path.exists(input_path):
+        return jsonify({'error': 'Fixture not found'}), 404
+
+    try:
+        df = pd.read_excel(input_path)
+        df.columns = [c.strip() for c in df.columns]
+
+        config = {}
+        if os.path.exists(config_path):
+            with open(config_path, encoding='utf-8') as f:
+                config = json.load(f)
+
+        coords = {}
+        if os.path.exists(coords_path):
+            with open(coords_path, encoding='utf-8') as f:
+                coords = json.load(f)
+
+        seen = {}
+        stops = []
+        for row_idx, row in df.iterrows():
+            name    = str(row['Nome']).strip()
+            address = str(row['Indirizzo']).strip()
+            participants = int(row['Partecipanti']) if pd.notna(row.get('Partecipanti')) else 0
+            institute = (
+                str(row['Istituto']).strip()
+                if 'Istituto' in df.columns and pd.notna(row.get('Istituto'))
+                else None
+            )
+            count = seen.get(name, 0)
+            coords_key = name if count == 0 else f"{name}|{int(row_idx)}"
+            seen[name] = count + 1
+
+            entry = coords.get(coords_key, {})
+            stops.append({
+                'idx':          int(row_idx),
+                'name':         name,
+                'address':      address,
+                'lat':          entry.get('lat'),
+                'lon':          entry.get('lon'),
+                'participants': participants,
+                'institute':    institute,
+                'coords_key':   coords_key,
+            })
+
+        return jsonify({'config': config, 'stops': stops}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/fixtures/<fixture_name>/stops/<int:idx>', methods=['POST'])
+def update_fixture_stop(fixture_name, idx):
+    """
+    Update a stop's address in input.xlsx and its coordinates in coords.json.
+    Body: {"address": "...", "lat": float, "lon": float}
+    """
+    data        = request.get_json()
+    new_address = data.get('address', '').strip()
+    new_lat     = float(data['lat'])
+    new_lon     = float(data['lon'])
+
+    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+
+    if not os.path.exists(input_path):
+        return jsonify({'error': 'Fixture not found'}), 404
+
+    try:
+        # 1. Update input.xlsx
+        df = pd.read_excel(input_path)
+        df.columns = [c.strip() for c in df.columns]
+        if idx not in df.index:
+            return jsonify({'error': f'Row index {idx} not found'}), 404
+        df.at[idx, 'Indirizzo'] = new_address
+        df.to_excel(input_path, index=False)
+
+        # 2. Recompute coords_key for the updated row
+        seen = {}
+        coords_key_for_idx = None
+        for row_idx, row in df.iterrows():
+            name  = str(row['Nome']).strip()
+            count = seen.get(name, 0)
+            key   = name if count == 0 else f"{name}|{int(row_idx)}"
+            seen[name] = count + 1
+            if row_idx == idx:
+                coords_key_for_idx = key
+
+        if coords_key_for_idx is None:
+            return jsonify({'error': 'Could not determine coords_key'}), 500
+
+        # 3. Update coords.json
+        coords = {}
+        if os.path.exists(coords_path):
+            with open(coords_path, encoding='utf-8') as f:
+                coords = json.load(f)
+        coords[coords_key_for_idx] = {'lat': new_lat, 'lon': new_lon}
+        with open(coords_path, 'w', encoding='utf-8') as f:
+            json.dump(coords, f, ensure_ascii=False, indent=2)
+
+        return jsonify({'ok': True, 'coords_key': coords_key_for_idx}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/places/autocomplete', methods=['GET'])
 def places_autocomplete():
