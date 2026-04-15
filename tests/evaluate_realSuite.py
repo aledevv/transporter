@@ -338,6 +338,7 @@ def main():
 
         gt = load_groundtruth(ev["gt_path"])
         gt_count = len([v for v in gt.values() if v])
+        dm = ev.get("distance_matrix")
 
         # V1
         sol_v1 = run_v1(ev)
@@ -347,9 +348,13 @@ def main():
             v1_asgn = score_assignment(pred_v1, gt)
             v1_cnt  = score_bus_count(pred_v1, gt)
             v1_tot  = 0.6 * v1_asgn + 0.4 * v1_cnt
+            v1_m    = compute_route_metrics(sol_v1, ev["schools"], ev["time_matrix"], dm)
+            v1_km   = v1_m["total_km"]
+            v1_max  = v1_m["max_route_min"]
         else:
             n_v1 = 0
             v1_asgn = v1_cnt = v1_tot = 0.0
+            v1_km = v1_max = 0.0
 
         # V2
         sol_v2 = run_v2(ev)
@@ -359,9 +364,13 @@ def main():
             v2_asgn = score_assignment(pred_v2, gt)
             v2_cnt  = score_bus_count(pred_v2, gt)
             v2_tot  = 0.6 * v2_asgn + 0.4 * v2_cnt
+            v2_m    = compute_route_metrics(sol_v2, ev["schools"], ev["time_matrix"], dm)
+            v2_km   = v2_m["total_km"]
+            v2_max  = v2_m["max_route_min"]
         else:
             n_v2 = 0
             v2_asgn = v2_cnt = v2_tot = 0.0
+            v2_km = v2_max = 0.0
 
         rows.append({
             "Event":   ev["name"][:45],
@@ -370,10 +379,14 @@ def main():
             "V1_asgn": f"{v1_asgn:.3f}",
             "V1_cnt":  f"{v1_cnt:.3f}",
             "V1_tot":  f"{v1_tot:.3f}",
+            "V1_km":   f"{v1_km:.0f}",
+            "V1_max":  f"{v1_max:.0f}",
             "V2_n":    n_v2,
             "V2_asgn": f"{v2_asgn:.3f}",
             "V2_cnt":  f"{v2_cnt:.3f}",
             "V2_tot":  f"{v2_tot:.3f}",
+            "V2_km":   f"{v2_km:.0f}",
+            "V2_max":  f"{v2_max:.0f}",
         })
 
     print()  # newline after progress bar
@@ -382,8 +395,10 @@ def main():
         print("No events with complete artifacts found. Run prepare_realSuite.py first.")
         return
 
-    cols  = ["Event", "GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V2_n", "V2_asgn", "V2_cnt", "V2_tot"]
-    col_w = [46,       4,    5,      8,          8,         8,        5,      8,          8,         8]
+    cols  = ["Event", "GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V1_km", "V1_max",
+             "V2_n", "V2_asgn", "V2_cnt", "V2_tot", "V2_km", "V2_max"]
+    col_w = [46,       4,    5,      8,          8,         8,       7,       7,
+             5,      8,          8,         8,       7,       7]
     header = "  ".join(c.ljust(w) for c, w in zip(cols, col_w))
     sep    = "-" * len(header)
     print(sep)
@@ -393,11 +408,12 @@ def main():
         print("  ".join(str(r[c]).ljust(w) for c, w in zip(cols, col_w)))
     print(sep)
 
-    numeric_cols = ["GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V2_n", "V2_asgn", "V2_cnt", "V2_tot"]
+    numeric_cols = ["GT", "V1_n", "V1_asgn", "V1_cnt", "V1_tot", "V1_km", "V1_max",
+                    "V2_n", "V2_asgn", "V2_cnt", "V2_tot", "V2_km", "V2_max"]
     mean_row = {"Event": "MEAN"}
     for col in numeric_cols:
         vals = [float(r[col]) for r in rows]
-        mean_row[col] = f"{sum(vals)/len(vals):.3f}"
+        mean_row[col] = f"{sum(vals)/len(vals):.1f}" if col in ("V1_km", "V1_max", "V2_km", "V2_max") else f"{sum(vals)/len(vals):.3f}"
     print("  ".join(str(mean_row.get(c, "")).ljust(w) for c, w in zip(cols, col_w)))
 
 
