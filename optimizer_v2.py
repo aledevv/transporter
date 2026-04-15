@@ -200,6 +200,40 @@ def _estimate_route_time(
     return int(t)
 
 
+
+def _two_opt(route: list, school_matrix: list) -> list:
+    """
+    Improve a route with 2-opt swaps (linear route, not circular).
+
+    For each pair (i, j), compares the cost of the two edges that change
+    when segment route[i+1..j] is reversed. Restarts after any improvement.
+    Converges in 1-3 passes for clusters ≤ 20 schools.
+
+    Returns a new list (does not mutate the input).
+    """
+    improved = list(route)
+    n = len(improved)
+    if n < 3:
+        return improved
+
+    changed = True
+    while changed:
+        changed = False
+        for i in range(n - 1):
+            for j in range(i + 2, n):
+                # Edges that change: (i→i+1) and (j→j+1 if exists)
+                old_cost = school_matrix[improved[i]][improved[i + 1]]
+                new_cost = school_matrix[improved[i]][improved[j]]
+                if j + 1 < n:
+                    old_cost += school_matrix[improved[j]][improved[j + 1]]
+                    new_cost += school_matrix[improved[i + 1]][improved[j + 1]]
+                if new_cost < old_cost:
+                    improved[i + 1:j + 1] = improved[i + 1:j + 1][::-1]
+                    changed = True
+
+    return improved
+
+
 # -----------------------------------------------------------------------
 # HumanStyleSolver
 # -----------------------------------------------------------------------

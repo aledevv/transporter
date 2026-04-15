@@ -223,3 +223,52 @@ class TestEstimateRouteTime:
     def test_empty_cluster(self):
         result = _estimate_route_time([], [[0, 10], [10, 0]], [5, 5])
         assert result == 0
+
+
+# -----------------------------------------------------------------------
+# _two_opt
+# -----------------------------------------------------------------------
+
+from optimizer_v2 import _two_opt
+
+class TestTwoOpt:
+    def test_already_optimal(self):
+        # Linear schools 0→1→2 with unit spacing — already optimal
+        school_matrix = [
+            [0, 10, 20],
+            [10, 0, 10],
+            [20, 10, 0],
+        ]
+        route = [0, 1, 2]
+        result = _two_opt(route, school_matrix)
+        # Total cost: 10+10=20; reversed 0→2→1 costs 20+10=30 — worse
+        assert result == [0, 1, 2]
+
+    def test_reversal_improves(self):
+        # route [0, 2, 1] can be improved by reversing segment [2,1] → [1,2]
+        # i.e. route [0, 1, 2] has cost 10+10=20 < [0, 2, 1] cost 20+10=30
+        school_matrix = [
+            [0, 10, 20],
+            [10, 0, 10],
+            [20, 10, 0],
+        ]
+        route = [0, 2, 1]
+        result = _two_opt(route, school_matrix)
+        assert result == [0, 1, 2]
+
+    def test_single_school(self):
+        result = _two_opt([0], [[0]])
+        assert result == [0]
+
+    def test_two_schools(self):
+        # 2 schools — nothing to reverse (minimum 3 to benefit from 2-opt)
+        school_matrix = [[0, 5], [5, 0]]
+        result = _two_opt([0, 1], school_matrix)
+        assert result == [0, 1]
+
+    def test_does_not_mutate_input(self):
+        school_matrix = [[0, 10, 20], [10, 0, 10], [20, 10, 0]]
+        route = [0, 2, 1]
+        original = list(route)
+        _two_opt(route, school_matrix)
+        assert route == original
