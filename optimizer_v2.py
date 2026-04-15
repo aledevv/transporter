@@ -276,8 +276,8 @@ class HumanStyleSolver:
         demands: list,
         vehicle_capacity: int,
         cluster_threshold_minutes: int = 25,
-        max_merge_minutes: int = 35,
-        max_detour_minutes: int = 35,
+        max_merge_minutes: int = 45,
+        max_detour_minutes: int = 40,
         fixed_vehicle_cost: int = 0,   # ignored — kept for API compatibility
         starts: Optional[list] = None,  # ignored
         ends: Optional[list] = None,    # ignored
