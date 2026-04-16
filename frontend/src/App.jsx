@@ -9,6 +9,7 @@ import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
+import InstituteList from './components/InstituteList';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -93,7 +94,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isA
 
 function App() {
     const [schools, setSchools] = useState([]);
-    const [activeTab, setActiveTab] = useState('app'); // 'app' | 'tools'
+    const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes' | 'tools'
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [resetKey, setResetKey] = useState(0);
@@ -347,6 +348,16 @@ function App() {
                         Pianificazione
                     </button>
                     <button
+                        onClick={() => setActiveTab('institutes')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                            activeTab === 'institutes'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        Lista Istituti
+                    </button>
+                    <button
                         onClick={() => setActiveTab('tools')}
                         className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                             activeTab === 'tools'
@@ -357,6 +368,13 @@ function App() {
                         Strumenti
                     </button>
                 </div>
+
+                {activeTab === 'institutes' && (
+                    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Lista Istituti</h2>
+                        <InstituteList />
+                    </section>
+                )}
 
                 {activeTab === 'tools' && (
                     <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">

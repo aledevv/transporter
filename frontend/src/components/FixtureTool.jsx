@@ -63,18 +63,24 @@ export default function FixtureTool() {
     const [editCoords,  setEditCoords]  = useState(null);
     const [saving,      setSaving]      = useState(false);
     const [saveError,   setSaveError]   = useState(null);
+    const [rebuilding,  setRebuilding]  = useState(false);
+    const [rebuildMsg,  setRebuildMsg]  = useState(null);
+    const [suggestions, setSuggestions] = useState([]);
 
-    useEffect(() => {
+    const loadFixtures = () => {
         fetch(`${API_BASE_URL}/api/fixtures`)
             .then(r => r.json())
             .then(d => setFixtures(d.fixtures || []))
             .catch(err => console.error('fixtures list:', err));
-    }, []);
+    };
+
+    useEffect(() => { loadFixtures(); }, []);
 
     useEffect(() => {
         if (!selected) { setData(null); return; }
         setLoading(true);
         setEditingIdx(null);
+        setRebuildMsg(null);
         fetch(`${API_BASE_URL}/api/fixtures/${encodeURIComponent(selected)}`)
             .then(r => r.json())
             .then(setData)
@@ -91,11 +97,26 @@ export default function FixtureTool() {
         (stop.institute && colorMap[stop.institute]) ? colorMap[stop.institute] : '#6b7280',
     [colorMap]);
 
+    const fetchSuggestions = useCallback(async (stopName, currentAddress) => {
+        if (!stopName) { setSuggestions([]); return; }
+        try {
+            const resp = await fetch(
+                `${API_BASE_URL}/api/school_cache/suggest?name=${encodeURIComponent(stopName)}&address=${encodeURIComponent(currentAddress || '')}`
+            );
+            const d = await resp.json();
+            setSuggestions(d.suggestions || []);
+        } catch {
+            setSuggestions([]);
+        }
+    }, []);
+
     const startEdit = stop => {
         setEditingIdx(stop.idx);
         setEditAddress(stop.address);
         setEditCoords(stop.lat != null ? { lat: stop.lat, lon: stop.lon } : null);
         setSaveError(null);
+        setSuggestions([]);
+        fetchSuggestions(stop.name, stop.address);
     };
 
     const cancelEdit = () => {
@@ -103,6 +124,7 @@ export default function FixtureTool() {
         setEditAddress('');
         setEditCoords(null);
         setSaveError(null);
+        setSuggestions([]);
     };
 
     const saveEdit = async stop => {
@@ -138,7 +160,36 @@ export default function FixtureTool() {
         }
     };
 
-    const filtered = fixtures.filter(f => f.toLowerCase().includes(search.toLowerCase()));
+    const rebuildMatrices = async () => {
+        if (!selected) return;
+        setRebuilding(true);
+        setRebuildMsg(null);
+        try {
+            const resp = await fetch(
+                `${API_BASE_URL}/api/fixtures/${encodeURIComponent(selected)}/rebuild_matrices`,
+                { method: 'POST' }
+            );
+            const result = await resp.json();
+            if (!resp.ok) throw new Error(result.error || 'Errore sconosciuto');
+            setRebuildMsg(
+                result.geocoded_new > 0
+                    ? `Matrici aggiornate. ${result.geocoded_new} fermate geocodificate, ${result.total - result.geocoded_new} usavano coordinate già presenti.`
+                    : `Matrici aggiornate (${result.total} fermate, coordinate già complete).`
+            );
+            // Refresh fixture data and fixtures list (geocoded flag may have changed)
+            loadFixtures();
+            const dataResp = await fetch(`${API_BASE_URL}/api/fixtures/${encodeURIComponent(selected)}`);
+            setData(await dataResp.json());
+        } catch (err) {
+            setRebuildMsg(`Errore: ${err.message}`);
+        } finally {
+            setRebuilding(false);
+        }
+    };
+
+    const filtered = fixtures.filter(f =>
+        (f.name || f).toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <div className="flex flex-col gap-4">
@@ -156,18 +207,29 @@ export default function FixtureTool() {
                     {filtered.length === 0 && (
                         <div className="px-3 py-2 text-sm text-gray-400 italic">Nessun risultato</div>
                     )}
-                    {filtered.map(f => (
-                        <button
-                            key={f}
-                            onClick={() => setSelected(f)}
-                            className={`w-full text-left px-3 py-2 text-sm border-b border-gray-50 last:border-0 transition-colors
-                                ${selected === f
-                                    ? 'bg-blue-100 font-medium text-blue-700'
-                                    : 'text-gray-700 hover:bg-blue-50'}`}
-                        >
-                            {f}
-                        </button>
-                    ))}
+                    {filtered.map(f => {
+                        const name = f.name || f;
+                        const geocoded = f.geocoded ?? false;
+                        return (
+                            <button
+                                key={name}
+                                onClick={() => setSelected(name)}
+                                className={`w-full text-left px-3 py-2 text-sm border-b border-gray-50 last:border-0 transition-colors flex items-center gap-2
+                                    ${selected === name
+                                        ? 'bg-blue-100 font-medium text-blue-700'
+                                        : 'text-gray-700 hover:bg-blue-50'}`}
+                            >
+                                <span
+                                    className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs"
+                                    style={{ backgroundColor: geocoded ? '#22c55e' : '#f59e0b', color: 'white' }}
+                                    title={geocoded ? 'Tutte le fermate geocodificate' : 'Coordinate mancanti'}
+                                >
+                                    {geocoded ? '✓' : '!'}
+                                </span>
+                                <span className="truncate">{name}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -175,17 +237,32 @@ export default function FixtureTool() {
 
             {data && !loading && (
                 <>
-                    <div className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
-                        <span className="font-semibold">Destinazione:</span> {data.config?.destination || '—'}
-                        {' · '}
-                        <span className="font-semibold">Capacità:</span> {data.config?.capacity || '—'}
-                        {' · '}
-                        <span className="font-semibold">Fermate:</span> {data.stops.length}
-                        {' · '}
-                        <span className="font-semibold text-amber-600">
-                            Senza coordinate: {data.stops.filter(s => s.lat == null).length}
-                        </span>
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+                            <span className="font-semibold">Destinazione:</span> {data.config?.destination || '—'}
+                            {' · '}
+                            <span className="font-semibold">Capacità:</span> {data.config?.capacity || '—'}
+                            {' · '}
+                            <span className="font-semibold">Fermate:</span> {data.stops.length}
+                            {' · '}
+                            <span className="font-semibold text-amber-600">
+                                Senza coordinate: {data.stops.filter(s => s.lat == null).length}
+                            </span>
+                        </div>
+                        <button
+                            onClick={rebuildMatrices}
+                            disabled={rebuilding}
+                            className="flex-shrink-0 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors whitespace-nowrap"
+                            title="Ricalcola time_matrix e distance_matrix dalle coordinate attuali"
+                        >
+                            {rebuilding ? 'Aggiornamento...' : 'Aggiorna matrici'}
+                        </button>
                     </div>
+                    {rebuildMsg && (
+                        <div className={`text-xs px-3 py-1.5 rounded-lg ${rebuildMsg.startsWith('Errore') ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}`}>
+                            {rebuildMsg}
+                        </div>
+                    )}
 
                     <div className="flex gap-4" style={{ minHeight: 520 }}>
 
@@ -240,6 +317,28 @@ export default function FixtureTool() {
                                                     }}
                                                     placeholder="Cerca nuovo indirizzo..."
                                                 />
+                                                {suggestions.length > 0 && (
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-xs text-gray-400">Forse intendi uno di questi?</div>
+                                                        {suggestions.map((s, i) => (
+                                                            <button
+                                                                key={i}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setEditAddress(s.address);
+                                                                    if (s.lat != null) setEditCoords({ lat: s.lat, lon: s.lon });
+                                                                    setSuggestions([]);
+                                                                }}
+                                                                className="text-left text-xs px-2 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
+                                                            >
+                                                                {s.name !== stop.name && (
+                                                                    <span className="font-medium text-blue-500 mr-1">{s.name}:</span>
+                                                                )}
+                                                                {s.address}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 {editCoords?.lat != null && (
                                                     <div className="text-xs text-green-600 font-mono">
                                                         {editCoords.lat.toFixed(5)}, {editCoords.lon.toFixed(5)}
@@ -310,10 +409,7 @@ export default function FixtureTool() {
                     </div>
 
                     <div className="text-xs text-gray-400 italic">
-                        Dopo aver salvato le correzioni, rigenera le matrici:{' '}
-                        <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-600">
-                            python tests/prepare_realSuite.py --geocode
-                        </code>
+                        Dopo aver corretto gli indirizzi, usa <strong>Aggiorna matrici</strong> per ricalcolare time_matrix e distance_matrix.
                     </div>
                 </>
             )}

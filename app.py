@@ -1424,6 +1424,72 @@ def optimize_v2():
 
 REALSUITE_DIR = os.path.join(os.path.dirname(__file__), 'tests', 'realSuite')
 
+# ─── In-memory institute index (name → {address → {lat, lon, count}}) ─────────
+
+_institutes_index: dict | None = None
+
+
+def _build_institutes_index() -> dict:
+    """Scan all realSuite fixtures once and build a name→address→{lat,lon,count} index."""
+    result: dict = {}
+    try:
+        dirs = sorted(os.listdir(REALSUITE_DIR))
+    except OSError:
+        return result
+    for dir_name in dirs:
+        if dir_name in ('archive', 'pending'):
+            continue
+        ev_dir_p   = os.path.join(REALSUITE_DIR, dir_name)
+        input_p    = os.path.join(ev_dir_p, 'input.xlsx')
+        coords_p   = os.path.join(ev_dir_p, 'coords.json')
+        if not os.path.isdir(ev_dir_p) or not os.path.exists(input_p):
+            continue
+        coords: dict = {}
+        if os.path.exists(coords_p):
+            try:
+                with open(coords_p, encoding='utf-8') as f:
+                    coords = json.load(f)
+            except Exception:
+                pass
+        try:
+            df = pd.read_excel(input_p)
+            df.columns = [c.strip() for c in df.columns]
+        except Exception:
+            continue
+        seen: dict = {}
+        for row_idx, row in df.iterrows():
+            name    = str(row.get('Nome', '')).strip()
+            address = str(row.get('Indirizzo', '')).strip()
+            if not name or name.lower() == 'nan' or not address or address.lower() == 'nan':
+                continue
+            count = seen.get(name, 0)
+            key   = name if count == 0 else f"{name}|{int(row_idx)}"
+            seen[name] = count + 1
+            entry = coords.get(key, {})
+            lat = entry.get('lat')
+            lon = entry.get('lon')
+            if name not in result:
+                result[name] = {}
+            if address not in result[name]:
+                result[name][address] = {'lat': lat, 'lon': lon, 'count': 0}
+            elif lat is not None and result[name][address]['lat'] is None:
+                result[name][address]['lat'] = lat
+                result[name][address]['lon'] = lon
+            result[name][address]['count'] += 1
+    return result
+
+
+def _get_institutes_index() -> dict:
+    global _institutes_index
+    if _institutes_index is None:
+        _institutes_index = _build_institutes_index()
+    return _institutes_index
+
+
+def _invalidate_institutes_index() -> None:
+    global _institutes_index
+    _institutes_index = None
+
 
 def _fixture_is_geocoded(ev_dir):
     """
@@ -1583,9 +1649,389 @@ def update_fixture_stop(fixture_name, idx):
         with open(coords_path, 'w', encoding='utf-8') as f:
             json.dump(coords, f, ensure_ascii=False, indent=2)
 
+        # Persist to school_address_cache so the corrected address appears in suggestions
+        stop_name = str(df.at[idx, 'Nome']).strip()
+        _school_cache.save(stop_name, new_address)
+        _invalidate_institutes_index()
+
         return jsonify({'ok': True, 'coords_key': coords_key_for_idx}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/fixtures/<fixture_name>/rebuild_matrices', methods=['POST'])
+def rebuild_fixture_matrices(fixture_name):
+    """
+    Rebuild time_matrix.json and distance_matrix.json for a fixture using
+    the coordinates currently in coords.json (including any user edits).
+    Schools without coords in coords.json are geocoded from their address.
+    Also updates config.json with destination_lat/lon if missing.
+
+    Returns: {"ok": True, "geocoded_new": N, "total": M}
+    """
+    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    config_path = os.path.join(ev_dir, 'config.json')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+    matrix_path = os.path.join(ev_dir, 'time_matrix.json')
+    dist_path   = os.path.join(ev_dir, 'distance_matrix.json')
+
+    if not os.path.exists(input_path):
+        return jsonify({'error': 'Fixture not found'}), 404
+
+    try:
+        df = pd.read_excel(input_path)
+        df.columns = [c.strip() for c in df.columns]
+
+        config = {}
+        if os.path.exists(config_path):
+            with open(config_path, encoding='utf-8') as f:
+                config = json.load(f)
+
+        # Load existing coords (may include user edits)
+        existing_coords = {}
+        if os.path.exists(coords_path):
+            with open(coords_path, encoding='utf-8') as f:
+                existing_coords = json.load(f)
+
+        # Build school list with coords_keys (same logic as get_fixture)
+        seen = {}
+        schools = []
+        for row_idx, row in df.iterrows():
+            name    = str(row['Nome']).strip()
+            address = str(row['Indirizzo']).strip()
+            count   = seen.get(name, 0)
+            key     = name if count == 0 else f"{name}|{int(row_idx)}"
+            seen[name] = count + 1
+            entry = existing_coords.get(key, {})
+            schools.append({
+                'name':      name,
+                'address':   address,
+                'coords_key': key,
+                'lat':       entry.get('lat'),
+                'lon':       entry.get('lon'),
+            })
+
+        # Geocode schools that still have no coords
+        geocoded_new = 0
+        for s in schools:
+            if s['lat'] is None or s['lon'] is None:
+                lat, lon = geocoder.get_coordinates(s['address'])
+                s['lat'] = lat
+                s['lon'] = lon
+                existing_coords[s['coords_key']] = {'lat': lat, 'lon': lon}
+                geocoded_new += 1
+
+        # Persist updated coords.json
+        with open(coords_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_coords, f, ensure_ascii=False, indent=2)
+
+        # Geocode destination if missing
+        dest_lat = config.get('destination_lat')
+        dest_lon = config.get('destination_lon')
+        if (dest_lat is None or dest_lon is None) and config.get('destination'):
+            dest_lat, dest_lon = geocoder.get_coordinates(config['destination'])
+            config['destination_lat'] = dest_lat
+            config['destination_lon'] = dest_lon
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config, f, ensure_ascii=False, indent=2)
+
+        if dest_lat is None or dest_lon is None:
+            return jsonify({'error': 'Destination coordinates not available — set destination in config first'}), 400
+
+        # Build locations list: destination at index 0, schools at 1..N
+        locations = [(dest_lat, dest_lon)] + [(s['lat'], s['lon']) for s in schools]
+
+        # Rebuild time_matrix.json
+        time_matrix = geocoder.get_time_matrix(locations)
+        with open(matrix_path, 'w', encoding='utf-8') as f:
+            json.dump(time_matrix, f, ensure_ascii=False)
+
+        # Rebuild distance_matrix.json
+        dist_matrix = geocoder.get_distance_matrix(locations)
+        with open(dist_path, 'w', encoding='utf-8') as f:
+            json.dump(dist_matrix, f, ensure_ascii=False)
+
+        _invalidate_institutes_index()
+        return jsonify({
+            'ok': True,
+            'geocoded_new': geocoded_new,
+            'total': len(schools),
+            'geocoded': _fixture_is_geocoded(ev_dir),
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/fixtures/institutes', methods=['GET'])
+def list_fixture_institutes():
+    """
+    Return all unique (school_name, address) pairs from all realSuite fixtures,
+    grouped by school name, with coords and usage count.
+    """
+    try:
+        idx = _get_institutes_index()
+        result = []
+        for name in sorted(idx.keys()):
+            entries = []
+            for address, meta in sorted(idx[name].items(), key=lambda x: -x[1]['count']):
+                entries.append({
+                    'address':       address,
+                    'lat':           meta['lat'],
+                    'lon':           meta['lon'],
+                    'fixture_count': meta['count'],
+                })
+            result.append({'name': name, 'entries': entries})
+        return jsonify({'institutes': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+def _apply_update_to_fixture(ev_dir, old_name, old_address, new_name, new_address, new_lat, new_lon):
+    """
+    In a single fixture directory, rename all rows where Nome==old_name AND
+    Indirizzo==old_address to (new_name, new_address), updating coords.json keys
+    and optionally the stored coordinates. Returns True if anything was changed.
+    """
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+    if not os.path.exists(input_path):
+        return False
+
+    df = pd.read_excel(input_path)
+    df.columns = [c.strip() for c in df.columns]
+
+    mask = (df['Nome'].astype(str).str.strip() == old_name) & \
+           (df['Indirizzo'].astype(str).str.strip() == old_address)
+    if not mask.any():
+        return False
+
+    # Compute OLD coords_keys (before update)
+    old_keys = {}
+    seen = {}
+    for row_idx, row in df.iterrows():
+        n = str(row['Nome']).strip()
+        cnt = seen.get(n, 0)
+        key = n if cnt == 0 else f"{n}|{int(row_idx)}"
+        seen[n] = cnt + 1
+        if mask.loc[row_idx]:
+            old_keys[int(row_idx)] = key
+
+    # Apply update
+    df.loc[mask, 'Nome']      = new_name
+    df.loc[mask, 'Indirizzo'] = new_address
+
+    # Compute NEW coords_keys (after update)
+    new_keys = {}
+    seen = {}
+    for row_idx, row in df.iterrows():
+        n = str(row['Nome']).strip()
+        cnt = seen.get(n, 0)
+        key = n if cnt == 0 else f"{n}|{int(row_idx)}"
+        seen[n] = cnt + 1
+        if int(row_idx) in old_keys:
+            new_keys[int(row_idx)] = key
+
+    # Update coords.json
+    coords = {}
+    if os.path.exists(coords_path):
+        with open(coords_path, encoding='utf-8') as f:
+            coords = json.load(f)
+    for row_idx, old_key in old_keys.items():
+        new_key   = new_keys[row_idx]
+        old_entry = coords.pop(old_key, {})
+        if new_lat is not None and new_lon is not None:
+            coords[new_key] = {'lat': new_lat, 'lon': new_lon}
+        elif old_entry:
+            coords[new_key] = old_entry
+
+    df.to_excel(input_path, index=False)
+    with open(coords_path, 'w', encoding='utf-8') as f:
+        json.dump(coords, f, ensure_ascii=False, indent=2)
+    return True
+
+
+def _apply_delete_to_fixture(ev_dir, name, address):
+    """
+    Remove all rows where Nome==name AND Indirizzo==address from a fixture,
+    cleaning up coords.json accordingly. Returns True if anything was removed.
+    """
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+    if not os.path.exists(input_path):
+        return False
+
+    df = pd.read_excel(input_path)
+    df.columns = [c.strip() for c in df.columns]
+
+    mask = (df['Nome'].astype(str).str.strip() == name) & \
+           (df['Indirizzo'].astype(str).str.strip() == address)
+    if not mask.any():
+        return False
+
+    # Collect coords_keys for rows being removed
+    seen = {}
+    keys_to_remove = []
+    for row_idx, row in df.iterrows():
+        n = str(row['Nome']).strip()
+        cnt = seen.get(n, 0)
+        key = n if cnt == 0 else f"{n}|{int(row_idx)}"
+        seen[n] = cnt + 1
+        if mask.loc[row_idx]:
+            keys_to_remove.append(key)
+
+    df = df[~mask].reset_index(drop=True)
+
+    coords = {}
+    if os.path.exists(coords_path):
+        with open(coords_path, encoding='utf-8') as f:
+            coords = json.load(f)
+    for key in keys_to_remove:
+        coords.pop(key, None)
+
+    df.to_excel(input_path, index=False)
+    with open(coords_path, 'w', encoding='utf-8') as f:
+        json.dump(coords, f, ensure_ascii=False, indent=2)
+    return True
+
+
+@app.route('/api/fixtures/institutes/update', methods=['POST'])
+def update_institute_entry():
+    """
+    Rename a (name, address) entry across all fixture files.
+    Body: {old_name, old_address, new_name, new_address, new_lat?, new_lon?, force_merge?}
+    If (new_name, new_address) already exists in the index (under a different entry)
+    and force_merge is False, returns {conflict: {name, address, fixture_count}}.
+    """
+    data        = request.get_json()
+    old_name    = data.get('old_name', '').strip()
+    old_address = data.get('old_address', '').strip()
+    new_name    = data.get('new_name', '').strip()
+    new_address = data.get('new_address', '').strip()
+    new_lat     = data.get('new_lat')
+    new_lon     = data.get('new_lon')
+    force_merge = data.get('force_merge', False)
+
+    if not (old_name and old_address and new_name and new_address):
+        return jsonify({'error': 'Campi obbligatori mancanti'}), 400
+    if old_name == new_name and old_address == new_address and new_lat is None:
+        return jsonify({'ok': True, 'modified': []}), 200
+
+    if not force_merge:
+        idx = _get_institutes_index()
+        # Check if target (new_name, new_address) already exists as a different entry
+        target_exists = (
+            new_name in idx and
+            new_address in idx.get(new_name, {}) and
+            not (old_name == new_name and old_address == new_address)
+        )
+        # Or: same address used by a different school name
+        address_conflict = None
+        if not target_exists and new_address.strip().lower() != old_address.strip().lower():
+            for en, addr_map in idx.items():
+                for ea in addr_map:
+                    if ea.strip().lower() == new_address.strip().lower() and \
+                       not (en == old_name and ea == old_address):
+                        address_conflict = {'name': en, 'address': ea,
+                                            'fixture_count': addr_map[ea]['count']}
+                        break
+                if address_conflict:
+                    break
+        if target_exists:
+            m = idx[new_name][new_address]
+            return jsonify({'conflict': {'name': new_name, 'address': new_address,
+                                         'fixture_count': m['count']}}), 200
+        if address_conflict:
+            return jsonify({'conflict': address_conflict}), 200
+
+    modified = []
+    try:
+        for dir_name in sorted(os.listdir(REALSUITE_DIR)):
+            if dir_name in ('archive', 'pending'):
+                continue
+            ev_dir = os.path.join(REALSUITE_DIR, dir_name)
+            if not os.path.isdir(ev_dir):
+                continue
+            if _apply_update_to_fixture(ev_dir, old_name, old_address, new_name, new_address,
+                                         new_lat, new_lon):
+                modified.append(dir_name)
+
+        if new_lat is not None or new_name != old_name:
+            _school_cache.save(new_name, new_address)
+        _invalidate_institutes_index()
+        return jsonify({'ok': True, 'modified': modified}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/fixtures/institutes', methods=['DELETE'])
+def delete_institute_entry():
+    """
+    Remove a (name, address) entry from all fixture files.
+    Body: {name, address}
+    """
+    data    = request.get_json()
+    name    = data.get('name', '').strip()
+    address = data.get('address', '').strip()
+    if not (name and address):
+        return jsonify({'error': 'Campi name e address obbligatori'}), 400
+
+    modified = []
+    try:
+        for dir_name in sorted(os.listdir(REALSUITE_DIR)):
+            if dir_name in ('archive', 'pending'):
+                continue
+            ev_dir = os.path.join(REALSUITE_DIR, dir_name)
+            if not os.path.isdir(ev_dir):
+                continue
+            if _apply_delete_to_fixture(ev_dir, name, address):
+                modified.append(dir_name)
+
+        _invalidate_institutes_index()
+        return jsonify({'ok': True, 'modified': modified}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/school_cache/suggest', methods=['GET'])
+def suggest_school_address():
+    """
+    Return up to 5 address suggestions for a school name from the fixture index.
+    Query params: name (required), address (optional, for scoring)
+    """
+    from difflib import SequenceMatcher
+
+    name    = request.args.get('name', '').strip()
+    address = request.args.get('address', '').strip()
+    if not name:
+        return jsonify({'suggestions': []}), 200
+
+    name_lower = name.lower()
+    idx = _get_institutes_index()
+    candidates = []
+
+    for cached_name, addr_map in idx.items():
+        score = SequenceMatcher(None, name_lower, cached_name.lower()).ratio()
+        if score < 0.55:
+            continue
+        for addr, meta in addr_map.items():
+            if address and addr.strip().lower() == address.strip().lower():
+                continue  # skip exact same address (not helpful)
+            candidates.append({
+                'name':          cached_name,
+                'address':       addr,
+                'lat':           meta['lat'],
+                'lon':           meta['lon'],
+                'fixture_count': meta['count'],
+                '_score':        score,
+            })
+
+    candidates.sort(key=lambda c: (-c['_score'], -c['fixture_count']))
+    for c in candidates:
+        del c['_score']
+
+    return jsonify({'suggestions': candidates[:5]}), 200
 
 
 @app.route('/api/places/autocomplete', methods=['GET'])

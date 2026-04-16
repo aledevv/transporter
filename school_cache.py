@@ -93,6 +93,18 @@ def find_suggestion(
     return best
 
 
+def save(name: str, address: str) -> None:
+    """Save or update a school→address mapping in the cache file."""
+    global _cache
+    cache = _load()
+    cache[name] = address
+    try:
+        with open(_CACHE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, ensure_ascii=False, indent=2)
+    except OSError as e:
+        print(f"Warning: could not save school cache: {e}")
+
+
 def reload():
     """Force reload of cache from disk (useful after build_school_cache.py runs)."""
     global _cache
