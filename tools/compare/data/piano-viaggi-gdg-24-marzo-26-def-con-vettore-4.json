@@ -14,41 +14,9 @@
     "v2": {
       "matched_pairs": [
         {
-          "jaccard": 1.0,
-          "planner": {
-            "vehicle_id": 0,
-            "stops": [
-              {
-                "name": "IC ARCO",
-                "lat": 45.9282235,
-                "lon": 10.8923377,
-                "departure_time": "08:07",
-                "count": 27
-              }
-            ],
-            "distance_km": 21.02
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC ARCO",
-                "luogo_ritrovo": "Arco, Ist. Comprensivo Arco, Località Prabi",
-                "departure_time": "08:10",
-                "return_time": "13:15",
-                "count": 27,
-                "lat": 45.9282235,
-                "lon": 10.8923377,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "2"
-        },
-        {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 2,
+            "vehicle_id": 0,
             "stops": [
               {
                 "name": "IC AVIO",
@@ -72,7 +40,7 @@
                 "count": 2
               }
             ],
-            "distance_km": 28.12
+            "distance_km": 42.28
           },
           "gt": {
             "stops": [
@@ -97,7 +65,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 41.97
           },
           "gt_fin": "1"
         },
@@ -110,46 +78,70 @@
                 "name": "IC TIONE",
                 "lat": 46.0302545,
                 "lon": 10.7247686,
-                "departure_time": "07:51",
+                "departure_time": "07:20",
                 "count": 21
+              },
+              {
+                "name": "IC ARCO",
+                "lat": 45.9282235,
+                "lon": 10.8923377,
+                "departure_time": "08:07",
+                "count": 27
               }
             ],
-            "distance_km": 29.04
+            "distance_km": 51.64
           },
           "gt": {
             "stops": [
               {
-                "name": "IC TIONE",
-                "luogo_ritrovo": "Tione, Via Circonvalazione 44",
-                "departure_time": "07:30",
-                "return_time": "14:00",
-                "count": 21,
-                "lat": 46.0302545,
-                "lon": 10.7247686,
-                "coords_missing": false
-              },
-              {
-                "name": "IS S. SHOOL – Students staff",
-                "luogo_ritrovo": "Trento, Park Ex Italcementi",
-                "departure_time": "08:35",
-                "return_time": "12:50",
-                "count": 2,
-                "lat": 46.0668543,
-                "lon": 11.1126427,
+                "name": "IC ARCO",
+                "luogo_ritrovo": "Arco, Ist. Comprensivo Arco, Località Prabi",
+                "departure_time": "08:10",
+                "return_time": "13:15",
+                "count": 27,
+                "lat": 45.9282235,
+                "lon": 10.8923377,
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 29.86
           },
-          "gt_fin": "3"
+          "gt_fin": "2"
         }
       ],
       "unmatched_planner": [],
-      "unmatched_gt": [],
+      "unmatched_gt": [
+        {
+          "stops": [
+            {
+              "name": "IC TIONE",
+              "luogo_ritrovo": "Tione, Via Circonvalazione 44",
+              "departure_time": "07:30",
+              "return_time": "14:00",
+              "count": 21,
+              "lat": 46.0302545,
+              "lon": 10.7247686,
+              "coords_missing": false
+            },
+            {
+              "name": "IS S. SHOOL – Students staff",
+              "luogo_ritrovo": "Trento, Park Ex Italcementi",
+              "departure_time": "08:35",
+              "return_time": "12:50",
+              "count": 2,
+              "lat": 46.0668543,
+              "lon": 11.1126427,
+              "coords_missing": false
+            }
+          ],
+          "distance_km": 44.23,
+          "fin": "3"
+        }
+      ],
       "scores": {
-        "assignment": 0.7222,
-        "bus_count": 1.0,
-        "combined": 0.8333
+        "assignment": 0.5833,
+        "bus_count": 0.6667,
+        "combined": 0.6167
       }
     },
     "v1": {
@@ -174,7 +166,7 @@
                 "count": 23
               }
             ],
-            "distance_km": 17.69
+            "distance_km": 41.97
           },
           "gt": {
             "stops": [
@@ -199,7 +191,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 41.97
           },
           "gt_fin": "1"
         },
@@ -230,7 +222,7 @@
                 "count": 2
               }
             ],
-            "distance_km": 48.76
+            "distance_km": 51.66
           },
           "gt": {
             "stops": [
@@ -255,7 +247,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 44.23
           },
           "gt_fin": "3"
         }
@@ -275,7 +267,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": null,
+          "distance_km": 29.86,
           "fin": "2"
         }
       ],
@@ -290,7 +282,7 @@
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 0,
+            "vehicle_id": 1,
             "stops": [
               {
                 "name": "IC AVIO",
@@ -307,7 +299,7 @@
                 "count": 23
               }
             ],
-            "distance_km": 17.69
+            "distance_km": 41.97
           },
           "gt": {
             "stops": [
@@ -332,14 +324,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 41.97
           },
           "gt_fin": "1"
         },
         {
           "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 1,
+            "vehicle_id": 0,
             "stops": [
               {
                 "name": "IC TIONE",
@@ -356,7 +348,7 @@
                 "count": 27
               }
             ],
-            "distance_km": 43.25
+            "distance_km": 51.64
           },
           "gt": {
             "stops": [
@@ -371,7 +363,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 29.86
           },
           "gt_fin": "2"
         },
@@ -388,7 +380,7 @@
                 "count": 2
               }
             ],
-            "distance_km": 7.01
+            "distance_km": 0.99
           },
           "gt": {
             "stops": [
@@ -413,7 +405,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 44.23
           },
           "gt_fin": "3"
         }

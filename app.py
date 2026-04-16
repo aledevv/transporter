@@ -1425,17 +1425,48 @@ def optimize_v2():
 REALSUITE_DIR = os.path.join(os.path.dirname(__file__), 'tests', 'realSuite')
 
 
+def _fixture_is_geocoded(ev_dir):
+    """
+    Returns True if every school in input.xlsx has coords in coords.json.
+    """
+    input_path  = os.path.join(ev_dir, 'input.xlsx')
+    coords_path = os.path.join(ev_dir, 'coords.json')
+    if not os.path.exists(coords_path):
+        return False
+    try:
+        df = pd.read_excel(input_path)
+        df.columns = [c.strip() for c in df.columns]
+        coords = json.load(open(coords_path, encoding='utf-8'))
+        seen = {}
+        for row_idx, row in df.iterrows():
+            name  = str(row['Nome']).strip()
+            count = seen.get(name, 0)
+            key   = name if count == 0 else f"{name}|{int(row_idx)}"
+            seen[name] = count + 1
+            entry = coords.get(key, {})
+            if entry.get('lat') is None or entry.get('lon') is None:
+                return False
+        return True
+    except Exception:
+        return False
+
+
 @app.route('/api/fixtures', methods=['GET'])
 def list_fixtures():
-    """Return sorted list of fixture directory names that have an input.xlsx."""
+    """Return sorted list of fixture directory names that have an input.xlsx,
+    with a 'geocoded' flag indicating whether all stops have coordinates."""
     try:
-        entries = sorted(
+        names = sorted(
             name for name in os.listdir(REALSUITE_DIR)
             if os.path.isdir(os.path.join(REALSUITE_DIR, name))
             and os.path.exists(os.path.join(REALSUITE_DIR, name, 'input.xlsx'))
             and name not in ('archive', 'pending')
         )
-        return jsonify({'fixtures': entries}), 200
+        fixtures = [
+            {'name': name, 'geocoded': _fixture_is_geocoded(os.path.join(REALSUITE_DIR, name))}
+            for name in names
+        ]
+        return jsonify({'fixtures': fixtures}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

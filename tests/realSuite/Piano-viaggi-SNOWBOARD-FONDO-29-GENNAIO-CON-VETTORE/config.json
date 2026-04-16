@@ -3,5 +3,6 @@
   "capacity": 54,
   "orario_fine_manifestazione": "15:00",
   "destination_lat": 45.8773236,
-  "destination_lon": 11.2120569
+  "destination_lon": 11.2120569,
+  "arrival_time": "07:34"
 }

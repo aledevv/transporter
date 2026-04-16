@@ -16,7 +16,7 @@
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 2,
+            "vehicle_id": 1,
             "stops": [
               {
                 "name": "IC LEVICO TERME",
@@ -40,7 +40,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 28.27
+            "distance_km": 31.65
           },
           "gt": {
             "stops": [
@@ -75,14 +75,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 45.85
           },
           "gt_fin": "4"
         },
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 5,
+            "vehicle_id": 3,
             "stops": [
               {
                 "name": "IC RIVA 1",
@@ -99,7 +99,7 @@
                 "count": 20
               }
             ],
-            "distance_km": 25.77
+            "distance_km": 38.26
           },
           "gt": {
             "stops": [
@@ -124,14 +124,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 38.26
           },
           "gt_fin": "6"
         },
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 10,
+            "vehicle_id": 8,
             "stops": [
               {
                 "name": "IC CHIESE",
@@ -155,7 +155,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 38.77
+            "distance_km": 57.86
           },
           "gt": {
             "stops": [
@@ -190,14 +190,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 81.15
           },
           "gt_fin": "3"
         },
         {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 1,
+            "vehicle_id": 0,
             "stops": [
               {
                 "name": "IC BORGO VALSUGANA",
@@ -214,7 +214,7 @@
                 "count": 10
               }
             ],
-            "distance_km": 29.59
+            "distance_km": 63.79
           },
           "gt": {
             "stops": [
@@ -249,14 +249,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 105.06
           },
           "gt_fin": "2"
         },
         {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 9,
+            "vehicle_id": 7,
             "stops": [
               {
                 "name": "IC DRO",
@@ -280,7 +280,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 20.49
+            "distance_km": 32.02
           },
           "gt": {
             "stops": [
@@ -305,98 +305,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 29.35
           },
           "gt_fin": "5"
         },
         {
           "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 0,
-            "stops": [
-              {
-                "name": "IC ALTA VAL DI SOLE",
-                "lat": 46.3107355,
-                "lon": 10.7325498,
-                "departure_time": "07:07",
-                "count": 16
-              }
-            ],
-            "distance_km": 36.38
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC ALTA VAL DI SOLE",
-                "luogo_ritrovo": "Ossana, Via S. Michele 11",
-                "departure_time": "07:05",
-                "return_time": "17:20",
-                "count": 16,
-                "lat": 46.3107355,
-                "lon": 10.7325498,
-                "coords_missing": false
-              },
-              {
-                "name": "IC CLES",
-                "luogo_ritrovo": "Cles, Piazza Fiera",
-                "departure_time": "07:40",
-                "return_time": "16:40",
-                "count": 19,
-                "lat": 46.3682701,
-                "lon": 11.0345527,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "1"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
             "vehicle_id": 4,
-            "stops": [
-              {
-                "name": "IC TAIO",
-                "lat": 46.3205505,
-                "lon": 11.0654295,
-                "departure_time": "07:46",
-                "count": 18
-              }
-            ],
-            "distance_km": 16.57
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC TAIO",
-                "luogo_ritrovo": "Taio, Piazza della Chiesa",
-                "departure_time": "07:50",
-                "return_time": "16:40",
-                "count": 18,
-                "lat": 46.3205505,
-                "lon": 11.0654295,
-                "coords_missing": false
-              },
-              {
-                "name": "IC TUENNO",
-                "luogo_ritrovo": "Ville d’Anaunia, Via Maistrelli 11",
-                "departure_time": "07:30",
-                "return_time": "17:00",
-                "count": 23,
-                "lat": 46.3304899,
-                "lon": 11.0250292,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "7"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
-            "vehicle_id": 6,
             "stops": [
               {
                 "name": "IC LADINO DI FASSA",
@@ -406,7 +322,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 41.98
+            "distance_km": 73.64
           },
           "gt": {
             "stops": [
@@ -431,14 +347,63 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 77.3
           },
           "gt_fin": "8"
         },
         {
           "jaccard": 0.3333,
           "planner": {
-            "vehicle_id": 8,
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC TUENNO",
+                "lat": 46.3304899,
+                "lon": 11.0250292,
+                "departure_time": "07:29",
+                "count": 23
+              },
+              {
+                "name": "IC CLES",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "07:38",
+                "count": 19
+              }
+            ],
+            "distance_km": 35.21
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALTA VAL DI SOLE",
+                "luogo_ritrovo": "Ossana, Via S. Michele 11",
+                "departure_time": "07:05",
+                "return_time": "17:20",
+                "count": 16,
+                "lat": 46.3107355,
+                "lon": 10.7325498,
+                "coords_missing": false
+              },
+              {
+                "name": "IC CLES",
+                "luogo_ritrovo": "Cles, Piazza Fiera",
+                "departure_time": "07:40",
+                "return_time": "16:40",
+                "count": 19,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 64.64
+          },
+          "gt_fin": "1"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 6,
             "stops": [
               {
                 "name": "IC MEZZOLOMBARDO PAGANELLA",
@@ -455,7 +420,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 15.24
+            "distance_km": 19.75
           },
           "gt": {
             "stops": [
@@ -480,34 +445,63 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.63
           },
           "gt_fin": "9"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 9,
+            "stops": [
+              {
+                "name": "IC ALTA VAL DI SOLE",
+                "lat": 46.3107355,
+                "lon": 10.7325498,
+                "departure_time": "07:02",
+                "count": 16
+              },
+              {
+                "name": "IC TAIO",
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "departure_time": "07:46",
+                "count": 18
+              }
+            ],
+            "distance_km": 61.48
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TAIO",
+                "luogo_ritrovo": "Taio, Piazza della Chiesa",
+                "departure_time": "07:50",
+                "return_time": "16:40",
+                "count": 18,
+                "lat": 46.3205505,
+                "lon": 11.0654295,
+                "coords_missing": false
+              },
+              {
+                "name": "IC TUENNO",
+                "luogo_ritrovo": "Ville d’Anaunia, Via Maistrelli 11",
+                "departure_time": "07:30",
+                "return_time": "17:00",
+                "count": 23,
+                "lat": 46.3304899,
+                "lon": 11.0250292,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 31.45
+          },
+          "gt_fin": "7"
         }
       ],
       "unmatched_planner": [
         {
-          "vehicle_id": 3,
-          "stops": [
-            {
-              "name": "IC TUENNO",
-              "lat": 46.3304899,
-              "lon": 11.0250292,
-              "departure_time": "07:29",
-              "count": 23
-            },
-            {
-              "name": "IC CLES",
-              "lat": 46.3682701,
-              "lon": 11.0345527,
-              "departure_time": "07:38",
-              "count": 19
-            }
-          ],
-          "distance_km": 23.85
-        },
-        {
-          "vehicle_id": 7,
+          "vehicle_id": 5,
           "stops": [
             {
               "name": "IC MEZZANO SANTA CROCE",
@@ -517,14 +511,14 @@
               "count": 14
             }
           ],
-          "distance_km": 45.42
+          "distance_km": 78.33
         }
       ],
       "unmatched_gt": [],
       "scores": {
-        "assignment": 0.6852,
-        "bus_count": 0.7778,
-        "combined": 0.7222
+        "assignment": 0.6481,
+        "bus_count": 0.8889,
+        "combined": 0.7444
       }
     },
     "v1": {
@@ -556,7 +550,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 38.77
+            "distance_km": 57.86
           },
           "gt": {
             "stops": [
@@ -591,7 +585,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 81.15
           },
           "gt_fin": "3"
         },
@@ -622,7 +616,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 28.27
+            "distance_km": 31.65
           },
           "gt": {
             "stops": [
@@ -657,7 +651,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 45.85
           },
           "gt_fin": "4"
         },
@@ -695,7 +689,7 @@
                 "count": 10
               }
             ],
-            "distance_km": 82.51
+            "distance_km": 122.23
           },
           "gt": {
             "stops": [
@@ -730,7 +724,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 105.06
           },
           "gt_fin": "2"
         },
@@ -761,7 +755,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 35.47
+            "distance_km": 56.82
           },
           "gt": {
             "stops": [
@@ -786,7 +780,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 38.26
           },
           "gt_fin": "6"
         },
@@ -817,7 +811,7 @@
                 "count": 18
               }
             ],
-            "distance_km": 38.35
+            "distance_km": 64.94
           },
           "gt": {
             "stops": [
@@ -842,7 +836,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 64.64
           },
           "gt_fin": "1"
         },
@@ -873,7 +867,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 20.49
+            "distance_km": 32.02
           },
           "gt": {
             "stops": [
@@ -898,7 +892,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 29.35
           },
           "gt_fin": "5"
         },
@@ -922,7 +916,7 @@
                 "count": 24
               }
             ],
-            "distance_km": 24.64
+            "distance_km": 26.97
           },
           "gt": {
             "stops": [
@@ -947,7 +941,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.63
           },
           "gt_fin": "9"
         }
@@ -977,7 +971,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": null,
+          "distance_km": 77.3,
           "fin": "8"
         },
         {
@@ -1003,7 +997,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": null,
+          "distance_km": 31.45,
           "fin": "7"
         }
       ],
@@ -1018,7 +1012,7 @@
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 3,
+            "vehicle_id": 0,
             "stops": [
               {
                 "name": "IC CHIESE",
@@ -1042,7 +1036,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 38.77
+            "distance_km": 57.86
           },
           "gt": {
             "stops": [
@@ -1077,14 +1071,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 81.15
           },
           "gt_fin": "3"
         },
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 4,
+            "vehicle_id": 6,
             "stops": [
               {
                 "name": "IC DRO",
@@ -1101,7 +1095,7 @@
                 "count": 14
               }
             ],
-            "distance_km": 19.47
+            "distance_km": 29.35
           },
           "gt": {
             "stops": [
@@ -1126,7 +1120,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 29.35
           },
           "gt_fin": "5"
         },
@@ -1157,7 +1151,7 @@
                 "count": 10
               }
             ],
-            "distance_km": 49.89
+            "distance_km": 88.88
           },
           "gt": {
             "stops": [
@@ -1192,14 +1186,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 105.06
           },
           "gt_fin": "2"
         },
         {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 1,
+            "vehicle_id": 2,
             "stops": [
               {
                 "name": "IC ALTA VAL DI SOLE",
@@ -1223,7 +1217,7 @@
                 "count": 18
               }
             ],
-            "distance_km": 38.35
+            "distance_km": 64.94
           },
           "gt": {
             "stops": [
@@ -1248,14 +1242,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 64.64
           },
           "gt_fin": "1"
         },
         {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 2,
+            "vehicle_id": 4,
             "stops": [
               {
                 "name": "IC RIVA 1",
@@ -1279,7 +1273,7 @@
                 "count": 15
               }
             ],
-            "distance_km": 26.79
+            "distance_km": 39.62
           },
           "gt": {
             "stops": [
@@ -1304,14 +1298,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 38.26
           },
           "gt_fin": "6"
         },
         {
           "jaccard": 0.6667,
           "planner": {
-            "vehicle_id": 8,
+            "vehicle_id": 5,
             "stops": [
               {
                 "name": "IC LEVICO TERME",
@@ -1328,7 +1322,7 @@
                 "count": 19
               }
             ],
-            "distance_km": 18.73
+            "distance_km": 27.98
           },
           "gt": {
             "stops": [
@@ -1363,14 +1357,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 45.85
           },
           "gt_fin": "4"
         },
         {
           "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 5,
+            "vehicle_id": 8,
             "stops": [
               {
                 "name": "IC MEZZOCORONA",
@@ -1380,7 +1374,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 8.15
+            "distance_km": 9.86
           },
           "gt": {
             "stops": [
@@ -1405,14 +1399,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 77.3
           },
           "gt_fin": "8"
         },
         {
           "jaccard": 0.3333,
           "planner": {
-            "vehicle_id": 0,
+            "vehicle_id": 7,
             "stops": [
               {
                 "name": "IC TUENNO",
@@ -1429,7 +1423,7 @@
                 "count": 24
               }
             ],
-            "distance_km": 24.64
+            "distance_km": 26.97
           },
           "gt": {
             "stops": [
@@ -1454,14 +1448,14 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.63
           },
           "gt_fin": "9"
         },
         {
           "jaccard": 0.0,
           "planner": {
-            "vehicle_id": 7,
+            "vehicle_id": 1,
             "stops": [
               {
                 "name": "IC LADINO DI FASSA",
@@ -1478,7 +1472,7 @@
                 "count": 16
               }
             ],
-            "distance_km": 45.7
+            "distance_km": 73.69
           },
           "gt": {
             "stops": [
@@ -1503,7 +1497,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 31.45
           },
           "gt_fin": "7"
         }

@@ -33,7 +33,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 24.28
+            "distance_km": 42.09
           },
           "gt": {
             "stops": [
@@ -58,7 +58,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 84.0
+            "distance_km": 42.09
           },
           "gt_fin": "1"
         },
@@ -82,7 +82,7 @@
                 "count": 17
               }
             ],
-            "distance_km": 21.16
+            "distance_km": 33.48
           },
           "gt": {
             "stops": [
@@ -117,7 +117,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 82.0
+            "distance_km": 33.81
           },
           "gt_fin": "2"
         },
@@ -180,7 +180,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 64.0
+            "distance_km": 22.03
           },
           "gt_fin": "4"
         },
@@ -218,7 +218,7 @@
                 "count": 0
               }
             ],
-            "distance_km": 11.01
+            "distance_km": 44.98
           },
           "gt": {
             "stops": [
@@ -253,7 +253,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 196.0
+            "distance_km": 123.54
           },
           "gt_fin": "5"
         }
@@ -283,7 +283,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": 96.0,
+          "distance_km": 41.67,
           "fin": "3"
         }
       ],
@@ -329,7 +329,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 23.55
+            "distance_km": 52.41
           },
           "gt": {
             "stops": [
@@ -364,7 +364,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 82.0
+            "distance_km": 33.81
           },
           "gt_fin": "2"
         },
@@ -409,7 +409,7 @@
                 "count": 10
               }
             ],
-            "distance_km": 24.28
+            "distance_km": 81.43
           },
           "gt": {
             "stops": [
@@ -444,7 +444,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 196.0
+            "distance_km": 123.54
           },
           "gt_fin": "5"
         },
@@ -500,7 +500,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 96.0
+            "distance_km": 41.67
           },
           "gt_fin": "3"
         }
@@ -530,7 +530,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": 64.0,
+          "distance_km": 22.03,
           "fin": "4"
         },
         {
@@ -556,7 +556,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": 84.0,
+          "distance_km": 42.09,
           "fin": "1"
         }
       ],
@@ -569,159 +569,16 @@
     "v1improved": {
       "matched_pairs": [
         {
-          "jaccard": 0.6,
+          "jaccard": 1.0,
           "planner": {
             "vehicle_id": 0,
             "stops": [
               {
-                "name": "IS CLES PILATI",
-                "lat": 46.3682701,
-                "lon": 11.0345527,
-                "departure_time": "06:28",
-                "count": 9
-              },
-              {
-                "name": "IS CLES RUSSELL",
-                "lat": 46.3682701,
-                "lon": 11.0345527,
-                "departure_time": "06:31",
-                "count": 17
-              },
-              {
-                "name": "IS MEZZOLOMBARDO MARTINI",
-                "lat": 46.2177667,
-                "lon": 11.0938593,
-                "departure_time": "06:59",
-                "count": 14
-              },
-              {
                 "name": "IS PRIMIERO",
                 "lat": 46.0697,
                 "lon": 11.1211,
-                "departure_time": "07:24",
-                "count": 0
-              },
-              {
-                "name": "IS ROVERETO DON MILANI",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "07:27",
-                "count": 10
-              }
-            ],
-            "distance_km": 23.55
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IS CLES PILATI",
-                "luogo_ritrovo": "Piazza Fiera, Cles",
-                "departure_time": "07:00",
-                "return_time": "17:00",
-                "count": 9,
-                "lat": 46.3682701,
-                "lon": 11.0345527,
-                "coords_missing": false
-              },
-              {
-                "name": "IS CLES RUSSELL",
-                "luogo_ritrovo": "nan",
-                "departure_time": "nan",
-                "return_time": "nan",
-                "count": 17,
-                "lat": 46.3682701,
-                "lon": 11.0345527,
-                "coords_missing": false
-              },
-              {
-                "name": "IS MEZZOLOMBARDO MARTINI",
-                "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
-                "departure_time": "07:35",
-                "return_time": "16:25",
-                "count": 14,
-                "lat": 46.2177667,
-                "lon": 11.0938593,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 82.0
-          },
-          "gt_fin": "2"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
-            "vehicle_id": 1,
-            "stops": [
-              {
-                "name": "IS TIONE ENAIP",
-                "lat": 46.0364673,
-                "lon": 10.7311417,
-                "departure_time": "06:30",
-                "count": 9
-              },
-              {
-                "name": "IS TIONE GUETTI",
-                "lat": 46.0364673,
-                "lon": 10.7311417,
-                "departure_time": "06:33",
-                "count": 13
-              },
-              {
-                "name": "IS BORGO VALSUGANA DEGASPERI",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "07:24",
-                "count": 18
-              },
-              {
-                "name": "IS ROVERETO MARCONI",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "07:27",
-                "count": 13
-              }
-            ],
-            "distance_km": 24.28
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IS TIONE ENAIP",
-                "luogo_ritrovo": "nan",
-                "departure_time": "nan",
-                "return_time": "nan",
-                "count": 9,
-                "lat": 46.0364673,
-                "lon": 10.7311417,
-                "coords_missing": false
-              },
-              {
-                "name": "IS TIONE GUETTI",
-                "luogo_ritrovo": "Via Durone, Tione",
-                "departure_time": "07:00",
-                "return_time": "17:00",
-                "count": 13,
-                "lat": 46.0364673,
-                "lon": 10.7311417,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 84.0
-          },
-          "gt_fin": "1"
-        },
-        {
-          "jaccard": 0.25,
-          "planner": {
-            "vehicle_id": 2,
-            "stops": [
-              {
-                "name": "IS ROVERETO ROSMINI",
-                "lat": 46.0697,
-                "lon": 11.1211,
                 "departure_time": "07:21",
-                "count": 14
+                "count": 0
               },
               {
                 "name": "IS PRIMIERO",
@@ -731,11 +588,11 @@
                 "count": 15
               },
               {
-                "name": "IS RIVA DEL GARDA MAFFEI",
+                "name": "IS BORGO VALSUGANA DEGASPERI",
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "departure_time": "07:27",
-                "count": 20
+                "count": 18
               }
             ],
             "distance_km": 0.0
@@ -773,9 +630,187 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 196.0
+            "distance_km": 123.54
           },
           "gt_fin": "5"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:34",
+                "count": 9
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "departure_time": "06:37",
+                "count": 17
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "departure_time": "07:05",
+                "count": 14
+              }
+            ],
+            "distance_km": 33.82
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS CLES PILATI",
+                "luogo_ritrovo": "Piazza Fiera, Cles",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 9,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS CLES RUSSELL",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 17,
+                "lat": 46.3682701,
+                "lon": 11.0345527,
+                "coords_missing": false
+              },
+              {
+                "name": "IS MEZZOLOMBARDO MARTINI",
+                "luogo_ritrovo": "Via Perlasca, 4, Mezzolombardo",
+                "departure_time": "07:35",
+                "return_time": "16:25",
+                "count": 14,
+                "lat": 46.2177667,
+                "lon": 11.0938593,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 33.81
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 1,
+            "stops": [
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:21",
+                "count": 10
+              },
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:24",
+                "count": 14
+              },
+              {
+                "name": "IS ROVERETO MARCONI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 13
+              }
+            ],
+            "distance_km": 0.0
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS ROVERETO DON MILANI",
+                "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
+                "departure_time": "07:25",
+                "return_time": "16:35",
+                "count": 10,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "IS ROVERETO ROSMINI",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 14,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 22.03
+          },
+          "gt_fin": "4"
+        },
+        {
+          "jaccard": 0.6667,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:33",
+                "count": 9
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "departure_time": "06:36",
+                "count": 13
+              },
+              {
+                "name": "IS RIVA DEL GARDA MAFFEI",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "07:27",
+                "count": 20
+              }
+            ],
+            "distance_km": 20.76
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS TIONE ENAIP",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 9,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              },
+              {
+                "name": "IS TIONE GUETTI",
+                "luogo_ritrovo": "Via Durone, Tione",
+                "departure_time": "07:00",
+                "return_time": "17:00",
+                "count": 13,
+                "lat": 46.0364673,
+                "lon": 10.7311417,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 42.09
+          },
+          "gt_fin": "1"
         }
       ],
       "unmatched_planner": [],
@@ -803,40 +838,14 @@
               "coords_missing": false
             }
           ],
-          "distance_km": 96.0,
+          "distance_km": 41.67,
           "fin": "3"
-        },
-        {
-          "stops": [
-            {
-              "name": "IS ROVERETO DON MILANI",
-              "luogo_ritrovo": "Piazzale Orsi (fermata autobus I.P.I.A.), Rovereto",
-              "departure_time": "07:25",
-              "return_time": "16:35",
-              "count": 10,
-              "lat": 46.0697,
-              "lon": 11.1211,
-              "coords_missing": false
-            },
-            {
-              "name": "IS ROVERETO ROSMINI",
-              "luogo_ritrovo": "nan",
-              "departure_time": "nan",
-              "return_time": "nan",
-              "count": 14,
-              "lat": 46.0697,
-              "lon": 11.1211,
-              "coords_missing": false
-            }
-          ],
-          "distance_km": 64.0,
-          "fin": "4"
         }
       ],
       "scores": {
-        "assignment": 0.45,
-        "bus_count": 0.6,
-        "combined": 0.51
+        "assignment": 0.8333,
+        "bus_count": 0.8,
+        "combined": 0.82
       }
     }
   }

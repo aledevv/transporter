@@ -37,9 +37,9 @@
         "combined": 0.5536
       },
       "v1improved": {
-        "assignment": 0.6056,
+        "assignment": 0.7083,
         "bus_count": 0.75,
-        "combined": 0.6633
+        "combined": 0.725
       }
     }
   },
@@ -49,9 +49,9 @@
     "destination": "Centro Sportivo Trento Nord – Gardolo",
     "scores": {
       "v2": {
-        "assignment": 0.6061,
-        "bus_count": 0.9091,
-        "combined": 0.7273
+        "assignment": 0.5758,
+        "bus_count": 1.0,
+        "combined": 0.7455
       },
       "v1": {
         "assignment": 0.8148,
@@ -59,9 +59,9 @@
         "combined": 0.8162
       },
       "v1improved": {
-        "assignment": 0.6667,
+        "assignment": 0.8,
         "bus_count": 0.9091,
-        "combined": 0.7636
+        "combined": 0.8436
       }
     }
   },
@@ -71,9 +71,9 @@
     "destination": "Villa Lagarina – Località Giardini",
     "scores": {
       "v2": {
-        "assignment": 0.405,
-        "bus_count": 0.9524,
-        "combined": 0.624
+        "assignment": 0.3868,
+        "bus_count": 0.9048,
+        "combined": 0.594
       },
       "v1": {
         "assignment": 0.3479,
@@ -81,9 +81,9 @@
         "combined": 0.5135
       },
       "v1improved": {
-        "assignment": 0.3448,
+        "assignment": 0.4781,
         "bus_count": 0.7619,
-        "combined": 0.5116
+        "combined": 0.5916
       }
     }
   },
@@ -93,9 +93,9 @@
     "destination": "Villa Lagarina – Località Giardini",
     "scores": {
       "v2": {
-        "assignment": 0.3029,
-        "bus_count": 0.8947,
-        "combined": 0.5397
+        "assignment": 0.299,
+        "bus_count": 0.8421,
+        "combined": 0.5162
       },
       "v1": {
         "assignment": 0.3205,
@@ -103,9 +103,9 @@
         "combined": 0.466
       },
       "v1improved": {
-        "assignment": 0.2971,
-        "bus_count": 0.6842,
-        "combined": 0.4519
+        "assignment": 0.519,
+        "bus_count": 0.7368,
+        "combined": 0.6062
       }
     }
   },
@@ -125,9 +125,9 @@
         "combined": 0.49
       },
       "v1improved": {
-        "assignment": 0.3167,
+        "assignment": 0.5944,
         "bus_count": 0.75,
-        "combined": 0.49
+        "combined": 0.6567
       }
     }
   },
@@ -137,9 +137,9 @@
     "destination": "Centro Sportivo Alle Albere – Aldeno, Via alle Albere 3",
     "scores": {
       "v2": {
-        "assignment": 0.7222,
-        "bus_count": 1.0,
-        "combined": 0.8333
+        "assignment": 0.5833,
+        "bus_count": 0.6667,
+        "combined": 0.6167
       },
       "v1": {
         "assignment": 0.8333,
@@ -159,9 +159,9 @@
     "destination": "Centro Sportivo Trento Nord – Gardolo",
     "scores": {
       "v2": {
-        "assignment": 0.6852,
-        "bus_count": 0.7778,
-        "combined": 0.7222
+        "assignment": 0.6481,
+        "bus_count": 0.8889,
+        "combined": 0.7444
       },
       "v1": {
         "assignment": 0.7262,
@@ -181,9 +181,9 @@
     "destination": "Fondo Grande Folgaria",
     "scores": {
       "v2": {
-        "assignment": 0.3318,
-        "bus_count": 0.8,
-        "combined": 0.5191
+        "assignment": 0.2765,
+        "bus_count": 0.9,
+        "combined": 0.5259
       },
       "v1": {
         "assignment": 0.3694,
@@ -191,9 +191,9 @@
         "combined": 0.5017
       },
       "v1improved": {
-        "assignment": 0.3053,
+        "assignment": 0.4986,
         "bus_count": 0.7,
-        "combined": 0.4632
+        "combined": 0.5792
       }
     }
   },
@@ -203,9 +203,9 @@
     "destination": "Trento Nord - Gardolo – Centro Sportivo",
     "scores": {
       "v2": {
-        "assignment": 0.3758,
-        "bus_count": 0.625,
-        "combined": 0.4755
+        "assignment": 0.3708,
+        "bus_count": 0.875,
+        "combined": 0.5725
       },
       "v1": {
         "assignment": 0.378,
@@ -213,9 +213,9 @@
         "combined": 0.4268
       },
       "v1improved": {
-        "assignment": 0.3868,
-        "bus_count": 0.75,
-        "combined": 0.5321
+        "assignment": 0.566,
+        "bus_count": 0.875,
+        "combined": 0.6896
       }
     }
   },
@@ -235,9 +235,9 @@
         "combined": 0.4991
       },
       "v1improved": {
-        "assignment": 0.3869,
+        "assignment": 0.4813,
         "bus_count": 0.75,
-        "combined": 0.5321
+        "combined": 0.5888
       }
     }
   },
@@ -257,9 +257,9 @@
         "combined": 0.6493
       },
       "v1improved": {
-        "assignment": 0.6667,
+        "assignment": 0.526,
         "bus_count": 0.8889,
-        "combined": 0.7556
+        "combined": 0.6712
       }
     }
   },
@@ -279,31 +279,9 @@
         "combined": 0.6214
       },
       "v1improved": {
-        "assignment": 0.3929,
+        "assignment": 0.6667,
         "bus_count": 0.875,
-        "combined": 0.5857
-      }
-    }
-  },
-  {
-    "slug": "piano-viaggi-atletica-ragazz-8-maggio-2025-def-con-cell",
-    "name": "Piano-Viaggi_Atletica-Ragazz-_8-maggio-2025_def_con-cell",
-    "destination": "Rovereto – Stadio Quercia",
-    "scores": {
-      "v2": {
-        "assignment": 0.4267,
-        "bus_count": 0.8824,
-        "combined": 0.6089
-      },
-      "v1": {
-        "assignment": 0.4764,
-        "bus_count": 0.7059,
-        "combined": 0.5682
-      },
-      "v1improved": {
-        "assignment": 0.4987,
-        "bus_count": 0.7647,
-        "combined": 0.6051
+        "combined": 0.75
       }
     }
   },
@@ -324,30 +302,8 @@
       },
       "v1improved": {
         "assignment": 0.5,
-        "bus_count": 0.0,
-        "combined": 0.3
-      }
-    }
-  },
-  {
-    "slug": "piano-viaggi-giochiamo-alle-olimpiadi-21-ottobre-2025-gardolo",
-    "name": "Piano-Viaggi_Giochiamo-alle-Olimpiadi_21-ottobre-2025_Gardolo",
-    "destination": "Centro Sportivo di Gardolo – Trento Nord",
-    "scores": {
-      "v2": {
-        "assignment": 0.7333,
-        "bus_count": 0.8,
-        "combined": 0.76
-      },
-      "v1": {
-        "assignment": 0.7222,
-        "bus_count": 0.9,
-        "combined": 0.7933
-      },
-      "v1improved": {
-        "assignment": 0.7407,
-        "bus_count": 0.9,
-        "combined": 0.8044
+        "bus_count": 0.5,
+        "combined": 0.5
       }
     }
   },
@@ -374,36 +330,14 @@
     }
   },
   {
-    "slug": "piano-viaggi-gioco-volley-8-gennaio-2026-4-def-con-vettore-ed-integrazione",
-    "name": "Piano-Viaggi_Gioco-Volley_8-gennaio-2026_4-DEF_con-vettore-ed-integrazione",
-    "destination": "Centro Sportivo Trento Nord – Gardolo",
-    "scores": {
-      "v2": {
-        "assignment": 0.6111,
-        "bus_count": 1.0,
-        "combined": 0.7667
-      },
-      "v1": {
-        "assignment": 0.4792,
-        "bus_count": 0.8889,
-        "combined": 0.6431
-      },
-      "v1improved": {
-        "assignment": 0.5,
-        "bus_count": 1.0,
-        "combined": 0.7
-      }
-    }
-  },
-  {
     "slug": "piano-viaggi-orienteering-15-aprile-2026-def",
     "name": "Piano-Viaggi_Orienteering_15-aprile-2026_def",
     "destination": "Centro Sportivo Lungolago Serraia - Baselga di Pinè",
     "scores": {
       "v2": {
-        "assignment": 0.6422,
-        "bus_count": 0.8824,
-        "combined": 0.7382
+        "assignment": 0.6078,
+        "bus_count": 0.9412,
+        "combined": 0.7412
       },
       "v1": {
         "assignment": 0.4989,
@@ -411,31 +345,9 @@
         "combined": 0.6523
       },
       "v1improved": {
-        "assignment": 0.4722,
-        "bus_count": 0.8824,
-        "combined": 0.6363
-      }
-    }
-  },
-  {
-    "slug": "piano-viaggi-palla-tamburello-22-aprile-2026",
-    "name": "Piano-Viaggi_Palla-Tamburello_22-aprile-2026",
-    "destination": "Centro Tamburello – Via Santo Spirito/Via Palù – Località Palù - Rallo",
-    "scores": {
-      "v2": {
-        "assignment": 0.625,
-        "bus_count": 1.0,
-        "combined": 0.775
-      },
-      "v1": {
-        "assignment": 0.6905,
-        "bus_count": 0.875,
-        "combined": 0.7643
-      },
-      "v1improved": {
-        "assignment": 0.625,
-        "bus_count": 1.0,
-        "combined": 0.775
+        "assignment": 0.3896,
+        "bus_count": 0.9412,
+        "combined": 0.6102
       }
     }
   },
@@ -455,9 +367,9 @@
         "combined": 0.4029
       },
       "v1improved": {
-        "assignment": 0.4133,
-        "bus_count": 0.625,
-        "combined": 0.498
+        "assignment": 0.6389,
+        "bus_count": 0.75,
+        "combined": 0.6833
       }
     }
   },
@@ -477,9 +389,9 @@
         "combined": 0.4195
       },
       "v1improved": {
-        "assignment": 0.3065,
-        "bus_count": 0.6667,
-        "combined": 0.4506
+        "assignment": 0.4002,
+        "bus_count": 0.8333,
+        "combined": 0.5735
       }
     }
   },
@@ -489,9 +401,9 @@
     "destination": "Passo Coe",
     "scores": {
       "v2": {
-        "assignment": 0.4537,
-        "bus_count": 0.9,
-        "combined": 0.6322
+        "assignment": 0.4583,
+        "bus_count": 0.8,
+        "combined": 0.595
       },
       "v1": {
         "assignment": 0.3789,
@@ -499,31 +411,9 @@
         "combined": 0.5073
       },
       "v1improved": {
-        "assignment": 0.3293,
+        "assignment": 0.5214,
         "bus_count": 0.7,
-        "combined": 0.4776
-      }
-    }
-  },
-  {
-    "slug": "piano-viaggi-tennis-tavolo-ic-con-vettore-e-cel-24-nov-25",
-    "name": "Piano-viaggi_TENNIS-TAVOLO-IC_con-vettore-e-cel_24-nov-25",
-    "destination": "Centro Sportivo \"Pala Vela\" - Trento",
-    "scores": {
-      "v2": {
-        "assignment": 0.75,
-        "bus_count": 0.5,
-        "combined": 0.65
-      },
-      "v1": {
-        "assignment": 0.75,
-        "bus_count": 0.5,
-        "combined": 0.65
-      },
-      "v1improved": {
-        "assignment": 1.0,
-        "bus_count": 1.0,
-        "combined": 1.0
+        "combined": 0.5929
       }
     }
   },
@@ -543,9 +433,9 @@
         "combined": 0.52
       },
       "v1improved": {
-        "assignment": 0.45,
-        "bus_count": 0.6,
-        "combined": 0.51
+        "assignment": 0.8333,
+        "bus_count": 0.8,
+        "combined": 0.82
       }
     }
   },
@@ -565,9 +455,9 @@
         "combined": 0.484
       },
       "v1improved": {
-        "assignment": 0.3095,
+        "assignment": 0.3669,
         "bus_count": 0.8182,
-        "combined": 0.513
+        "combined": 0.5474
       }
     }
   },
@@ -577,9 +467,9 @@
     "destination": "Centro sportivo Trento Nord - Trento",
     "scores": {
       "v2": {
-        "assignment": 0.385,
-        "bus_count": 0.8333,
-        "combined": 0.5643
+        "assignment": 0.3853,
+        "bus_count": 1.0,
+        "combined": 0.6312
       },
       "v1": {
         "assignment": 0.3036,
@@ -587,31 +477,9 @@
         "combined": 0.4488
       },
       "v1improved": {
-        "assignment": 0.3929,
-        "bus_count": 0.6667,
-        "combined": 0.5024
-      }
-    }
-  },
-  {
-    "slug": "piano-trasporti-calcio-a-5-ic-17-mar-26-con-vettori-2",
-    "name": "piano_trasporti_Calcio-a-5_IC_17-mar-26_CON-VETTORI-2",
-    "destination": "Centro Sportivo Melta di Gardolo",
-    "scores": {
-      "v2": {
-        "assignment": 0.6729,
-        "bus_count": 0.8889,
-        "combined": 0.7593
-      },
-      "v1": {
-        "assignment": 0.6417,
-        "bus_count": 0.6667,
-        "combined": 0.6517
-      },
-      "v1improved": {
-        "assignment": 0.7071,
-        "bus_count": 0.7778,
-        "combined": 0.7354
+        "assignment": 0.5722,
+        "bus_count": 1.0,
+        "combined": 0.7433
       }
     }
   },
@@ -621,9 +489,9 @@
     "destination": "Centro Sportivo Melta di Gardolo",
     "scores": {
       "v2": {
-        "assignment": 0.7778,
-        "bus_count": 1.0,
-        "combined": 0.8667
+        "assignment": 0.8333,
+        "bus_count": 0.8889,
+        "combined": 0.8556
       },
       "v1": {
         "assignment": 0.881,

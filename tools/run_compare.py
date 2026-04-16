@@ -304,7 +304,11 @@ def main():
 
     for ev_dir in events:
         print(f"Processing {ev_dir.name}...", end=" ", flush=True)
-        data = process_event(ev_dir)
+        try:
+            data = process_event(ev_dir)
+        except Exception as exc:
+            print(f"ERROR — {exc}")
+            continue
         if data is None:
             print("skipped")
             continue

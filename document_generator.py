@@ -140,7 +140,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                 
                 if i == 0:
                     _set_cell_val(current_row.cells[0], f"Fin {route.get('vehicle_id', route_idx) + 1}", size=9)
-                    _set_cell_val(current_row.cells[1], f"{route.get('outbound', {}).get('distance', 0) // 1000} KM", size=11)
+                    _set_cell_val(current_row.cells[1], f"{route.get('outbound', {}).get('distance', 0) / 1000:.1f} KM", size=11)
                     first_fin_cell = current_row.cells[0]
                     first_km_cell = current_row.cells[1]
                 else:

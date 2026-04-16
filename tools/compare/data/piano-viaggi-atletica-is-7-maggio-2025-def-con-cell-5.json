@@ -33,7 +33,7 @@
                 "count": 27
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 19.54
           },
           "gt": {
             "stops": [
@@ -48,7 +48,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.71
           },
           "gt_fin": "6 bis"
         },
@@ -65,7 +65,7 @@
                 "count": 27
               }
             ],
-            "distance_km": 14.32
+            "distance_km": 19.54
           },
           "gt": {
             "stops": [
@@ -90,7 +90,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 59.8
           },
           "gt_fin": "4"
         },
@@ -107,7 +107,7 @@
                 "count": 21
               }
             ],
-            "distance_km": 27.01
+            "distance_km": 51.87
           },
           "gt": {
             "stops": [
@@ -132,7 +132,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 51.87
           },
           "gt_fin": "1"
         },
@@ -156,7 +156,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 35.7
           },
           "gt": {
             "stops": [
@@ -171,7 +171,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.71
           },
           "gt_fin": "6"
         },
@@ -195,7 +195,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 21.6
           },
           "gt": {
             "stops": [
@@ -220,7 +220,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 22.17
           },
           "gt_fin": "2"
         },
@@ -244,7 +244,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 37.19
           },
           "gt": {
             "stops": [
@@ -269,7 +269,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 37.94
           },
           "gt_fin": "7"
         },
@@ -293,7 +293,7 @@
                 "count": 12
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 20.56
           },
           "gt": {
             "stops": [
@@ -318,7 +318,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 37.36
           },
           "gt_fin": "3"
         },
@@ -342,7 +342,7 @@
                 "count": 23
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 50.17
           },
           "gt": {
             "stops": [
@@ -367,7 +367,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 21.23
           },
           "gt_fin": "5"
         }
@@ -409,7 +409,7 @@
                 "count": 13
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 37.19
           },
           "gt": {
             "stops": [
@@ -434,7 +434,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 22.17
           },
           "gt_fin": "2"
         },
@@ -451,7 +451,7 @@
                 "count": 21
               }
             ],
-            "distance_km": 27.01
+            "distance_km": 51.87
           },
           "gt": {
             "stops": [
@@ -476,7 +476,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 51.87
           },
           "gt_fin": "1"
         },
@@ -500,7 +500,7 @@
                 "count": 30
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 51.87
           },
           "gt": {
             "stops": [
@@ -515,7 +515,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.71
           },
           "gt_fin": "6 bis"
         },
@@ -539,7 +539,7 @@
                 "count": 30
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 19.71
           },
           "gt": {
             "stops": [
@@ -554,7 +554,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 19.71
           },
           "gt_fin": "6"
         },
@@ -578,7 +578,7 @@
                 "count": 12
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 20.56
           },
           "gt": {
             "stops": [
@@ -603,7 +603,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 21.23
           },
           "gt_fin": "5"
         },
@@ -627,7 +627,7 @@
                 "count": 27
               }
             ],
-            "distance_km": 17.17
+            "distance_km": 19.54
           },
           "gt": {
             "stops": [
@@ -652,7 +652,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 59.8
           },
           "gt_fin": "4"
         },
@@ -676,7 +676,7 @@
                 "count": 30
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 37.27
           },
           "gt": {
             "stops": [
@@ -701,7 +701,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 37.36
           },
           "gt_fin": "3"
         }
@@ -731,7 +731,7 @@
               "coords_missing": false
             }
           ],
-          "distance_km": null,
+          "distance_km": 37.94,
           "fin": "7"
         }
       ],
@@ -744,97 +744,26 @@
     "v1improved": {
       "matched_pairs": [
         {
-          "jaccard": 0.5,
+          "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 2,
-            "stops": [
-              {
-                "name": "Liceo Da Vinci Trento (pullman con pedana)",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:44",
-                "count": 20
-              },
-              {
-                "name": "IS Guetti Tione",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:47",
-                "count": 30
-              }
-            ],
-            "distance_km": 10.65
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "Liceo Da Vinci Trento (pullman con pedana)",
-                "luogo_ritrovo": "Fermata Bus Cimitero - direzione sud - Via Giusti - Trento",
-                "departure_time": "09:00",
-                "return_time": "12:00",
-                "count": 20,
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "6 bis"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
-            "vehicle_id": 3,
-            "stops": [
-              {
-                "name": "Liceo Da Vinci Trento",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:44",
-                "count": 30
-              },
-              {
-                "name": "IS Enaip Tione",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:47",
-                "count": 13
-              }
-            ],
-            "distance_km": 10.65
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "Liceo Da Vinci Trento",
-                "luogo_ritrovo": "Fermata Bus Cimitero - direzione sud - Via Giusti - Trento",
-                "departure_time": "08:45",
-                "return_time": "17:35",
-                "count": 30,
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "6"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
-            "vehicle_id": 6,
+            "vehicle_id": 0,
             "stops": [
               {
                 "name": "IS Pilati CLES",
                 "lat": 46.3682701,
                 "lon": 11.0345527,
-                "departure_time": "08:14",
+                "departure_time": "08:02",
                 "count": 21
+              },
+              {
+                "name": "IS Russell CLES",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:47",
+                "count": 30
               }
             ],
-            "distance_km": 27.01
+            "distance_km": 51.87
           },
           "gt": {
             "stops": [
@@ -859,112 +788,63 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 51.87
           },
           "gt_fin": "1"
         },
         {
-          "jaccard": 0.3333,
+          "jaccard": 1.0,
           "planner": {
             "vehicle_id": 1,
             "stops": [
               {
-                "name": "IS Russell CLES",
+                "name": "IS Guetti Tione",
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "departure_time": "08:44",
                 "count": 30
               },
               {
-                "name": "IS Degasperi Borgo Valsugana",
+                "name": "IS Enaip Tione",
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "departure_time": "08:47",
-                "count": 23
+                "count": 13
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 37.19
           },
           "gt": {
             "stops": [
               {
-                "name": "IS Degasperi Borgo Valsugana",
-                "luogo_ritrovo": "Stazione autocorriere, Borgo Valsugana",
-                "departure_time": "08:00",
-                "return_time": "18:30",
-                "count": 23,
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "coords_missing": false
-              },
-              {
-                "name": "IS Pertini Trento",
-                "luogo_ritrovo": "Funivia Sardagna - Trento",
-                "departure_time": "08:50",
-                "return_time": "17:45",
-                "count": 27,
-                "lat": 46.0659767,
-                "lon": 11.1026923,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "4"
-        },
-        {
-          "jaccard": 0.3333,
-          "planner": {
-            "vehicle_id": 4,
-            "stops": [
-              {
-                "name": "Linguistico SCHOLL Trento",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:26",
-                "count": 27
-              },
-              {
-                "name": "IS Pertini Trento",
-                "lat": 46.0659767,
-                "lon": 11.1026923,
-                "departure_time": "08:40",
-                "count": 27
-              }
-            ],
-            "distance_km": 20.01
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IS Buonarroti Trento",
+                "name": "IS Enaip Tione",
                 "luogo_ritrovo": "nan",
                 "departure_time": "nan",
                 "return_time": "nan",
-                "count": 12,
+                "count": 13,
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "coords_missing": false
               },
               {
-                "name": "Linguistico SCHOLL Trento",
-                "luogo_ritrovo": "Fermata Bus Funivia Sardagna - Trento",
-                "departure_time": "08:45",
-                "return_time": "17:35",
-                "count": 27,
+                "name": "IS Guetti Tione",
+                "luogo_ritrovo": "Scuola – Via Durone, Tione",
+                "departure_time": "08:10",
+                "return_time": "18:10",
+                "count": 30,
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 37.36
           },
-          "gt_fin": "5"
+          "gt_fin": "3"
         },
         {
-          "jaccard": 0.3333,
+          "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 5,
+            "vehicle_id": 2,
             "stops": [
               {
                 "name": "IS Floriani Riva del Garda",
@@ -974,14 +854,14 @@
                 "count": 13
               },
               {
-                "name": "IS Rosmini Trento",
+                "name": "IS Maffei Riva del Garda",
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "departure_time": "08:47",
-                "count": 38
+                "count": 28
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 21.49
           },
           "gt": {
             "stops": [
@@ -1006,38 +886,24 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 22.17
           },
           "gt_fin": "2"
         },
         {
-          "jaccard": 0.25,
+          "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 0,
+            "vehicle_id": 5,
             "stops": [
               {
-                "name": "IS Martini Mezzolombardo",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:41",
-                "count": 13
-              },
-              {
-                "name": "IS Buonarroti Trento",
-                "lat": 46.0697,
-                "lon": 11.1211,
-                "departure_time": "08:44",
-                "count": 12
-              },
-              {
-                "name": "IS Maffei Riva del Garda",
+                "name": "IS Rosmini Trento",
                 "lat": 46.0697,
                 "lon": 11.1211,
                 "departure_time": "08:47",
-                "count": 28
+                "count": 38
               }
             ],
-            "distance_km": 10.65
+            "distance_km": 20.25
           },
           "gt": {
             "stops": [
@@ -1062,9 +928,143 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 37.94
           },
           "gt_fin": "7"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 6,
+            "stops": [
+              {
+                "name": "IS Degasperi Borgo Valsugana",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:44",
+                "count": 23
+              },
+              {
+                "name": "Liceo Da Vinci Trento",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:47",
+                "count": 30
+              }
+            ],
+            "distance_km": 19.71
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "Liceo Da Vinci Trento",
+                "luogo_ritrovo": "Fermata Bus Cimitero - direzione sud - Via Giusti - Trento",
+                "departure_time": "08:45",
+                "return_time": "17:35",
+                "count": 30,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 19.71
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 3,
+            "stops": [
+              {
+                "name": "IS Martini Mezzolombardo",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:41",
+                "count": 13
+              },
+              {
+                "name": "IS Buonarroti Trento",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:44",
+                "count": 12
+              },
+              {
+                "name": "Liceo Da Vinci Trento (pullman con pedana)",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:47",
+                "count": 20
+              }
+            ],
+            "distance_km": 19.71
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "Liceo Da Vinci Trento (pullman con pedana)",
+                "luogo_ritrovo": "Fermata Bus Cimitero - direzione sud - Via Giusti - Trento",
+                "departure_time": "09:00",
+                "return_time": "12:00",
+                "count": 20,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 19.71
+          },
+          "gt_fin": "6 bis"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 4,
+            "stops": [
+              {
+                "name": "IS Pertini Trento",
+                "lat": 46.0659767,
+                "lon": 11.1026923,
+                "departure_time": "08:31",
+                "count": 27
+              },
+              {
+                "name": "Linguistico SCHOLL Trento",
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "departure_time": "08:47",
+                "count": 27
+              }
+            ],
+            "distance_km": 19.54
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IS Buonarroti Trento",
+                "luogo_ritrovo": "nan",
+                "departure_time": "nan",
+                "return_time": "nan",
+                "count": 12,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              },
+              {
+                "name": "Linguistico SCHOLL Trento",
+                "luogo_ritrovo": "Fermata Bus Funivia Sardagna - Trento",
+                "departure_time": "08:45",
+                "return_time": "17:35",
+                "count": 27,
+                "lat": 46.0697,
+                "lon": 11.1211,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 21.23
+          },
+          "gt_fin": "5"
         }
       ],
       "unmatched_planner": [],
@@ -1072,34 +1072,34 @@
         {
           "stops": [
             {
-              "name": "IS Enaip Tione",
-              "luogo_ritrovo": "nan",
-              "departure_time": "nan",
-              "return_time": "nan",
-              "count": 13,
+              "name": "IS Degasperi Borgo Valsugana",
+              "luogo_ritrovo": "Stazione autocorriere, Borgo Valsugana",
+              "departure_time": "08:00",
+              "return_time": "18:30",
+              "count": 23,
               "lat": 46.0697,
               "lon": 11.1211,
               "coords_missing": false
             },
             {
-              "name": "IS Guetti Tione",
-              "luogo_ritrovo": "Scuola – Via Durone, Tione",
-              "departure_time": "08:10",
-              "return_time": "18:10",
-              "count": 30,
-              "lat": 46.0697,
-              "lon": 11.1211,
+              "name": "IS Pertini Trento",
+              "luogo_ritrovo": "Funivia Sardagna - Trento",
+              "departure_time": "08:50",
+              "return_time": "17:45",
+              "count": 27,
+              "lat": 46.0659767,
+              "lon": 11.1026923,
               "coords_missing": false
             }
           ],
-          "distance_km": null,
-          "fin": "3"
+          "distance_km": 59.8,
+          "fin": "4"
         }
       ],
       "scores": {
-        "assignment": 0.3929,
+        "assignment": 0.6667,
         "bus_count": 0.875,
-        "combined": 0.5857
+        "combined": 0.75
       }
     }
   }

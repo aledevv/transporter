@@ -33,7 +33,7 @@
                 "count": 23
               }
             ],
-            "distance_km": 14.35
+            "distance_km": 20.33
           },
           "gt": {
             "stops": [
@@ -58,7 +58,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 28.54
           },
           "gt_fin": "2"
         },
@@ -82,7 +82,7 @@
                 "count": 21
               }
             ],
-            "distance_km": 30.23
+            "distance_km": 42.95
           },
           "gt": {
             "stops": [
@@ -107,7 +107,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 42.95
           },
           "gt_fin": "1"
         }
@@ -142,7 +142,7 @@
                 "count": 21
               }
             ],
-            "distance_km": 30.23
+            "distance_km": 42.95
           },
           "gt": {
             "stops": [
@@ -167,7 +167,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 42.95
           },
           "gt_fin": "1"
         },
@@ -191,7 +191,7 @@
                 "count": 23
               }
             ],
-            "distance_km": 14.35
+            "distance_km": 20.33
           },
           "gt": {
             "stops": [
@@ -216,7 +216,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 28.54
           },
           "gt_fin": "2"
         }
@@ -234,17 +234,59 @@
         {
           "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 0,
+            "vehicle_id": 1,
             "stops": [
               {
-                "name": "IC MEZZOLOMBARDO PAGANELLA",
-                "lat": 46.1657078,
-                "lon": 11.0059181,
-                "departure_time": "07:20",
-                "count": 25
+                "name": "IC TRENTO 2",
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "departure_time": "07:47",
+                "count": 23
               }
             ],
-            "distance_km": 18.32
+            "distance_km": 4.62
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC TRENTO 2",
+                "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
+                "departure_time": "08:10",
+                "return_time": "14:50",
+                "count": 23,
+                "lat": 46.0745703,
+                "lon": 11.1438385,
+                "coords_missing": false
+              },
+              {
+                "name": "IC VALLE DEI LAGHI DRO",
+                "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
+                "departure_time": "07:40",
+                "return_time": "15:20",
+                "count": 24,
+                "lat": 46.0797928,
+                "lon": 11.0018196,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 28.54
+          },
+          "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC TAIO",
+                "lat": 46.3206186,
+                "lon": 11.0661736,
+                "departure_time": "07:24",
+                "count": 21
+              }
+            ],
+            "distance_km": 24.5
           },
           "gt": {
             "stops": [
@@ -269,70 +311,22 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": null
+            "distance_km": 42.95
           },
           "gt_fin": "1"
-        },
-        {
-          "jaccard": 0.5,
-          "planner": {
-            "vehicle_id": 1,
-            "stops": [
-              {
-                "name": "IC TRENTO 2",
-                "lat": 46.0745703,
-                "lon": 11.1438385,
-                "departure_time": "07:47",
-                "count": 23
-              }
-            ],
-            "distance_km": 4.92
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC TRENTO 2",
-                "luogo_ritrovo": "TRENTO, Via Ponte Alto, 2/1",
-                "departure_time": "08:10",
-                "return_time": "14:50",
-                "count": 23,
-                "lat": 46.0745703,
-                "lon": 11.1438385,
-                "coords_missing": false
-              },
-              {
-                "name": "IC VALLE DEI LAGHI DRO",
-                "luogo_ritrovo": "VEZZANO, Fermata Farmacia",
-                "departure_time": "07:40",
-                "return_time": "15:20",
-                "count": 24,
-                "lat": 46.0797928,
-                "lon": 11.0018196,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": null
-          },
-          "gt_fin": "2"
         }
       ],
       "unmatched_planner": [
         {
-          "vehicle_id": 2,
+          "vehicle_id": 0,
           "stops": [
             {
-              "name": "IC TAIO",
-              "lat": 46.3206186,
-              "lon": 11.0661736,
-              "departure_time": "07:24",
-              "count": 21
-            }
-          ],
-          "distance_km": 16.49
-        },
-        {
-          "vehicle_id": 3,
-          "stops": [
+              "name": "IC MEZZOLOMBARDO PAGANELLA",
+              "lat": 46.1657078,
+              "lon": 11.0059181,
+              "departure_time": "06:53",
+              "count": 25
+            },
             {
               "name": "IC VALLE DEI LAGHI DRO",
               "lat": 46.0797928,
@@ -341,14 +335,14 @@
               "count": 24
             }
           ],
-          "distance_km": 9.86
+          "distance_km": 22.37
         }
       ],
       "unmatched_gt": [],
       "scores": {
         "assignment": 0.5,
-        "bus_count": 0.0,
-        "combined": 0.3
+        "bus_count": 0.5,
+        "combined": 0.5
       }
     }
   }

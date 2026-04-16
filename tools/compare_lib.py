@@ -223,7 +223,8 @@ def compute_gt_route_distances(
                 continue
             next_name = stop_names[k + 1] if k + 1 < len(stop_names) else None
             next_idx = name_to_idx.get(next_name) if next_name else 0
-            if next_idx is not None:
+            n = len(distance_matrix)
+            if next_idx is not None and idx < n and next_idx < n:
                 total_m += distance_matrix[idx][next_idx]
         distance_km = round(total_m / 1000, 2) if total_m else bus.get("distance_km")
         result[fin_id] = {**bus, "distance_km": distance_km}
@@ -272,10 +273,12 @@ def format_planner_routes(
         # consistent with app.py's back-calculation logic.
         cum = arrival_min
         stop_times: list = []
+        tm_n = len(time_matrix)
         for k in range(len(school_nodes) - 1, -1, -1):
             node = school_nodes[k]
             next_node = school_nodes[k + 1] if k + 1 < len(school_nodes) else 0
-            travel_min = time_matrix[node][next_node] // 60
+            travel_min = (time_matrix[node][next_node] // 60
+                          if node < tm_n and next_node < tm_n else 0)
             cum -= travel_min + STOP_DWELL_TIME_MIN
             stop_times.insert(0, cum)
 
@@ -289,9 +292,16 @@ def format_planner_routes(
             c = resolve_coords(school["name"], coords)
             next_node = school_nodes[k + 1] if k + 1 < len(school_nodes) else 0
             if distance_matrix is not None:
-                seg_km = round(distance_matrix[node][next_node] / 1000, 2)
+                dm_n = len(distance_matrix)
+                t = (time_matrix[node][next_node]
+                     if node < tm_n and next_node < tm_n else 0)
+                if t > 0 and node < dm_n and next_node < dm_n:
+                    seg_km = round(distance_matrix[node][next_node] / 1000, 2)
+                else:
+                    seg_km = 0.0
             else:
-                seg_s = time_matrix[node][next_node]
+                seg_s = (time_matrix[node][next_node]
+                         if node < tm_n and next_node < tm_n else 0)
                 seg_km = round(seg_s / 3600 * AVERAGE_SPEED_KMH, 2)
             total_km += seg_km
             stop_list.append({
