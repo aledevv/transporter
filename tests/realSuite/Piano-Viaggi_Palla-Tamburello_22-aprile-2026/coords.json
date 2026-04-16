@@ -1,8 +1,4 @@
 {
-  "IC ALA": {
-    "lat": 45.7562382,
-    "lon": 11.0015357
-  },
   "IC ALTA VALLAGARINA": {
     "lat": 45.9419216,
     "lon": 11.1095435
@@ -62,5 +58,9 @@
   "IS MARTINO MARTINI – Students staff": {
     "lat": 46.2177667,
     "lon": 11.0938593
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }

@@ -1,8 +1,4 @@
 {
-  "IC ALA": {
-    "lat": 45.7562382,
-    "lon": 11.0015357
-  },
   "IC ALDENO MATTARELLO": {
     "lat": 46.0083709,
     "lon": 11.1315735
@@ -90,5 +86,9 @@
   "IS MARTINO MARTINI Students Staff": {
     "lat": 46.2177667,
     "lon": 11.0938593
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }

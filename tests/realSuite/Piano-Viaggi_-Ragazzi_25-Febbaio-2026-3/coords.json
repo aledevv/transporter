@@ -1,8 +1,4 @@
 {
-  "IC ALA": {
-    "lat": 45.7562382,
-    "lon": 11.0015357
-  },
   "IC ALDENO MATTARELLO": {
     "lat": 46.0697,
     "lon": 11.1211
@@ -102,5 +98,9 @@
   "IC VIGOLO VATTARO": {
     "lat": 46.0697,
     "lon": 11.1211
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }

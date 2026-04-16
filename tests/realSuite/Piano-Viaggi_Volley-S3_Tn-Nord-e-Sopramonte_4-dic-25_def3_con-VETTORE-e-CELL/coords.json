@@ -7,10 +7,6 @@
     "lat": 46.1047342,
     "lon": 11.1147719
   },
-  "IC ALA": {
-    "lat": 45.7562382,
-    "lon": 11.0015357
-  },
   "IC ALDENO MATTARELLO": {
     "lat": 46.0697,
     "lon": 11.1211
@@ -118,5 +114,9 @@
   "IS DON MILANI (Students staff)": {
     "lat": 46.0697,
     "lon": 11.1211
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }

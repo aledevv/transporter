@@ -103,6 +103,18 @@ def load_event(ev_dir: Path) -> dict | None:
         for _, row in df.iterrows()
     ]
 
+    # Guard: time_matrix must be (N+1)×(N+1) where N = number of schools.
+    # A mismatch means input.xlsx was updated after the matrix was generated.
+    # Regenerate with: python tests/prepare_realSuite.py --geocode  (after deleting stale matrices)
+    expected_size = len(schools) + 1
+    if len(time_matrix) != expected_size:
+        print(
+            f"[skip] {ev_dir.name}: time_matrix is {len(time_matrix)}×{len(time_matrix)} "
+            f"but {expected_size}×{expected_size} expected ({len(schools)} schools). "
+            f"Regenerate matrices via 'Aggiorna matrici' in the UI or delete stale JSON files and re-run --geocode."
+        )
+        return None
+
     dist_path = ev_dir / "distance_matrix.json"
     distance_matrix = json.loads(dist_path.read_text(encoding="utf-8")) if dist_path.exists() else None
 

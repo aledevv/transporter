@@ -1,8 +1,4 @@
 {
-  "IC ALA": {
-    "lat": 45.7564167,
-    "lon": 11.0014206
-  },
   "IC ALDENO-MATTARELLO": {
     "lat": 45.9768882,
     "lon": 11.0922044
@@ -134,5 +130,9 @@
   "IS MARTINO MARTINI MEZZOLOMBARDO – Students Staff": {
     "lat": 46.2177667,
     "lon": 11.0938593
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }

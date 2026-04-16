@@ -3,10 +3,6 @@
     "lat": 46.2874466,
     "lon": 11.5125733
   },
-  "IC ALA": {
-    "lat": 45.7564167,
-    "lon": 11.0014206
-  },
   "IC ALDENO-MATTARELLO": {
     "lat": 46.0697,
     "lon": 11.1211
@@ -138,5 +134,9 @@
   "IS VITTORIA BONPORTI TRENTO": {
     "lat": 46.0697,
     "lon": 11.1211
+  },
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
   }
 }
