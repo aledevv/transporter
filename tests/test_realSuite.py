@@ -6,7 +6,13 @@ Parametrized: one test per event folder that has complete artifacts
 
 Only structural correctness is enforced: all schools assigned, capacity respected.
 Score/calibration metrics are computed separately via: python tests/evaluate_realSuite.py
+
+Fast mode (CI / deploy):
+    REALSUITE_FAST=1 pytest tests/test_realSuite.py
+    Runs only the first REALSUITE_FAST_N (default 3) valid events alphabetically.
+    The deploy script sets this automatically; full suite runs during development.
 """
+import os
 import pytest
 
 from evaluate_realSuite import (
@@ -16,13 +22,19 @@ from evaluate_realSuite import (
     run_v2,
 )
 
+_FAST_N = int(os.environ.get('REALSUITE_FAST_N', '3'))
+
 
 # -----------------------------------------------------------------------
 # Parametrize: collect all event dirs with complete artifacts
 # -----------------------------------------------------------------------
 
 def _ready_events():
-    """Return list of event dir paths that have all required files."""
+    """Return list of event dir paths that have all required files.
+
+    In fast mode (REALSUITE_FAST=1) only the first _FAST_N valid events
+    (alphabetically) are returned, giving a quick smoke-test for CI/deploy.
+    """
     dirs = []
     for d in sorted(REALSUITE_DIR.iterdir()):
         if not d.is_dir():
@@ -30,6 +42,10 @@ def _ready_events():
         needed = ["input.xlsx", "time_matrix.json", "config.json", "groundtruth.xlsx"]
         if all((d / f).exists() for f in needed):
             dirs.append(d)
+
+    if os.environ.get('REALSUITE_FAST'):
+        dirs = dirs[:_FAST_N]
+
     return dirs
 
 

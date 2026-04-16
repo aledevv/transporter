@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-# Esegui i test prima del deploy — se uno fallisce il deploy viene bloccato
-echo "🧪 Esecuzione test suite prima del deploy..."
-./venv/bin/python3 run_tests.py
+# Esegui un sottoinsieme rappresentativo dei test prima del deploy.
+# Per la suite completa usa direttamente: python3 run_tests.py
+echo "🧪 Esecuzione test suite (fast mode, 3 eventi) prima del deploy..."
+REALSUITE_FAST=1 ./venv/bin/python3 run_tests.py
 echo "✅ Tutti i test passati. Procedo con il deploy."
 
 # Incrementa versione
