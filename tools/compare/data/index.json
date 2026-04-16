@@ -1,5 +1,27 @@
 [
   {
+    "slug": "atletica-rovereto",
+    "name": "Atletica Rovereto",
+    "destination": "Stadio Quercia, Via Palestrina, Rovereto",
+    "scores": {
+      "v2": {
+        "assignment": 0.7262,
+        "bus_count": 1.0,
+        "combined": 0.8357
+      },
+      "v1": {
+        "assignment": 0.7014,
+        "bus_count": 0.8571,
+        "combined": 0.7637
+      },
+      "v1improved": {
+        "assignment": 0.6474,
+        "bus_count": 0.9286,
+        "combined": 0.7599
+      }
+    }
+  },
+  {
     "slug": "basket-cadetti-e-piano-viaggi-21-gennaio-2026-def-con-vettore",
     "name": "Basket-cadetti_e_Piano-viaggi_21-GENNAIO_2026_def-con-vettore",
     "destination": "Centro sportivo Trento Nord - Trento",

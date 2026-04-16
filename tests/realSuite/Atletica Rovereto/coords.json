@@ -1,0 +1,146 @@
+{
+  "IC ALA": {
+    "lat": 45.7562382,
+    "lon": 11.0015357
+  },
+  "IC ALDENO-MATTARELLO": {
+    "lat": 46.0116034,
+    "lon": 11.1319752
+  },
+  "IC ALDENO-MATTARELLO|2": {
+    "lat": 46.0116034,
+    "lon": 11.1319752
+  },
+  "IC ARCO": {
+    "lat": 45.9241345,
+    "lon": 10.8914271
+  },
+  "IC AVIO": {
+    "lat": 45.738781,
+    "lon": 10.9527975
+  },
+  "IC BORGO VALSUGANA": {
+    "lat": 46.0154635,
+    "lon": 11.6308509
+  },
+  "IC CAVALESE": {
+    "lat": 46.2902101,
+    "lon": 11.4649719
+  },
+  "IC CEMBRA": {
+    "lat": 46.1576875,
+    "lon": 11.1540986
+  },
+  "IC CEMBRA|8": {
+    "lat": 46.1576875,
+    "lon": 11.1540986
+  },
+  "IC CEMBRA|9": {
+    "lat": 46.1576875,
+    "lon": 11.1540986
+  },
+  "IC DRO": {
+    "lat": 45.9592826,
+    "lon": 10.9101053
+  },
+  "IC FOLGARIA-LAVARONE-LUSERNA": {
+    "lat": 45.939208,
+    "lon": 11.2684221
+  },
+  "IC FOLGARIA-LAVARONE-LUSERNA|12": {
+    "lat": 45.939208,
+    "lon": 11.2684221
+  },
+  "IC LADINO DI FASSA": {
+    "lat": 46.4279413,
+    "lon": 11.6831041
+  },
+  "IC LAVIS": {
+    "lat": 46.1374325,
+    "lon": 11.113553
+  },
+  "IC LEVICO TERME": {
+    "lat": 46.0136493,
+    "lon": 11.3073263
+  },
+  "IC MEZZOCORONA": {
+    "lat": 46.2129389,
+    "lon": 11.1139953
+  },
+  "IC MEZZOLOMBARDO-PAGANELLA": {
+    "lat": 46.219181,
+    "lon": 11.0487784
+  },
+  "IC MEZZOLOMBARDO-PAGANELLA|18": {
+    "lat": 46.219181,
+    "lon": 11.0487784
+  },
+  "IC MEZZOLOMBARDO-PAGANELLA|19": {
+    "lat": 46.219181,
+    "lon": 11.0487784
+  },
+  "IC PERGINE 1": {
+    "lat": 46.067046,
+    "lon": 11.2453364
+  },
+  "IC PERGINE 2": {
+    "lat": 46.0670523,
+    "lon": 11.2265045
+  },
+  "IC RIVA 2": {
+    "lat": 45.8980002,
+    "lon": 10.8462385
+  },
+  "IC TIONE": {
+    "lat": 46.0302545,
+    "lon": 10.7247686
+  },
+  "IC TRENTO 1": {
+    "lat": 46.053097,
+    "lon": 11.1507557
+  },
+  "IC TRENTO 2": {
+    "lat": 46.0766303,
+    "lon": 11.1417281
+  },
+  "IC TRENTO 3": {
+    "lat": 46.0576974,
+    "lon": 11.1187607
+  },
+  "IC TRENTO 4": {
+    "lat": 46.0444833,
+    "lon": 11.131138
+  },
+  "IC TRENTO 5": {
+    "lat": 46.0697032,
+    "lon": 11.115753
+  },
+  "IC TRENTO 6": {
+    "lat": 46.0701872,
+    "lon": 11.1141531
+  },
+  "IC TRENTO 7": {
+    "lat": 46.3693051,
+    "lon": 11.0326891
+  },
+  "IC TRENTO ARCIVESCOVILE": {
+    "lat": 46.0631482,
+    "lon": 11.119025
+  },
+  "IC VALLE DI LEDRO": {
+    "lat": 45.8951472,
+    "lon": 10.7206859
+  },
+  "IC VEZZANO": {
+    "lat": 45.9938902,
+    "lon": 10.9736278
+  },
+  "IC VEZZANO|34": {
+    "lat": 45.9938902,
+    "lon": 10.9736278
+  },
+  "IC VIGOLO VATTARO": {
+    "lat": 46.0048443,
+    "lon": 11.1983809
+  }
+}

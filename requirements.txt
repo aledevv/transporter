@@ -12,3 +12,5 @@ datapizza-ai-tools-duckduckgo
 pytest
 scipy
 numpy
+python-docx
+docxtpl

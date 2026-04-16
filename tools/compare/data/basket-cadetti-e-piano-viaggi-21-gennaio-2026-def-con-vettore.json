@@ -16,7 +16,7 @@
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 1,
+            "vehicle_id": 2,
             "stops": [
               {
                 "name": "IC MEZZANO SANTA CROCE",
@@ -61,38 +61,6 @@
             "distance_km": 98.64
           },
           "gt_fin": "5"
-        },
-        {
-          "jaccard": 1.0,
-          "planner": {
-            "vehicle_id": 2,
-            "stops": [
-              {
-                "name": "IC MEZZOLOMBARDO PAGANELLA",
-                "lat": 46.219181,
-                "lon": 11.0487784,
-                "departure_time": "07:53",
-                "count": 14
-              }
-            ],
-            "distance_km": 23.96
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC MEZZOLOMBARDO PAGANELLA",
-                "luogo_ritrovo": "SPORMAGGIORE, Via Alt Spaur, 5",
-                "departure_time": "07:50",
-                "return_time": "16:40",
-                "count": 14,
-                "lat": 46.219181,
-                "lon": 11.0487784,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 23.96
-          },
-          "gt_fin": "6"
         },
         {
           "jaccard": 1.0,
@@ -176,75 +144,19 @@
           "gt_fin": "3"
         },
         {
-          "jaccard": 0.3333,
+          "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 0,
-            "stops": [
-              {
-                "name": "IC ISERA-ROVERETO",
-                "lat": 45.8851325,
-                "lon": 11.0239036,
-                "departure_time": "07:45",
-                "count": 21
-              },
-              {
-                "name": "IC ROVERETO EST",
-                "lat": 45.8873481,
-                "lon": 11.0401984,
-                "departure_time": "07:50",
-                "count": 24
-              }
-            ],
-            "distance_km": 36.35
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC ALDENO MATTARELLO",
-                "luogo_ritrovo": "ALDENO, Via Filzi, Fermata bus",
-                "departure_time": "07:50",
-                "return_time": "16:25",
-                "count": 21,
-                "lat": 46.0064876,
-                "lon": 11.1308553,
-                "coords_missing": false
-              },
-              {
-                "name": "IC ROVERETO EST",
-                "luogo_ritrovo": "ROVERETO, Piazzale Orsi, Fermata bus CFP Veronesi",
-                "departure_time": "07:45",
-                "return_time": "16:45",
-                "count": 24,
-                "lat": 45.8873481,
-                "lon": 11.0401984,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 48.25
-          },
-          "gt_fin": "4"
-        },
-        {
-          "jaccard": 0.3333,
-          "planner": {
-            "vehicle_id": 5,
+            "vehicle_id": 1,
             "stops": [
               {
                 "name": "IC AVIO",
                 "lat": 45.7359737,
                 "lon": 10.9439825,
-                "departure_time": "07:23",
+                "departure_time": "07:38",
                 "count": 24
-              },
-              {
-                "name": "IC ALDENO MATTARELLO",
-                "lat": 46.0064876,
-                "lon": 11.1308553,
-                "departure_time": "07:57",
-                "count": 21
               }
             ],
-            "distance_km": 54.87
+            "distance_km": 55.59
           },
           "gt": {
             "stops": [
@@ -272,14 +184,102 @@
             "distance_km": 58.41
           },
           "gt_fin": "2"
+        },
+        {
+          "jaccard": 0.5,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.219181,
+                "lon": 11.0487784,
+                "departure_time": "07:26",
+                "count": 14
+              },
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "lat": 46.0064876,
+                "lon": 11.1308553,
+                "departure_time": "08:01",
+                "count": 21
+              }
+            ],
+            "distance_km": 51.68
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "SPORMAGGIORE, Via Alt Spaur, 5",
+                "departure_time": "07:50",
+                "return_time": "16:40",
+                "count": 14,
+                "lat": 46.219181,
+                "lon": 11.0487784,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 23.96
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 0,
+            "stops": [
+              {
+                "name": "IC ISERA-ROVERETO",
+                "lat": 45.8851325,
+                "lon": 11.0239036,
+                "departure_time": "07:44",
+                "count": 21
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 45.8873481,
+                "lon": 11.0401984,
+                "departure_time": "07:49",
+                "count": 24
+              }
+            ],
+            "distance_km": 37.17
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC ALDENO MATTARELLO",
+                "luogo_ritrovo": "ALDENO, Via Filzi, Fermata bus",
+                "departure_time": "07:50",
+                "return_time": "16:25",
+                "count": 21,
+                "lat": 46.0064876,
+                "lon": 11.1308553,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "luogo_ritrovo": "ROVERETO, Piazzale Orsi, Fermata bus CFP Veronesi",
+                "departure_time": "07:45",
+                "return_time": "16:45",
+                "count": 24,
+                "lat": 45.8873481,
+                "lon": 11.0401984,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 54.8
+          },
+          "gt_fin": "4"
         }
       ],
       "unmatched_planner": [],
       "unmatched_gt": [],
       "scores": {
-        "assignment": 0.7778,
+        "assignment": 0.7222,
         "bus_count": 1.0,
-        "combined": 0.8667
+        "combined": 0.8333
       }
     },
     "v1": {
@@ -430,18 +430,18 @@
                 "name": "IC ISERA-ROVERETO",
                 "lat": 45.8851325,
                 "lon": 11.0239036,
-                "departure_time": "07:45",
+                "departure_time": "07:44",
                 "count": 21
               },
               {
                 "name": "IC ROVERETO EST",
                 "lat": 45.8873481,
                 "lon": 11.0401984,
-                "departure_time": "07:50",
+                "departure_time": "07:49",
                 "count": 24
               }
             ],
-            "distance_km": 36.35
+            "distance_km": 37.17
           },
           "gt": {
             "stops": [
@@ -466,7 +466,7 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 48.25
+            "distance_km": 54.8
           },
           "gt_fin": "4"
         },
@@ -479,18 +479,18 @@
                 "name": "IC AVIO",
                 "lat": 45.7359737,
                 "lon": 10.9439825,
-                "departure_time": "07:23",
+                "departure_time": "07:25",
                 "count": 24
               },
               {
                 "name": "IC ALDENO MATTARELLO",
                 "lat": 46.0064876,
                 "lon": 11.1308553,
-                "departure_time": "07:57",
+                "departure_time": "08:01",
                 "count": 21
               }
             ],
-            "distance_km": 54.87
+            "distance_km": 59.74
           },
           "gt": {
             "stops": [
@@ -550,7 +550,39 @@
         {
           "jaccard": 1.0,
           "planner": {
-            "vehicle_id": 0,
+            "vehicle_id": 2,
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "lat": 46.219181,
+                "lon": 11.0487784,
+                "departure_time": "07:53",
+                "count": 14
+              }
+            ],
+            "distance_km": 23.96
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC MEZZOLOMBARDO PAGANELLA",
+                "luogo_ritrovo": "SPORMAGGIORE, Via Alt Spaur, 5",
+                "departure_time": "07:50",
+                "return_time": "16:40",
+                "count": 14,
+                "lat": 46.219181,
+                "lon": 11.0487784,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 23.96
+          },
+          "gt_fin": "6"
+        },
+        {
+          "jaccard": 1.0,
+          "planner": {
+            "vehicle_id": 4,
             "stops": [
               {
                 "name": "IC PRIMIERO",
@@ -597,107 +629,58 @@
           "gt_fin": "5"
         },
         {
-          "jaccard": 1.0,
+          "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 1,
+            "vehicle_id": 0,
             "stops": [
               {
-                "name": "IC AVIO",
-                "lat": 45.7359737,
-                "lon": 10.9439825,
-                "departure_time": "07:22",
-                "count": 24
+                "name": "IS GUETTI – Students Staff",
+                "lat": 46.0373696,
+                "lon": 10.7309219,
+                "departure_time": "07:08",
+                "count": 8
               },
               {
-                "name": "IC ISERA-ROVERETO",
-                "lat": 45.8851325,
-                "lon": 11.0239036,
+                "name": "IC VALLE DEI LAGHI-DRO",
+                "lat": 45.9938902,
+                "lon": 10.9736278,
                 "departure_time": "07:47",
-                "count": 21
+                "count": 17
               }
             ],
-            "distance_km": 58.41
+            "distance_km": 60.36
           },
           "gt": {
             "stops": [
               {
-                "name": "IC AVIO",
-                "luogo_ritrovo": "AVIO, Viale Degasperi, 69",
+                "name": "IS GUETTI – Students Staff",
+                "luogo_ritrovo": "TIONE, Via Durone, 53",
                 "departure_time": "07:30",
                 "return_time": "17:00",
-                "count": 24,
-                "lat": 45.7359737,
-                "lon": 10.9439825,
-                "coords_missing": false
-              },
-              {
-                "name": "IC ISERA-ROVERETO",
-                "luogo_ritrovo": "ROVERETO, Viale Della Vittoria, 43",
-                "departure_time": "08:00",
-                "return_time": "16:30",
-                "count": 21,
-                "lat": 45.8851325,
-                "lon": 11.0239036,
+                "count": 8,
+                "lat": 46.0373696,
+                "lon": 10.7309219,
                 "coords_missing": false
               }
             ],
-            "distance_km": 58.41
+            "distance_km": 46.18
           },
-          "gt_fin": "2"
+          "gt_fin": "1"
         },
         {
-          "jaccard": 1.0,
+          "jaccard": 0.5,
           "planner": {
-            "vehicle_id": 2,
+            "vehicle_id": 6,
             "stops": [
-              {
-                "name": "IC MEZZOLOMBARDO PAGANELLA",
-                "lat": 46.219181,
-                "lon": 11.0487784,
-                "departure_time": "07:53",
-                "count": 14
-              }
-            ],
-            "distance_km": 23.96
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IC MEZZOLOMBARDO PAGANELLA",
-                "luogo_ritrovo": "SPORMAGGIORE, Via Alt Spaur, 5",
-                "departure_time": "07:50",
-                "return_time": "16:40",
-                "count": 14,
-                "lat": 46.219181,
-                "lon": 11.0487784,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 23.96
-          },
-          "gt_fin": "6"
-        },
-        {
-          "jaccard": 1.0,
-          "planner": {
-            "vehicle_id": 3,
-            "stops": [
-              {
-                "name": "IC ROVERETO EST",
-                "lat": 45.8873481,
-                "lon": 11.0401984,
-                "departure_time": "07:39",
-                "count": 24
-              },
               {
                 "name": "IC ALDENO MATTARELLO",
                 "lat": 46.0064876,
                 "lon": 11.1308553,
-                "departure_time": "07:57",
+                "departure_time": "08:01",
                 "count": 21
               }
             ],
-            "distance_km": 32.29
+            "distance_km": 14.29
           },
           "gt": {
             "stops": [
@@ -722,63 +705,31 @@
                 "coords_missing": false
               }
             ],
-            "distance_km": 48.25
+            "distance_km": 54.8
           },
           "gt_fin": "4"
         },
         {
-          "jaccard": 1.0,
+          "jaccard": 0.3333,
           "planner": {
-            "vehicle_id": 4,
-            "stops": [
-              {
-                "name": "IS GUETTI – Students Staff",
-                "lat": 46.0373696,
-                "lon": 10.7309219,
-                "departure_time": "07:27",
-                "count": 8
-              }
-            ],
-            "distance_km": 46.18
-          },
-          "gt": {
-            "stops": [
-              {
-                "name": "IS GUETTI – Students Staff",
-                "luogo_ritrovo": "TIONE, Via Durone, 53",
-                "departure_time": "07:30",
-                "return_time": "17:00",
-                "count": 8,
-                "lat": 46.0373696,
-                "lon": 10.7309219,
-                "coords_missing": false
-              }
-            ],
-            "distance_km": 46.18
-          },
-          "gt_fin": "1"
-        },
-        {
-          "jaccard": 1.0,
-          "planner": {
-            "vehicle_id": 5,
+            "vehicle_id": 3,
             "stops": [
               {
                 "name": "IC RIVA 1",
                 "lat": 45.8879839,
                 "lon": 10.8466447,
-                "departure_time": "07:19",
+                "departure_time": "07:15",
                 "count": 23
               },
               {
-                "name": "IC VALLE DEI LAGHI-DRO",
-                "lat": 45.9938902,
-                "lon": 10.9736278,
+                "name": "IC ISERA-ROVERETO",
+                "lat": 45.8851325,
+                "lon": 11.0239036,
                 "departure_time": "07:47",
-                "count": 17
+                "count": 21
               }
             ],
-            "distance_km": 48.25
+            "distance_km": 57.73
           },
           "gt": {
             "stops": [
@@ -806,14 +757,63 @@
             "distance_km": 48.25
           },
           "gt_fin": "3"
+        },
+        {
+          "jaccard": 0.3333,
+          "planner": {
+            "vehicle_id": 5,
+            "stops": [
+              {
+                "name": "IC AVIO",
+                "lat": 45.7359737,
+                "lon": 10.9439825,
+                "departure_time": "07:25",
+                "count": 24
+              },
+              {
+                "name": "IC ROVERETO EST",
+                "lat": 45.8873481,
+                "lon": 11.0401984,
+                "departure_time": "07:49",
+                "count": 24
+              }
+            ],
+            "distance_km": 58.42
+          },
+          "gt": {
+            "stops": [
+              {
+                "name": "IC AVIO",
+                "luogo_ritrovo": "AVIO, Viale Degasperi, 69",
+                "departure_time": "07:30",
+                "return_time": "17:00",
+                "count": 24,
+                "lat": 45.7359737,
+                "lon": 10.9439825,
+                "coords_missing": false
+              },
+              {
+                "name": "IC ISERA-ROVERETO",
+                "luogo_ritrovo": "ROVERETO, Viale Della Vittoria, 43",
+                "departure_time": "08:00",
+                "return_time": "16:30",
+                "count": 21,
+                "lat": 45.8851325,
+                "lon": 11.0239036,
+                "coords_missing": false
+              }
+            ],
+            "distance_km": 58.41
+          },
+          "gt_fin": "2"
         }
       ],
       "unmatched_planner": [],
       "unmatched_gt": [],
       "scores": {
-        "assignment": 1.0,
+        "assignment": 0.6111,
         "bus_count": 1.0,
-        "combined": 1.0
+        "combined": 0.7667
       }
     }
   }
