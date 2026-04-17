@@ -5,12 +5,19 @@ import { Settings, Play, Users, Bus, Navigation, Edit, Download, Clock, Building
 import Map from './Map';
 import AddressAutocomplete from './AddressAutocomplete';
 import SchoolEditor from './SchoolEditor';
+import PlanSupervisor from './PlanSupervisor';
 import API_BASE_URL from '../config';
 
 // Route colors (must match Map.jsx COLORS array)
 const ROUTE_COLORS = [
-    '#3b82f6', '#ef4444', '#22c55e', '#eab308',
-    '#a855f7', '#f97316', '#ec4899', '#14b8a6'
+    '#e6194b', '#3cb44b', '#4363d8', '#f58231',
+    '#911eb4', '#42d4f4', '#f032e6', '#bfef45',
+    '#469990', '#9a6324', '#800000', '#aaffc3',
+    '#808000', '#000075', '#a9a9a9', '#ffd700',
+    '#00ced1', '#ff1493', '#ff6347', '#4169e1',
+    '#2e8b57', '#daa520', '#6a0dad', '#ff7f50',
+    '#40e0d0', '#b22222', '#228b22', '#c71585',
+    '#1e90ff', '#8b008b',
 ];
 
 // ─── Dashboard ───
@@ -42,8 +49,21 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const [docEventName, setDocEventName] = useState('');
     const [excludeAutonomia, setExcludeAutonomia] = useState(false);
 
+    const [supervisionMode, setSupervisionMode] = useState(false);
+    const [previewResults, setPreviewResults] = useState(null);
+    const [mapFitKey, setMapFitKey] = useState(0);
+    const [mapSizeTrigger, setMapSizeTrigger] = useState(0);
+
     const resultsRef = useRef(null);
     const mapRef = useRef(null);
+    const mapContainerRef = useRef(null);
+
+    useEffect(() => {
+        if (supervisionMode) {
+            setMapSizeTrigger(t => t + 1);
+            setTimeout(() => mapContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+        }
+    }, [supervisionMode]);
 
     useEffect(() => {
         if (results && resultsRef.current) {
@@ -65,7 +85,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
         setDestCoords(tripToRestore.destCoords || null);
         setCapacity(tripToRestore.capacity);
         setStartTime(tripToRestore.startTime);
-        setTimeMode(tripToRestore.timeMode);
+        setTimeMode('arrival');
         setResults(tripToRestore.results);
         setTripName(tripToRestore.label || '');
         
@@ -198,12 +218,35 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     const resetRouteAdvance = (vehicleId) =>
         setRouteAdvances(prev => { const n = { ...prev }; delete n[vehicleId]; return n; });
 
+    // Bake current visual shifts into route times (used when entering supervision mode)
+    const buildShiftedResults = () => {
+        if (!results) return results;
+        const shiftedRoutes = results.routes.map(r => {
+            const newRoute = JSON.parse(JSON.stringify(r));
+            const pickups = newRoute.outbound.stops.filter(s => s.type === 'pickup');
+            const advance = getRouteAdvance(newRoute.vehicle_id);
+            const totalShift = getTotalShift(newRoute.vehicle_id, pickups.length);
+            let pickupIdx = 0;
+            newRoute.outbound.stops.forEach(stop => {
+                if (stop.type === 'destination') {
+                    if (stop.arrival_time) stop.arrival_time = shiftTime(stop.arrival_time, totalShift + advance) || stop.arrival_time;
+                } else if (stop.type === 'pickup') {
+                    const cumShift = getCumulativeShift(newRoute.vehicle_id, pickupIdx) + advance;
+                    if (stop.departure_time) stop.departure_time = shiftTime(stop.departure_time, cumShift) || stop.departure_time;
+                    pickupIdx++;
+                }
+            });
+            return newRoute;
+        });
+        return { ...results, routes: shiftedRoutes };
+    };
+
     // ── optimize ───────────────────────────────────────────────────────────────
     const handleOptimize = async () => {
         if (!destination) { setError("Inserisci un indirizzo di destinazione."); return; }
         setError(''); setLoading(true); setResults(null); setRouteShifts({}); setRouteAdvances({});
         try {
-            const endpoint = solver === 'v1' ? '/api/optimize' : '/api/optimize_v2';
+            const endpoint = '/api/optimize';
             const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
                 schools, destination, capacity: parseInt(capacity),
                 dest_lat: destCoords?.lat, dest_lon: destCoords?.lon,
@@ -346,7 +389,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     // ── map ────────────────────────────────────────────────────────────────────
     let mapRoutes = [];
-    if (results) mapRoutes = results.routes.map(r => ({ ...r, stops: r.outbound.stops, geometry: r.outbound.geometry }));
+    const activeResults = previewResults || results;
+    if (activeResults) mapRoutes = activeResults.routes.map(r => ({ ...r, stops: r.outbound.stops, geometry: r.outbound.geometry }));
 
     let mapDestination = null;
     if (destCoords && destination) mapDestination = { lat: destCoords.lat, lon: destCoords.lon, address: destination };
@@ -371,9 +415,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     return (
         <div className="flex flex-col gap-6">
             {/* Top Row: Config (left, full height) | Map (right) */}
-            <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
-                {/* Configuration box */}
-                <div className="w-full lg:w-[25%] min-w-0 flex flex-col">
+            <div className={`flex flex-col lg:flex-row gap-6 lg:items-stretch ${supervisionMode ? 'hidden lg:flex lg:min-h-[650px]' : ''}`}>
+                {/* Configuration box (hidden in mobile if in supervision mode, to emphasize map) */}
+                <div className={`w-full lg:w-[25%] min-w-0 flex flex-col ${supervisionMode ? 'hidden' : ''}`}>
                     <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 flex flex-col flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="flex items-center gap-2 font-semibold text-gray-700">
@@ -406,24 +450,12 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                     </div>
                                 </div>
                                 <div className="col-span-2">
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">Modalità Orario</label>
-                                    <div className="flex bg-gray-200 p-1 rounded-lg mb-2">
-                                        <button onClick={() => setTimeMode('departure')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeMode === 'departure' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Partenza</button>
-                                        <button onClick={() => setTimeMode('arrival')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeMode === 'arrival' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Arrivo</button>
-                                    </div>
+                                    <label className="block text-sm font-medium text-gray-600 mb-1">Orario di arrivo a destinazione</label>
                                     <div className="relative">
                                         <Clock className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
                                         <input type="time" className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={startTime} onChange={e => setStartTime(e.target.value)} />
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1">{timeMode === 'departure' ? "Orario in cui i bus partono dalla prima scuola." : "Orario in cui TUTTI i bus devono essere a destinazione."}</p>
-                                    {/* Solver selector */}
-                                    <div className="mt-4">
-                                        <label className="block text-sm font-medium text-gray-600 mb-1">Algoritmo</label>
-                                        <div className="flex bg-gray-200 p-1 rounded-lg">
-                                            <button onClick={() => setSolver('v2')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${solver === 'v2' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>V2 Human Style</button>
-                                            <button onClick={() => setSolver('v1')} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${solver === 'v1' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>V1 OR-Tools</button>
-                                        </div>
-                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">Orario in cui TUTTI i bus devono essere a destinazione.</p>
 
                                     {/* Return Time Section */}
                                     <div className="mt-4 border-t pt-4">
@@ -463,15 +495,15 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 </div>
 
                 {/* Map */}
-                <div className="w-full lg:w-[75%]">
+                <div ref={mapContainerRef} className={`w-full ${supervisionMode ? 'lg:w-full' : 'lg:w-[75%]'}`}>
                     <div className="relative h-[500px] lg:h-full min-h-[400px]">
-                        <Map ref={mapRef} schools={schools} routes={mapRoutes} overlaps={results?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} />
+                        <Map ref={mapRef} schools={schools} routes={mapRoutes} overlaps={activeResults?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} fitKey={mapFitKey} sizeTrigger={mapSizeTrigger} />
                     </div>
                 </div>
             </div>
 
             {/* Results Riepilogo — full width, below config+map */}
-            {results && (
+            {!supervisionMode && results && (
                 <div ref={resultsRef} className="bg-white rounded-xl border border-gray-200 shadow-sm animate-fade-in overflow-hidden">
                     {/* Header */}
                     <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-center gap-2">
@@ -545,9 +577,37 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 <Bus className="w-4 h-4 text-blue-500" />
                                 <span className="text-sm font-semibold text-gray-700">Dettagli Percorsi</span>
                             </div>
-                            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{results.routes.length} bus attivi</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{results.routes.length} bus attivi</span>
+                            </div>
                         </div>
 
+                        {supervisionMode ? (
+                            <PlanSupervisor 
+                                initialResults={results}
+                                capacity={capacity}
+                                destination={destination}
+                                destCoords={destCoords}
+                                startTime={startTime}
+                                timeMode={timeMode}
+                                calculateReturn={calculateReturn}
+                                fineManifestazione={fineManifestazione}
+                                instituteColorMap={instituteColorMap}
+                                schools={schools}
+                                onPreviewUpdate={(data) => { setPreviewResults(data); setMapFitKey(k => k + 1); }}
+                                onSave={(newResults) => {
+                                    setResults(newResults);
+                                    setPreviewResults(null);
+                                    setSupervisionMode(false);
+                                    setRouteShifts({});
+                                    setRouteAdvances({});
+                                }}
+                                onCancel={() => {
+                                    setPreviewResults(null);
+                                    setSupervisionMode(false);
+                                }}
+                            />
+                        ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
                             {results.routes.map((route, idx) => {
                                 const routeColor = ROUTE_COLORS[idx % ROUTE_COLORS.length];
@@ -742,8 +802,24 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 );
                             })}
                         </div>
+                        )}
 
-                        <div className="border-t border-gray-100 p-4 bg-gray-50">
+                        {!supervisionMode && (
+                        <div className="border-t border-gray-100 p-4 bg-gray-50 flex flex-col gap-4">
+                            
+                            <button 
+                                onClick={() => {
+                                    setResults(buildShiftedResults());
+                                    setRouteShifts({});
+                                    setRouteAdvances({});
+                                    setSupervisionMode(true);
+                                }}
+                                className="w-full py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5"
+                            >
+                                <Edit className="w-5 h-5 text-white" />
+                                Modifica Manualmente il Piano (Sposta e Riordina Fermate)
+                            </button>
+
                             {/* Export Section — full width */}
                             <div className="bg-white rounded-xl border border-blue-100 p-4 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
@@ -811,6 +887,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 </div>
                             </div>
                         </div>
+                        )}
                     </div>
                 </div>
             )}

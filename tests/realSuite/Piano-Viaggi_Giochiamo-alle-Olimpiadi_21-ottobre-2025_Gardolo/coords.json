@@ -1,8 +1,4 @@
 {
-  "IC Aldeno-Mattarello": {
-    "lat": 45.9740453,
-    "lon": 11.0939904
-  },
   "IC Altopiano di Pinè": {
     "lat": 46.1653496,
     "lon": 11.3003405
@@ -66,5 +62,17 @@
   "STUDENTS STAFF – IS GUETTI": {
     "lat": 46.0373696,
     "lon": 10.7309219
+  },
+  "IC Aldeno-Mattarello|1": {
+    "lat": 45.9740453,
+    "lon": 11.0939904
+  },
+  "IC Aldeno-Mattarello": {
+    "lat": 46.0186138,
+    "lon": 11.1041073
+  },
+  "IC Altopiano di Pinè|3": {
+    "lat": 46.1653496,
+    "lon": 11.3003405
   }
 }

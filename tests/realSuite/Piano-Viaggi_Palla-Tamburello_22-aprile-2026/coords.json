@@ -1,8 +1,4 @@
 {
-  "IC ALTA VALLAGARINA": {
-    "lat": 45.9419216,
-    "lon": 11.1095435
-  },
   "IC CLES": {
     "lat": 46.3682701,
     "lon": 11.0345527
@@ -62,5 +58,17 @@
   "IC ALA": {
     "lat": 45.7562382,
     "lon": 11.0015357
+  },
+  "IC ALTA VALLAGARINA": {
+    "lat": 45.9485561,
+    "lon": 11.1057669
+  },
+  "IC ALTA VALLAGARINA|2": {
+    "lat": 45.9350797,
+    "lon": 11.0933904
+  },
+  "IC ALTA VALLAGARINA|3": {
+    "lat": 45.9191684,
+    "lon": 11.0634262
   }
 }

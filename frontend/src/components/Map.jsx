@@ -3,12 +3,50 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-polylineoffset';
-import { X, Maximize2, Minimize2, Bus, Users, UserX } from 'lucide-react';
+import { X, Maximize2, Minimize2, Bus, Users, UserX, Navigation2 } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Flag, GraduationCap } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const ANIM_MS = 420;
+
+const computeBearing = (lat1, lon1, lat2, lon2) => {
+    const toRad = d => d * Math.PI / 180;
+    const dLon = toRad(lon2 - lon1);
+    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+};
+
+const angleDiff = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
+
+// Returns indices into `positions` where the path is locally straight,
+// spaced near the requested fractions.
+const findStraightArrowPositions = (positions, numArrows) => {
+    if (positions.length < 4) return [];
+    const segB = positions.slice(0, -1).map((p, i) =>
+        computeBearing(p[0], p[1], positions[i + 1][0], positions[i + 1][1])
+    );
+    // curvature at interior point i+1 = bearing change between segment i→i+1 and i+1→i+2
+    const curv = segB.slice(0, -1).map((b, i) => angleDiff(b, segB[i + 1]));
+
+    const result = [];
+    for (let k = 0; k < numArrows; k++) {
+        const targetFrac = (k + 1) / (numArrows + 1);
+        const tI = Math.max(0, Math.min(curv.length - 1, Math.floor(curv.length * targetFrac)));
+        let best = tI;
+        let bestC = curv[tI] ?? 180;
+        const maxR = Math.max(1, Math.floor(positions.length / 5));
+        for (let r = 1; r <= maxR && bestC > 5; r++) {
+            for (const c of [tI + r, tI - r]) {
+                if (c >= 0 && c < curv.length && curv[c] < bestC) { bestC = curv[c]; best = c; }
+            }
+        }
+        // curvatures[best] is at positions[best+1]; use bearing of segment best→best+1
+        result.push({ posIdx: best + 1, bearing: segB[best] });
+    }
+    return result;
+};
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
 const iconCache = new Map();
@@ -99,7 +137,7 @@ const createCustomIcon = (color, IconComponent) => {
 
 const destinationIcon = createCustomIcon('#ef4444', Flag);
 
-const MapController = ({ schools, destination, focusBounds }) => {
+const MapController = ({ schools, destination, focusBounds, fitKey }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -115,9 +153,9 @@ const MapController = ({ schools, destination, focusBounds }) => {
             if (geocoded.length === 0 && !destination) return;
             const bounds = L.latLngBounds(geocoded.map(s => [s.lat, s.lon]));
             if (destination) bounds.extend([destination.lat, destination.lon]);
-            if (bounds.isValid()) map.fitBounds(bounds, { padding: [50, 50] });
+            if (bounds.isValid()) map.fitBounds(bounds, { padding: [50, 50], animate: true });
         }
-    }, [schools, destination, map, focusBounds]);
+    }, [schools, destination, map, focusBounds, fitKey]);
 
     return null;
 };
@@ -144,12 +182,18 @@ const MapEventTracker = ({ onZoomChange }) => {
 };
 
 const COLORS = [
-    '#3b82f6', '#ef4444', '#22c55e', '#eab308',
-    '#a855f7', '#f97316', '#ec4899', '#14b8a6'
+    '#e6194b', '#3cb44b', '#4363d8', '#f58231',
+    '#911eb4', '#42d4f4', '#f032e6', '#bfef45',
+    '#469990', '#9a6324', '#800000', '#aaffc3',
+    '#808000', '#000075', '#a9a9a9', '#ffd700',
+    '#00ced1', '#ff1493', '#ff6347', '#4169e1',
+    '#2e8b57', '#daa520', '#6a0dad', '#ff7f50',
+    '#40e0d0', '#b22222', '#228b22', '#c71585',
+    '#1e90ff', '#8b008b',
 ];
 
 
-const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {} }, ref) => {
+const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, focusBounds, highlightedRouteId, onResetFocus, instituteColorMap = {}, fitKey = 0, sizeTrigger = 0 }, ref) => {
     const defaultCenter = [46.0697, 11.1211];
     const mapRef = useRef(null);
     const placeholderRef = useRef(null); // the div that holds the natural-flow space
@@ -159,6 +203,11 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
     const [hiddenRouteIds, setHiddenRouteIds] = useState(new Set());
     const [showDemand, setShowDemand] = useState(true);
     const [currentZoom, setCurrentZoom] = useState(14);
+    const [showArrows, setShowArrows] = useState(false);
+
+    useEffect(() => {
+        if (sizeTrigger > 0) setResizerTick(t => t + 1);
+    }, [sizeTrigger]);
 
     // Compute segment clusters to draw perfectly offset parallel polylines
     // when any N routes share exactly the same road segments.
@@ -554,7 +603,7 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                 100% { opacity: 0; }
             }
             .route-glow {
-                filter: blur(12px);
+                filter: blur(5px);
                 animation: route-glow-anim 5s cubic-bezier(0.4,0,0.2,1) forwards;
                 pointer-events: none;
             }
@@ -612,6 +661,13 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                 {/* Top-right buttons */}
                 <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
                     <button
+                        onClick={() => setShowArrows(v => !v)}
+                        className={`shadow-md rounded-full p-2 transition-colors ${showArrows ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-100'}`}
+                        title={showArrows ? 'Nascondi direzione percorso' : 'Mostra direzione percorso'}
+                    >
+                        <Navigation2 className={`w-4 h-4 ${showArrows ? 'text-white' : 'text-gray-400'}`} />
+                    </button>
+                    <button
                         onClick={() => setShowDemand(v => !v)}
                         className="bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
                         title={showDemand ? 'Nascondi partecipanti' : 'Mostra partecipanti'}
@@ -656,6 +712,7 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                         schools={schools}
                         destination={destination}
                         focusBounds={focusBounds}
+                        fitKey={fitKey}
                     />
 
                     {destination && (
@@ -697,63 +754,44 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                     {/* 1. LAYER VISIVO: MULTIPOLYLINES CON OFFSET DINAMICO (ED EVENTI DI CLICK) */}
                     {Object.entries(segmentGroups).map(([combo, paths]) => {
                         const vIds = combo.split(',').map(Number);
-                        const numVehicles = vIds.length;
-                        if (numVehicles === 0) return null;
-                        
-                        // Fading out lines keeps them in active setup, so they keep their 'lane' slot and don't make others jump
-                        const activeVIds = vIds;
-                        
+                        if (vIds.length === 0) return null;
+
+                        // Only visible routes participate in offset centering and weight reduction
+                        const visibleVIds = vIds.filter(id => !hiddenRouteIds.has(id));
+                        const numVisible = visibleVIds.length;
+                        if (numVisible === 0) return null;
+
                         // Scale visually by targeting a constant pixel thickness/gap based on zoom
                         let baseWeight = 7;
                         let gapPixels = 1;
-                        
-                        // Because fitBounds can start the map at zoom 12 or 13, 
-                        // we must guarantee a solid pixel gap at ALL zoom levels.
-                        if (currentZoom <= 12) {
-                            baseWeight = 3.5;
-                            gapPixels = 0.5;
-                        } else if (currentZoom === 13) {
-                            baseWeight = 4;
-                            gapPixels = 0.5;
-                        } else if (currentZoom === 14) {
-                            baseWeight = 5.5;
-                            gapPixels = 0.5;
-                        } else if (currentZoom >= 15) {
-                            baseWeight = 11;
-                            gapPixels = 1.5;
-                        }
-                        
-                        if (numVehicles > 1) {
-                            // Diminuisci la stazza delle linee quando sono affiancate per contenere l'ingombro visivo
+                        if (currentZoom <= 12) { baseWeight = 3.5; gapPixels = 0.5; }
+                        else if (currentZoom === 13) { baseWeight = 4; gapPixels = 0.5; }
+                        else if (currentZoom === 14) { baseWeight = 5.5; gapPixels = 0.5; }
+                        else if (currentZoom >= 15) { baseWeight = 11; gapPixels = 1.5; }
+
+                        if (numVisible > 1) {
                             baseWeight = Math.max(3, baseWeight * 0.65);
                             gapPixels = Math.max(0.5, gapPixels * 0.7);
                         }
-                        
+
                         let toleranceMeters = 0;
                         if (currentZoom <= 12) toleranceMeters = 150;
                         else if (currentZoom === 13) toleranceMeters = 80;
                         else if (currentZoom === 14) toleranceMeters = 35;
-                        
-                        const lineWidth = baseWeight;
-                        const offsetStepPixels = baseWeight + gapPixels;
-                        const metersPerPixel = 108740 / Math.pow(2, currentZoom);
-                        
-                        // No cap on max meters! We WANT the geographic offset to become huge (e.g. 500m) 
-                        // when zoomed out so the lines remain physically separated by `gapPixels` on the screen.
-                        const offsetStepMeters = offsetStepPixels * metersPerPixel;
 
-                        return activeVIds.map((vId, idx) => {
+                        const lineWidth = baseWeight;
+                        const offsetStepMeters = (baseWeight + gapPixels) * (108740 / Math.pow(2, currentZoom));
+
+                        return visibleVIds.map((vId, visIdx) => {
                             const originalIdx = routes.findIndex(r => r.vehicle_id === vId);
                             const color = COLORS[originalIdx % COLORS.length];
-                            
-                            const offsetMeters = (idx - (numVehicles - 1) / 2) * offsetStepMeters;
-                            
-                            const isHidden = hiddenRouteIds.has(vId);
+                            // Center offset around 0 using only visible vehicles
+                            const offsetMeters = (visIdx - (numVisible - 1) / 2) * offsetStepMeters;
                             const animId = highlight?.vehicleId;
                             const isAnimating = animId === vId;
                             const isSidebarHL = !animId && highlightedRouteId === vId;
                             const isDimmed = (animId !== null && animId !== undefined || highlightedRouteId !== null) && !isAnimating && !isSidebarHL;
-                            
+
                             return paths.map((pathPositions, pathIdx) => {
                                 const simplified = simplifyPath(pathPositions, toleranceMeters);
                                 const offsetPath = applyGeographicOffset(simplified, offsetMeters);
@@ -764,18 +802,49 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                                         pathOptions={{
                                             color: isSidebarHL ? '#f97316' : color,
                                             weight: isSidebarHL ? 6 : lineWidth,
-                                            opacity: isHidden ? 0 : (isDimmed ? 0.25 : 1),
+                                            opacity: isDimmed ? 0.25 : 1,
                                             lineCap: 'round',
                                             lineJoin: 'round',
-                                            interactive: !isHidden,
-                                            className: isHidden ? 'route-transition pointer-events-none' : 'route-transition'
+                                            className: 'route-transition'
                                         }}
-                                        eventHandlers={{
-                                            click: () => { if (!isHidden) handlePolylineClick(vId); }
-                                        }}
+                                        eventHandlers={{ click: () => handlePolylineClick(vId) }}
                                     />
                                 );
                             });
+                        });
+                    })}
+
+                    {/* 1b. FRECCE DIREZIONALI — su tratti rettilinei, dimensione scalata con zoom */}
+                    {showArrows && routes && routes.map((route) => {
+                        if (hiddenRouteIds.has(route.vehicle_id)) return null;
+                        const positions = getPositions(route.outbound || route);
+                        if (positions.length < 4) return null;
+                        const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
+                        const color = COLORS[originalIdx % COLORS.length];
+                        const aw = currentZoom <= 12 ? 14 : currentZoom === 13 ? 18 : currentZoom === 14 ? 24 : 34;
+                        const ah = Math.round(aw * 1.4);
+                        const arrowPoints = findStraightArrowPositions(positions, 3);
+                        return arrowPoints.map(({ posIdx, bearing }) => {
+                            if (posIdx < 1 || posIdx >= positions.length) return null;
+                            const [lat1, lon1] = positions[posIdx - 1];
+                            const [lat2, lon2] = positions[posIdx];
+                            const midLat = (lat1 + lat2) / 2;
+                            const midLon = (lon1 + lon2) / 2;
+                            const arrowIcon = L.divIcon({
+                                className: '',
+                                html: `<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 10 14" style="transform:rotate(${bearing}deg);filter:drop-shadow(0 1px 3px rgba(0,0,0,0.45));display:block"><polygon points="5,0 10,14 5,9 0,14" fill="${color}" opacity="0.95"/></svg>`,
+                                iconSize: [aw, ah],
+                                iconAnchor: [aw / 2, ah / 2],
+                            });
+                            return (
+                                <Marker
+                                    key={`arrow-${route.vehicle_id}-${posIdx}`}
+                                    position={[midLat, midLon]}
+                                    icon={arrowIcon}
+                                    interactive={false}
+                                    zIndexOffset={600}
+                                />
+                            );
                         });
                     })}
 
@@ -795,7 +864,7 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                                         positions={positions}
                                         pathOptions={{
                                             color,
-                                            weight: 22,
+                                            weight: currentZoom <= 12 ? 8 : currentZoom === 13 ? 10 : currentZoom === 14 ? 13 : 20,
                                             opacity: 1,
                                             lineCap: 'round',
                                             lineJoin: 'round',

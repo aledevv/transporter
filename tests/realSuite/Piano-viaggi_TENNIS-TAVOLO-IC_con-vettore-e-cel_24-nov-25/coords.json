@@ -1,8 +1,4 @@
 {
-  "IC ALDENO - MATTARELLO": {
-    "lat": 45.9768882,
-    "lon": 11.0922044
-  },
   "IC AVIO": {
     "lat": 45.7388498,
     "lon": 10.9530665
@@ -30,5 +26,13 @@
   "IC VALLE DEI LAGHI – DRO": {
     "lat": 45.9592826,
     "lon": 10.9101053
+  },
+  "IC ALDENO - MATTARELLO": {
+    "lat": 46.0068229,
+    "lon": 11.1306398
+  },
+  "IC ALDENO - MATTARELLO|1": {
+    "lat": 46.0068229,
+    "lon": 11.1306398
   }
 }

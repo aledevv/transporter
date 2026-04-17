@@ -1,12 +1,4 @@
 {
-  "IC ALDENO MATTARELLO": {
-    "lat": 46.0083709,
-    "lon": 11.1315735
-  },
-  "IC ALTA VALLAGARINA": {
-    "lat": 45.9189485,
-    "lon": 11.0576204
-  },
   "IC BORGO VALSUGANA": {
     "lat": 46.0154635,
     "lon": 11.6308509
@@ -90,5 +82,9 @@
   "IC ALA": {
     "lat": 45.7562382,
     "lon": 11.0015357
+  },
+  "IC ALTA VALLAGARINA": {
+    "lat": 45.8929668,
+    "lon": 11.0371623
   }
 }

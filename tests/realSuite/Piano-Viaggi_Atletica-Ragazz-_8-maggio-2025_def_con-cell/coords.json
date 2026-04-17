@@ -1,16 +1,4 @@
 {
-  "IC ALDENO-MATTARELLO": {
-    "lat": 45.9768882,
-    "lon": 11.0922044
-  },
-  "IC ALTOPIANO DI PINE'": {
-    "lat": 46.1236472,
-    "lon": 11.2419032
-  },
-  "IC AVIO": {
-    "lat": 45.7359737,
-    "lon": 10.9439825
-  },
   "IC BASSA ANAUNIA-TUENNO": {
     "lat": 46.3304899,
     "lon": 11.0250292
@@ -134,5 +122,9 @@
   "IC ALA": {
     "lat": 45.7562382,
     "lon": 11.0015357
+  },
+  "IC ALTOPIANO DI PINE'": {
+    "lat": 46.1286198,
+    "lon": 11.2437977
   }
 }

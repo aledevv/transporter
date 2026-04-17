@@ -2172,6 +2172,199 @@ def download_corrected_file(filename):
     return response
 
 
+@app.route('/api/evaluate_plan', methods=['POST'])
+def evaluate_plan():
+    data = request.json
+    custom_routes = data.get('routes', [])
+    destination_address = data.get('destination', '')
+    
+    dest_lat = data.get('dest_lat')
+    dest_lon = data.get('dest_lon')
+    if (not dest_lat or not dest_lon) and destination_address:
+        dest_lat, dest_lon = geocoder.get_coordinates(destination_address)
+
+    try:
+        formatted_routes = []
+        start_time_str = data.get('start_time', '08:00')
+        try:
+            start_hour, start_min = map(int, start_time_str.split(':'))
+        except:
+            start_hour, start_min = 8, 0
+        AVERAGE_SPEED_KMH = 30
+        STOP_DWELL_TIME_MIN = 3
+        
+        for idx, custom_route in enumerate(custom_routes):
+            current_vehicle_id = custom_route.get('vehicle_id', idx)
+            original_stops = custom_route.get('outbound', {}).get('stops', [])
+            
+            stops_data = original_stops
+            pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
+            
+            # Recalculating everything based on the given pickup stops.
+            seg_distances_m = []
+            if pickup_stops:
+                for i, stop in enumerate(pickup_stops):
+                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
+                    seg_distances_m.append(
+                        geocoder.haversine_distance(float(stop.get('lat', 0)), float(stop.get('lon', 0)), float(ns.get('lat', dest_lat)), float(ns.get('lon', dest_lon)))
+                    )
+            
+            geo_data = geocoder.get_route_geometry(stops_data)
+            outbound_geometry = geo_data['geometry'] if geo_data else None
+            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
+            
+            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
+            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
+            
+            total_load = sum([s.get('count', 0) for s in pickup_stops])
+            
+            if pickup_stops:
+                total_haversine_m = sum(seg_distances_m) or 1
+                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
+                cumulative_minutes = start_hour * 60 + start_min
+                
+                for i, stop in enumerate(pickup_stops):
+                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
+                    
+                    if leg_distances_m and i < len(leg_distances_m):
+                        seg_dist_m = leg_distances_m[i]
+                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                    else:
+                        seg_dist_m = seg_distances_m[i]
+                        if total_drive_min:
+                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
+                        else:
+                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                            
+                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
+                    stop['time_to_next_min'] = round(seg_drive_min)
+                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+                    
+                # Destination arrival time
+                for stop in stops_data:
+                    if stop['type'] == 'destination':
+                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
+                        
+            formatted_routes.append({
+                'vehicle_id': current_vehicle_id,
+                'total_load': total_load,
+                'outbound': {
+                    'stops': stops_data,
+                    'geometry': outbound_geometry,
+                    'distance': outbound_dist
+                }
+            })
+            
+        # POST-PROCESSING: Synchronize pickup times for schools split across buses
+        school_times = {}
+        for route_idx, route in enumerate(formatted_routes):
+            for stop_idx, stop in enumerate(route['outbound']['stops']):
+                if stop['type'] == 'pickup':
+                    original_name = stop.get('original_name', stop.get('name'))
+                    if original_name not in school_times:
+                        school_times[original_name] = []
+                    if 'departure_time' in stop:
+                        minutes = parse_time_to_minutes(stop['departure_time'])
+                        school_times[original_name].append({
+                            'route_idx': route_idx, 'stop_idx': stop_idx, 'minutes': minutes
+                        })
+
+        for school_name, times in school_times.items():
+            if len(times) > 1:
+                latest_minutes = max(t['minutes'] for t in times)
+                latest_time_str = format_time_from_minutes(latest_minutes)
+                for t in times:
+                    stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
+                    stop['departure_time'] = latest_time_str
+                    stop['synchronized'] = True
+
+        time_mode = data.get('time_mode', 'arrival')
+        arrival_times_minutes = []
+        for route in formatted_routes:
+            for stop in route['outbound']['stops']:
+                if stop['type'] == 'destination' and 'arrival_time' in stop:
+                    minutes = parse_time_to_minutes(stop['arrival_time'])
+                    arrival_times_minutes.append(minutes)
+
+        if arrival_times_minutes:
+            earliest_arrival = min(arrival_times_minutes)
+            latest_arrival = max(arrival_times_minutes)
+            current_spread = latest_arrival - earliest_arrival
+            if time_mode == 'arrival':
+                target_time_str = data.get('start_time', '08:00')
+                try:
+                    th, tm = map(int, target_time_str.split(':'))
+                    target_arrival_minutes = th * 60 + tm
+                except:
+                    target_arrival_minutes = 8 * 60
+                
+                for route in formatted_routes:
+                    stops = route['outbound']['stops']
+                    dest_stop = None
+                    for stop in stops:
+                        if stop['type'] == 'destination': 
+                            dest_stop = stop
+                            break
+                    if dest_stop and 'arrival_time' in dest_stop:
+                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
+                        delay_minutes = target_arrival_minutes - current_arrival
+                        for stop in stops:
+                            if stop['type'] == 'pickup' and 'departure_time' in stop:
+                                old_minutes = parse_time_to_minutes(stop['departure_time'])
+                                stop['departure_time'] = format_time_from_minutes(old_minutes + delay_minutes)
+                            elif stop['type'] == 'destination' and 'arrival_time' in stop:
+                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
+                                stop['arrival_time'] = format_time_from_minutes(old_minutes + delay_minutes)
+
+                final_arrival_times = []
+                for route in formatted_routes:
+                    for stop in route['outbound']['stops']:
+                        if stop['type'] == 'destination' and 'arrival_time' in stop:
+                            final_arrival_times.append(parse_time_to_minutes(stop['arrival_time']))
+                final_earliest = min(final_arrival_times) if final_arrival_times else 0
+                final_latest = max(final_arrival_times) if final_arrival_times else 0
+                final_spread = final_latest - final_earliest
+            else:
+                final_earliest = earliest_arrival
+                final_latest = latest_arrival
+                final_spread = current_spread
+            
+            arrival_window = {
+                'earliest': format_time_from_minutes(final_earliest),
+                'latest': format_time_from_minutes(final_latest),
+                'spread_minutes': final_spread
+            }
+        else:
+            arrival_window = None
+
+        fine_manifestazione = data.get('fine_manifestazione', '').strip()
+        calculate_return = data.get('calculate_return', True)
+        if calculate_return and fine_manifestazione:
+            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+
+        total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
+        overlaps = find_bus_overlaps(formatted_routes, min_overlap_meters=30)
+        total_passengers = sum([r['total_load'] for r in formatted_routes])
+
+        return jsonify({
+            'routes': formatted_routes,
+            'overlaps': overlaps,
+            'stats': {
+                'total_buses': len([r for r in formatted_routes if r['outbound']['stops']]),
+                'total_passengers': total_passengers,
+                'outbound_distance': total_outbound,
+                'total_distance': total_outbound,
+                'arrival_window': arrival_window,
+                'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
+            }
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/config')
 def get_config():
     return jsonify({
