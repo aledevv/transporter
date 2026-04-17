@@ -10,14 +10,14 @@ import API_BASE_URL from '../config';
 
 // Route colors (must match Map.jsx COLORS array)
 const ROUTE_COLORS = [
-    '#ff0033', '#00cc44', '#0055ff', '#ff8800',
-    '#ffdd00', '#ff00cc', '#00ddff', '#aaff00',
-    '#aa00ff', '#ff4400', '#00ffaa', '#ff0077',
-    '#0088ff', '#ff6600', '#7700ff', '#00ff66',
-    '#ff3399', '#00ccff', '#ff9900', '#33ff00',
-    '#cc0066', '#0044cc', '#ff5500', '#9900cc',
-    '#00bb55', '#ff0055', '#3366ff', '#ffaa00',
-    '#00aacc', '#cc3300',
+    '#3b82f6', '#ef4444', '#22c55e', '#eab308',
+    '#a855f7', '#f97316', '#ec4899', '#14b8a6',
+    '#6366f1', '#06b6d4', '#f43f5e', '#84cc16',
+    '#8b5cf6', '#f59e0b', '#10b981', '#0ea5e9',
+    '#d946ef', '#dc2626', '#16a34a', '#b45309',
+    '#7c3aed', '#0d9488', '#ea580c', '#db2777',
+    '#65a30d', '#0284c7', '#9333ea', '#c2410c',
+    '#0f766e', '#be185d',
 ];
 
 // ─── Dashboard ───
