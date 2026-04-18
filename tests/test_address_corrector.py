@@ -277,61 +277,61 @@ class TestParseResponse:
         self.corrector = AddressCorrector()
 
     def test_parses_plain_json(self):
-        raw = '[{"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
+        raw = '[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {0: "Via Roma, 1, Trento"}
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
         assert unresolved == set()
 
     def test_strips_json_markdown_fence(self):
-        raw = '```json\n[{"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]\n```'
+        raw = '```json\n[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]\n```'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {0: "Via Roma, 1, Trento"}
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
         assert unresolved == set()
 
     def test_strips_plain_markdown_fence(self):
-        raw = '```\n[{"id": 1, "name": "Scuola B", "normalized_address": "Piazza Dante, Rovereto"}]\n```'
+        raw = '```\n[{"name": "Scuola B", "normalized_address": "Piazza Dante, Rovereto"}]\n```'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {1: "Piazza Dante, Rovereto"}
+        assert corrections == {"Scuola B": "Piazza Dante, Rovereto"}
         assert unresolved == set()
 
     def test_multiple_items(self):
         raw = json.dumps([
-            {"id": 0, "name": "Scuola A", "normalized_address": "Addr A"},
-            {"id": 1, "name": "Scuola B", "normalized_address": "Addr B"},
+            {"name": "Scuola A", "normalized_address": "Addr A"},
+            {"name": "Scuola B", "normalized_address": "Addr B"},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {0: "Addr A", 1: "Addr B"}
+        assert corrections == {"Scuola A": "Addr A", "Scuola B": "Addr B"}
         assert unresolved == set()
 
-    def test_item_missing_id_is_skipped(self):
-        raw = '[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
+    def test_item_missing_name_is_skipped(self):
+        raw = '[{"normalized_address": "Via Roma, 1, Trento"}]'
         corrections, unresolved = self.corrector._parse_response(raw)
         assert corrections == {}
         assert unresolved == set()
 
     def test_empty_fields_cleaned_during_parse(self):
-        raw = json.dumps([{"id": 0, "name": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
+        raw = json.dumps([{"name": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {0: "Piazza, Campitello di Fassa, Trento, Italy"}
+        assert corrections == {"Scuola A": "Piazza, Campitello di Fassa, Trento, Italy"}
         assert unresolved == set()
 
     def test_empty_normalized_address_goes_to_unresolved(self):
         raw = json.dumps([
-            {"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"},
-            {"id": 1, "name": "Scuola B", "normalized_address": ""},
+            {"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"},
+            {"name": "Scuola B", "normalized_address": ""},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {0: "Via Roma, 1, Trento"}
-        assert unresolved == {1}
+        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
+        assert unresolved == {"Scuola B"}
 
     def test_all_empty_normalized_addresses(self):
         raw = json.dumps([
-            {"id": 0, "name": "Scuola A", "normalized_address": ""},
-            {"id": 1, "name": "Scuola B", "normalized_address": ""},
+            {"name": "Scuola A", "normalized_address": ""},
+            {"name": "Scuola B", "normalized_address": ""},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
         assert corrections == {}
-        assert unresolved == {0, 1}
+        assert unresolved == {"Scuola A", "Scuola B"}
 
     def test_large_dataset_with_mixed_results(self):
         """29-school dataset: verifies parsing handles real-world scale input correctly."""
@@ -371,10 +371,10 @@ class TestParseResponse:
 
         assert len(corrections) == 27  # 29 total - 2 unresolved
         assert len(unresolved) == 2
-        assert 24 in unresolved  # Scuola media Madonna di Campiglio
-        assert 28 in unresolved  # Scuola superiore Merano
-        assert 0 in corrections  # IC Levico Terme
-        assert corrections[2] == "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"  # Liceo Galilei Trento
+        assert "Scuola media Madonna di Campiglio" in unresolved
+        assert "Scuola superiore Merano" in unresolved
+        assert "IC Levico Terme" in corrections
+        assert corrections["Liceo Galilei Trento"] == "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"
 
 
 # ---------------------------------------------------------------------------

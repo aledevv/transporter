@@ -34,7 +34,7 @@ class AddressCorrector:
       3. Apply cache hits: for schools whose name is already in school_address_cache.json
          the normalized address is used directly — these schools are excluded from the AI call.
       4. Send remaining schools to the Gemini agent as a JSON string.
-      5. Parse the response (expected: list of {id, normalized_address}).
+      5. Parse the response (expected: list of {name, normalized_address}).
       6. Apply corrections to the school list and save <name>_corretto.xlsx with FLAG_COL=True.
     """
 
@@ -77,23 +77,23 @@ class AddressCorrector:
                 return schools, self.STATUS_SKIPPED_FLAGGED, []
 
         address_data = [
-            {"id": s["id"], "name": s["name"], "address": s["address"]}
+            {"name": s["name"], "address": s["address"]}
             for s in schools
         ]
 
         try:
             ai_corrections: dict = {}
-            unresolved_ids = set()
+            unresolved_name_set = set()
             if address_data:
                 raw = self._call_with_fallback(json.dumps(address_data, ensure_ascii=False))
-                ai_corrections, unresolved_ids = self._parse_response(raw)
+                ai_corrections, unresolved_name_set = self._parse_response(raw)
             corrections = ai_corrections
             corrected_schools = self._apply_corrections(schools, corrections)
             # Schools the agent could not geocode get an empty address so that
             # the geocoding step fails cleanly (geocoding_failed=True) and the
             # frontend orange banner can ask the user for a manual replacement.
             corrected_schools = [
-                {**s, "address": ""} if s["id"] in unresolved_ids else s
+                {**s, "address": ""} if s["name"] in unresolved_name_set else s
                 for s in corrected_schools
             ]
             if df is not None and output_path:
@@ -101,9 +101,9 @@ class AddressCorrector:
 
             changed = sum(
                 1 for s in schools
-                if s["id"] in corrections and corrections[s["id"]] != s["address"]
+                if s["name"] in corrections and corrections[s["name"]] != s["address"]
             )
-            unresolved_names = [s["name"] for s in schools if s["id"] in unresolved_ids]
+            unresolved_names = [s["name"] for s in schools if s["name"] in unresolved_name_set]
             if unresolved_names:
                 print(f"[AddressCorrector] {len(unresolved_names)} addresses unresolved by agent: {unresolved_names}")
             print(f"[AddressCorrector] Corrected {changed}/{len(schools)} addresses → {output_path}")
@@ -162,26 +162,26 @@ class AddressCorrector:
 
     def _parse_response(self, raw):
         """
-        Parses the agent response into ({id: normalized_address}, unresolved_ids_set).
+        Parses the agent response into ({name: normalized_address}, unresolved_names_set).
         Items where normalized_address is empty (agent could not geocode) are excluded from
-        the corrections dict and collected in unresolved_ids.
+        the corrections dict and collected in unresolved_names.
         Strips markdown code fences and cleans up empty comma-separated fields.
         """
         clean = re.sub(r"```(?:json)?\s*", "", raw).strip().rstrip("`").strip()
         data = json.loads(clean)
         corrections = {}
-        unresolved_ids = set()
+        unresolved_names = set()
         for item in data:
-            sid = item.get("id")
-            if sid is None:
-                print(f"[AddressCorrector] _parse_response: item missing 'id', skipping: {item}")
+            sname = item.get("name")
+            if sname is None:
+                print(f"[AddressCorrector] _parse_response: item missing 'name', skipping: {item}")
                 continue
             addr = item.get("normalized_address", "")
             if addr:
-                corrections[sid] = self._clean_address(addr)
+                corrections[sname] = self._clean_address(addr)
             else:
-                unresolved_ids.add(sid)
-        return corrections, unresolved_ids
+                unresolved_names.add(sname)
+        return corrections, unresolved_names
 
     @staticmethod
     def _clean_address(address):
@@ -198,14 +198,17 @@ class AddressCorrector:
         result = []
         for school in schools:
             s = school.copy()
-            if s["id"] in corrections:
-                s["address"] = corrections[s["id"]]
+            if s["name"] in corrections:
+                s["address"] = corrections[s["name"]]
             result.append(s)
         return result
 
     def _save_corrected_excel(self, df, corrections, output_path):
         """Writes the corrected Excel with FLAG_COL=True on every row."""
-        for school_id, normalized in corrections.items():
-            df.at[school_id, "Indirizzo"] = normalized
+        nome_col = next((c for c in df.columns if c.strip() == "Nome"), None)
+        for idx, row in df.iterrows():
+            name = str(row[nome_col]).strip() if nome_col else None
+            if name and name in corrections:
+                df.at[idx, "Indirizzo"] = corrections[name]
         df[FLAG_COL] = True
         df.to_excel(output_path, index=False)
