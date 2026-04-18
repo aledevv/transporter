@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MapPin, Loader2, Navigation, Building2, MapPinned } from 'lucide-react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
@@ -14,13 +15,18 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
-    const lastSelectedValueRef = useRef(null);
+    const lastSearchedRef = useRef(null); // last value we actually searched for
+    const inputRef = useRef(null);
+    const dropdownRef = useRef(null);
+    const [dropdownStyle, setDropdownStyle] = useState({});
 
     const searchAddress = React.useCallback(
         debounce(async (query) => {
             if (!query || query.length < 2) {
                 setSuggestions([]);
+                setIsOpen(false);
                 return;
             }
             setLoading(true);
@@ -40,15 +46,35 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         []
     );
 
+    // Only search when focused and value actually changed due to typing
     useEffect(() => {
-        if (value === lastSelectedValueRef.current) return;
+        if (!isFocused) return;
+        if (value === lastSearchedRef.current) return;
+        lastSearchedRef.current = value;
         searchAddress(value);
-    }, [value, searchAddress]);
+    }, [value, searchAddress, isFocused]);
+
+    // Recompute portal position when open
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            const rect = inputRef.current.getBoundingClientRect();
+            setDropdownStyle({
+                position: 'fixed',
+                top: rect.bottom + 4,
+                left: rect.left,
+                width: rect.width,
+                zIndex: 9999,
+            });
+        }
+    }, [isOpen, suggestions]);
 
     const wrapperRef = useRef(null);
     useEffect(() => {
         function handleClickOutside(event) {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+            if (
+                wrapperRef.current && !wrapperRef.current.contains(event.target) &&
+                (!dropdownRef.current || !dropdownRef.current.contains(event.target))
+            ) {
                 setIsOpen(false);
             }
         }
@@ -62,7 +88,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         const displayValue = secondaryText ? `${mainText}, ${secondaryText}` : mainText;
 
         setIsOpen(false);
-        lastSelectedValueRef.current = displayValue;
+        lastSearchedRef.current = displayValue;
         onChange(displayValue);
 
         if (onSelect && suggestion.lat != null && suggestion.lon != null) {
@@ -74,6 +100,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         <div className="relative" ref={wrapperRef}>
             <MapPin className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
             <input
+                ref={inputRef}
                 type="text"
                 className="w-full pl-9 pr-10 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 placeholder={placeholder}
@@ -82,6 +109,15 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                     onChange(e.target.value);
                     setIsOpen(true);
                 }}
+                onFocus={() => {
+                    setIsFocused(true);
+                    lastSearchedRef.current = value; // don't search existing value on focus
+                }}
+                onBlur={() => {
+                    setIsFocused(false);
+                    // Small delay so onMouseDown on suggestion can fire first
+                    setTimeout(() => setIsOpen(false), 150);
+                }}
             />
             {loading && (
                 <div className="absolute right-3 top-3">
@@ -89,8 +125,8 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                 </div>
             )}
 
-            {isOpen && suggestions.length > 0 && (
-                <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto">
+            {isOpen && suggestions.length > 0 && createPortal(
+                <ul ref={dropdownRef} style={dropdownStyle} className="bg-white border border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto">
                     {suggestions.map((item) => {
                         const main = item.structured_formatting?.main_text ?? item.description ?? '';
                         const secondary = item.structured_formatting?.secondary_text ?? '';
@@ -111,7 +147,8 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                             </li>
                         );
                     })}
-                </ul>
+                </ul>,
+                document.body
             )}
         </div>
     );

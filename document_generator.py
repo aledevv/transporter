@@ -33,6 +33,7 @@ def _replace_text_in_paragraph(paragraph, search_text, replace_text):
     if target_bold is not None:
         new_run.font.bold = target_bold
 
+
 def generate_piano_viaggi(template_path, out_docx_path, data):
     """
     data = {
@@ -96,7 +97,10 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
             # Fallback
             target_p = doc.paragraphs[-1]
 
-        # 3. Generate tables for each route
+        # 3. Generate tables for each route, inserting right after the header table
+        from docx.oxml.shared import OxmlElement
+        last_inserted = doc.tables[header_table_idx]._element
+
         routes = data.get('routes', [])
         for route_idx, route in enumerate(routes):
             new_tbl_element = copy.deepcopy(base_tbl_element)
@@ -118,40 +122,50 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
             total_pax = 0
             
             from docx.shared import Pt
-            def _set_cell_val(cell, text, size=11):
+            def _set_cell_val(cell, text, size=10):
                 cell.text = text
                 if cell.paragraphs:
                     for run in cell.paragraphs[0].runs:
                         run.font.size = Pt(size)
+                        run.font.name = 'Arial'
             
             first_fin_cell = None
             first_km_cell = None
+            first_name_cell = None
+            last_name = None
             first_time_cell = None
             last_time = None
             first_ret_time_cell = None
             last_ret_time = None
-            
+
             for i, stop in enumerate(pickup_stops):
                 stop_row_elem = copy.deepcopy(data_row_template)
                 new_tbl_element.append(stop_row_elem)
                 # re-wrap to modify
                 temp_t = Table(new_tbl_element, doc)
                 current_row = temp_t.rows[-1]
-                
+
                 if i == 0:
                     _set_cell_val(current_row.cells[0], f"Fin {route.get('vehicle_id', route_idx) + 1}", size=9)
-                    _set_cell_val(current_row.cells[1], f"{route.get('outbound', {}).get('distance', 0) / 1000:.1f} KM", size=11)
+                    _set_cell_val(current_row.cells[1], f"{route.get('outbound', {}).get('distance', 0) / 500:.1f} KM", size=11)
                     first_fin_cell = current_row.cells[0]
                     first_km_cell = current_row.cells[1]
                 else:
                     _set_cell_val(current_row.cells[0], "")
                     _set_cell_val(current_row.cells[1], "")
-                    # Merge cells downwards
                     first_fin_cell.merge(current_row.cells[0])
                     first_km_cell.merge(current_row.cells[1])
-                    
-                _set_cell_val(current_row.cells[2], stop.get('name', ''))
-                
+
+                # Istituto/Name (colonna 2) — merge consecutive identical names
+                name = stop.get('name', '')
+                if i > 0 and name and name == last_name:
+                    _set_cell_val(current_row.cells[2], "")
+                    first_name_cell.merge(current_row.cells[2])
+                else:
+                    _set_cell_val(current_row.cells[2], name)
+                    first_name_cell = current_row.cells[2]
+                    last_name = name
+
                 # Orario Andata (colonna 3)
                 current_time = stop.get('departure_time', '')
                 if i > 0 and current_time and current_time == last_time:
@@ -164,7 +178,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
 
                 _set_cell_val(current_row.cells[4], stop.get('address', ''))
                 _set_cell_val(current_row.cells[5], str(stop.get('count', '0')))
-                
+
                 # Orario Ritorno (colonna 6)
                 current_ret_time = stop.get('return_time', '')
                 if i > 0 and current_ret_time and current_ret_time == last_ret_time:
@@ -174,7 +188,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                     _set_cell_val(current_row.cells[6], current_ret_time)
                     first_ret_time_cell = current_row.cells[6]
                     last_ret_time = current_ret_time
-                
+
                 total_pax += stop.get('count', 0)
                 
             # Append Totals row
@@ -183,13 +197,11 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
             totals_row = temp_t.rows[-1]
             _set_cell_val(totals_row.cells[-2], str(total_pax), size=11)
             
-            # Insert table into document
-            target_p._element.addprevious(new_tbl_element)
-            
-            # Add an empty paragraph after the table
-            from docx.oxml.shared import OxmlElement
+            # Insert table immediately after the previous element (no gap)
+            last_inserted.addnext(new_tbl_element)
             p_elem = OxmlElement('w:p')
-            target_p._element.addprevious(p_elem)
+            new_tbl_element.addnext(p_elem)
+            last_inserted = p_elem
 
         # 4. Handle generic exclusions at the end
         if data.get('exclude_autonomia', False):

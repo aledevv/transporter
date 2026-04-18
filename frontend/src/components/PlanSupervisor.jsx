@@ -443,7 +443,7 @@ export default function PlanSupervisor({
                                             Bus vuoto. Verrà eliminato al salvataggio.
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col">
                                             {stopsWithIdx.map((stop, stopIndex) => {
                                                 if (stop.type === 'destination') return null;
 
@@ -462,7 +462,8 @@ export default function PlanSupervisor({
                                                 const bufIncrement = (prevDist == null || prevDist < 10) ? 5 : 10;
 
                                                 return (
-                                                    <div key={`stop-${stopIndex}`} className="flex items-stretch gap-2 bg-white border border-gray-100 rounded-lg p-2 hover:border-gray-300 transition-colors shadow-sm">
+                                                    <React.Fragment key={`stop-${stopIndex}`}>
+                                                    <div className="flex items-stretch gap-2 bg-white border border-gray-100 rounded-lg p-2 hover:border-gray-300 transition-colors shadow-sm">
                                                         {/* Reorder controls */}
                                                         {pickupStops.length > 1 && (
                                                             <div className="flex flex-col justify-between items-center bg-gray-50 rounded p-1 border border-gray-100 w-8 flex-shrink-0">
@@ -572,6 +573,7 @@ export default function PlanSupervisor({
                                                                         style={{ position: 'absolute', top: dropdownPos.top, right: dropdownPos.right, zIndex: 9999, maxHeight: '60vh', overflowY: 'auto' }}
                                                                         className="bg-white rounded-xl shadow-2xl border border-gray-200 min-w-[180px]"
                                                                         onClick={e => e.stopPropagation()}
+                                                                        onMouseDown={e => e.stopPropagation()}
                                                                     >
                                                                         <div className="px-3 py-2 bg-gray-50 border-b border-gray-100 sticky top-0">
                                                                             <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Sposta su bus</p>
@@ -603,6 +605,17 @@ export default function PlanSupervisor({
                                                             </div>
                                                         )}
                                                     </div>
+                                                    {/* Connector between stops */}
+                                                    {stop.dist_to_next_km != null && (
+                                                        <div className="flex items-center gap-1.5 py-0.5 pl-3 text-[10px] text-gray-400">
+                                                            <div className="w-px h-4 bg-gray-300" />
+                                                            <span className="font-medium">{stop.dist_to_next_km} km</span>
+                                                            {stop.time_to_next_min != null && (
+                                                                <span>· ~{stop.time_to_next_min} min</span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    </React.Fragment>
                                                 );
                                             })}
                                         </div>
@@ -622,6 +635,11 @@ export default function PlanSupervisor({
                                                     <div className={`text-xs border rounded px-2 py-1 inline-block font-bold shadow-sm ${totalShift > 0 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-green-50 text-green-800 border-green-100'}`}>
                                                         {shiftTime(destStop.arrival_time, totalShift) || destStop.arrival_time || '--:--'}
                                                     </div>
+                                                )}
+                                                {route.outbound?.distance > 0 && (
+                                                    <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">
+                                                        {(route.outbound.distance / 1000).toFixed(1)} km
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>

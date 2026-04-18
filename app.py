@@ -755,7 +755,7 @@ def optimize():
                 for i, stop in enumerate(pickup_stops):
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
 
-                    # Use real road leg distance/duration from Google when available (fallback: haversine)
+                    # Use real road leg distance/duration from OSRM when available (fallback: haversine)
                     if leg_distances_m and i < len(leg_distances_m):
                         seg_dist_m = leg_distances_m[i]
                         seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
@@ -774,7 +774,7 @@ def optimize():
                 for stop in stops_data:
                     if stop['type'] == 'destination':
                         stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
-            
+
             formatted_routes.append({
                 'vehicle_id': current_vehicle_id,
                 'total_load': route['load'],
@@ -2225,7 +2225,7 @@ def evaluate_plan():
                 
                 for i, stop in enumerate(pickup_stops):
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
-                    
+
                     if leg_distances_m and i < len(leg_distances_m):
                         seg_dist_m = leg_distances_m[i]
                         seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
@@ -2235,11 +2235,11 @@ def evaluate_plan():
                             seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
                         else:
                             seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-                            
+
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
-                    
+
                 # Destination arrival time
                 for stop in stops_data:
                     if stop['type'] == 'destination':

@@ -21,7 +21,7 @@ const ROUTE_COLORS = [
 ];
 
 // ─── Dashboard ───
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore, openEditorTrigger = 0 }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(56);
@@ -73,6 +73,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
 
     useEffect(() => { setResults(null); setRouteShifts({}); setRouteAdvances({}); setTripName(''); }, [schools]);
+
+    useEffect(() => { if (openEditorTrigger > 0) setShowEditor(true); }, [openEditorTrigger]);
 
     // Track when we're in the middle of restoring a trip (to suppress auto-save)
     const isRestoringRef = React.useRef(false);
@@ -601,6 +603,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                     setSupervisionMode(false);
                                     setRouteShifts({});
                                     setRouteAdvances({});
+                                    onTripUpdated?.(currentTripId, { results: newResults });
                                 }}
                                 onCancel={() => {
                                     setPreviewResults(null);
@@ -684,6 +687,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                 <div className="ml-3 flex items-center justify-between bg-green-50 rounded-lg px-3 py-2 border border-green-100">
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="text-sm font-semibold text-green-800">Arrivo a destinazione</span>
+                                                                        <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">{distKm.toFixed(1)} km</span>
                                                                     </div>
                                                                     <span className="text-sm font-bold text-green-700 font-mono tabular-nums">
                                                                         {shiftTime(stop.arrival_time, totalShiftForBus + advance)}

@@ -74,22 +74,14 @@ class AddressCorrector:
 
         address_data = [{"name": s["name"], "address": s["address"]} for s in schools]
 
-        # ── Step 3: apply cache hits (bypass AI for known schools) ──────────
-        cache_corrections = self._apply_cache_hits(schools)
-        if cache_corrections:
-            print(f"[AddressCorrector] Cache hit: {len(cache_corrections)} school(s) resolved without AI.")
-        # Exclude cache-resolved schools from the AI call
-        needs_ai = [s for s in address_data if s["name"] not in cache_corrections]
-
         try:
             ai_corrections: dict = {}
-            if needs_ai:
-                raw = self._call_with_fallback(json.dumps(needs_ai, ensure_ascii=False))
+            if address_data:
+                raw = self._call_with_fallback(json.dumps(address_data, ensure_ascii=False))
                 ai_corrections, unresolved_names = self._parse_response(raw)
             else:
                 unresolved_names = []
-            # Merge: cache takes priority, AI fills the rest
-            corrections = {**ai_corrections, **cache_corrections}
+            corrections = ai_corrections
             corrected_schools = self._apply_corrections(schools, corrections)
             # Schools the agent could not geocode get an empty address so that
             # the geocoding step fails cleanly (geocoding_failed=True) and the

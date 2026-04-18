@@ -97,6 +97,7 @@ function App() {
     const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes' | 'tools'
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
+    const [openEditorTrigger, setOpenEditorTrigger] = useState(0);
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: false }); // Global loading state
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
@@ -179,7 +180,11 @@ function App() {
     const handleTripUpdated = async (tripId, fields) => {
         if (!db || !tripId) return;
         try {
-            await updateDoc(doc(db, 'trips', tripId), { ...fields, updatedAt: serverTimestamp() });
+            const payload = { ...fields, updatedAt: serverTimestamp() };
+            if (payload.results && typeof payload.results === 'object') {
+                payload.results = JSON.stringify(payload.results);
+            }
+            await updateDoc(doc(db, 'trips', tripId), payload);
         } catch (err) {
             console.warn('Failed to update trip:', err.message);
         }
@@ -460,12 +465,23 @@ function App() {
                             <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-gray-200">
                                 <h3 className="font-semibold text-gray-700 mb-3 flex justify-between items-center">
                                     <span>Riepilogo Dati Caricati</span>
-                                    <button
-                                        onClick={() => setShowDetails(!showDetails)}
-                                        className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
-                                    >
-                                        {showDetails ? 'Nascondi Dettagli' : 'Mostra Dettagli'}
-                                    </button>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => {
+                                                setOpenEditorTrigger(c => c + 1);
+                                                setTimeout(() => dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                                            }}
+                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                                        >
+                                            ✏️ Modifica Dati
+                                        </button>
+                                        <button
+                                            onClick={() => setShowDetails(!showDetails)}
+                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                                        >
+                                            {showDetails ? 'Nascondi Dettagli' : 'Mostra Dettagli'}
+                                        </button>
+                                    </div>
                                 </h3>
 
                                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -567,6 +583,7 @@ function App() {
                                 onTripRenamed={handleTripRenamed}
                                 onTripUpdated={handleTripUpdated}
                                 tripToRestore={tripToRestore}
+                                openEditorTrigger={openEditorTrigger}
                             />
                         </section>
                     )}
@@ -588,7 +605,7 @@ function App() {
                         >
                             Ale Dev
                         </a>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5 text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5 text-blue-600">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
                         </svg>
                     </div>

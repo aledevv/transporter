@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Save, X, Trash2, PlusCircle } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Pencil, Save, X, Trash2, PlusCircle, Database, Search } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import { getColorForIndex } from '../utils/colors';
+import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
     const [editedSchools, setEditedSchools] = useState(schools);
+    const [pickerOpenId, setPickerOpenId] = useState(null);
+    const [institutes, setInstitutes] = useState([]);
+    const [instituteFilter, setInstituteFilter] = useState('');
 
-    // Compute a local color map that includes new institutes typed by user
-    // ensuring they get a stable, distinct color immediately
     const localColorMap = React.useMemo(() => {
         const map = { ...instituteColorMap };
         const usedCount = Object.keys(map).length;
         let nextIndex = usedCount;
-
         editedSchools.forEach(s => {
             if (s.institute && !map[s.institute]) {
                 map[s.institute] = getColorForIndex(nextIndex);
@@ -22,10 +25,34 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
         return map;
     }, [editedSchools, instituteColorMap]);
 
-    // Sync if props change
     useEffect(() => {
         setEditedSchools(schools);
     }, [schools]);
+
+    // Fetch institute database once on mount
+    useEffect(() => {
+        axios.get(`${API_BASE_URL}/api/fixtures/institutes`)
+            .then(res => {
+                const all = res.data?.institutes ?? [];
+                // Flatten to {name, address, lat, lon} and filter out problematic entries
+                const flat = [];
+                all.forEach(inst => {
+                    inst.entries.forEach(e => {
+                        if (e.lat && e.lon && e.lat !== 0 && e.lon !== 0 && e.address) {
+                            flat.push({ name: inst.name, address: e.address, lat: e.lat, lon: e.lon });
+                        }
+                    });
+                });
+                setInstitutes(flat);
+            })
+            .catch(() => {});
+    }, []);
+
+    const filteredInstitutes = institutes.filter(inst => {
+        if (!instituteFilter) return true;
+        const q = instituteFilter.toLowerCase();
+        return inst.name.toLowerCase().includes(q) || inst.address.toLowerCase().includes(q);
+    });
 
     const handleUpdate = (id, field, value) => {
         setEditedSchools(prev => prev.map(s =>
@@ -38,27 +65,25 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
     };
 
     const handleAdd = () => {
-        // Generate a new ID (max + 1 or timestamp)
-        // This is a simple client-side ID generation
         const newId = editedSchools.length > 0
             ? Math.max(...editedSchools.map(s => s.id)) + 1
             : 1;
-
         setEditedSchools(prev => [
             ...prev,
-            {
-                id: newId,
-                name: 'Nuova Fermata',
-                address: '',
-                demand: 1,
-                lat: 0,
-                lon: 0
-            }
+            { id: newId, name: 'Nuova Fermata', address: '', demand: 1, lat: 0, lon: 0 }
         ]);
     };
 
     const handleSave = () => {
         onSave(editedSchools);
+    };
+
+    const handlePickerSelect = (schoolId, inst) => {
+        handleUpdate(schoolId, 'address', inst.address);
+        handleUpdate(schoolId, 'lat', inst.lat);
+        handleUpdate(schoolId, 'lon', inst.lon);
+        setPickerOpenId(null);
+        setInstituteFilter('');
     };
 
     return (
@@ -95,16 +120,31 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
                                     />
                                 </td>
                                 <td className="p-2 w-1/2 border-b border-gray-50">
-                                    <div className="relative">
-                                        <AddressAutocomplete
-                                            value={school.address}
-                                            onChange={(val) => handleUpdate(school.id, 'address', val)}
-                                            onSelect={(data) => {
-                                                handleUpdate(school.id, 'address', data.address);
-                                                handleUpdate(school.id, 'lat', data.lat);
-                                                handleUpdate(school.id, 'lon', data.lon);
-                                            }}
-                                        />
+                                    <div className="flex items-center gap-1">
+                                        <div className="flex-1">
+                                            <AddressAutocomplete
+                                                value={school.address}
+                                                onChange={(val) => handleUpdate(school.id, 'address', val)}
+                                                onSelect={(data) => {
+                                                    handleUpdate(school.id, 'address', data.address);
+                                                    handleUpdate(school.id, 'lat', data.lat);
+                                                    handleUpdate(school.id, 'lon', data.lon);
+                                                }}
+                                            />
+                                        </div>
+                                        {institutes.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setInstituteFilter('');
+                                                    setPickerOpenId(pickerOpenId === school.id ? null : school.id);
+                                                }}
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+                                                title="Seleziona da Lista Istituti"
+                                            >
+                                                <Database className="w-4 h-4" />
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                                 <td className="p-2 border-b border-gray-50">
@@ -112,7 +152,6 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
                                         <div
                                             className="w-3 h-3 rounded-full flex-shrink-0"
                                             style={{ backgroundColor: school.institute ? (localColorMap[school.institute] || '#e5e7eb') : '#e5e7eb' }}
-                                            title="Colore Istituto"
                                         ></div>
                                         <input
                                             type="text"
@@ -171,6 +210,60 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
                     <Save className="w-5 h-5" /> CONFERMA DATI
                 </button>
             </div>
+
+            {/* Institute picker modal */}
+            {pickerOpenId !== null && createPortal(
+                <div
+                    className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40"
+                    onMouseDown={(e) => { if (e.target === e.currentTarget) { setPickerOpenId(null); setInstituteFilter(''); } }}
+                >
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[70vh]">
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                            <div>
+                                <h4 className="font-semibold text-gray-800">Lista Istituti</h4>
+                                <p className="text-xs text-gray-400">{filteredInstitutes.length} indirizzi verificati</p>
+                            </div>
+                            <button
+                                onClick={() => { setPickerOpenId(null); setInstituteFilter(''); }}
+                                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="p-3 border-b border-gray-100">
+                            <div className="relative">
+                                <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="Cerca per nome o indirizzo..."
+                                    className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                    value={instituteFilter}
+                                    onChange={(e) => setInstituteFilter(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="overflow-y-auto flex-1">
+                            {filteredInstitutes.length === 0 ? (
+                                <div className="text-center py-8 text-gray-400 text-sm italic">Nessun risultato</div>
+                            ) : (
+                                filteredInstitutes.map((inst, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-50 transition-colors"
+                                        onClick={() => handlePickerSelect(pickerOpenId, inst)}
+                                    >
+                                        <div className="font-medium text-gray-800 text-sm">{inst.name}</div>
+                                        <div className="text-xs text-gray-500 mt-0.5">{inst.address}</div>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

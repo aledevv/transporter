@@ -814,6 +814,43 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                         });
                     })}
 
+                    {/* 1a. FALLBACK: routes without OSRM geometry — straight lines between stops */}
+                    {routes && routes.filter(route => {
+                        const geom = (route.outbound || route).geometry;
+                        return !geom || !geom.coordinates;
+                    }).map((route) => {
+                        if (hiddenRouteIds.has(route.vehicle_id)) return null;
+                        const positions = getPositions(route.outbound || route);
+                        if (positions.length < 2) return null;
+                        const originalIdx = routes.findIndex(r => r.vehicle_id === route.vehicle_id);
+                        const color = COLORS[originalIdx % COLORS.length];
+                        let lineWidth = 7;
+                        if (currentZoom <= 12) lineWidth = 3.5;
+                        else if (currentZoom === 13) lineWidth = 4;
+                        else if (currentZoom === 14) lineWidth = 5.5;
+                        else if (currentZoom >= 15) lineWidth = 11;
+                        const animId = highlight?.vehicleId;
+                        const isAnimating = animId === route.vehicle_id;
+                        const isSidebarHL = !animId && highlightedRouteId === route.vehicle_id;
+                        const isDimmed = (animId !== null && animId !== undefined || highlightedRouteId !== null) && !isAnimating && !isSidebarHL;
+                        return (
+                            <Polyline
+                                key={`fallback-${route.vehicle_id}`}
+                                positions={positions}
+                                pathOptions={{
+                                    color: isSidebarHL ? '#f97316' : color,
+                                    weight: isSidebarHL ? 6 : lineWidth,
+                                    opacity: isDimmed ? 0.25 : 0.75,
+                                    lineCap: 'round',
+                                    lineJoin: 'round',
+                                    dashArray: '10, 6',
+                                    className: 'route-transition'
+                                }}
+                                eventHandlers={{ click: () => handlePolylineClick(route.vehicle_id) }}
+                            />
+                        );
+                    })}
+
                     {/* 1b. FRECCE DIREZIONALI — su tratti rettilinei, dimensione scalata con zoom */}
                     {showArrows && routes && routes.map((route) => {
                         if (hiddenRouteIds.has(route.vehicle_id)) return null;
