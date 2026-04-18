@@ -4,7 +4,6 @@ import re
 
 import pandas as pd
 from dotenv import load_dotenv
-import school_cache as _school_cache
 
 load_dotenv()  # Load .env locally; on Cloud Run env vars come from the service config and are already set.
 
@@ -73,12 +72,9 @@ class AddressCorrector:
             print("[AddressCorrector] Already AI-corrected — skipping.")
             return schools, self.STATUS_SKIPPED_FLAGGED, []
 
-        cache_corrections = self._apply_cache_hits(schools)
-        cached_ids = set(cache_corrections.keys())
         address_data = [
             {"id": s["id"], "name": s["name"], "address": s["address"]}
             for s in schools
-            if s["id"] not in cached_ids
         ]
 
         try:
@@ -87,9 +83,7 @@ class AddressCorrector:
             if address_data:
                 raw = self._call_with_fallback(json.dumps(address_data, ensure_ascii=False))
                 ai_corrections, unresolved_ids = self._parse_response(raw)
-            else:
-                unresolved_ids = set()
-            corrections = {**cache_corrections, **ai_corrections}
+            corrections = ai_corrections
             corrected_schools = self._apply_corrections(schools, corrections)
             # Schools the agent could not geocode get an empty address so that
             # the geocoding step fails cleanly (geocoding_failed=True) and the
@@ -118,21 +112,6 @@ class AddressCorrector:
     # ------------------------------------------------------------------
     # Cache helpers
     # ------------------------------------------------------------------
-
-    @staticmethod
-    def _apply_cache_hits(schools: list) -> dict:
-        """
-        Returns {id: cached_address} for schools whose name exactly matches
-        an entry in school_address_cache.json.
-        Only applied when the cached address differs from the current address
-        (no point in "correcting" to the same value).
-        """
-        corrections = {}
-        for school in schools:
-            cached_addr = _school_cache.get_exact(school.get("name", ""))
-            if cached_addr and cached_addr != school.get("address", ""):
-                corrections[school["id"]] = cached_addr
-        return corrections
 
     # ------------------------------------------------------------------
     # Fallback / key rotation
