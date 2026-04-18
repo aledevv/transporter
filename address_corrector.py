@@ -66,6 +66,7 @@ class AddressCorrector:
             return schools, self.STATUS_SKIPPED_DISABLED, []
 
         df = pd.read_excel(original_excel_path)
+        df = df.reset_index(drop=True)
         df.columns = [c.strip() for c in df.columns]
 
         if FLAG_COL in df.columns and df[FLAG_COL].astype(bool).all():
@@ -187,7 +188,10 @@ class AddressCorrector:
         corrections = {}
         unresolved_ids = set()
         for item in data:
-            sid = item["id"]
+            sid = item.get("id")
+            if sid is None:
+                print(f"[AddressCorrector] _parse_response: item missing 'id', skipping: {item}")
+                continue
             addr = item.get("normalized_address", "")
             if addr:
                 corrections[sid] = self._clean_address(addr)

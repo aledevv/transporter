@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 from address_corrector import FLAG_COL, AddressCorrector
-from tests.conftest import MOCK_AGENT_RESPONSE
+from conftest import MOCK_AGENT_RESPONSE
 
 RATE_LIMIT_EXC = Exception("429 RESOURCE_EXHAUSTED: quota exceeded")
 GENERIC_EXC = RuntimeError("Connection refused")
@@ -81,8 +81,8 @@ class TestCorrectAddresses:
         """When agent returns empty normalized_address, school name goes in unresolved list
         and its address is set to '' so geocoding fails cleanly."""
         partial_response = json.dumps([
-            {"name": "Scuola Primaria Roma", "normalized_address": "Via Roma, 1, 38100 Trento, Trentino, Italia"},
-            {"name": "Scuola Media Dante",   "normalized_address": ""},
+            {"id": 0, "name": "Scuola Primaria Roma", "normalized_address": "Via Roma, 1, 38100 Trento, Trentino, Italia"},
+            {"id": 1, "name": "Scuola Media Dante",   "normalized_address": ""},
         ])
         output = tmp_path / "out.xlsx"
         with patch("address_corrector.call_agent_with_key", return_value=partial_response):
@@ -277,103 +277,104 @@ class TestParseResponse:
         self.corrector = AddressCorrector()
 
     def test_parses_plain_json(self):
-        raw = '[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
+        raw = '[{"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
-        assert unresolved == []
+        assert corrections == {0: "Via Roma, 1, Trento"}
+        assert unresolved == set()
 
     def test_strips_json_markdown_fence(self):
-        raw = '```json\n[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]\n```'
+        raw = '```json\n[{"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]\n```'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
-        assert unresolved == []
+        assert corrections == {0: "Via Roma, 1, Trento"}
+        assert unresolved == set()
 
     def test_strips_plain_markdown_fence(self):
-        raw = '```\n[{"name": "Scuola B", "normalized_address": "Piazza Dante, Rovereto"}]\n```'
+        raw = '```\n[{"id": 1, "name": "Scuola B", "normalized_address": "Piazza Dante, Rovereto"}]\n```'
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola B": "Piazza Dante, Rovereto"}
-        assert unresolved == []
+        assert corrections == {1: "Piazza Dante, Rovereto"}
+        assert unresolved == set()
 
     def test_multiple_items(self):
         raw = json.dumps([
-            {"name": "Scuola A", "normalized_address": "Addr A"},
-            {"name": "Scuola B", "normalized_address": "Addr B"},
+            {"id": 0, "name": "Scuola A", "normalized_address": "Addr A"},
+            {"id": 1, "name": "Scuola B", "normalized_address": "Addr B"},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola A": "Addr A", "Scuola B": "Addr B"}
-        assert unresolved == []
+        assert corrections == {0: "Addr A", 1: "Addr B"}
+        assert unresolved == set()
 
-    def test_raises_on_missing_normalized_address_key(self):
-        raw = '[{"name": "Scuola A", "address": "Via Roma, 1"}]'
-        with pytest.raises(KeyError):
-            self.corrector._parse_response(raw)
+    def test_item_missing_id_is_skipped(self):
+        raw = '[{"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"}]'
+        corrections, unresolved = self.corrector._parse_response(raw)
+        assert corrections == {}
+        assert unresolved == set()
 
     def test_empty_fields_cleaned_during_parse(self):
-        raw = json.dumps([{"name": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
+        raw = json.dumps([{"id": 0, "name": "Scuola A", "normalized_address": "Piazza, , , Campitello di Fassa, Trento, Italy"}])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola A": "Piazza, Campitello di Fassa, Trento, Italy"}
-        assert unresolved == []
+        assert corrections == {0: "Piazza, Campitello di Fassa, Trento, Italy"}
+        assert unresolved == set()
 
     def test_empty_normalized_address_goes_to_unresolved(self):
         raw = json.dumps([
-            {"name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"},
-            {"name": "Scuola B", "normalized_address": ""},
+            {"id": 0, "name": "Scuola A", "normalized_address": "Via Roma, 1, Trento"},
+            {"id": 1, "name": "Scuola B", "normalized_address": ""},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
-        assert corrections == {"Scuola A": "Via Roma, 1, Trento"}
-        assert unresolved == ["Scuola B"]
+        assert corrections == {0: "Via Roma, 1, Trento"}
+        assert unresolved == {1}
 
     def test_all_empty_normalized_addresses(self):
         raw = json.dumps([
-            {"name": "Scuola A", "normalized_address": ""},
-            {"name": "Scuola B", "normalized_address": ""},
+            {"id": 0, "name": "Scuola A", "normalized_address": ""},
+            {"id": 1, "name": "Scuola B", "normalized_address": ""},
         ])
         corrections, unresolved = self.corrector._parse_response(raw)
         assert corrections == {}
-        assert unresolved == ["Scuola A", "Scuola B"]
+        assert unresolved == {0, 1}
 
     def test_large_dataset_with_mixed_results(self):
         """29-school dataset: verifies parsing handles real-world scale input correctly."""
         schools_29 = [
-            {"name": "IC Levico Terme",         "normalized_address": "Via delle Albere 2, 38050 Tenna, Trentino-Alto Adige, Italia"},
-            {"name": "IC Cles",                 "normalized_address": "Piazza Fiera 1, 38023 Cles, Trentino-Alto Adige, Italia"},
-            {"name": "Liceo Galilei Trento",    "normalized_address": "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Pergine",    "normalized_address": "Via Regina Elena 20, 38057 Pergine Valsugana, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Rovereto",   "normalized_address": "Via Benacense 14, 38068 Rovereto, Trentino-Alto Adige, Italia"},
-            {"name": "ITC Fontana Rovereto",    "normalized_address": "Via Balteri 4, 38068 Rovereto, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola primaria Levico",  "normalized_address": "Via Roma 30, 38056 Levico Terme, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Riva del Garda", "normalized_address": "Viale Giuseppe Prati 4, 38066 Riva del Garda, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Arco",       "normalized_address": "Via dei Capitelli 15, 38062 Arco, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola superiore Tione",  "normalized_address": "Via Durighello 8, 38079 Tione di Trento, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Cavalese",   "normalized_address": "Via Francesco Bronzetti 5, 38033 Cavalese, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Bressanone", "normalized_address": "Via Bruno Buozzi 10, 39042 Bressanone, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Brunico",    "normalized_address": "Via Gilm 5, 39031 Brunico, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Egna",       "normalized_address": "Via Guglielmo Marconi 7, 39044 Egna, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Lavis",      "normalized_address": "Via Riccardo Zandonai 1, 38015 Lavis, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Mezzolombardo", "normalized_address": "Via Damiano Chiesa 2, 38017 Mezzolombardo, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola elementare Roncegno", "normalized_address": "Via Roma 10, 38050 Roncegno Terme, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola primaria Pinzolo", "normalized_address": "Via al Sole 3, 38086 Pinzolo, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Predazzo",   "normalized_address": "Via Fiamme Gialle 12, 38037 Predazzo, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Borgo Valsugana", "normalized_address": "Via per Tesino 5, 38051 Borgo Valsugana, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola primaria Andalo",  "normalized_address": "Via Priori 2, 38010 Andalo, Trentino-Alto Adige, Italia"},
-            {"name": "Istituto agrario San Michele", "normalized_address": "Via Edmund Mach 1, 38010 San Michele all'Adige, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Ala",        "normalized_address": "Via Papa Giovanni XXIII 4, 38061 Ala, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Mori",       "normalized_address": "Via Teatro 12, 38065 Mori, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media Madonna di Campiglio", "normalized_address": ""},  # simulated unresolved
-            {"name": "Liceo Walther Bolzano",   "normalized_address": "Piazza Walther 1, 39100 Bolzano, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola media via Claudia Augusta", "normalized_address": "Via Claudia Augusta 2, 39100 Bolzano, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola elementare via Roma Merano", "normalized_address": "Via Roma 160, 39012 Merano, Trentino-Alto Adige, Italia"},
-            {"name": "Scuola superiore Merano", "normalized_address": ""},  # simulated unresolved
+            {"id": 0,  "name": "IC Levico Terme",         "normalized_address": "Via delle Albere 2, 38050 Tenna, Trentino-Alto Adige, Italia"},
+            {"id": 1,  "name": "IC Cles",                 "normalized_address": "Piazza Fiera 1, 38023 Cles, Trentino-Alto Adige, Italia"},
+            {"id": 2,  "name": "Liceo Galilei Trento",    "normalized_address": "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"},
+            {"id": 3,  "name": "Scuola media Pergine",    "normalized_address": "Via Regina Elena 20, 38057 Pergine Valsugana, Trentino-Alto Adige, Italia"},
+            {"id": 4,  "name": "Scuola media Rovereto",   "normalized_address": "Via Benacense 14, 38068 Rovereto, Trentino-Alto Adige, Italia"},
+            {"id": 5,  "name": "ITC Fontana Rovereto",    "normalized_address": "Via Balteri 4, 38068 Rovereto, Trentino-Alto Adige, Italia"},
+            {"id": 6,  "name": "Scuola primaria Levico",  "normalized_address": "Via Roma 30, 38056 Levico Terme, Trentino-Alto Adige, Italia"},
+            {"id": 7,  "name": "Scuola media Riva del Garda", "normalized_address": "Viale Giuseppe Prati 4, 38066 Riva del Garda, Trentino-Alto Adige, Italia"},
+            {"id": 8,  "name": "Scuola media Arco",       "normalized_address": "Via dei Capitelli 15, 38062 Arco, Trentino-Alto Adige, Italia"},
+            {"id": 9,  "name": "Scuola superiore Tione",  "normalized_address": "Via Durighello 8, 38079 Tione di Trento, Trentino-Alto Adige, Italia"},
+            {"id": 10, "name": "Scuola media Cavalese",   "normalized_address": "Via Francesco Bronzetti 5, 38033 Cavalese, Trentino-Alto Adige, Italia"},
+            {"id": 11, "name": "Scuola media Bressanone", "normalized_address": "Via Bruno Buozzi 10, 39042 Bressanone, Trentino-Alto Adige, Italia"},
+            {"id": 12, "name": "Scuola media Brunico",    "normalized_address": "Via Gilm 5, 39031 Brunico, Trentino-Alto Adige, Italia"},
+            {"id": 13, "name": "Scuola media Egna",       "normalized_address": "Via Guglielmo Marconi 7, 39044 Egna, Trentino-Alto Adige, Italia"},
+            {"id": 14, "name": "Scuola media Lavis",      "normalized_address": "Via Riccardo Zandonai 1, 38015 Lavis, Trentino-Alto Adige, Italia"},
+            {"id": 15, "name": "Scuola media Mezzolombardo", "normalized_address": "Via Damiano Chiesa 2, 38017 Mezzolombardo, Trentino-Alto Adige, Italia"},
+            {"id": 16, "name": "Scuola elementare Roncegno", "normalized_address": "Via Roma 10, 38050 Roncegno Terme, Trentino-Alto Adige, Italia"},
+            {"id": 17, "name": "Scuola primaria Pinzolo", "normalized_address": "Via al Sole 3, 38086 Pinzolo, Trentino-Alto Adige, Italia"},
+            {"id": 18, "name": "Scuola media Predazzo",   "normalized_address": "Via Fiamme Gialle 12, 38037 Predazzo, Trentino-Alto Adige, Italia"},
+            {"id": 19, "name": "Scuola media Borgo Valsugana", "normalized_address": "Via per Tesino 5, 38051 Borgo Valsugana, Trentino-Alto Adige, Italia"},
+            {"id": 20, "name": "Scuola primaria Andalo",  "normalized_address": "Via Priori 2, 38010 Andalo, Trentino-Alto Adige, Italia"},
+            {"id": 21, "name": "Istituto agrario San Michele", "normalized_address": "Via Edmund Mach 1, 38010 San Michele all'Adige, Trentino-Alto Adige, Italia"},
+            {"id": 22, "name": "Scuola media Ala",        "normalized_address": "Via Papa Giovanni XXIII 4, 38061 Ala, Trentino-Alto Adige, Italia"},
+            {"id": 23, "name": "Scuola media Mori",       "normalized_address": "Via Teatro 12, 38065 Mori, Trentino-Alto Adige, Italia"},
+            {"id": 24, "name": "Scuola media Madonna di Campiglio", "normalized_address": ""},  # simulated unresolved
+            {"id": 25, "name": "Liceo Walther Bolzano",   "normalized_address": "Piazza Walther 1, 39100 Bolzano, Trentino-Alto Adige, Italia"},
+            {"id": 26, "name": "Scuola media via Claudia Augusta", "normalized_address": "Via Claudia Augusta 2, 39100 Bolzano, Trentino-Alto Adige, Italia"},
+            {"id": 27, "name": "Scuola elementare via Roma Merano", "normalized_address": "Via Roma 160, 39012 Merano, Trentino-Alto Adige, Italia"},
+            {"id": 28, "name": "Scuola superiore Merano", "normalized_address": ""},  # simulated unresolved
         ]
         raw = json.dumps(schools_29)
         corrections, unresolved = self.corrector._parse_response(raw)
 
         assert len(corrections) == 27  # 29 total - 2 unresolved
         assert len(unresolved) == 2
-        assert "Scuola media Madonna di Campiglio" in unresolved
-        assert "Scuola superiore Merano" in unresolved
-        assert "IC Levico Terme" in corrections
-        assert corrections["Liceo Galilei Trento"] == "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"
+        assert 24 in unresolved  # Scuola media Madonna di Campiglio
+        assert 28 in unresolved  # Scuola superiore Merano
+        assert 0 in corrections  # IC Levico Terme
+        assert corrections[2] == "Via Prepositura 3, 38122 Trento, Trentino-Alto Adige, Italia"  # Liceo Galilei Trento
 
 
 # ---------------------------------------------------------------------------
