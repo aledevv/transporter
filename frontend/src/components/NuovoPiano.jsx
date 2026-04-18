@@ -24,29 +24,25 @@ function NuovoPiano({ db, onSchoolsReady }) {
     // Load institutes from Firestore on mount
     useEffect(() => {
         if (!db) return;
+        let cancelled = false;
         setDbLoading(true);
         setDbError(null);
         getDocs(collection(db, 'institutes'))
             .then((snapshot) => {
-                const docs = [];
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.name && data.address && data.lat && data.lon) {
-                        docs.push({
-                            name: data.name,
-                            address: data.address,
-                            lat: data.lat,
-                            lon: data.lon,
-                        });
-                    }
-                });
-                setAllInstitutes(docs);
+                if (cancelled) return;
+                const docs = snapshot.docs.map(d => ({ ...d.data() }));
+                setAllInstitutes(docs.filter(d => d.lat && d.lon && d.address));
+                setDbError(null);
             })
             .catch((err) => {
+                if (cancelled) return;
                 console.error('Firestore fetch error:', err);
                 setDbError('Errore nel caricamento del database.');
             })
-            .finally(() => setDbLoading(false));
+            .finally(() => {
+                if (!cancelled) setDbLoading(false);
+            });
+        return () => { cancelled = true; };
     }, [db]);
 
     // Tokenized search filter
@@ -217,11 +213,11 @@ function NuovoPiano({ db, onSchoolsReady }) {
 
                         {/* Results */}
                         {db && !dbLoading && !dbError && filteredInstitutes.length > 0 &&
-                            filteredInstitutes.map((inst, i) => {
+                            filteredInstitutes.map((inst) => {
                                 const added = isSelected(inst);
                                 return (
                                     <div
-                                        key={i}
+                                        key={`${inst.name}__${inst.address}`}
                                         className="flex items-center justify-between px-4 py-3 border-b border-gray-50 hover:bg-blue-50/50 transition-colors gap-3"
                                     >
                                         <div className="min-w-0 flex-1">
@@ -340,6 +336,9 @@ function NuovoPiano({ db, onSchoolsReady }) {
                                         }}
                                         placeholder="Indirizzo"
                                     />
+                                    {manualAddress && manualLat === null && (
+                                        <p className="text-xs text-amber-600 mt-1">Seleziona un indirizzo dal menu a discesa per ottenere le coordinate.</p>
+                                    )}
                                     <div className="flex items-center gap-2">
                                         <label className="text-xs text-gray-500 flex-shrink-0">
                                             Partecipanti
@@ -355,7 +354,7 @@ function NuovoPiano({ db, onSchoolsReady }) {
                                         />
                                         <button
                                             onClick={handleManualAdd}
-                                            disabled={!manualName.trim() || !manualAddress.trim()}
+                                            disabled={!manualName.trim() || !manualAddress.trim() || manualLat === null}
                                             className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed px-3 py-2 rounded-lg transition-colors"
                                         >
                                             <PlusCircle className="w-4 h-4" />
