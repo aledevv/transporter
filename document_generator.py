@@ -1,8 +1,21 @@
 import os
+import re
 import copy
 from datetime import datetime
 from docx import Document
 from docx.table import Table
+
+def _shorten_address(address):
+    """Strip redundant parts from a Nominatim address for display in documents."""
+    if not address:
+        return address
+    addr = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
+    addr = re.sub(r',\s*Trentino[^,]*', '', addr, flags=re.IGNORECASE).strip()
+    addr = re.sub(r',\s*(Alto Adige|S[üu]dtirol|South Tyrol|Sud Tirol)[^,]*', '', addr, flags=re.IGNORECASE).strip()
+    addr = re.sub(r',\s*\d{5}\b', '', addr).strip()
+    addr = re.sub(r',\s*[A-Z]{2}(?=,|$)', '', addr).strip()
+    return addr.rstrip(',').strip()
+
 
 def _replace_text_in_paragraph(paragraph, search_text, replace_text):
     """Safely replace text within a paragraph while trying to preserve formatting."""
@@ -176,7 +189,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                     first_time_cell = current_row.cells[3]
                     last_time = current_time
 
-                _set_cell_val(current_row.cells[4], stop.get('address', ''))
+                _set_cell_val(current_row.cells[4], _shorten_address(stop.get('address', '')))
                 _set_cell_val(current_row.cells[5], str(stop.get('count', '0')))
 
                 # Orario Ritorno (colonna 6)

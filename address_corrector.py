@@ -72,7 +72,13 @@ class AddressCorrector:
             print("[AddressCorrector] Already AI-corrected — skipping.")
             return schools, self.STATUS_SKIPPED_FLAGGED, []
 
-        address_data = [{"name": s["name"], "address": s["address"]} for s in schools]
+        cache_corrections = self._apply_cache_hits(schools)
+        cached_names = set(cache_corrections.keys())
+        address_data = [
+            {"name": s["name"], "address": s["address"]}
+            for s in schools
+            if s["name"] not in cached_names
+        ]
 
         try:
             ai_corrections: dict = {}
@@ -81,7 +87,7 @@ class AddressCorrector:
                 ai_corrections, unresolved_names = self._parse_response(raw)
             else:
                 unresolved_names = []
-            corrections = ai_corrections
+            corrections = {**cache_corrections, **ai_corrections}
             corrected_schools = self._apply_corrections(schools, corrections)
             # Schools the agent could not geocode get an empty address so that
             # the geocoding step fails cleanly (geocoding_failed=True) and the
