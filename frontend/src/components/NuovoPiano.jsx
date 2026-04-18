@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { Search, PlusCircle, X, CheckCircle, ChevronDown, ChevronUp, Database } from 'lucide-react';
+import { Search, PlusCircle, X, CheckCircle, ChevronDown, ChevronUp, Database, Construction } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 
 function NuovoPiano({ db, onSchoolsReady }) {
@@ -140,6 +140,12 @@ function NuovoPiano({ db, onSchoolsReady }) {
 
     return (
         <div className="flex flex-col gap-4 w-full animate-fade-in">
+            {/* Under-construction chip */}
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium px-4 py-2 rounded-full w-fit mb-4">
+                <Construction className="w-4 h-4 flex-shrink-0" />
+                <span>Funzionalità in costruzione — puoi già provarla!</span>
+            </div>
+
             {/* Two-column panel */}
             <div className="flex gap-4 w-full">
                 {/* ── Left panel: search ── */}

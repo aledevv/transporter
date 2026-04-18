@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Menu } from 'lucide-react';
+import { Sparkles, Menu, FileSpreadsheet, Database } from 'lucide-react';
 import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
@@ -10,6 +10,7 @@ import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
 import InstituteList from './components/InstituteList';
+import NuovoPiano from './components/NuovoPiano';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -95,6 +96,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isA
 function App() {
     const [schools, setSchools] = useState([]);
     const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes' | 'tools'
+    const [inputMode, setInputMode] = useState('excel'); // 'excel' | 'database'
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
     const [openEditorTrigger, setOpenEditorTrigger] = useState(0);
@@ -253,6 +255,38 @@ function App() {
         ));
     };
 
+    const handleSchoolsFromDB = async (schoolsFromDB) => {
+        setSchools(schoolsFromDB);
+        setResumeDismissed(true);
+        setMessage('Lista fermate caricata dal database!');
+        setCorrectionInfo(null);
+        setGeocodingFailures(null);
+        // Create Firestore trip doc (same as onUploadSuccess does)
+        if (db) {
+            try {
+                const totalPax = schoolsFromDB.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
+                const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const label = `${schoolsFromDB.length} fermate, ${totalPax} passeggeri - ${dateStr}`;
+                const docRef = await addDoc(collection(db, 'trips'), {
+                    label,
+                    stage: 'uploaded',
+                    schools: schoolsFromDB,
+                    destination: '',
+                    destCoords: null,
+                    capacity: 56,
+                    startTime: '08:00',
+                    timeMode: 'arrival',
+                    results: null,
+                    savedAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                });
+                setCurrentTripId(docRef.id);
+            } catch (err) {
+                console.warn('Failed to create trip on DB import:', err.message);
+            }
+        }
+    };
+
     // Auto-scroll refs
     const dashboardRef = useRef(null);
     const uploadRef = useRef(null);
@@ -377,7 +411,7 @@ function App() {
                 {activeTab === 'institutes' && (
                     <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">Lista Istituti</h2>
-                        <InstituteList />
+                        <InstituteList db={db} />
                     </section>
                 )}
 
@@ -399,6 +433,34 @@ function App() {
                                 onDismiss={() => setResumeDismissed(true)}
                             />
                         )}
+
+                        {/* Input mode toggle */}
+                        <div className="flex gap-2 mb-4">
+                            <button
+                                onClick={() => setInputMode('excel')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                                    inputMode === 'excel'
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                }`}
+                            >
+                                <FileSpreadsheet className="w-4 h-4" /> Carica Excel
+                            </button>
+                            <button
+                                onClick={() => setInputMode('database')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                                    inputMode === 'database'
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                }`}
+                            >
+                                <Database className="w-4 h-4" /> Scegli da Database
+                            </button>
+                        </div>
+
+                        {inputMode === 'database' ? (
+                            <NuovoPiano db={db} onSchoolsReady={handleSchoolsFromDB} />
+                        ) : (
                         <FileUpload
                             key={resetKey}
                             onUploadSuccess={async ({ schools: data, correctedFile, addressCorrections, correctionStatus, unresolvedByAI }) => {
@@ -445,6 +507,7 @@ function App() {
                             onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
                             onLoadEnd={() => setLoadingState({ active: false, progress: 100, message: 'Completato' })}
                         />
+                        )}
                         {message && (
                             <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100 flex items-center gap-2">
                                 <span className="text-xl">✅</span> {message}
