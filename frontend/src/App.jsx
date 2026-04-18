@@ -229,6 +229,7 @@ function App() {
         setGeocodingFailures(null);
         setCurrentTripId(null);
         setResumeDismissed(false);
+        setInputMode('excel');
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
     };
 
@@ -261,6 +262,7 @@ function App() {
         setMessage('Lista fermate caricata dal database!');
         setCorrectionInfo(null);
         setGeocodingFailures(null);
+        setInputMode('excel');
         // Create Firestore trip doc (same as onUploadSuccess does)
         if (db) {
             try {
@@ -435,6 +437,7 @@ function App() {
                         )}
 
                         {/* Input mode toggle */}
+                        {schools.length === 0 && (
                         <div className="flex gap-2 mb-4">
                             <button
                                 onClick={() => setInputMode('excel')}
@@ -457,6 +460,7 @@ function App() {
                                 <Database className="w-4 h-4" /> Scegli da Database
                             </button>
                         </div>
+                        )}
 
                         {inputMode === 'database' ? (
                             <NuovoPiano db={db} onSchoolsReady={handleSchoolsFromDB} />

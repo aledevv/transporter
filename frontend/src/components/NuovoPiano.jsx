@@ -78,6 +78,7 @@ function NuovoPiano({ db, onSchoolsReady }) {
                 lat: inst.lat,
                 lon: inst.lon,
                 demand: 1,
+                institute: inst.institute || null,
             },
         ]);
     };
@@ -130,7 +131,7 @@ function NuovoPiano({ db, onSchoolsReady }) {
             lat: s.lat,
             lon: s.lon,
             demand: s.demand,
-            institute: null,
+            institute: s.institute || null,
         }));
         onSchoolsReady(schools);
     };
