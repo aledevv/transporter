@@ -58,12 +58,12 @@ def _make_agent_response(schools, unresolved_names=None):
     items = []
     for s in schools:
         if s["name"] in unresolved_names:
-            items.append({"name": s["name"], "normalized_address": ""})
+            items.append({"id": s["id"], "name": s["name"], "normalized_address": ""})
         else:
             # Produce a simple but realistic OSM-style normalized form:
             # strip city prefixes in ALL-CAPS, normalize "TN" suffix, etc.
             addr = s["address"]
-            items.append({"name": s["name"], "normalized_address": _normalize(addr)})
+            items.append({"id": s["id"], "name": s["name"], "normalized_address": _normalize(addr)})
     return json.dumps(items, ensure_ascii=False)
 
 
