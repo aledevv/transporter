@@ -9,6 +9,16 @@ const TYPE_PREFIXES = [
   'ic ', 'iis ', 'isis ', 'itis ', 'ipss ', 'ites ', 'itc ',
 ];
 
+// School-type tokens that must never count toward name similarity regardless
+// of position (catches abbreviations that survive prefix-stripping).
+const NAME_TYPE_STOP = new Set([
+  'iis', 'isis', 'itis', 'ipss', 'ites', 'itc', 'cfp',
+  'istituto', 'comprensivo', 'tecnico', 'professionale',
+  'liceo', 'scientifico', 'classico', 'artistico',
+  'scuola', 'secondaria', 'primaria', 'elementare', 'media',
+  'centro', 'formazione',
+]);
+
 // Address parts to strip (street types, common words)
 const ADDR_STOP = new Set([
   'via', 'viale', 'vle', 'piazza', 'pza', 'pzza', 'corso', 'cso',
@@ -25,7 +35,7 @@ function normalizeName(name) {
   }
   return s.replace(/[^\wàèéìòù\s]/g, ' ')
     .split(/\s+/)
-    .filter(t => t.length >= 3);
+    .filter(t => t.length >= 3 && !NAME_TYPE_STOP.has(t));
 }
 
 function normalizeAddress(addr) {
