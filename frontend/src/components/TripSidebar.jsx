@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, History, Bus, Users } from 'lucide-react';
+import { X, Trash2, History, Bus, Users, Clock } from 'lucide-react';
 
 const TripSidebar = ({ open, trips, onRestore, onDelete, onClose }) => {
     return (
@@ -38,19 +38,28 @@ const TripSidebar = ({ open, trips, onRestore, onDelete, onClose }) => {
                     ) : (
                         <ul className="divide-y divide-gray-100">
                             {trips.map(trip => {
+                                const isPending = trip.stage === 'db_match_pending';
                                 const busCount = trip.results?.routes?.length ?? '–';
                                 const passengerCount = trip.results?.stats?.total_passengers ?? '–';
                                 return (
-                                    <li key={trip.id} className="group flex items-start gap-2 px-4 py-3 hover:bg-blue-50 transition-colors cursor-pointer" onClick={() => onRestore(trip)}>
+                                    <li key={trip.id} className={`group flex items-start gap-2 px-4 py-3 transition-colors cursor-pointer ${isPending ? 'hover:bg-amber-50' : 'hover:bg-blue-50'}`} onClick={() => onRestore(trip)}>
                                         <div className="flex-1 min-w-0">
                                             <div className="text-sm font-medium text-gray-800 truncate">{trip.label}</div>
                                             <div className="flex items-center gap-3 mt-1">
-                                                <span className="flex items-center gap-1 text-[11px] text-gray-500">
-                                                    <Bus className="w-3 h-3" /> {busCount} bus
-                                                </span>
-                                                <span className="flex items-center gap-1 text-[11px] text-gray-500">
-                                                    <Users className="w-3 h-3" /> {passengerCount} pax
-                                                </span>
+                                                {isPending ? (
+                                                    <span className="flex items-center gap-1 text-[11px] text-amber-600 font-medium">
+                                                        <Clock className="w-3 h-3" /> In verifica
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <span className="flex items-center gap-1 text-[11px] text-gray-500">
+                                                            <Bus className="w-3 h-3" /> {busCount} bus
+                                                        </span>
+                                                        <span className="flex items-center gap-1 text-[11px] text-gray-500">
+                                                            <Users className="w-3 h-3" /> {passengerCount} pax
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                         <button

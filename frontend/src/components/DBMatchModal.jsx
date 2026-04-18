@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, MapPin, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Database } from 'lucide-react';
+import { Search, MapPin, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Database, X } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 
 /**
@@ -11,7 +11,7 @@ import AddressAutocomplete from './AddressAutocomplete';
  *   onResolved: (resolutions) => void
  *     resolutions: { [schoolId]: { lat, lon, address, name } | 'keep' }
  */
-const DBMatchModal = ({ matchList, onResolved }) => {
+const DBMatchModal = ({ matchList, onResolved, onClose }) => {
     // selections[school.id] = { lat, lon, address, name } | 'keep' | undefined
     const [selections, setSelections] = useState({});
     // Which school cards have the manual correction input open
@@ -100,7 +100,7 @@ const DBMatchModal = ({ matchList, onResolved }) => {
                         <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
                             <Database className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <Search className="w-4 h-4 text-blue-600" />
                                 Verifica Indirizzi — Corrispondenze Database
@@ -110,6 +110,15 @@ const DBMatchModal = ({ matchList, onResolved }) => {
                                 Seleziona la corrispondenza corretta per ciascuna.
                             </p>
                         </div>
+                        {onClose && (
+                            <button
+                                onClick={() => onClose(selections)}
+                                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors ml-auto flex-shrink-0"
+                                title="Chiudi e salva progresso"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
 
                     {/* Progress bar */}
@@ -277,7 +286,7 @@ const DBMatchModal = ({ matchList, onResolved }) => {
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         }`}
                     >
-                        CONFERMA ({resolvedCount}/{totalCount} risolte)
+                        CONFERMA E PROCESSA ({resolvedCount}/{totalCount} risolte)
                     </button>
                 </div>
             </div>

@@ -167,69 +167,159 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
 
 def process_file_task(task_id, filepath, original_filename):
     """
-    Background task to process the uploaded Excel file.
-    Updates the tasks global dict with progress.
+    Background task: loads schools from Excel and sets status to awaiting_db_match.
+    AI correction and geocoding are deferred to continue_file_task.
     """
     try:
         tasks[task_id] = {'status': 'processing', 'progress': 0, 'message': 'Inizializzazione...'}
 
         # 1. Load Data
-        time.sleep(0.5) # UX Delay
+        time.sleep(0.5)  # UX Delay
         tasks[task_id].update({'progress': 5, 'message': 'Lettura file Excel...'})
 
         original_schools = DataLoader.load_data(filepath)
+
+        base, ext = os.path.splitext(original_filename)
+        corrected_path = os.path.join(UPLOAD_FOLDER, f"{base}_corretto{ext}")
+
+        tasks[task_id] = {
+            'status': 'awaiting_db_match',
+            'progress': 15,
+            'message': f'Trovate {len(original_schools)} fermate. Verifica indirizzi in corso...',
+            'raw_schools': original_schools,
+            'filepath': filepath,
+            'corrected_path': corrected_path,
+        }
+
+    except Exception as e:
+        tasks[task_id] = {'status': 'error', 'progress': 0, 'message': f'Errore: {str(e)}'}
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+
+def continue_file_task(task_id, original_schools, filepath, corrected_path, resolutions):
+    """
+    Background task: runs AI correction (where needed) and geocoding.
+
+    resolutions: dict  key=school_id (str or int), value = {lat, lon, address, name} | 'keep'
+      - pre-geocoded: resolution is a dict with lat/lon -> skip AI, use coords directly
+      - keep: skip AI, geocode the original address as-is
+      - not present: run AI correction then geocode
+    """
+    import math
+
+    try:
+        tasks[task_id].update({'status': 'processing', 'progress': 16, 'message': 'Classificazione fermate...'})
+
+        # Normalise resolution keys to int (school ids are ints internally)
+        norm_res = {}
+        for k, v in resolutions.items():
+            try:
+                norm_res[int(k)] = v
+            except (ValueError, TypeError):
+                norm_res[k] = v
+
+        pre_geocoded_ids = set()   # ids that already have lat/lon from DB
+        keep_ids = set()           # ids to geocode without AI correction
+        schools_needing_ai = []    # schools to send to AI
+
+        for school in original_schools:
+            sid = school['id']
+            res = norm_res.get(sid)
+            if res is None:
+                schools_needing_ai.append(school)
+            elif res == 'keep':
+                keep_ids.add(sid)
+            else:
+                pre_geocoded_ids.add(sid)
+
         total_schools = len(original_schools)
 
-        # 2. Address correction via LLM
-        base, ext = os.path.splitext(original_filename)
-        corrected_filename = f"{base}_corretto{ext}"
-        corrected_path = os.path.join(UPLOAD_FOLDER, corrected_filename)
-
-        tasks[task_id].update({'progress': 10, 'message': 'Correzione indirizzi con AI...', 'total_addresses': total_schools, 'ai_extra_seconds': 0, 'is_ai_phase': True})
-
-        def _ai_updater(msg, extra_s=0):
+        # --- AI correction for schools not in resolutions ---
+        if schools_needing_ai:
             tasks[task_id].update({
-                'message': msg,
-                'ai_extra_seconds': tasks[task_id].get('ai_extra_seconds', 0) + extra_s,
+                'progress': 18,
+                'message': 'Correzione indirizzi con AI...',
+                'total_addresses': len(schools_needing_ai),
+                'ai_extra_seconds': 0,
+                'is_ai_phase': True,
             })
 
-        _gemini_agent.set_status_updater(_ai_updater)
-        try:
-            schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(original_schools, filepath, corrected_path)
-        finally:
-            _gemini_agent.set_status_updater(None)
+            def _ai_updater(msg, extra_s=0):
+                tasks[task_id].update({
+                    'message': msg,
+                    'ai_extra_seconds': tasks[task_id].get('ai_extra_seconds', 0) + extra_s,
+                })
 
-        # Build a human-readable log of what changed
+            _gemini_agent.set_status_updater(_ai_updater)
+            try:
+                corrected_ai_schools, correction_status, unresolved_by_ai = address_corrector.correct_addresses(
+                    schools_needing_ai, filepath, corrected_path
+                )
+            finally:
+                _gemini_agent.set_status_updater(None)
+        else:
+            corrected_ai_schools = []
+            correction_status = AddressCorrector.STATUS_SKIPPED_DISABLED
+            unresolved_by_ai = []
+
+        tasks[task_id].update({'progress': 20, 'message': f'Geocoding {total_schools} fermate...', 'is_ai_phase': False})
+
+        # Build a map of AI-corrected schools by id
+        ai_map = {s['id']: s for s in corrected_ai_schools}
+
+        # Build merged school list preserving original order
         original_map = {s['id']: s for s in original_schools}
-        address_corrections = [
-            {
-                'name': s['name'],
-                'original': original_map[s['id']]['address'],
-                'corrected': s['address'],
-            }
-            for s in schools
-            if s['address'] != original_map[s['id']]['address']
-        ]
+        address_corrections = []
 
-        tasks[task_id].update({'progress': 20, 'message': f'Trovate {total_schools} scuole. Inizio geocoding...', 'is_ai_phase': False})
-        
-        # 2. Geocoding with progress tracking
+        # Geocoding
         processed_schools = []
-        used_coordinates = {} # Track used coordinates for jittering: {(lat, lon): count}
-        
-        for i, school in enumerate(schools):
-            # Calculate progress from 20% to 90%
+        used_coordinates = {}
+
+        for i, orig_school in enumerate(original_schools):
+            sid = orig_school['id']
             current_progress = 20 + int(((i + 1) / total_schools) * 70)
             tasks[task_id].update({
-                'progress': current_progress, 
-                'message': f'Geocoding {i+1}/{total_schools}: {school["name"]}'
+                'progress': current_progress,
+                'message': f'Geocoding {i+1}/{total_schools}: {orig_school["name"]}',
             })
-            
+
+            res = norm_res.get(sid)
+
+            if sid in pre_geocoded_ids:
+                # Use coordinates from DB resolution directly
+                school = copy.copy(orig_school)
+                school['address'] = res['address']
+                school['lat'] = float(res['lat'])
+                school['lon'] = float(res['lon'])
+                school['geocoding_failed'] = False
+                if school['address'] != orig_school['address']:
+                    address_corrections.append({
+                        'name': school['name'],
+                        'original': orig_school['address'],
+                        'corrected': school['address'],
+                    })
+                processed_schools.append(school)
+                continue
+
+            if sid in keep_ids:
+                school = copy.copy(orig_school)
+            elif sid in ai_map:
+                school = copy.copy(ai_map[sid])
+                if school['address'] != orig_school['address']:
+                    address_corrections.append({
+                        'name': school['name'],
+                        'original': orig_school['address'],
+                        'corrected': school['address'],
+                    })
+            else:
+                school = copy.copy(orig_school)
+
             raw_address = school['address']
             lat, lon, success = smart_geocode(raw_address, school_name=school['name'])
 
             if not success:
-                orig_addr = original_map.get(school['id'], {}).get('address', '')
+                orig_addr = orig_school.get('address', '')
                 if orig_addr and orig_addr != raw_address:
                     lat, lon, success = smart_geocode(orig_addr, school_name=school['name'])
 
@@ -238,19 +328,16 @@ def process_file_task(task_id, filepath, original_filename):
                 school['lat'] = None
                 school['lon'] = None
                 school['geocoding_failed'] = True
-                # Look up a suggestion from the known-good address cache
                 suggestion = _school_cache.find_suggestion(
                     school_name=school.get('name', ''),
                     raw_address=raw_address,
                 )
                 if suggestion:
-                    school['cache_suggestion'] = suggestion  # {name, address, score}
+                    school['cache_suggestion'] = suggestion
             else:
-                # Deterministic Spiral Jitter for Overlapping Coordinates
                 coord_key = (round(lat, 6), round(lon, 6))
                 count = used_coordinates.get(coord_key, 0)
                 if count > 0:
-                    import math
                     angle = count * 2.4
                     radius = 0.0003 * math.sqrt(count)
                     lat += radius * math.sin(angle)
@@ -260,31 +347,36 @@ def process_file_task(task_id, filepath, original_filename):
                 school['lon'] = lon
 
             processed_schools.append(school)
-            
+
         tasks[task_id].update({'progress': 95, 'message': 'Finalizzazione dati...'})
-        
-        # Cleanup
-        if os.path.exists(filepath):
+
+        # Cleanup original file
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
-            
+
+        # Determine corrected_file name for download
+        corrected_filename = None
+        if corrected_path and address_corrections and os.path.exists(corrected_path):
+            corrected_filename = os.path.basename(corrected_path)
+
         tasks[task_id] = {
             'status': 'completed',
             'progress': 100,
             'message': 'Completato!',
             'result': processed_schools,
-            'corrected_file': corrected_filename if address_corrections else None,
-            'address_corrections': address_corrections,  # [] if nothing changed or LLM disabled
+            'corrected_file': corrected_filename,
+            'address_corrections': address_corrections,
             'correction_status': correction_status,
-            'unresolved_by_ai': unresolved_by_ai,  # school names the agent could not geocode
+            'unresolved_by_ai': unresolved_by_ai,
         }
-        
+
     except Exception as e:
         tasks[task_id] = {
-            'status': 'error', 
-            'progress': 0, 
-            'message': f'Errore: {str(e)}'
+            'status': 'error',
+            'progress': 0,
+            'message': f'Errore: {str(e)}',
         }
-        if os.path.exists(filepath):
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
 
 @app.route('/api/upload', methods=['POST'])
@@ -316,6 +408,67 @@ def get_task_status(task_id):
     if not task:
         return jsonify({'error': 'Task not found'}), 404
     return jsonify(task)
+
+
+@app.route('/api/continue-processing', methods=['POST'])
+def continue_processing():
+    """
+    Called after the frontend resolves DB matches.
+    Resumes the task (runs AI + geocoding) with the provided resolutions.
+    """
+    data = request.json or {}
+    task_id = data.get('task_id')
+    resolutions = data.get('resolutions', {})
+
+    if not task_id:
+        return jsonify({'error': 'task_id required'}), 400
+
+    task = tasks.get(task_id)
+    if not task:
+        return jsonify({'error': 'Task not found'}), 404
+    if task.get('status') != 'awaiting_db_match':
+        return jsonify({'error': f"Task status is '{task.get('status')}', expected 'awaiting_db_match'"}), 400
+
+    raw_schools = task['raw_schools']
+    filepath = task.get('filepath')
+    corrected_path = task.get('corrected_path')
+
+    thread = threading.Thread(
+        target=continue_file_task,
+        args=(task_id, raw_schools, filepath, corrected_path, resolutions),
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({'task_id': task_id}), 202
+
+
+@app.route('/api/start-processing', methods=['POST'])
+def start_processing():
+    """
+    Called when resuming a db_match_pending trip from Firestore.
+    Accepts raw_schools + resolutions directly (no uploaded file).
+    Creates a new task and runs continue_file_task.
+    """
+    data = request.json or {}
+    raw_schools = data.get('raw_schools', [])
+    resolutions = data.get('resolutions', {})
+
+    if not raw_schools:
+        return jsonify({'error': 'raw_schools required'}), 400
+
+    task_id = str(uuid.uuid4())
+    tasks[task_id] = {'status': 'processing', 'progress': 16, 'message': 'Avvio elaborazione...'}
+
+    thread = threading.Thread(
+        target=continue_file_task,
+        args=(task_id, raw_schools, None, None, resolutions),
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({'task_id': task_id}), 202
+
 
 @app.route('/api/geocode', methods=['POST'])
 def geocode_single():

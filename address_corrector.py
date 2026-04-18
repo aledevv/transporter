@@ -64,13 +64,17 @@ class AddressCorrector:
         if not self._enabled:
             return schools, self.STATUS_SKIPPED_DISABLED, []
 
-        df = pd.read_excel(original_excel_path)
-        df = df.reset_index(drop=True)
-        df.columns = [c.strip() for c in df.columns]
+        # If no original Excel path (e.g. resume from Firestore), skip FLAG_COL check
+        df = None
+        has_excel = original_excel_path and os.path.exists(original_excel_path)
+        if has_excel:
+            df = pd.read_excel(original_excel_path)
+            df = df.reset_index(drop=True)
+            df.columns = [c.strip() for c in df.columns]
 
-        if FLAG_COL in df.columns and df[FLAG_COL].astype(bool).all():
-            print("[AddressCorrector] Already AI-corrected — skipping.")
-            return schools, self.STATUS_SKIPPED_FLAGGED, []
+            if FLAG_COL in df.columns and df[FLAG_COL].astype(bool).all():
+                print("[AddressCorrector] Already AI-corrected — skipping.")
+                return schools, self.STATUS_SKIPPED_FLAGGED, []
 
         address_data = [
             {"id": s["id"], "name": s["name"], "address": s["address"]}
@@ -92,7 +96,8 @@ class AddressCorrector:
                 {**s, "address": ""} if s["id"] in unresolved_ids else s
                 for s in corrected_schools
             ]
-            self._save_corrected_excel(df, corrections, output_path)
+            if df is not None and output_path:
+                self._save_corrected_excel(df, corrections, output_path)
 
             changed = sum(
                 1 for s in schools

@@ -119,6 +119,7 @@ function App() {
     const [resumeDismissed, setResumeDismissed] = useState(false);
     const [allDbInstitutes, setAllDbInstitutes] = useState([]);
     const [dbMatchList, setDbMatchList] = useState(null); // null = not showing
+    const [pendingRaw, setPendingRaw] = useState(null); // { rawSchools, taskId, matchList }
 
     useEffect(() => {
         fetch('/version.txt')
@@ -215,7 +216,107 @@ function App() {
         }
     };
 
+    const handleUploadComplete = async ({ schools: data, correctedFile, addressCorrections, correctionStatus, unresolvedByAI }) => {
+        setSchools(data);
+        setResumeDismissed(true);
+        setMessage('File caricato con successo! Procedi alla configurazione.');
+        setCorrectionInfo({
+            corrections: addressCorrections ?? [],
+            correctedFile,
+            status: correctionStatus,
+            unresolvedByAI: unresolvedByAI ?? [],
+        });
+        const failed = data.filter(s => s.geocoding_failed);
+        if (failed.length > 0) setGeocodingFailures(failed);
+        if (db) {
+            try {
+                const totalPax = data.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
+                const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const label = data.length > 0
+                    ? `${data.length} fermate, ${totalPax} passeggeri - ${dateStr}`
+                    : `Nuovo lavoro - ${dateStr}`;
+                if (currentTripId) {
+                    await updateDoc(doc(db, 'trips', currentTripId), {
+                        label, stage: 'uploaded', schools: data,
+                        destination: '', destCoords: null,
+                        updatedAt: serverTimestamp(),
+                    });
+                } else {
+                    const docRef = await addDoc(collection(db, 'trips'), {
+                        label, stage: 'uploaded', schools: data, destination: '', destCoords: null,
+                        capacity: 56, startTime: '08:00', timeMode: 'arrival', results: null,
+                        savedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+                    });
+                    setCurrentTripId(docRef.id);
+                }
+            } catch (err) { console.warn('Failed to create/update trip:', err.message); }
+        }
+    };
+
+    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null) => {
+        setLoadingState({ active: true, progress: 20, message: 'Correzione indirizzi con AI...', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: true });
+        try {
+            const requestBody = body ?? { task_id: taskId, resolutions };
+            const resp = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            });
+            const respData = await resp.json();
+            const pollId = respData.task_id;
+
+            const pollInterval = setInterval(async () => {
+                try {
+                    const statusRes = await fetch(`${API_BASE_URL}/api/status/${pollId}`);
+                    const statusData = await statusRes.json();
+                    const { status, result } = statusData;
+                    setLoadingState(prev => ({
+                        ...prev,
+                        progress: progress || 0,
+                        message: message || '',
+                        totalAddresses: statusData.total_addresses || 0,
+                        aiExtraSeconds: statusData.ai_extra_seconds || 0,
+                        isAiPhase: statusData.is_ai_phase || false,
+                    }));
+                    if (status === 'completed') {
+                        clearInterval(pollInterval);
+                        setLoadingState({ active: false, progress: 100, message: 'Completato' });
+                        await handleUploadComplete({
+                            schools: result,
+                            correctedFile: statusData.corrected_file,
+                            addressCorrections: statusData.address_corrections ?? [],
+                            correctionStatus: statusData.correction_status,
+                            unresolvedByAI: statusData.unresolved_by_ai ?? [],
+                        });
+                    } else if (status === 'error') {
+                        clearInterval(pollInterval);
+                        setLoadingState({ active: false, progress: 0, message: '' });
+                    }
+                } catch (e) { console.error('Polling error', e); }
+            }, 1000);
+        } catch (e) {
+            console.error('continueProcessing error', e);
+            setLoadingState({ active: false, progress: 0, message: '' });
+        }
+    };
+
     const handleTripRestore = (trip) => {
+        setSidebarOpen(false);
+        if (trip.stage === 'db_match_pending') {
+            // Re-open the DB match modal with saved partial resolutions
+            const matchList = trip.dbMatchList || [];
+            setPendingRaw({ rawSchools: trip.schools, taskId: null, matchList });
+            setCurrentTripId(trip.id);
+            setDbMatchList(matchList.length > 0 ? matchList : null);
+            if (matchList.length === 0) {
+                // No candidates: just continue processing with partial resolutions
+                continueProcessing(null, trip.partialResolutions || {}, '/api/start-processing', {
+                    raw_schools: trip.schools,
+                    resolutions: trip.partialResolutions || {},
+                });
+            }
+            return;
+        }
         const restored = {
             ...trip,
             results: typeof trip.results === 'string' ? JSON.parse(trip.results) : trip.results,
@@ -223,7 +324,6 @@ function App() {
         setSchools(restored.schools);
         setTripToRestore(restored);
         setCurrentTripId(trip.id);
-        setSidebarOpen(false);
     };
 
     const handleTripDelete = async (tripId) => {
@@ -258,13 +358,43 @@ function App() {
         setGeocodingFailures(null);
     };
 
-    const handleDbMatchResolved = (resolutions) => {
+    const handleDbMatchResolved = async (resolutions) => {
         setDbMatchList(null);
-        setSchools(prev => prev.map(s => {
-            const r = resolutions[s.id];
-            if (!r || r === 'keep') return s;
-            return { ...s, address: r.address, lat: r.lat, lon: r.lon, geocoding_failed: false };
-        }));
+        if (pendingRaw) {
+            const { taskId, rawSchools } = pendingRaw;
+            setPendingRaw(null);
+            if (taskId) {
+                await continueProcessing(taskId, resolutions);
+            } else {
+                // Resume from Firestore: no backend task, use start-processing
+                await continueProcessing(null, resolutions, '/api/start-processing', { raw_schools: rawSchools, resolutions });
+            }
+        }
+    };
+
+    const handleDbMatchEscape = async (partialSelections) => {
+        setDbMatchList(null);
+        if (!pendingRaw || !db) {
+            setPendingRaw(null);
+            return;
+        }
+        const { rawSchools, matchList } = pendingRaw;
+        setPendingRaw(null);
+        try {
+            const totalPax = rawSchools.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
+            const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const label = `${rawSchools.length} fermate, ${totalPax} passeggeri - ${dateStr} (in verifica)`;
+            await addDoc(collection(db, 'trips'), {
+                label,
+                stage: 'db_match_pending',
+                schools: rawSchools,
+                dbMatchList: (matchList || []).map(({ school, candidates }) => ({ school, candidates })),
+                partialResolutions: partialSelections,
+                destination: '', destCoords: null, capacity: 56, startTime: '08:00',
+                timeMode: 'arrival', results: null,
+                savedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+            });
+        } catch (err) { console.warn('Failed to save pending trip:', err.message); }
     };
 
     const handleManualAddressCorrect = async (schoolName, newAddress) => {
@@ -372,6 +502,7 @@ function App() {
                 <DBMatchModal
                     matchList={dbMatchList}
                     onResolved={handleDbMatchResolved}
+                    onClose={(partialSelections) => handleDbMatchEscape(partialSelections)}
                 />
             )}
 
@@ -496,49 +627,13 @@ function App() {
                         ) : (
                         <FileUpload
                             key={resetKey}
-                            onUploadSuccess={async ({ schools: data, correctedFile, addressCorrections, correctionStatus, unresolvedByAI }) => {
-                                setSchools(data);
-                                setResumeDismissed(true); // hide resume banner once user uploads
-                                setMessage('File caricato con successo! Procedi alla configurazione.');
-                                setCorrectionInfo({
-                                    corrections: addressCorrections ?? [],
-                                    correctedFile,
-                                    status: correctionStatus,
-                                    unresolvedByAI: unresolvedByAI ?? [],
-                                });
-                                // Show modal for any addresses that couldn't be geocoded
-                                const failed = data.filter(s => s.geocoding_failed);
-                                if (failed.length > 0) setGeocodingFailures(failed);
-                                // Run DB matching on uploaded schools
-                                if (allDbInstitutes.length > 0) {
-                                    const matches = buildMatchList(data, allDbInstitutes);
-                                    if (matches.length > 0) setDbMatchList(matches);
-                                }
-                                // Create Firestore doc for this session
-                                if (db) {
-                                    try {
-                                        const totalPax = data.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
-                                        const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                        const label = data.length > 0
-                                            ? `${data.length} fermate, ${totalPax} passeggeri - ${dateStr}`
-                                            : `Nuovo lavoro - ${dateStr}`;
-                                        const docRef = await addDoc(collection(db, 'trips'), {
-                                            label,
-                                            stage: 'uploaded',
-                                            schools: data,
-                                            destination: '',
-                                            destCoords: null,
-                                            capacity: 56,
-                                            startTime: '08:00',
-                                            timeMode: 'arrival',
-                                            results: null,
-                                            savedAt: serverTimestamp(),
-                                            updatedAt: serverTimestamp(),
-                                        });
-                                        setCurrentTripId(docRef.id);
-                                    } catch (err) {
-                                        console.warn('Failed to create trip on upload:', err.message);
-                                    }
+                            onRawSchoolsReady={({ rawSchools, taskId }) => {
+                                const matches = allDbInstitutes.length > 0 ? buildMatchList(rawSchools, allDbInstitutes) : [];
+                                setPendingRaw({ rawSchools, taskId, matchList: matches });
+                                if (matches.length > 0) {
+                                    setDbMatchList(matches);
+                                } else {
+                                    continueProcessing(taskId, {});
                                 }
                             }}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
