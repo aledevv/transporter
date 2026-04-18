@@ -86,8 +86,7 @@ def _normalize(raw: str) -> str:
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def corrector(monkeypatch):
-    monkeypatch.setattr("address_corrector._school_cache.get_exact", lambda x: None)
+def corrector():
     c = AddressCorrector()
     c._enabled = True
     return c
