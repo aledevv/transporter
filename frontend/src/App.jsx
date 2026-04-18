@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu, FileSpreadsheet, Database } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
+import DBMatchModal from './components/DBMatchModal';
+import { buildMatchList } from './utils/matchInstitutes';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
@@ -115,6 +117,8 @@ function App() {
     const [tripToRestore, setTripToRestore] = useState(null);
     const [currentTripId, setCurrentTripId] = useState(null);
     const [resumeDismissed, setResumeDismissed] = useState(false);
+    const [allDbInstitutes, setAllDbInstitutes] = useState([]);
+    const [dbMatchList, setDbMatchList] = useState(null); // null = not showing
 
     useEffect(() => {
         fetch('/version.txt')
@@ -152,6 +156,16 @@ function App() {
             console.warn('Firestore unavailable:', err.message);
         });
         return unsub;
+    }, [db]);
+
+    // Load Firebase institutes once for DB matching
+    useEffect(() => {
+        if (!db) return;
+        getDocs(collection(db, 'institutes'))
+            .then(snap => {
+                setAllDbInstitutes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            })
+            .catch(err => console.warn('Failed to load institutes for matching:', err));
     }, [db]);
 
     const handleTripSaved = async (tripData) => {
@@ -242,6 +256,15 @@ function App() {
             return { ...s, lat: parseFloat(fix.lat), lon: parseFloat(fix.lon), geocoding_failed: false };
         }));
         setGeocodingFailures(null);
+    };
+
+    const handleDbMatchResolved = (resolutions) => {
+        setDbMatchList(null);
+        setSchools(prev => prev.map(s => {
+            const r = resolutions[s.id];
+            if (!r || r === 'keep') return s;
+            return { ...s, address: r.address, lat: r.lat, lon: r.lon, geocoding_failed: false };
+        }));
     };
 
     const handleManualAddressCorrect = async (schoolName, newAddress) => {
@@ -343,6 +366,12 @@ function App() {
                 <GeocodingFailuresModal
                     failures={geocodingFailures}
                     onResolve={handleGeocodingResolved}
+                />
+            )}
+            {dbMatchList && (
+                <DBMatchModal
+                    matchList={dbMatchList}
+                    onResolved={handleDbMatchResolved}
                 />
             )}
 
@@ -480,6 +509,11 @@ function App() {
                                 // Show modal for any addresses that couldn't be geocoded
                                 const failed = data.filter(s => s.geocoding_failed);
                                 if (failed.length > 0) setGeocodingFailures(failed);
+                                // Run DB matching on uploaded schools
+                                if (allDbInstitutes.length > 0) {
+                                    const matches = buildMatchList(data, allDbInstitutes);
+                                    if (matches.length > 0) setDbMatchList(matches);
+                                }
                                 // Create Firestore doc for this session
                                 if (db) {
                                     try {
