@@ -53,10 +53,9 @@ function scoreMatch(school, dbEntry) {
   const dAddr = normalizeAddress(dbEntry.address);
   const addrScore = tokenOverlap(sAddr, dAddr);
 
-  // Require at least some overlap in both dimensions,
-  // OR strong overlap in one and any in the other
-  if (nameScore === 0 && addrScore < 0.3) return 0;
-  if (addrScore === 0 && nameScore < 0.3) return 0;
+  // Name is the identifier: must overlap to be a candidate at all.
+  // Address is the quality signal: perfect address → score reaches 100%.
+  if (nameScore < 0.3) return 0;
 
   return nameScore * 0.5 + addrScore * 0.5;
 }
