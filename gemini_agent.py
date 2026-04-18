@@ -4,6 +4,7 @@ import threading
 import requests as req
 from dotenv import load_dotenv
 import nominatim_cache
+import nominatim_rate_limiter
 
 _thread_local = threading.local()
 
@@ -60,7 +61,11 @@ def geocodingTool(locations: list[str]) -> str:
                 continue
                 
             for attempt in range(4):
-                time.sleep(1 + attempt * 2)  # 1s, 3s, 5s, 7s — backoff on retry
+                if attempt == 0:
+                    nominatim_rate_limiter.wait()
+                else:
+                    time.sleep(2 * attempt)  # extra backoff on retry: 2s, 4s, 6s
+                    nominatim_rate_limiter.wait()
                 resp = req.get(
                     'https://nominatim.openstreetmap.org/search',
                     params={

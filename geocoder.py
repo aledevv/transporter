@@ -2,6 +2,7 @@
 import time
 import requests
 import nominatim_cache
+import nominatim_rate_limiter
 
 NOMINATIM_BASE = 'https://nominatim.openstreetmap.org'
 OSRM_BASE = 'http://router.project-osrm.org'
@@ -19,7 +20,7 @@ class GeocodingService:
                 if cached:
                     return float(cached[0]['lat']), float(cached[0]['lon'])
                 raise ValueError("cached empty")  # skip sleep, fall through to fallback
-            time.sleep(1)  # Nominatim rate limit: 1 req/s
+            nominatim_rate_limiter.wait()
             resp = requests.get(
                 f'{NOMINATIM_BASE}/search',
                 params={
