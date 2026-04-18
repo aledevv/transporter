@@ -17,6 +17,7 @@ FINAL FALLBACK STRATEGY: If the geocodingTool returns no results even after the 
 Provide as answer a JSON array of objects with the following structure:
 [
     {
+        "id": <id>,
         "name": "<place name>",
         "normalized_address": "<normalized_address>"
     }
@@ -26,10 +27,11 @@ Do not provide any additional text or explanation. Only return the JSON array.
 
 --- EXAMPLE ---
 
-Input: 
+Input:
 
 [
     {
+        "id": 0,
         "name": "IC Levico terme",
         "address": "Tenna , Via Albere 2"
     }
@@ -39,6 +41,6 @@ What you try with geocodingTool (pass them as a list of 3 strings):
 
 ["Tenna , Via Albere 2", "Tenna , Via Albere", "Tenna"]
 
-If any of these are valid, return THAT normalized address, otherwise return empty string.
+If any of these are valid, return THAT normalized address with the id echoed back, otherwise return empty string for normalized_address.
 
 """
