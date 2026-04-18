@@ -41,7 +41,7 @@ function tokenOverlap(tokensA, tokensB) {
   if (!tokensA.length || !tokensB.length) return 0;
   // Allow substring matching: "avio" matches "avios"
   const matches = tokensA.filter(a => tokensB.some(b => b.includes(a) || a.includes(b)));
-  return matches.length / Math.min(tokensA.length, tokensB.length);
+  return Math.min(matches.length / Math.min(tokensA.length, tokensB.length), 1);
 }
 
 function scoreMatch(school, dbEntry) {
