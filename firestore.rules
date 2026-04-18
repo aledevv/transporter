@@ -4,5 +4,8 @@ service cloud.firestore {
     match /trips/{tripId} {
       allow read, write: if true;
     }
+    match /institutes/{docId} {
+      allow read, write: if true;
+    }
   }
 }
