@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Pencil, Trash2, Check, X, AlertTriangle } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import API_BASE_URL from '../config';
-import { collection, getDocs, addDoc, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 // ─── Pin icon ─────────────────────────────────────────────────────────────────
 
@@ -64,6 +64,9 @@ function FlyTo({ target }) {
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 const eKey = (name, address) => `${name}||${address}`;
+
+const makeStableId = (name, address) =>
+    btoa(unescape(encodeURIComponent(`${name}||${address}`))).replace(/[/+=]/g, '_');
 
 // Reconstruct nested institute format from flat Firestore docs
 function firestoreDocsToInstitutes(docs) {
@@ -154,8 +157,9 @@ export default function InstituteList({ db }) {
             const writes = [];
             for (const inst of apiInstitutes) {
                 for (const entry of inst.entries) {
+                    const stableId = makeStableId(inst.name, entry.address);
                     writes.push(
-                        addDoc(col, {
+                        setDoc(doc(col, stableId), {
                             name: inst.name,
                             address: entry.address,
                             lat: entry.lat ?? null,
@@ -172,7 +176,10 @@ export default function InstituteList({ db }) {
             const count = await loadFromFirestore();
             if (count === 0) await loadFromApi();
         } catch (err) {
-            setStatusMsg({ type: 'err', text: err.message });
+            setStatusMsg({ type: 'err', text: `Errore sincronizzazione: ${err.message}` });
+            try {
+                await loadFromFirestore();
+            } catch { /* best effort */ }
         } finally {
             setSyncing(false);
             setLoading(false);
@@ -243,20 +250,19 @@ export default function InstituteList({ db }) {
                     const entry = institutes
                         .find(i => i.name === oldName)
                         ?.entries.find(e => e.address === oldAddress);
-                    if (entry?._docId) {
-                        await setDoc(
-                            doc(db, 'institutes', entry._docId),
-                            {
-                                name: editForm.name.trim(),
-                                address: editForm.address.trim(),
-                                lat: editForm.lat ?? null,
-                                lon: editForm.lon ?? null,
-                                updatedAt: serverTimestamp(),
-                            }
-                        );
-                    }
-                } catch {
-                    // Firestore sync failure is non-fatal
+                    const firestoreId = entry?._docId || makeStableId(oldName, oldAddress);
+                    await setDoc(
+                        doc(db, 'institutes', firestoreId),
+                        {
+                            name: editForm.name.trim(),
+                            address: editForm.address.trim(),
+                            lat: editForm.lat ?? null,
+                            lon: editForm.lon ?? null,
+                            updatedAt: serverTimestamp(),
+                        }
+                    );
+                } catch (err) {
+                    console.warn('[InstituteList] Firestore sync failed on save:', err);
                 }
             }
 
@@ -290,8 +296,8 @@ export default function InstituteList({ db }) {
             if (db && entry?._docId) {
                 try {
                     await deleteDoc(doc(db, 'institutes', entry._docId));
-                } catch {
-                    // Firestore sync failure is non-fatal
+                } catch (err) {
+                    console.warn('[InstituteList] Firestore sync failed on delete:', err);
                 }
             }
 
@@ -355,7 +361,7 @@ export default function InstituteList({ db }) {
                             {db && firestoreCount !== null && firestoreCount > 0 && (
                                 <button
                                     onClick={handleSyncFromFixtures}
-                                    disabled={syncing}
+                                    disabled={syncing || loading}
                                     title="Aggiorna da Fixture"
                                     className="px-2 py-2 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-600 rounded-lg border border-gray-200 whitespace-nowrap"
                                 >
