@@ -63,7 +63,7 @@ function FlyTo({ target }) {
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-const eKey = (name, address) => `${name}||${address}`;
+const eKey = (name, address, id) => `${name}||${address}||${id}`;
 
 const makeStableId = (name, address) =>
     btoa(unescape(encodeURIComponent(`${name}||${address}`))).replace(/[/+=]/g, '_');
@@ -100,6 +100,16 @@ export default function InstituteList({ db }) {
     // Delete state
     const [deleteKey,  setDeleteKey]    = useState(null);
     const [deleting,   setDeleting]     = useState(false);
+
+    // Multi-select state
+    const [multiSelectMode, setMultiSelectMode] = useState(false);
+    const [selectedKeys, setSelectedKeys] = useState(new Set());
+    const timerRef = useRef(null);
+    const ignoreNextClickRef = useRef(false);
+
+    // Add state
+    const [isAdding,   setIsAdding]     = useState(false);
+    const [addForm,    setAddForm]      = useState({ name: '', address: '', lat: null, lon: null });
 
     const [statusMsg,  setStatusMsg]    = useState(null); // {type:'ok'|'err', text}
     const [syncing,    setSyncing]      = useState(false);
@@ -190,8 +200,9 @@ export default function InstituteList({ db }) {
     const allPoints = useMemo(() =>
         institutes.flatMap(inst =>
             inst.entries
+                .map((e, ei) => ({ ...e, originalIndex: ei }))
                 .filter(e => e.lat != null)
-                .map(e => ({ name: inst.name, address: e.address, lat: e.lat, lon: e.lon, fixture_count: e.fixture_count }))
+                .map(e => ({ name: inst.name, address: e.address, lat: e.lat, lon: e.lon, fixture_count: e.fixture_count, uniqueId: e._docId || e.originalIndex }))
         ), [institutes]);
 
     const filtered = useMemo(() =>
@@ -200,17 +211,116 @@ export default function InstituteList({ db }) {
             inst.entries.some(e => e.address.toLowerCase().includes(search.toLowerCase()))
         ), [institutes, search]);
 
-    const handleSelect = (name, entry) => {
+    const toggleSelect = (uniqueId) => {
+        setSelectedKeys(prev => {
+            const next = new Set(prev);
+            if (next.has(uniqueId)) {
+                next.delete(uniqueId);
+            } else {
+                next.add(uniqueId);
+            }
+            return next;
+        });
+    };
+
+    const handlePointerDown = (uniqueId) => {
+        if (multiSelectMode) return;
+        timerRef.current = setTimeout(() => {
+            setMultiSelectMode(true);
+            setSelectedKeys(new Set([uniqueId]));
+            ignoreNextClickRef.current = true;
+            timerRef.current = null;
+        }, 500);
+    };
+
+    const handlePointerCancelOrMove = () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+    };
+
+    const handleClick = (e, name, entry, uniqueId) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+        if (ignoreNextClickRef.current) {
+            ignoreNextClickRef.current = false;
+            return;
+        }
+        if (multiSelectMode) {
+            toggleSelect(uniqueId);
+        } else {
+            handleSelect(name, entry, uniqueId);
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedKeys.size === 0) {
+            setMultiSelectMode(false);
+            return;
+        }
+        const confirm = window.confirm(`Sei sicuro di voler eliminare ${selectedKeys.size} elementi selezionati?`);
+        if (!confirm) return;
+
+        setDeleting(true);
+        let successCount = 0;
+        try {
+            const promises = Array.from(selectedKeys).map(async (uniqueId) => {
+                let targetEntry = null;
+                let targetInstName = null;
+                for (const inst of institutes) {
+                    const e = inst.entries.find((entry, idx) => (entry._docId || idx) === uniqueId);
+                    if (e) {
+                        targetEntry = e;
+                        targetInstName = inst.name;
+                        break;
+                    }
+                }
+                if (!targetEntry) return;
+
+                const resp = await fetch(`${API_BASE_URL}/api/fixtures/institutes`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: targetInstName, address: targetEntry.address }),
+                });
+                
+                if (resp.ok) {
+                    if (db && targetEntry._docId) {
+                        try {
+                            await deleteDoc(doc(db, 'institutes', targetEntry._docId));
+                        } catch(e) {
+                            console.warn('Firestore delete sync failed:', e);
+                        }
+                    }
+                    successCount++;
+                }
+            });
+
+            await Promise.allSettled(promises);
+            setStatusMsg({ type: 'ok', text: `Eliminati ${successCount} elementi.` });
+            setMultiSelectMode(false);
+            setSelectedKeys(new Set());
+            load();
+        } catch(err) {
+            setStatusMsg({ type: 'err', text: `Errore durante l'eliminazione multipla.` });
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const handleSelect = (name, entry, uniqueId) => {
         if (!entry.lat) return;
         setHighlighted(prev =>
-            prev && prev.name === name && prev.address === entry.address
+            prev && prev.name === name && prev.address === entry.address && prev.uniqueId === uniqueId
                 ? null
-                : { name, address: entry.address, lat: entry.lat, lon: entry.lon }
+                : { name, address: entry.address, lat: entry.lat, lon: entry.lon, uniqueId }
         );
     };
 
-    const startEdit = (instName, entry) => {
-        setEditingKey(eKey(instName, entry.address));
+    const startEdit = (instName, entry, id) => {
+        setEditingKey(eKey(instName, entry.address, id));
         setEditForm({ name: instName, address: entry.address, lat: entry.lat, lon: entry.lon });
         setDeleteKey(null);
         setMergeConflict(null);
@@ -219,7 +329,7 @@ export default function InstituteList({ db }) {
 
     const cancelEdit = () => { setEditingKey(null); setMergeConflict(null); };
 
-    const handleSave = async (oldName, oldAddress, forceMerge = false) => {
+    const handleSave = async (oldName, oldAddress, uniqueId, forceMerge = false) => {
         setSaving(true);
         setMergeConflict(null);
         try {
@@ -249,7 +359,7 @@ export default function InstituteList({ db }) {
                     // Find entry with _docId
                     const entry = institutes
                         .find(i => i.name === oldName)
-                        ?.entries.find(e => e.address === oldAddress);
+                        ?.entries.find((e, idx) => (e._docId || idx) === uniqueId);
                     const firestoreId = entry?._docId || makeStableId(oldName, oldAddress);
                     await setDoc(
                         doc(db, 'institutes', firestoreId),
@@ -276,13 +386,41 @@ export default function InstituteList({ db }) {
         }
     };
 
-    const handleDelete = async (name, address) => {
+    const handleAdd = async () => {
+        setSaving(true);
+        setStatusMsg(null);
+        try {
+            if (!addForm.name.trim() || !addForm.address.trim()) {
+                throw new Error("Nome e indirizzo sono obbligatori");
+            }
+            if (!db) {
+                throw new Error("Connessione al database non disponibile");
+            }
+            const firestoreId = makeStableId(addForm.name.trim(), addForm.address.trim());
+            await setDoc(doc(db, 'institutes', firestoreId), {
+                name: addForm.name.trim(),
+                address: addForm.address.trim(),
+                lat: addForm.lat ?? null,
+                lon: addForm.lon ?? null,
+                updatedAt: serverTimestamp(),
+            });
+            setStatusMsg({ type: 'ok', text: `Istituto aggiunto con successo.` });
+            setIsAdding(false);
+            load();
+        } catch (err) {
+            setStatusMsg({ type: 'err', text: err.message });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async (name, address, uniqueId) => {
         setDeleting(true);
         try {
             // Find _docId before API call (state still intact)
             const entry = institutes
                 .find(i => i.name === name)
-                ?.entries.find(e => e.address === address);
+                ?.entries.find((e, idx) => (e._docId || idx) === uniqueId);
 
             const resp = await fetch(`${API_BASE_URL}/api/fixtures/institutes`, {
                 method: 'DELETE',
@@ -357,6 +495,15 @@ export default function InstituteList({ db }) {
                                 onChange={e => setSearch(e.target.value)}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                             />
+                            <button
+                                onClick={() => {
+                                    setIsAdding(true);
+                                    setAddForm({ name: '', address: '', lat: null, lon: null });
+                                }}
+                                className="px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg border border-transparent whitespace-nowrap shadow-sm"
+                            >
+                                + Aggiungi
+                            </button>
                             {/* Secondary sync button when Firestore has data */}
                             {db && firestoreCount !== null && firestoreCount > 0 && (
                                 <button
@@ -379,13 +526,53 @@ export default function InstituteList({ db }) {
                         {loading && <div className="text-sm text-gray-400 animate-pulse">Caricamento...</div>}
 
                         <div className="overflow-y-auto flex-1 pr-0.5" style={{ maxHeight: 510 }}>
+                        {isAdding && (
+                            <div className="rounded-lg border border-green-300 bg-green-50 p-2 mb-2 flex flex-col gap-1.5 animate-fade-in">
+                                <input
+                                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-green-400 outline-none"
+                                    placeholder="Nome istituto"
+                                    value={addForm.name}
+                                    onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
+                                />
+                                <AddressAutocomplete
+                                    value={addForm.address}
+                                    onChange={v => setAddForm(f => ({ ...f, address: v, lat: null, lon: null }))}
+                                    onSelect={({ address, lat, lon }) =>
+                                        setAddForm(f => ({ ...f, address, lat, lon }))
+                                    }
+                                    placeholder="Indirizzo o coordinate (lat, lon)..."
+                                />
+                                {addForm.lat != null && (
+                                    <div className="text-xs text-green-600 font-mono">
+                                        {addForm.lat.toFixed(5)}, {addForm.lon.toFixed(5)}
+                                    </div>
+                                )}
+                                <div className="flex gap-1">
+                                    <button
+                                        onClick={handleAdd}
+                                        disabled={saving || !addForm.name.trim() || !addForm.address.trim()}
+                                        className="flex-1 flex items-center justify-center gap-1 text-xs bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-1 rounded-md"
+                                    >
+                                        <Check className="w-3 h-3" />
+                                        {saving ? 'Salvataggio...' : 'Aggiungi'}
+                                    </button>
+                                    <button
+                                        onClick={() => setIsAdding(false)}
+                                        className="px-3 flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 py-1 rounded-md"
+                                    >
+                                        <X className="w-3 h-3" /> Annulla
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                             {filtered.map(inst => (
                                 <div key={inst.name} className="mb-0.5">
                                     {inst.entries.map((entry, ei) => {
-                                        const key     = eKey(inst.name, entry.address);
+                                        const uniqueId = entry._docId || ei;
+                                        const key     = eKey(inst.name, entry.address, uniqueId);
                                         const isEdit  = editingKey === key;
                                         const isDel   = deleteKey  === key;
-                                        const isHL    = highlighted?.name === inst.name && highlighted?.address === entry.address;
+                                        const isHL    = highlighted?.name === inst.name && highlighted?.address === entry.address && highlighted?.uniqueId === uniqueId;
                                         const hasPt   = entry.lat != null;
 
                                         /* ── Edit form ── */
@@ -424,7 +611,7 @@ export default function InstituteList({ db }) {
                                                         </div>
                                                         <div className="flex gap-1">
                                                             <button
-                                                                onClick={() => handleSave(inst.name, entry.address, true)}
+                                                                onClick={() => handleSave(inst.name, entry.address, uniqueId, true)}
                                                                 disabled={saving}
                                                                 className="flex-1 text-xs bg-amber-600 hover:bg-amber-700 text-white py-1 rounded-md disabled:opacity-50"
                                                             >
@@ -441,7 +628,7 @@ export default function InstituteList({ db }) {
                                                 )}
                                                 <div className="flex gap-1">
                                                     <button
-                                                        onClick={() => handleSave(inst.name, entry.address)}
+                                                        onClick={() => handleSave(inst.name, entry.address, uniqueId)}
                                                         disabled={saving || !editForm.name.trim() || !editForm.address.trim()}
                                                         className="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-1 rounded-md"
                                                     >
@@ -468,7 +655,7 @@ export default function InstituteList({ db }) {
                                                 </div>
                                                 <div className="flex gap-1">
                                                     <button
-                                                        onClick={() => handleDelete(inst.name, entry.address)}
+                                                        onClick={() => handleDelete(inst.name, entry.address, uniqueId)}
                                                         disabled={deleting}
                                                         className="flex-1 text-xs bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-1 rounded-md"
                                                     >
@@ -488,14 +675,21 @@ export default function InstituteList({ db }) {
                                         return (
                                             <div
                                                 key={ei}
-                                                onClick={() => handleSelect(inst.name, entry)}
+                                                onPointerDown={() => handlePointerDown(uniqueId)}
+                                                onPointerMove={handlePointerCancelOrMove}
+                                                onPointerLeave={handlePointerCancelOrMove}
+                                                onPointerCancel={handlePointerCancelOrMove}
+                                                onClick={(e) => handleClick(e, inst.name, entry, uniqueId)}
+                                                style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
                                                 className={`group px-2 py-1.5 rounded-lg border transition-all flex items-center gap-2 mb-0.5 ${
                                                     isHL
                                                         ? 'border-blue-400 bg-blue-50'
                                                         : hasPt
                                                             ? 'border-gray-100 bg-white hover:border-gray-300'
                                                             : 'border-amber-100 bg-amber-50/50 hover:border-amber-200'
-                                                } ${hasPt ? 'cursor-pointer' : 'cursor-default'}`}
+                                                } ${hasPt ? 'cursor-pointer' : 'cursor-default'} ${
+                                                    multiSelectMode && selectedKeys.has(uniqueId) ? 'ring-2 ring-red-400 bg-red-50' : ''
+                                                }`}
                                             >
                                                 <span
                                                     className="w-2 h-2 rounded-full flex-shrink-0"
@@ -515,23 +709,33 @@ export default function InstituteList({ db }) {
                                                 {entry.fixture_count > 1 && (
                                                     <span className="text-xs text-gray-400 flex-shrink-0">×{entry.fixture_count}</span>
                                                 )}
-                                                {/* Action buttons — visible on hover */}
-                                                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                                    <button
-                                                        onClick={e => { e.stopPropagation(); startEdit(inst.name, entry); }}
-                                                        className="p-1 rounded hover:bg-blue-100 text-gray-400 hover:text-blue-600"
-                                                        title="Modifica"
-                                                    >
-                                                        <Pencil className="w-3 h-3" />
-                                                    </button>
-                                                    <button
-                                                        onClick={e => { e.stopPropagation(); setDeleteKey(key); setEditingKey(null); }}
-                                                        className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600"
-                                                        title="Elimina"
-                                                    >
-                                                        <Trash2 className="w-3 h-3" />
-                                                    </button>
-                                                </div>
+                                                {multiSelectMode ? (
+                                                    <div className="flex-shrink-0 px-2" onClick={(e) => { e.stopPropagation(); toggleSelect(uniqueId); }}>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={selectedKeys.has(uniqueId)}
+                                                            readOnly
+                                                            className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 pointer-events-none"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                                        <button
+                                                            onClick={e => { e.stopPropagation(); startEdit(inst.name, entry, uniqueId); }}
+                                                            className="p-1 rounded hover:bg-blue-100 text-gray-400 hover:text-blue-600"
+                                                            title="Modifica"
+                                                        >
+                                                            <Pencil className="w-3 h-3" />
+                                                        </button>
+                                                        <button
+                                                            onClick={e => { e.stopPropagation(); setDeleteKey(key); setEditingKey(null); }}
+                                                            className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600"
+                                                            title="Elimina"
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}
@@ -542,6 +746,30 @@ export default function InstituteList({ db }) {
                             )}
                         </div>
                     </div>
+
+                    {/* ── Floating Action Bar for Multi-select ──────────────────── */}
+                    {multiSelectMode && (
+                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white shadow-xl rounded-full px-5 py-3 flex items-center gap-4 z-[9999] border border-red-100 animate-fade-in">
+                            <span className="text-sm font-medium text-gray-700">{selectedKeys.size} selezionati</span>
+                            <button
+                                onClick={handleBulkDelete}
+                                disabled={deleting || selectedKeys.size === 0}
+                                className="px-4 py-1.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-full text-sm font-medium shadow flex items-center gap-1"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                {deleting ? 'Eliminazione...' : 'Elimina'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setMultiSelectMode(false);
+                                    setSelectedKeys(new Set());
+                                }}
+                                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-sm"
+                            >
+                                Annulla
+                            </button>
+                        </div>
+                    )}
 
                     {/* ── Right: map ──────────────────────────────────────────── */}
                     <div className="flex-1 rounded-xl overflow-hidden border border-gray-200" style={{ minHeight: 560 }}>
@@ -557,14 +785,14 @@ export default function InstituteList({ db }) {
                             <FitAll points={allPoints} />
                             {highlighted && <FlyTo target={highlighted} />}
                             {allPoints.map((pt, i) => {
-                                const isHL = highlighted?.name === pt.name && highlighted?.address === pt.address;
+                                const isHL = highlighted?.name === pt.name && highlighted?.address === pt.address && highlighted?.uniqueId === pt.uniqueId;
                                 return (
                                     <Marker
                                         key={i}
                                         position={[pt.lat, pt.lon]}
                                         icon={makePin(isHL ? '#3b82f6' : '#6b7280', isHL)}
                                         zIndexOffset={isHL ? 1000 : 0}
-                                        eventHandlers={{ click: () => handleSelect(pt.name, pt) }}
+                                        eventHandlers={{ click: () => handleSelect(pt.name, pt, pt.uniqueId) }}
                                     >
                                         <Popup>
                                             <strong>{pt.name}</strong><br />

@@ -35,8 +35,30 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                     params: { q: query },
                 });
                 const raw = response.data?.predictions ?? [];
-                setSuggestions(raw);
-                setIsOpen(raw.length > 0);
+                
+                const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)\s*$/);
+                let customSuggestion = null;
+                if (coordMatch) {
+                    const lat = parseFloat(coordMatch[1]);
+                    const lon = parseFloat(coordMatch[2]);
+                    if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+                        customSuggestion = {
+                            place_id: `coord_${lat}_${lon}`,
+                            description: `${lat}, ${lon}`,
+                            structured_formatting: {
+                                main_text: 'Usa coordinate esatte',
+                                secondary_text: `${lat}, ${lon}`
+                            },
+                            types: ['geocode'],
+                            lat: lat,
+                            lon: lon
+                        };
+                    }
+                }
+                
+                const finalSuggestions = customSuggestion ? [customSuggestion, ...raw] : raw;
+                setSuggestions(finalSuggestions);
+                setIsOpen(finalSuggestions.length > 0);
             } catch (error) {
                 console.error('Autocomplete error:', error);
             } finally {

@@ -21,7 +21,7 @@ const ROUTE_COLORS = [
 ];
 
 // ─── Dashboard ───
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore, openEditorTrigger = 0 }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore, openEditorTrigger = 0, allDbInstitutes = [] }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(56);
@@ -410,7 +410,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
     if (showEditor) return (
         <div className="h-[calc(100vh-100px)]">
-            <SchoolEditor schools={schools} onSave={handleDataSave} instituteColorMap={instituteColorMap} />
+            <SchoolEditor schools={schools} onSave={handleDataSave} instituteColorMap={instituteColorMap} allDbInstitutes={allDbInstitutes} />
         </div>
     );
 

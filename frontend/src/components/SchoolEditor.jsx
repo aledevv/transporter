@@ -6,7 +6,7 @@ import { getColorForIndex } from '../utils/colors';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 
-const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
+const SchoolEditor = ({ schools, onSave, instituteColorMap = {}, allDbInstitutes = [] }) => {
     const [editedSchools, setEditedSchools] = useState(schools);
     const [pickerOpenId, setPickerOpenId] = useState(null);
     const [institutes, setInstitutes] = useState([]);
@@ -29,24 +29,16 @@ const SchoolEditor = ({ schools, onSave, instituteColorMap = {} }) => {
         setEditedSchools(schools);
     }, [schools]);
 
-    // Fetch institute database once on mount
+    // Sync with global database
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/api/fixtures/institutes`)
-            .then(res => {
-                const all = res.data?.institutes ?? [];
-                // Flatten to {name, address, lat, lon} and filter out problematic entries
-                const flat = [];
-                all.forEach(inst => {
-                    inst.entries.forEach(e => {
-                        if (e.lat && e.lon && e.lat !== 0 && e.lon !== 0 && e.address) {
-                            flat.push({ name: inst.name, address: e.address, lat: e.lat, lon: e.lon });
-                        }
-                    });
-                });
-                setInstitutes(flat);
-            })
-            .catch(() => {});
-    }, []);
+        const flat = [];
+        allDbInstitutes.forEach(inst => {
+            if (inst.lat && inst.lon && inst.lat !== 0 && inst.lon !== 0 && inst.address) {
+                flat.push({ name: inst.name, address: inst.address, lat: inst.lat, lon: inst.lon });
+            }
+        });
+        setInstitutes(flat);
+    }, [allDbInstitutes]);
 
     const filteredInstitutes = institutes.filter(inst => {
         if (!instituteFilter) return true;

@@ -159,14 +159,13 @@ function App() {
         return unsub;
     }, [db]);
 
-    // Load Firebase institutes once for DB matching
+    // Load Firebase institutes and keep synced
     useEffect(() => {
         if (!db) return;
-        getDocs(collection(db, 'institutes'))
-            .then(snap => {
-                setAllDbInstitutes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-            })
-            .catch(err => console.warn('Failed to load institutes for matching:', err));
+        const unsub = onSnapshot(collection(db, 'institutes'), snap => {
+            setAllDbInstitutes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, err => console.warn('Failed to sync institutes:', err));
+        return unsub;
     }, [db]);
 
     const handleTripSaved = async (tripData) => {
@@ -780,6 +779,7 @@ function App() {
                                 onTripUpdated={handleTripUpdated}
                                 tripToRestore={tripToRestore}
                                 openEditorTrigger={openEditorTrigger}
+                                allDbInstitutes={allDbInstitutes}
                             />
                         </section>
                     )}
