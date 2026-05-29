@@ -1584,6 +1584,7 @@ _institutes_index: dict | None = None
 
 def _build_institutes_index() -> dict:
     """Scan all realSuite fixtures once and build a name→address→{lat,lon,count} index."""
+    import time as _time
     result: dict = {}
     try:
         dirs = sorted(os.listdir(REALSUITE_DIR))
@@ -1604,10 +1605,19 @@ def _build_institutes_index() -> dict:
                     coords = json.load(f)
             except Exception:
                 pass
-        try:
-            df = pd.read_excel(input_p)
-            df.columns = [c.strip() for c in df.columns]
-        except Exception:
+        # Retry reading Excel in case file is temporarily locked after a write
+        df = None
+        for attempt in range(3):
+            try:
+                df = pd.read_excel(input_p)
+                df.columns = [c.strip() for c in df.columns]
+                break
+            except Exception as exc:
+                if attempt < 2:
+                    _time.sleep(0.15)
+                else:
+                    print(f'[institutes_index] Failed to read {input_p} after 3 attempts: {exc}')
+        if df is None:
             continue
         seen: dict = {}
         for row_idx, row in df.iterrows():
@@ -1938,6 +1948,7 @@ def list_fixture_institutes():
             result.append({'name': name, 'entries': entries})
         return jsonify({'institutes': result}), 200
     except Exception as e:
+        import traceback; traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -2144,6 +2155,7 @@ def delete_institute_entry():
         _invalidate_institutes_index()
         return jsonify({'ok': True, 'modified': modified}), 200
     except Exception as e:
+        import traceback; traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -2185,6 +2197,81 @@ def suggest_school_address():
         del c['_score']
 
     return jsonify({'suggestions': candidates[:5]}), 200
+
+
+@app.route('/api/ai_suggest', methods=['POST'])
+def ai_suggest():
+    """
+    Uses AI (or smart normalization) to clean the raw address,
+    then returns up to 5 Nominatim autocomplete suggestions for the cleaned address.
+    """
+    data = request.json or {}
+    address = data.get('address', '').strip()
+    if not address:
+        return jsonify({'suggestions': []}), 400
+
+    import requests as req
+    import nominatim_cache as _nc
+    
+    # Simple heuristic to clean the address (strips country/province like smart_geocode does)
+    clean_addr = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
+    clean_addr = re.sub(r',\s*[A-Z]{2}\s*$', '', clean_addr).strip()
+    
+    query = clean_addr
+    if not query:
+        return jsonify({'suggestions': []})
+
+    cached = _nc.get(query, 5)
+    if cached:
+        results = cached
+    else:
+        try:
+            resp = req.get(
+                'https://nominatim.openstreetmap.org/search',
+                params={
+                    'q': query,
+                    'format': 'json',
+                    'countrycodes': 'it',
+                    'limit': 5,
+                    'viewbox': '10.4,45.6,12.2,46.95',
+                    'bounded': 0,
+                    'addressdetails': 1,
+                },
+                headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
+                timeout=5,
+            )
+            results = resp.json() if resp.status_code == 200 else []
+            if results:
+                _nc.store(query, 5, results)
+        except Exception as e:
+            print(f"[AI Suggest] Nominatim error: {e}")
+            results = []
+            
+    def _osm_type(r):
+        osm_class = r.get('class', '')
+        if osm_class == 'highway': return 'route'
+        if osm_class in ('amenity', 'building', 'shop', 'tourism'): return 'establishment'
+        return 'geocode'
+
+    suggestions = []
+    for r in results:
+        display = r.get('display_name', '')
+        parts = [p.strip() for p in display.split(',')]
+        main_text = ', '.join(parts[:2]) if len(parts) >= 2 else display
+        secondary_text = ', '.join(parts[2:]) if len(parts) > 2 else ''
+        suggestions.append({
+            'place_id': f"osm_{r.get('osm_type', 'node')}_{r.get('osm_id', '')}",
+            'description': display,
+            'structured_formatting': {
+                'main_text': main_text,
+                'secondary_text': secondary_text,
+            },
+            'types': [_osm_type(r)],
+            'lat': float(r['lat']),
+            'lon': float(r['lon']),
+        })
+        
+    return jsonify({'suggestions': suggestions})
 
 
 @app.route('/api/places/autocomplete', methods=['GET'])

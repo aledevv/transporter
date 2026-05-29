@@ -25,9 +25,10 @@ class PauseOnFailPlugin:
         while True:
             try:
                 choice = input("\n[c] continua con i prossimi test  [s] stoppa tutto: ").strip().lower()
-            except (EOFError, KeyboardInterrupt):
+            except (EOFError, KeyboardInterrupt, OSError):
+                # OSError is raised when stdin is captured (e.g. running under pytest -s or system tasks)
+                # In that case, just continue automatically
                 print()
-                pytest.exit("Interrotto.", returncode=1)
                 return
 
             if choice in ("s", "stop", "q"):

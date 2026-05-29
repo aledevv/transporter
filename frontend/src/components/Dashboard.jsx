@@ -417,9 +417,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
     return (
         <div className="flex flex-col gap-6">
             {/* Top Row: Config (left, full height) | Map (right) */}
-            <div className={`flex flex-col lg:flex-row gap-6 lg:items-stretch ${supervisionMode ? 'hidden lg:flex lg:min-h-[650px]' : ''}`}>
+            <div className={`flex flex-col lg:flex-row gap-6 lg:items-stretch ${supervisionMode ? 'hidden lg:flex' : ''}`}>
                 {/* Configuration box (hidden in mobile if in supervision mode, to emphasize map) */}
-                <div className={`w-full lg:w-[25%] min-w-0 flex flex-col ${supervisionMode ? 'hidden' : ''}`}>
+                <div className={`w-full lg:w-[320px] xl:w-[380px] 3xl:w-[450px] 4xl:w-[500px] flex-shrink-0 min-w-0 flex flex-col ${supervisionMode ? 'hidden' : ''}`}>
                     <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 flex flex-col flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="flex items-center gap-2 font-semibold text-gray-700">
@@ -497,8 +497,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 </div>
 
                 {/* Map */}
-                <div ref={mapContainerRef} className={`w-full ${supervisionMode ? 'lg:w-full' : 'lg:w-[75%]'}`}>
-                    <div className="relative h-[500px] lg:h-full min-h-[400px]">
+                <div ref={mapContainerRef} className="w-full flex-1 min-w-0">
+                    <div className="relative h-[70vh] min-h-[400px]">
                         <Map ref={mapRef} schools={schools} routes={mapRoutes} overlaps={activeResults?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} fitKey={mapFitKey} sizeTrigger={mapSizeTrigger} />
                     </div>
                 </div>

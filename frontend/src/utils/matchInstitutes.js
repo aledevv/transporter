@@ -55,19 +55,68 @@ function tokenOverlap(tokensA, tokensB) {
 }
 
 function scoreMatch(school, dbEntry) {
-  const sName = normalizeName(school.name);
-  const dName = normalizeName(dbEntry.name);
+  let sNameStr = school.name;
+  let sDescStr = school.description || '';
+  if (!school.description && sNameStr) {
+      const m = sNameStr.match(/\((.*?)\)/);
+      if (m) {
+          sDescStr = m[1];
+          sNameStr = sNameStr.replace(/\(.*?\)/g, '');
+      }
+  }
+
+  let dNameStr = dbEntry.name;
+  let dDescStr = dbEntry.description || '';
+  if (!dbEntry.description && dNameStr && dNameStr.includes('(')) {
+      const m = dNameStr.match(/\((.*?)\)/);
+      if (m) {
+          dDescStr = m[1];
+          dNameStr = dNameStr.replace(/\(.*?\)/g, '');
+      }
+  }
+
+  const sName = normalizeName(sNameStr);
+  const dName = normalizeName(dNameStr);
   const nameScore = tokenOverlap(sName, dName);
+
+  const sDesc = normalizeName(sDescStr);
+  const dDesc = normalizeName(dDescStr);
+  let descScore = 1;
+  if (sDesc.length > 0 || dDesc.length > 0) {
+      descScore = tokenOverlap(sDesc, dDesc);
+  }
 
   const sAddr = normalizeAddress(school.address);
   const dAddr = normalizeAddress(dbEntry.address);
   const addrScore = tokenOverlap(sAddr, dAddr);
 
-  // Name is the identifier: must overlap to be a candidate at all.
-  // Address is the quality signal: perfect address → score reaches 100%.
-  if (nameScore < 0.3) return 0;
+  // Global overlap across ALL fields (handles description fragments in address etc)
+  const sAll = Array.from(new Set([...sName, ...sDesc, ...sAddr]));
+  const dAll = Array.from(new Set([...dName, ...dDesc, ...dAddr]));
+  let globalScore = 0;
+  if (sAll.length > 0 && dAll.length > 0) {
+      const intersection = sAll.filter(a => dAll.some(b => b.includes(a) || a.includes(b)));
+      globalScore = intersection.length / Math.max(sAll.length, dAll.length);
+  }
 
-  return nameScore * 0.5 + addrScore * 0.5;
+  // Name is the identifier: must overlap to be a candidate at all, UNLESS global score is very high
+  if (nameScore < 0.3 && globalScore < 0.7) return 0;
+
+  const weightedScore = nameScore * 0.4 + descScore * 0.2 + addrScore * 0.4;
+  
+  // Add Exact Address Bonus to break ties (if the original address matches the db address perfectly)
+  let exactAddressBonus = 0;
+  if (school.address && dbEntry.address) {
+      const sAddrRaw = school.address.toLowerCase().trim();
+      const dAddrRaw = dbEntry.address.toLowerCase().trim();
+      if (sAddrRaw === dAddrRaw) {
+          exactAddressBonus = 0.1;
+      } else if (sAddrRaw.includes(dAddrRaw) || dAddrRaw.includes(sAddrRaw)) {
+          exactAddressBonus = 0.05;
+      }
+  }
+
+  return Math.max(weightedScore, globalScore) + exactAddressBonus;
 }
 
 /**
@@ -76,7 +125,10 @@ function scoreMatch(school, dbEntry) {
  */
 export function findCandidates(school, dbInstitutes, { maxCandidates = 5, threshold = 0.4 } = {}) {
   return dbInstitutes
-    .map(inst => ({ ...inst, _matchScore: scoreMatch(school, inst) }))
+    .map(inst => {
+        const score = scoreMatch(school, inst);
+        return { ...inst, _matchScore: score, _isPerfect: score >= 0.99 };
+    })
     .filter(c => c._matchScore >= threshold)
     .sort((a, b) => b._matchScore - a._matchScore)
     .slice(0, maxCandidates);
@@ -90,4 +142,32 @@ export function buildMatchList(schools, dbInstitutes) {
   return schools
     .map(school => ({ school, candidates: findCandidates(school, dbInstitutes) }))
     .filter(({ candidates }) => candidates.length > 0);
+}
+
+/**
+ * Determines the best default candidate to pre-select.
+ * 1. If only 1 candidate, select it.
+ * 2. If exactly 1 candidate has a perfect score (>= 0.99), select it.
+ * 3. If a word from the school name appears in exactly 1 candidate's address, select it.
+ * 4. Otherwise, fallback to the first candidate (highest score).
+ */
+export function getBestDefaultCandidate(school, candidates) {
+    if (!candidates || candidates.length === 0) return null;
+    if (candidates.length === 1) return candidates[0];
+
+    const perfectMatches = candidates.filter(c => c._matchScore >= 0.99);
+    if (perfectMatches.length === 1) return perfectMatches[0];
+
+    const sNameTokens = normalizeName(school.name);
+    for (const token of sNameTokens) {
+        const candidatesWithToken = candidates.filter(c => {
+            const dAddrTokens = normalizeAddress(c.address);
+            return dAddrTokens.includes(token);
+        });
+        if (candidatesWithToken.length === 1) {
+            return candidatesWithToken[0];
+        }
+    }
+
+    return candidates[0];
 }

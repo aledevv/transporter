@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu, FileSpreadsheet, Database } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs, setDoc } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
@@ -26,69 +26,35 @@ const formatDuration = (seconds) => {
     return `${s}s`;
 };
 
+const makeStableId = (name, address) =>
+    btoa(unescape(encodeURIComponent(`${name}||${address}`))).replace(/[/+=]/g, '_');
+
 // ~2.5s/address: adjusted from 5s after user feedback (actual ~52s for 22 addresses)
 const AI_SECONDS_PER_ADDRESS = 2.5;
 
 // Simple Loading Overlay Component
-const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isAiPhase }) => {
-    const isAI = isAiPhase;
-    const [elapsed, setElapsed] = useState(0);
-    const startRef = useRef(null);
-
-    useEffect(() => {
-        if (!isAI) {
-            setElapsed(0);
-            startRef.current = null;
-            return;
-        }
-        if (startRef.current === null) {
-            startRef.current = Date.now();
-        }
-        const id = setInterval(() => {
-            setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
-        }, 1000);
-        return () => clearInterval(id);
-    }, [isAI]);
-
-    const estimated = totalAddresses ? totalAddresses * AI_SECONDS_PER_ADDRESS + (aiExtraSeconds || 0) : 0;
-    const aiBarWidth = estimated > 0 ? Math.min(95, (elapsed / estimated) * 100) : Math.min(95, elapsed * 2);
-    const secondsLeft = estimated > 0 ? Math.max(0, estimated - elapsed) : null;
-
+const LoadingOverlay = ({ progress, message }) => {
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center animate-fade-in">
             <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full mx-4">
                 <div className="relative w-16 h-16">
-                    <div className={`absolute inset-0 border-4 ${isAI ? 'border-orange-100' : 'border-blue-100'} rounded-full`}></div>
-                    <div className={`absolute inset-0 border-4 ${isAI ? 'border-orange-500' : 'border-blue-600'} rounded-full border-t-transparent animate-spin`}></div>
+                    <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
                 </div>
                 <div className="text-center w-full">
-                    <h3 className={`text-lg font-bold ${isAI ? 'text-orange-600' : 'text-gray-800'} flex items-center justify-center gap-2`}>
-                        {isAI && <Sparkles className="w-5 h-5" />}
-                        {isAI ? 'Intelligenza Artificiale al lavoro...' : 'Elaborazione in corso...'}
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center gap-2">
+                        Elaborazione in corso...
                     </h3>
-                    <p className={`text-sm ${isAI ? 'text-orange-500 font-medium' : 'text-gray-500'} mt-1 mb-3`}>{message || 'Preparazione dati...'}</p>
+                    <p className="text-sm text-gray-500 mt-1 mb-3">{message || 'Preparazione dati...'}</p>
 
                     {/* Progress Bar */}
                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                        {isAI ? (
-                            <div
-                                className="h-2.5 rounded-full bg-orange-400 transition-all duration-1000 ease-linear"
-                                style={{ width: `${Math.max(5, aiBarWidth)}%` }}
-                            />
-                        ) : (
-                            <div
-                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                                style={{ width: `${Math.max(5, progress || 0)}%` }}
-                            />
-                        )}
+                        <div
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                            style={{ width: `${Math.max(5, progress || 0)}%` }}
+                        />
                     </div>
-                    {isAI ? (
-                        <p className="text-xs text-orange-400 mt-1 text-right">
-                            {secondsLeft !== null ? `~${formatDuration(secondsLeft)} rimanenti` : 'Calcolo in corso...'}
-                        </p>
-                    ) : (
-                        <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
-                    )}
+                    <p className="text-xs text-gray-400 mt-1 text-right">{progress || 0}%</p>
                 </div>
             </div>
         </div>
@@ -97,7 +63,7 @@ const LoadingOverlay = ({ progress, message, totalAddresses, aiExtraSeconds, isA
 
 function App() {
     const [schools, setSchools] = useState([]);
-    const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes' | 'tools'
+    const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes'
     const [inputMode, setInputMode] = useState('excel'); // 'excel' | 'database'
     const [message, setMessage] = useState('');
     const [showDetails, setShowDetails] = useState(false);
@@ -360,13 +326,52 @@ function App() {
     const handleDbMatchResolved = async (resolutions) => {
         setDbMatchList(null);
         if (pendingRaw) {
-            const { taskId, rawSchools } = pendingRaw;
+            const { taskId, rawSchools, autoResolved } = pendingRaw;
             setPendingRaw(null);
+            
+            const finalResolutions = { ...(autoResolved || {}), ...(resolutions || {}) };
+            
+            // Save manual/AI resolutions to Firestore if requested
+            if (db) {
+                const writes = [];
+                Object.entries(resolutions || {}).forEach(([schoolId, res]) => {
+                    if (res && res !== 'keep' && res.saveToDb) {
+                        const original = rawSchools.find(s => String(s.id) === String(schoolId));
+                        if (original) {
+                            const name = original.name.replace(/\(.*?\)/g, '').replace(/["']/g, '').trim();
+                            let desc = '';
+                            if (original.name.includes('(')) {
+                                const m = original.name.match(/\((.*?)\)/);
+                                if (m) desc = m[1].replace(/["']/g, '').trim();
+                            }
+                            
+                            const stableId = makeStableId(original.name, res.address);
+                            const type = /(ic\b|istituto|scuola|liceo|polo|primaria|secondaria)/i.test(name) ? 'istituto' : 'destinazione';
+                            
+                            writes.push(setDoc(doc(db, 'institutes', stableId), {
+                                name: name,
+                                description: desc,
+                                originalName: original.name,
+                                address: res.address,
+                                lat: res.lat,
+                                lon: res.lon,
+                                type: type,
+                                updatedAt: serverTimestamp(),
+                            }, { merge: true }));
+                        }
+                    }
+                });
+                
+                if (writes.length > 0) {
+                    Promise.all(writes).catch(err => console.error("Error saving to Firestore:", err));
+                }
+            }
+            
             if (taskId) {
-                await continueProcessing(taskId, resolutions);
+                await continueProcessing(taskId, finalResolutions);
             } else {
                 // Resume from Firestore: no backend task, use start-processing
-                await continueProcessing(null, resolutions, '/api/start-processing', { raw_schools: rawSchools, resolutions });
+                await continueProcessing(null, finalResolutions, '/api/start-processing', { raw_schools: rawSchools, resolutions: finalResolutions });
             }
         }
     };
@@ -482,7 +487,7 @@ function App() {
     }, [knownInstitutes]);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
             <TripSidebar
                 open={sidebarOpen}
                 trips={trips}
@@ -490,7 +495,7 @@ function App() {
                 onDelete={handleTripDelete}
                 onClose={() => setSidebarOpen(false)}
             />
-            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} totalAddresses={loadingState.totalAddresses} aiExtraSeconds={loadingState.aiExtraSeconds} isAiPhase={loadingState.isAiPhase} />}
+            {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} />}
             {geocodingFailures && (
                 <GeocodingFailuresModal
                     failures={geocodingFailures}
@@ -507,7 +512,7 @@ function App() {
 
             {/* Header */}
             <header className="bg-white shadow">
-                <div className="container mx-auto py-6 px-4 flex justify-between items-center">
+                <div className="w-full max-w-[95%] 3xl:max-w-[2400px] 4xl:max-w-[3200px] mx-auto py-6 px-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(prev => !prev)}
@@ -534,7 +539,7 @@ function App() {
             </header>
 
             {/* Main Content */}
-            <main className="flex-grow container mx-auto px-4 py-8">
+            <main className="flex-1 min-h-0 overflow-y-auto w-full max-w-[95%] 3xl:max-w-[2400px] 4xl:max-w-[3200px] mx-auto px-4 py-4 flex flex-col">
                 {/* Tab bar */}
                 <div className="flex gap-2 mb-6 border-b border-gray-200">
                     <button
@@ -555,33 +560,20 @@ function App() {
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                     >
-                        Lista Istituti
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('tools')}
-                        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                            activeTab === 'tools'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                        Strumenti
+                        Database
                     </button>
                 </div>
 
                 {activeTab === 'institutes' && (
-                    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Lista Istituti</h2>
-                        <InstituteList db={db} />
+                    <section className="flex-1 min-h-0 bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex-shrink-0">Database</h2>
+                        <div className="flex-1 min-h-0 overflow-hidden">
+                            <InstituteList db={db} />
+                        </div>
                     </section>
                 )}
 
-                {activeTab === 'tools' && (
-                    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Verifica Indirizzi Fixture</h2>
-                        <FixtureTool />
-                    </section>
-                )}
+
 
                 {activeTab === 'app' && <div className="space-y-8">
                     {/* Section 1: Upload */}
@@ -628,11 +620,29 @@ function App() {
                             key={resetKey}
                             onRawSchoolsReady={({ rawSchools, taskId }) => {
                                 const matches = allDbInstitutes.length > 0 ? buildMatchList(rawSchools, allDbInstitutes) : [];
-                                setPendingRaw({ rawSchools, taskId, matchList: matches });
-                                if (matches.length > 0) {
-                                    setDbMatchList(matches);
+                                
+                                const autoResolved = {};
+                                const matchesToShow = [];
+
+                                matches.forEach(({ school, candidates }) => {
+                                    const perfect = candidates.find(c => c._isPerfect);
+                                    if (perfect) {
+                                        autoResolved[school.id] = {
+                                            lat: perfect.lat,
+                                            lon: perfect.lon,
+                                            address: perfect.address,
+                                            name: perfect.name
+                                        };
+                                    } else {
+                                        matchesToShow.push({ school, candidates });
+                                    }
+                                });
+
+                                setPendingRaw({ rawSchools, taskId, matchList: matchesToShow, autoResolved });
+                                if (matchesToShow.length > 0) {
+                                    setDbMatchList(matchesToShow);
                                 } else {
-                                    continueProcessing(taskId, {});
+                                    continueProcessing(taskId, autoResolved);
                                 }
                             }}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
@@ -739,30 +749,7 @@ function App() {
                             </div>
                         )
                         }
-
-                        {/* Manual Entry Option */}
-                        <div className="mt-6 pt-6 border-t border-gray-100">
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">Oppure inizia da zero:</h3>
-                            <button
-                                onClick={() => {
-                                    // Initialize with one empty school to trigger dashboard and editor
-                                    setSchools([{
-                                        id: 1,
-                                        name: 'La mia prima fermata',
-                                        address: '',
-                                        demand: 1,
-                                        lat: 0,
-                                        lon: 0
-                                    }]);
-                                    setMessage('Modalità inserimento manuale avviata.');
-                                }}
-                                className="text-sm text-blue-600 font-medium hover:text-blue-800 hover:underline cursor-pointer"
-                            >
-                                + Clicca qui per inserire indirizzi manualmente
-                            </button>
-                        </div>
                     </section>
-
                     {/* Section 2: Dashboard (Map + Controls) */}
                     {schools.length > 0 && (
                         <section ref={dashboardRef} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">

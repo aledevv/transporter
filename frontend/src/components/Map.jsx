@@ -741,6 +741,9 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                                             {school.institute ? school.institute : 'Fermata'}
                                         </strong>
                                         <div className="font-semibold text-gray-800">{school.name}</div>
+                                        {school.description && (
+                                            <div className="text-gray-500 text-xs italic mt-0.5">{school.description}</div>
+                                        )}
                                         <div className="text-gray-600 text-xs mt-1 mb-2">{school.address}</div>
                                         <div className="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-1 rounded-full inline-block">
                                             {school.demand} passeggeri

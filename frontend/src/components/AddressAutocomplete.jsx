@@ -107,7 +107,11 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
     const handleSelect = (suggestion) => {
         const mainText = suggestion.structured_formatting?.main_text ?? suggestion.description ?? '';
         const secondaryText = suggestion.structured_formatting?.secondary_text ?? '';
-        const displayValue = secondaryText ? `${mainText}, ${secondaryText}` : mainText;
+        let displayValue = secondaryText ? `${mainText}, ${secondaryText}` : mainText;
+
+        if (suggestion.place_id && String(suggestion.place_id).startsWith('coord_')) {
+            displayValue = `${suggestion.lat}, ${suggestion.lon}`;
+        }
 
         setIsOpen(false);
         lastSearchedRef.current = displayValue;
