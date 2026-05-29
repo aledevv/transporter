@@ -108,8 +108,8 @@ const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionSt
                         <div className="flex items-center gap-2 min-w-0">
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                             <span className="text-sm font-semibold text-green-800">
-                                AI ha corretto {corrections.length}{' '}
-                                {corrections.length === 1 ? 'indirizzo' : 'indirizzi'}
+                                {corrections.length}{' '}
+                                {corrections.length === 1 ? 'indirizzo normalizzato' : 'indirizzi normalizzati'}
                             </span>
                         </div>
 
@@ -217,10 +217,10 @@ const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionSt
                         <div className="text-sm text-orange-800">
                             <p className="font-semibold">
                                 {unresolvedByAI.length}{' '}
-                                {unresolvedByAI.length === 1 ? 'indirizzo non trovato' : 'indirizzi non trovati'} dall'AI
+                                {unresolvedByAI.length === 1 ? 'indirizzo non trovato' : 'indirizzi non trovati'}
                             </p>
                             <p className="text-orange-700 text-xs mt-0.5">
-                                OpenStreetMap non ha restituito risultati per questi indirizzi. Inserisci l'indirizzo corretto manualmente.
+                                Non è stato possibile localizzare questi indirizzi automaticamente. Inserisci l'indirizzo corretto manualmente.
                             </p>
                         </div>
                     </div>
