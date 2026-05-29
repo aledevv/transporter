@@ -81,14 +81,23 @@ function scoreMatch(school, dbEntry) {
 
   const sDesc = normalizeName(sDescStr);
   const dDesc = normalizeName(dDescStr);
-  let descScore = 1;
-  if (sDesc.length > 0 || dDesc.length > 0) {
-      descScore = tokenOverlap(sDesc, dDesc);
-  }
-
+  
   const sAddr = normalizeAddress(school.address);
   const dAddr = normalizeAddress(dbEntry.address);
   const addrScore = tokenOverlap(sAddr, dAddr);
+
+  let descScore = 1;
+  let weightedScore = 0;
+  
+  if (sDesc.length === 0 && dDesc.length === 0) {
+      descScore = 0;
+      weightedScore = nameScore * 0.5 + addrScore * 0.5;
+  } else {
+      if (sDesc.length > 0 || dDesc.length > 0) {
+          descScore = tokenOverlap(sDesc, dDesc);
+      }
+      weightedScore = nameScore * 0.4 + descScore * 0.2 + addrScore * 0.4;
+  }
 
   // Global overlap across ALL fields (handles description fragments in address etc)
   const sAll = Array.from(new Set([...sName, ...sDesc, ...sAddr]));
@@ -99,24 +108,47 @@ function scoreMatch(school, dbEntry) {
       globalScore = intersection.length / Math.max(sAll.length, dAll.length);
   }
 
-  // Name is the identifier: must overlap to be a candidate at all, UNLESS global score is very high
-  if (nameScore < 0.3 && globalScore < 0.7) return 0;
+  // Cross-match bonuses
+  let crossBonus = 0;
+  // If input address tokens appear in candidate name
+  if (sAddr.length > 0 && dName.length > 0) {
+      const crossMatches = sAddr.filter(a => dName.some(b => b.includes(a) || a.includes(b)));
+      if (crossMatches.length > 0) {
+          crossBonus += (crossMatches.length / Math.max(sAddr.length, 3)) * 0.15;
+      }
+  }
+  // If input name tokens appear in candidate address
+  if (sName.length > 0 && dAddr.length > 0) {
+      const crossMatches = sName.filter(a => dAddr.some(b => b.includes(a) || a.includes(b)));
+      if (crossMatches.length > 0) {
+          crossBonus += (crossMatches.length / Math.max(sName.length, 3)) * 0.15;
+      }
+  }
 
-  const weightedScore = nameScore * 0.4 + descScore * 0.2 + addrScore * 0.4;
+  // Name is the identifier: must overlap to be a candidate at all, UNLESS global score is very high
+  if (nameScore < 0.3 && globalScore < 0.7 && crossBonus < 0.1) return 0;
   
+  let baseScore = Math.max(weightedScore, globalScore);
+  
+  // Penalize if the overall context (globalScore) is very poor (e.g. huge address in DB vs tiny input address),
+  // which means the high weighted score is just due to partial leniency.
+  if (baseScore > 0.6 && globalScore < 0.4) {
+      baseScore = (baseScore + globalScore) / 2;
+  }
+
   // Add Exact Address Bonus to break ties (if the original address matches the db address perfectly)
   let exactAddressBonus = 0;
   if (school.address && dbEntry.address) {
       const sAddrRaw = school.address.toLowerCase().trim();
       const dAddrRaw = dbEntry.address.toLowerCase().trim();
       if (sAddrRaw === dAddrRaw) {
-          exactAddressBonus = 0.1;
+          exactAddressBonus = 0.15;
       } else if (sAddrRaw.includes(dAddrRaw) || dAddrRaw.includes(sAddrRaw)) {
-          exactAddressBonus = 0.05;
+          exactAddressBonus = 0.08;
       }
   }
 
-  return Math.max(weightedScore, globalScore) + exactAddressBonus;
+  return Math.min(baseScore + crossBonus + exactAddressBonus, 1.0);
 }
 
 /**

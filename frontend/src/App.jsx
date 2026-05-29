@@ -234,7 +234,7 @@ function App() {
                 try {
                     const statusRes = await fetch(`${API_BASE_URL}/api/status/${pollId}`);
                     const statusData = await statusRes.json();
-                    const { status, result } = statusData;
+                    const { status, result, progress, message } = statusData;
                     setLoadingState(prev => ({
                         ...prev,
                         progress: progress || 0,

@@ -37,14 +37,8 @@ const MapController = ({ pins }) => {
     const map = useMap();
     useEffect(() => {
         if (!pins || pins.length === 0) return;
-        const activePin = pins.find(p => p.isSelected);
-        
-        if (activePin) {
-            map.flyTo([activePin.lat, activePin.lon], 16, { animate: true, duration: 1.5 });
-        } else if (pins.length > 0) {
-            const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lon]));
-            map.flyToBounds(bounds, { animate: true, duration: 1.5, padding: [50, 50] });
-        }
+        const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lon]));
+        map.flyToBounds(bounds, { animate: true, duration: 1.5, padding: [50, 50], maxZoom: 16 });
     }, [pins, map]);
     
     // Invalidate size when container resizes
@@ -58,13 +52,32 @@ const MapController = ({ pins }) => {
 };
 
 const DBMatchModal = ({ matchList, onResolved, onClose }) => {
+    const listRef = useRef(null);
+
+    const scrollToNextUnresolved = () => {
+        if (!listRef.current) return;
+        const unresolved = listRef.current.querySelectorAll('[data-unresolved="true"]');
+        let target = unresolved[0];
+        for (const el of unresolved) {
+            if (el.offsetTop > listRef.current.scrollTop + 50) {
+                target = el;
+                break;
+            }
+        }
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
     // selections[school.id] = { lat, lon, address, name, saveToDb, needsConfirmation? } | 'keep' | undefined
     const [selections, setSelections] = useState(() => {
         const initial = {};
         matchList.forEach(({ school, candidates }) => {
             const best = getBestDefaultCandidate(school, candidates);
-            // Consider it a tie if the top two candidates have very similar scores
-            const hasTie = candidates.length > 1 && Math.abs(candidates[0]._matchScore - candidates[1]._matchScore) < 0.001;
+            // Real tie: top two scores within 5% of each other AND both are reasonably high (>= 0.5)
+            const hasTie = candidates.length > 1
+                && Math.abs(candidates[0]._matchScore - candidates[1]._matchScore) < 0.05
+                && candidates[1]._matchScore >= 0.5;
             
             if (best) {
                 initial[school.id] = {
@@ -306,11 +319,22 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
 
                         {/* Progress bar */}
                         <div className="mt-4">
-                            <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                <span>Risolte</span>
-                                <span className="font-medium text-blue-600">{resolvedCount} / {totalCount}</span>
+                            <div className="flex justify-between items-end mb-1">
+                                <div className="text-xs text-gray-500">
+                                    <span>Risolte</span>
+                                    <span className="font-medium text-blue-600 ml-2">{resolvedCount} / {totalCount}</span>
+                                </div>
+                                {resolvedCount < totalCount && (
+                                    <button 
+                                        onClick={scrollToNextUnresolved}
+                                        className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                    >
+                                        <ChevronDown className="w-3 h-3" />
+                                        Vai al prossimo
+                                    </button>
+                                )}
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-1.5">
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
                                 <div
                                     className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
                                     style={{ width: `${totalCount > 0 ? (resolvedCount / totalCount) * 100 : 0}%` }}
@@ -320,7 +344,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                     </div>
 
                     {/* School cards */}
-                    <div className="overflow-y-auto flex-1 p-5 space-y-4">
+                    <div ref={listRef} className="overflow-y-auto flex-1 p-5 space-y-4">
                         {matchList.map(({ school, candidates }) => {
                             const sel = selections[school.id];
                             const isKeep = sel === 'keep';
@@ -331,6 +355,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                             return (
                                 <div
                                     key={school.id}
+                                    data-unresolved={!isResolved && !isKeep}
                                     className={`rounded-xl border p-4 transition-colors ${
                                         isKeep
                                             ? 'border-amber-200 bg-amber-50/40'
@@ -390,7 +415,13 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                     {candidates.length > 0 && (
                                         <div className="space-y-2 mb-3">
                                             <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Corrispondenze DB:</div>
-                                            {candidates.map((candidate, idx) => {
+                                            {[...candidates].sort((a, b) => {
+                                                const aSelected = isSelectedCandidate(school.id, a);
+                                                const bSelected = isSelectedCandidate(school.id, b);
+                                                if (aSelected && !bSelected) return -1;
+                                                if (!aSelected && bSelected) return 1;
+                                                return b._matchScore - a._matchScore;
+                                            }).map((candidate, idx) => {
                                                 const score = candidate._matchScore;
                                                 const pct = Math.round(score * 100);
                                                 const { label, color, textColor, bgColor } = getScoreLabel(score);
