@@ -32,13 +32,16 @@ const createIcon = (isSelected) => new L.DivIcon({
     iconAnchor: [10, 10]
 });
 
-// A component to automatically pan/zoom the map to the active pins
 const MapController = ({ pins }) => {
     const map = useMap();
     useEffect(() => {
         if (!pins || pins.length === 0) return;
-        const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lon]));
-        map.flyToBounds(bounds, { animate: true, duration: 1.5, padding: [50, 50], maxZoom: 16 });
+        const validPins = pins.filter(p => p.lat != null && p.lon != null && !isNaN(p.lat) && !isNaN(p.lon));
+        if (validPins.length === 0) return;
+        const bounds = L.latLngBounds(validPins.map(p => [p.lat, p.lon]));
+        if (bounds.isValid()) {
+            map.flyToBounds(bounds, { animate: true, duration: 1.5, padding: [50, 50], maxZoom: 16 });
+        }
     }, [pins, map]);
     
     // Invalidate size when container resizes
@@ -281,10 +284,14 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
         } else {
             const schoolObj = matchList.find(m => m.school.id === activeSchoolIdForMap);
             if (!schoolObj) return [];
-            return schoolObj.candidates.map((c, idx) => {
-                const isSelected = sel && sel !== 'keep' && Math.abs(sel.lat - c.lat) < 0.0001 && Math.abs(sel.lon - c.lon) < 0.0001;
-                return { id: `db_${idx}`, lat: c.lat, lon: c.lon, title: c.name, desc: c.address, isDb: true, isSelected, raw: c };
-            });
+            return schoolObj.candidates
+                .filter(c => c.lat != null && c.lon != null)
+                .map((c, idx) => {
+                    const cLat = parseFloat(c.lat);
+                    const cLon = parseFloat(c.lon);
+                    const isSelected = sel && sel !== 'keep' && Math.abs(sel.lat - cLat) < 0.0001 && Math.abs(sel.lon - cLon) < 0.0001;
+                    return { id: `db_${idx}`, lat: cLat, lon: cLon, title: c.name, desc: c.address, isDb: true, isSelected, raw: c };
+                });
         }
     }, [activeSchoolIdForMap, activeActions, selections, stagedCandidates, aiSuggestions, matchList]);
 
@@ -474,13 +481,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                     {candidates.length > 0 && !isDiscard && (
                                         <div className="space-y-2 mb-3">
                                             <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Corrispondenze DB:</div>
-                                            {[...candidates].sort((a, b) => {
-                                                const aSelected = isSelectedCandidate(school.id, a);
-                                                const bSelected = isSelectedCandidate(school.id, b);
-                                                if (aSelected && !bSelected) return -1;
-                                                if (!aSelected && bSelected) return 1;
-                                                return b._matchScore - a._matchScore;
-                                            }).map((candidate, idx) => {
+                                            {[...candidates].sort((a, b) => b._matchScore - a._matchScore).map((candidate, idx) => {
                                                 const score = candidate._matchScore;
                                                 const pct = Math.round(score * 100);
                                                 const { label, color, textColor, bgColor } = getScoreLabel(score);
@@ -507,6 +508,11 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                                                 <div className="text-xs text-gray-500 truncate mt-0.5">
                                                                     {candidate.address || '-'}
                                                                 </div>
+                                                                {candidate.description && (
+                                                                    <div className="text-xs text-gray-400 truncate mt-0.5 italic">
+                                                                        Info: {candidate.description}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
                                                                 <div className="w-10 text-right">
