@@ -4,55 +4,6 @@ import { Search, MapPin, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Dat
 import AddressAutocomplete from './AddressAutocomplete';
 import { getBestDefaultCandidate } from '../utils/matchInstitutes';
 import API_BASE_URL from '../config';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix leaflet icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-const createIcon = (isSelected) => new L.DivIcon({
-    className: 'custom-leaflet-icon',
-    html: `<div style="
-        width: 20px; 
-        height: 20px; 
-        background-color: ${isSelected ? '#f59e0b' : '#3b82f6'}; 
-        border: 3px solid white; 
-        border-radius: 50%; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        transition: all 0.3s ease;
-        ${isSelected ? 'transform: scale(1.2); z-index: 100;' : ''}
-    "></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10]
-});
-
-const MapController = ({ pins }) => {
-    const map = useMap();
-    useEffect(() => {
-        if (!pins || pins.length === 0) return;
-        const validPins = pins.filter(p => p.lat != null && p.lon != null && !isNaN(p.lat) && !isNaN(p.lon));
-        if (validPins.length === 0) return;
-        const bounds = L.latLngBounds(validPins.map(p => [p.lat, p.lon]));
-        if (bounds.isValid()) {
-            map.flyToBounds(bounds, { animate: true, duration: 1.5, padding: [50, 50], maxZoom: 16 });
-        }
-    }, [pins, map]);
-    
-    // Invalidate size when container resizes
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            map.invalidateSize();
-        }, 400); // Wait for CSS transition
-        return () => clearTimeout(timeout);
-    }, [map]);
-    return null;
-};
 
 const DBMatchModal = ({ matchList, onResolved, onClose }) => {
     const listRef = useRef(null);
@@ -111,24 +62,6 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
     // Staged candidates for AI and Manual (before confirmation)
     const [stagedCandidates, setStagedCandidates] = useState({});
 
-    // Map state
-    const [mapCenter] = useState([46.0697, 11.1211]); // static initial center
-    const [mapReady, setMapReady] = useState(false); // Delay map render for animation
-    const [mapHidden, setMapHidden] = useState(false);
-    const isMapVisible = Object.keys(activeActions).length > 0 && !mapHidden;
-
-    // Delay map mount for smooth animation
-    useEffect(() => {
-        if (isMapVisible && !mapReady) {
-            const t = setTimeout(() => setMapReady(true), 100);
-            return () => clearTimeout(t);
-        }
-        if (!isMapVisible) {
-            const t = setTimeout(() => setMapReady(false), 500);
-            return () => clearTimeout(t);
-        }
-    }, [isMapVisible]);
-
     const totalCount = matchList.length;
     // Only count as resolved if not undefined AND does not need confirmation
     const resolvedCount = Object.keys(selections).filter(id => {
@@ -150,13 +83,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
             },
         }));
         
-        if (!fromDbList) {
-            setActiveActions({}); // Clear actions if confirming from AI or Manual
-        } else {
-            // Keep map open for DB candidate selection
-            setMapHidden(false);
-            setActiveActions({ [schoolId]: 'map' });
-        }
+        setActiveActions({});
     };
 
     const toggleSaveToDb = (schoolId) => {
@@ -189,7 +116,6 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
     };
 
     const handleActionToggle = async (schoolId, type, schoolAddress) => {
-        setMapHidden(false);
         setActiveActions(prev => {
             if (prev[schoolId] === type) {
                 return {}; // Toggle off
@@ -228,13 +154,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
         }
     };
 
-    const handleShowMap = (schoolId) => {
-        setMapHidden(false);
-        setActiveActions({ [schoolId]: 'map' });
-    };
-
     const handleStageCandidate = (schoolId, candidate, defaultSaveToDb = true) => {
-        setMapHidden(false);
         setStagedCandidates(prev => ({
             ...prev,
             [schoolId]: { ...candidate, saveToDb: defaultSaveToDb }
@@ -265,51 +185,12 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
         return sel && sel !== 'keep' && !sel.discard && Math.abs(sel.lat - candidate.lat) < 0.0001 && Math.abs(sel.lon - candidate.lon) < 0.0001 && sel.name === candidate.name;
     };
 
-    const activeSchoolIdForMap = Object.keys(activeActions)[0];
-    const mapPins = React.useMemo(() => {
-        if (!activeSchoolIdForMap) return [];
-        const act = activeActions[activeSchoolIdForMap];
-        const sel = selections[activeSchoolIdForMap];
-        const staged = stagedCandidates[activeSchoolIdForMap];
-
-        if (act === 'ai') {
-            const sugs = aiSuggestions[activeSchoolIdForMap] || [];
-            return sugs.map((s, idx) => {
-                const isSelected = staged && staged.lat === s.lat && staged.lon === s.lon;
-                return { id: `ai_${idx}`, lat: s.lat, lon: s.lon, title: s.structured_formatting?.main_text || s.description, desc: s.structured_formatting?.secondary_text, isAi: true, isSelected, raw: s };
-            });
-        } else if (act === 'manual') {
-            if (staged) return [{ id: 'manual', lat: staged.lat, lon: staged.lon, title: staged.name, desc: staged.address, isManual: true, isSelected: true, raw: staged }];
-            return [];
-        } else {
-            const schoolObj = matchList.find(m => m.school.id === activeSchoolIdForMap);
-            if (!schoolObj) return [];
-            return schoolObj.candidates
-                .filter(c => c.lat != null && c.lon != null)
-                .map((c, idx) => {
-                    const cLat = parseFloat(c.lat);
-                    const cLon = parseFloat(c.lon);
-                    const isSelected = sel && sel !== 'keep' && Math.abs(sel.lat - cLat) < 0.0001 && Math.abs(sel.lon - cLon) < 0.0001;
-                    return { id: `db_${idx}`, lat: cLat, lon: cLon, title: c.name, desc: c.address, isDb: true, isSelected, raw: c };
-                });
-        }
-    }, [activeSchoolIdForMap, activeActions, selections, stagedCandidates, aiSuggestions, matchList]);
-
-    const handleMapPinClick = (pin) => {
-        if (!activeSchoolIdForMap) return;
-        if (pin.isAi) {
-            handleStageCandidate(activeSchoolIdForMap, { lat: pin.lat, lon: pin.lon, address: pin.raw.description, name: 'Suggerimento AI' });
-        } else if (pin.isDb) {
-            selectCandidate(activeSchoolIdForMap, pin.raw, false, true);
-        }
-    };
-
     const modal = (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-            <div className={`bg-white rounded-2xl shadow-2xl w-full flex overflow-hidden transition-all duration-500 ease-in-out ${isMapVisible ? 'w-[95vw] max-w-[1400px]' : 'max-w-3xl'}`} style={{ maxHeight: '90vh' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex overflow-hidden`} style={{ maxHeight: '90vh' }}>
                 
                 {/* Left Column: List */}
-                <div className={`flex flex-col transition-all duration-500 ${isMapVisible ? 'w-full lg:w-[500px] xl:w-[600px] flex-shrink-0 border-r border-gray-200' : 'w-full'}`} style={{ maxHeight: '90vh' }}>
+                <div className={`flex-1 w-full max-w-3xl flex flex-col bg-white overflow-hidden`}>
                     
                     {/* Header */}
                     <div className="p-5 border-b border-gray-100 flex-shrink-0">
@@ -427,18 +308,6 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                                     Da controllare
                                                 </span>
                                             )}
-                                            
-                                            <button
-                                                onClick={() => handleShowMap(school.id)}
-                                                className={`p-1.5 ml-2 rounded-lg border transition-colors shadow-sm flex-shrink-0 ${
-                                                    activeAct === 'map' || (activeAct && activeSchoolIdForMap === school.id && !mapHidden)
-                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-blue-200'
-                                                    : 'bg-white text-gray-500 border-gray-200 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200'
-                                                }`}
-                                                title="Mostra mappa per questa fermata"
-                                            >
-                                                <MapPin className="w-4 h-4" />
-                                            </button>
                                         </div>
                                         <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                                             <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -590,7 +459,30 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                                     })}
                                                 </div>
                                             ) : (
-                                                <div className="text-sm text-gray-500 text-center py-2">Nessun suggerimento trovato.</div>
+                                                <div className="flex flex-col items-center justify-center py-6 text-center animate-in fade-in">
+                                                    <AlertTriangle className="w-10 h-10 text-amber-500 mb-3" />
+                                                    <h3 className="text-lg font-bold text-gray-900 mb-1">Nessuna soluzione trovata dall'AI!</h3>
+                                                    <p className="text-xs text-gray-600 max-w-xs mb-4">
+                                                        Prova ad inserire l'indirizzo manualmente o utilizza le coordinate GPS.
+                                                    </p>
+                                                    <button 
+                                                        onClick={() => handleActionToggle(school.id, 'manual', null)}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg shadow-sm mb-4 transition-colors text-sm"
+                                                    >
+                                                        Inserisci a mano
+                                                    </button>
+                                                    
+                                                    <div className="w-full max-w-sm bg-gray-900 rounded-xl overflow-hidden shadow border border-gray-200">
+                                                        <div className="bg-gray-800 px-3 py-1.5 text-[10px] font-medium text-gray-300 border-b border-gray-700 flex items-center gap-1.5">
+                                                            <span>💡</span> Tutorial: Come ottenere le coordinate da Google Maps
+                                                        </div>
+                                                        <video 
+                                                            src="/assets/tutorial/tutorial_copy_coordinates.mov" 
+                                                            controls 
+                                                            className="w-full aspect-video outline-none"
+                                                        />
+                                                    </div>
+                                                </div>
                                             )}
                                             
                                             {/* AI Confirmation UI */}
@@ -714,87 +606,6 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                         </button>
                     </div>
                 </div>
-
-                {/* Right Column: Map */}
-                <div className={`bg-gray-100 transition-all duration-500 relative ${isMapVisible ? 'flex-1 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`} style={{ maxHeight: '90vh' }}>
-                    {mapReady && (
-                        <>
-                            <MapContainer 
-                                center={mapCenter} 
-                                zoom={13} 
-                                style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                                zoomControl={false}
-                            >
-                                <TileLayer
-                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <MapController pins={mapPins} />
-                                {mapPins.map(pin => (
-                                    <Marker 
-                                        key={pin.id} 
-                                        position={[pin.lat, pin.lon]}
-                                        icon={createIcon(pin.isSelected)}
-                                        eventHandlers={{ click: () => handleMapPinClick(pin) }}
-                                        zIndexOffset={pin.isSelected ? 1000 : 0}
-                                    >
-                                        <Popup>
-                                            <div className="text-sm font-semibold text-gray-900">{pin.title}</div>
-                                            <div className="text-xs text-gray-600 mt-1">{pin.desc}</div>
-                                        </Popup>
-                                    </Marker>
-                                ))}
-                            </MapContainer>
-                    
-                            {/* Floating Map Label and Close Button */}
-                            <div className="absolute top-4 left-4 z-[400] flex gap-2">
-                                <div className="bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-blue-500" />
-                                    Anteprima Posizione
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => setMapHidden(true)}
-                                className="absolute top-4 right-4 z-[400] bg-white hover:bg-gray-100 text-gray-600 rounded-lg p-2 shadow-sm border border-gray-200 transition-colors"
-                                title="Chiudi mappa"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-
-                            {/* AI Empty State Overlay */}
-                            {Object.entries(activeActions).some(([sId, act]) => act === 'ai' && !loadingAi[sId] && (aiSuggestions[sId] || []).length === 0) && (
-                                <div className="absolute inset-0 z-[500] bg-white/85 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
-                                    <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nessuna soluzione trovata dall'AI!</h3>
-                                    <p className="text-sm text-gray-600 max-w-md mb-6">
-                                        Prova ad inserire l'indirizzo manualmente o utilizza le coordinate GPS (latitudine, longitudine).
-                                    </p>
-                                    <button 
-                                        onClick={() => {
-                                            const schoolId = Object.keys(activeActions).find(id => activeActions[id] === 'ai');
-                                            if (schoolId) handleActionToggle(schoolId, 'manual', null);
-                                        }}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow-sm mb-6 transition-colors"
-                                    >
-                                        Inserisci a mano
-                                    </button>
-                                    
-                                    <div className="w-full max-w-lg bg-gray-900 rounded-xl overflow-hidden shadow-xl border border-gray-200">
-                                        <div className="bg-gray-800 px-4 py-2 text-xs font-medium text-gray-300 border-b border-gray-700 flex items-center gap-2">
-                                            <span>💡</span> Tutorial: Come ottenere le coordinate da Google Maps
-                                        </div>
-                                        <video 
-                                            src="/assets/tutorial_copy_coordinates.mov" 
-                                            controls 
-                                            className="w-full aspect-video outline-none"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-
             </div>
         </div>
     );
