@@ -92,7 +92,8 @@ def run_dataset(dataset_name):
         ]
     else:
         print(f"\n[Step 1] Running AddressCorrector on {input_path.name}...")
-        original_schools = DataLoader.load_data(str(input_path))
+        original_data = DataLoader.load_data(str(input_path))
+        original_schools = original_data["schools"]
         corrector = AddressCorrector()
         corrected_schools, status = corrector.correct_addresses(
             original_schools, str(input_path), str(corrected_path)

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Upload, FileType, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import API_BASE_URL from '../config';
 
-const FileUpload = ({ onUploadSuccess, onRawSchoolsReady, onLoadStart, onLoadProgress, onLoadEnd }) => {
+const FileUpload = ({ onUploadSuccess, onRawSchoolsReady, onValidationNeeded, onLoadStart, onLoadProgress, onLoadEnd }) => {
     const [dragActive, setDragActive] = useState(false);
     // const [loading, setLoading] = useState(false); // Using parent state
     const [error, setError] = useState(null);
@@ -72,6 +72,14 @@ const FileUpload = ({ onUploadSuccess, onRawSchoolsReady, onLoadStart, onLoadPro
                             addressCorrections: statusRes.data.address_corrections ?? [],
                             correctionStatus: statusRes.data.correction_status,
                             unresolvedByAI: statusRes.data.unresolved_by_ai ?? [],
+                        });
+                        if (onLoadEnd) onLoadEnd();
+                    } else if (status === 'validation_needed') {
+                        clearInterval(pollInterval);
+                        if (onValidationNeeded) onValidationNeeded({
+                            schools: statusRes.data.raw_schools,
+                            errors: statusRes.data.errors,
+                            taskId: taskId
                         });
                         if (onLoadEnd) onLoadEnd();
                     } else if (status === 'awaiting_db_match') {

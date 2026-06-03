@@ -13,6 +13,7 @@ import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
 import InstituteList from './components/InstituteList';
 import NuovoPiano from './components/NuovoPiano';
+import ValidationPreview from './components/ValidationPreview';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -86,6 +87,35 @@ function App() {
     const [allDbInstitutes, setAllDbInstitutes] = useState([]);
     const [dbMatchList, setDbMatchList] = useState(null); // null = not showing
     const [pendingRaw, setPendingRaw] = useState(null); // { rawSchools, taskId, matchList }
+    const [validationPending, setValidationPending] = useState(null); // { schools, errors, taskId }
+
+    const handleRawSchoolsReady = ({ rawSchools, taskId }) => {
+        const matches = allDbInstitutes.length > 0 ? buildMatchList(rawSchools, allDbInstitutes) : [];
+        
+        const autoResolved = {};
+        const matchesToShow = [];
+
+        matches.forEach(({ school, candidates }) => {
+            const perfect = candidates.find(c => c._isPerfect);
+            if (perfect) {
+                autoResolved[school.id] = {
+                    lat: perfect.lat,
+                    lon: perfect.lon,
+                    address: perfect.address,
+                    name: perfect.name
+                };
+            } else {
+                matchesToShow.push({ school, candidates });
+            }
+        });
+
+        setPendingRaw({ rawSchools, taskId, matchList: matchesToShow, autoResolved });
+        if (matchesToShow.length > 0) {
+            setDbMatchList(matchesToShow);
+        } else {
+            continueProcessing(taskId, autoResolved);
+        }
+    };
 
     useEffect(() => {
         fetch('/version.txt')
@@ -295,6 +325,9 @@ function App() {
         if (!db) return;
         try {
             await deleteDoc(doc(db, 'trips', tripId));
+            if (currentTripId === tripId) {
+                handleReset();
+            }
         } catch (err) {
             console.warn('Failed to delete trip:', err.message);
         }
@@ -307,6 +340,10 @@ function App() {
         setCorrectionInfo(null);
         setGeocodingFailures(null);
         setCurrentTripId(null);
+        setTripToRestore(null);
+        setPendingRaw(null);
+        setValidationPending(null);
+        setDbMatchList(null);
         setResumeDismissed(false);
         setInputMode('excel');
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
@@ -331,11 +368,19 @@ function App() {
             
             const finalResolutions = { ...(autoResolved || {}), ...(resolutions || {}) };
             
+            // Filter out discarded schools
+            const discardedIds = new Set(
+                Object.entries(finalResolutions)
+                    .filter(([, res]) => res && res.discard)
+                    .map(([id]) => id)
+            );
+            const filteredRawSchools = rawSchools.filter(s => !discardedIds.has(String(s.id)));
+            
             // Save manual/AI resolutions to Firestore if requested
             if (db) {
                 const writes = [];
                 Object.entries(resolutions || {}).forEach(([schoolId, res]) => {
-                    if (res && res !== 'keep' && res.saveToDb) {
+                    if (res && res !== 'keep' && !res.discard && res.saveToDb) {
                         const original = rawSchools.find(s => String(s.id) === String(schoolId));
                         if (original) {
                             const name = original.name.replace(/\(.*?\)/g, '').replace(/["']/g, '').trim();
@@ -371,7 +416,7 @@ function App() {
                 await continueProcessing(taskId, finalResolutions);
             } else {
                 // Resume from Firestore: no backend task, use start-processing
-                await continueProcessing(null, finalResolutions, '/api/start-processing', { raw_schools: rawSchools, resolutions: finalResolutions });
+                await continueProcessing(null, finalResolutions, '/api/start-processing', { raw_schools: filteredRawSchools, resolutions: finalResolutions });
             }
         }
     };
@@ -384,15 +429,26 @@ function App() {
         }
         const { rawSchools, matchList } = pendingRaw;
         setPendingRaw(null);
+        
+        // Filter out discarded schools from rawSchools and matchList
+        const filteredSchools = rawSchools.filter(s => {
+            const res = partialSelections && partialSelections[s.id];
+            return !(res && res.discard);
+        });
+        const filteredMatchList = (matchList || []).filter(({ school }) => {
+            const res = partialSelections && partialSelections[school.id];
+            return !(res && res.discard);
+        });
+
         try {
-            const totalPax = rawSchools.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
+            const totalPax = filteredSchools.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
             const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            const label = `${rawSchools.length} fermate, ${totalPax} passeggeri - ${dateStr} (in verifica)`;
+            const label = `${filteredSchools.length} fermate, ${totalPax} passeggeri - ${dateStr} (in verifica)`;
             await addDoc(collection(db, 'trips'), {
                 label,
                 stage: 'db_match_pending',
-                schools: rawSchools,
-                dbMatchList: (matchList || []).map(({ school, candidates }) => ({ school, candidates })),
+                schools: filteredSchools,
+                dbMatchList: filteredMatchList.map(({ school, candidates }) => ({ school, candidates })),
                 partialResolutions: partialSelections,
                 destination: '', destCoords: null, capacity: 56, startTime: '08:00',
                 timeMode: 'arrival', results: null,
@@ -615,36 +671,23 @@ function App() {
 
                         {inputMode === 'database' ? (
                             <NuovoPiano db={db} onSchoolsReady={handleSchoolsFromDB} />
+                        ) : validationPending ? (
+                            <ValidationPreview
+                                data={validationPending}
+                                onConfirm={(data) => {
+                                    setValidationPending(null);
+                                    handleRawSchoolsReady(data);
+                                }}
+                                onCancel={() => {
+                                    setValidationPending(null);
+                                    handleReset();
+                                }}
+                            />
                         ) : (
                         <FileUpload
                             key={resetKey}
-                            onRawSchoolsReady={({ rawSchools, taskId }) => {
-                                const matches = allDbInstitutes.length > 0 ? buildMatchList(rawSchools, allDbInstitutes) : [];
-                                
-                                const autoResolved = {};
-                                const matchesToShow = [];
-
-                                matches.forEach(({ school, candidates }) => {
-                                    const perfect = candidates.find(c => c._isPerfect);
-                                    if (perfect) {
-                                        autoResolved[school.id] = {
-                                            lat: perfect.lat,
-                                            lon: perfect.lon,
-                                            address: perfect.address,
-                                            name: perfect.name
-                                        };
-                                    } else {
-                                        matchesToShow.push({ school, candidates });
-                                    }
-                                });
-
-                                setPendingRaw({ rawSchools, taskId, matchList: matchesToShow, autoResolved });
-                                if (matchesToShow.length > 0) {
-                                    setDbMatchList(matchesToShow);
-                                } else {
-                                    continueProcessing(taskId, autoResolved);
-                                }
-                            }}
+                            onRawSchoolsReady={handleRawSchoolsReady}
+                            onValidationNeeded={(data) => setValidationPending(data)}
                             onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
                             onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
                             onLoadEnd={() => setLoadingState({ active: false, progress: 100, message: 'Completato' })}
@@ -755,6 +798,7 @@ function App() {
                         <section ref={dashboardRef} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                             <h2 className="text-xl font-semibold mb-4 text-gray-800">2. Ottimizzazione Percorsi</h2>
                             <Dashboard
+                                key={currentTripId || 'new'}
                                 schools={schools}
                                 setSchools={setSchools}
                                 instituteColorMap={instituteColorMap}

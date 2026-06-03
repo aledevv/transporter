@@ -178,18 +178,31 @@ def process_file_task(task_id, filepath, original_filename):
         tasks[task_id].update({'progress': 5, 'message': 'Lettura file Excel...'})
 
         original_schools = DataLoader.load_data(filepath)
+        schools = original_schools.get('schools', [])
+        errors = original_schools.get('errors', [])
 
         base, ext = os.path.splitext(original_filename)
         corrected_path = os.path.join(UPLOAD_FOLDER, f"{base}_corretto{ext}")
 
-        tasks[task_id] = {
-            'status': 'awaiting_db_match',
-            'progress': 15,
-            'message': f'Trovate {len(original_schools)} fermate. Verifica indirizzi in corso...',
-            'raw_schools': original_schools,
-            'filepath': filepath,
-            'corrected_path': corrected_path,
-        }
+        if errors:
+            tasks[task_id] = {
+                'status': 'validation_needed',
+                'progress': 15,
+                'message': f'Trovate {len(schools)} fermate. {len(errors)} errori.',
+                'raw_schools': schools,
+                'errors': errors,
+                'filepath': filepath,
+                'corrected_path': corrected_path,
+            }
+        else:
+            tasks[task_id] = {
+                'status': 'awaiting_db_match',
+                'progress': 15,
+                'message': f'Trovate {len(schools)} fermate. Verifica indirizzi in corso...',
+                'raw_schools': schools,
+                'filepath': filepath,
+                'corrected_path': corrected_path,
+            }
 
     except Exception as e:
         tasks[task_id] = {'status': 'error', 'progress': 0, 'message': f'Errore: {str(e)}'}
@@ -226,6 +239,8 @@ def continue_file_task(task_id, original_schools, filepath, corrected_path, reso
         for school in original_schools:
             sid = school['id']
             res = norm_res.get(sid)
+            if isinstance(res, dict) and res.get('discard'):
+                continue
             if res is None:
                 schools_needing_ai.append(school)
             elif res == 'keep':
@@ -278,13 +293,16 @@ def continue_file_task(task_id, original_schools, filepath, corrected_path, reso
 
         for i, orig_school in enumerate(original_schools):
             sid = orig_school['id']
+            res = norm_res.get(sid)
+            
+            if isinstance(res, dict) and res.get('discard'):
+                continue
+
             current_progress = 20 + int(((i + 1) / total_schools) * 70)
             tasks[task_id].update({
                 'progress': current_progress,
                 'message': f'Geocoding {i+1}/{total_schools}: {orig_school["name"]}',
             })
-
-            res = norm_res.get(sid)
 
             if sid in pre_geocoded_ids:
                 # Use coordinates from DB resolution directly
@@ -441,6 +459,29 @@ def continue_processing():
     thread.start()
 
     return jsonify({'task_id': task_id}), 202
+
+
+@app.route('/api/confirm-validation', methods=['POST'])
+def confirm_validation():
+    """
+    Called when the user confirms to proceed despite validation errors.
+    Transitions the task state from 'validation_needed' to 'awaiting_db_match'.
+    """
+    data = request.json or {}
+    task_id = data.get('task_id')
+
+    if not task_id:
+        return jsonify({'error': 'task_id required'}), 400
+
+    task = tasks.get(task_id)
+    if not task:
+        return jsonify({'error': 'Task not found'}), 404
+    if task.get('status') != 'validation_needed':
+        return jsonify({'error': f"Task status is '{task.get('status')}', expected 'validation_needed'"}), 400
+
+    task['status'] = 'awaiting_db_match'
+    task['message'] = f"Trovate {len(task.get('raw_schools', []))} fermate. Verifica indirizzi in corso..."
+    return jsonify({'ok': True}), 200
 
 
 @app.route('/api/start-processing', methods=['POST'])

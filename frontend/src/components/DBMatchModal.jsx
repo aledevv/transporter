@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, MapPin, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Database, X, Zap, Edit2, Loader2, Save } from 'lucide-react';
+import { Search, MapPin, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Database, X, Trash2, Zap, Edit2, Loader2, Save } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import { getBestDefaultCandidate } from '../utils/matchInstitutes';
 import API_BASE_URL from '../config';
@@ -79,7 +79,9 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                 && Math.abs(candidates[0]._matchScore - candidates[1]._matchScore) < 0.05
                 && candidates[1]._matchScore >= 0.5;
             
-            if (best) {
+            if (school.is_autonomous) {
+                initial[school.id] = { discard: true, needsConfirmation: true };
+            } else if (best) {
                 initial[school.id] = {
                     lat: best.lat,
                     lon: best.lon,
@@ -174,6 +176,15 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
         });
     };
 
+    const markDiscard = (schoolId) => {
+        setSelections(prev => ({ ...prev, [schoolId]: { discard: true, needsConfirmation: false } }));
+        setActiveActions(prev => {
+            const next = { ...prev };
+            delete next[schoolId];
+            return next;
+        });
+    };
+
     const handleActionToggle = async (schoolId, type, schoolAddress) => {
         setMapHidden(false);
         setActiveActions(prev => {
@@ -248,7 +259,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
 
     const isSelectedCandidate = (schoolId, candidate) => {
         const sel = selections[schoolId];
-        return sel && sel !== 'keep' && Math.abs(sel.lat - candidate.lat) < 0.0001 && Math.abs(sel.lon - candidate.lon) < 0.0001 && sel.name === candidate.name;
+        return sel && sel !== 'keep' && !sel.discard && Math.abs(sel.lat - candidate.lat) < 0.0001 && Math.abs(sel.lon - candidate.lon) < 0.0001 && sel.name === candidate.name;
     };
 
     const activeSchoolIdForMap = Object.keys(activeActions)[0];
@@ -348,19 +359,24 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                         {matchList.map(({ school, candidates }) => {
                             const sel = selections[school.id];
                             const isKeep = sel === 'keep';
+                            const isDiscard = sel && sel.discard === true;
                             const activeAct = activeActions[school.id];
-                            const isTie = sel && sel.needsConfirmation;
-                            const isResolved = sel !== undefined && !isTie;
+                            const isTie = sel && sel.needsConfirmation && !isDiscard;
+                            const isResolved = sel !== undefined && !sel.needsConfirmation;
 
                             return (
                                 <div
                                     key={school.id}
-                                    data-unresolved={!isResolved && !isKeep}
+                                    data-unresolved={!isResolved && !isKeep && !isDiscard}
                                     className={`rounded-xl border p-4 transition-colors ${
-                                        isKeep
+                                        isDiscard
+                                            ? 'border-gray-200 bg-gray-50/50 opacity-80'
+                                            : isKeep
                                             ? 'border-amber-200 bg-amber-50/40'
                                             : isTie
                                             ? 'border-orange-200 bg-orange-50/30'
+                                            : sel && sel.needsConfirmation && isDiscard
+                                            ? 'border-red-200 bg-red-50/30'
                                             : isResolved
                                             ? 'border-blue-200 bg-blue-50/30'
                                             : 'border-gray-200 bg-white'
@@ -371,8 +387,14 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                         <div className="font-semibold text-gray-900 flex items-center gap-2">
                                             <span>🏫</span>
                                             {school.name.replace(/\(.*?\)/g, '').trim()}
-                                            {isResolved && !isKeep && (
+                                            {isResolved && !isKeep && !isDiscard && (
                                                 <CheckCircle className="w-4 h-4 text-blue-500 ml-auto flex-shrink-0" />
+                                            )}
+                                            {isResolved && isDiscard && (
+                                                <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                                                    <Trash2 className="w-3 h-3" />
+                                                    Rimossa
+                                                </span>
                                             )}
                                             {isKeep && (
                                                 <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
@@ -386,7 +408,13 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                                     Più opzioni valide
                                                 </span>
                                             )}
-                                            {!isResolved && !isTie && !isKeep && (
+                                            {sel && sel.needsConfirmation && isDiscard && (
+                                                <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full shadow-sm">
+                                                    <AlertTriangle className="w-3 h-3" />
+                                                    Conferma scarto
+                                                </span>
+                                            )}
+                                            {!isResolved && !isTie && !isKeep && !isDiscard && (
                                                 <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
                                                     <AlertTriangle className="w-3 h-3" />
                                                     Da controllare
@@ -411,8 +439,39 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                         </div>
                                     </div>
 
+                                    {/* Autonomous Alert */}
+                                    {sel && sel.needsConfirmation && isDiscard && (
+                                        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="flex items-start gap-2">
+                                                <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                                <div className="flex-1">
+                                                    <h4 className="text-sm font-semibold text-red-800">Possibile viaggio in autonomia</h4>
+                                                    <p className="text-xs text-red-600 mt-1">Questa scuola sembra aver indicato di raggiungere la destinazione in autonomia. Vuoi scartarla dal piano dei trasporti?</p>
+                                                    <div className="mt-3 flex gap-2">
+                                                        <button 
+                                                            onClick={() => markDiscard(school.id)}
+                                                            className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors shadow-sm"
+                                                        >
+                                                            Conferma e scarta
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const best = getBestDefaultCandidate(school, candidates);
+                                                                if (best) selectCandidate(school.id, best, false, true);
+                                                                else setActiveActions({ [school.id]: 'manual' });
+                                                            }}
+                                                            className="px-3 py-1.5 bg-white text-red-700 border border-red-200 text-xs font-medium rounded-md hover:bg-red-50 transition-colors"
+                                                        >
+                                                            No, mantieni
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* DB Candidates */}
-                                    {candidates.length > 0 && (
+                                    {candidates.length > 0 && !isDiscard && (
                                         <div className="space-y-2 mb-3">
                                             <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Corrispondenze DB:</div>
                                             {[...candidates].sort((a, b) => {
@@ -465,30 +524,32 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                     )}
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                                        <button
-                                            onClick={() => handleActionToggle(school.id, 'ai', school.address)}
-                                            className={`flex-1 flex justify-center items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors border ${
-                                                activeAct === 'ai' 
-                                                ? 'bg-purple-50 text-purple-700 border-purple-200' 
-                                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            <Zap className={`w-3.5 h-3.5 ${activeAct === 'ai' ? 'text-purple-500' : ''}`} />
-                                            Correggi con AI
-                                        </button>
-                                        <button
-                                            onClick={() => handleActionToggle(school.id, 'manual', school.address)}
-                                            className={`flex-1 flex justify-center items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors border ${
-                                                activeAct === 'manual' 
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            <Edit2 className="w-3.5 h-3.5" />
-                                            Scrivi indirizzo o coord.
-                                        </button>
-                                    </div>
+                                    {!isDiscard && (
+                                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                                            <button
+                                                onClick={() => handleActionToggle(school.id, 'ai', school.address)}
+                                                className={`flex-1 flex justify-center items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors border ${
+                                                    activeAct === 'ai' 
+                                                    ? 'bg-purple-50 text-purple-700 border-purple-200' 
+                                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <Zap className={`w-3.5 h-3.5 ${activeAct === 'ai' ? 'text-purple-500' : ''}`} />
+                                                Correggi con AI
+                                            </button>
+                                            <button
+                                                onClick={() => handleActionToggle(school.id, 'manual', school.address)}
+                                                className={`flex-1 flex justify-center items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors border ${
+                                                    activeAct === 'manual' 
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <Edit2 className="w-3.5 h-3.5" />
+                                                Scrivi indirizzo o coord.
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {/* Expanded Action Panel */}
                                     {activeAct === 'ai' && (
@@ -601,13 +662,22 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                     )}
 
                                     {/* Keep fallback */}
-                                    {!isResolved && !isKeep && (
-                                        <button
-                                            onClick={() => markKeep(school.id)}
-                                            className="w-full mt-2 text-center text-xs font-medium text-gray-500 hover:text-gray-700 py-1 transition-colors"
-                                        >
-                                            Nessuno di questi, mantieni indirizzo originale
-                                        </button>
+                                    {!isResolved && !isKeep && !isDiscard && (
+                                        <div className="flex gap-2 mt-2">
+                                            <button
+                                                onClick={() => markKeep(school.id)}
+                                                className="flex-1 text-center text-xs font-medium text-gray-500 hover:text-gray-700 py-1 transition-colors bg-gray-50 rounded-md hover:bg-gray-100 border border-transparent"
+                                            >
+                                                Usa originale
+                                            </button>
+                                            <button
+                                                onClick={() => markDiscard(school.id)}
+                                                className="flex-1 text-center text-xs font-medium text-red-500 hover:text-red-700 py-1 transition-colors bg-red-50 rounded-md hover:bg-red-100 border border-transparent inline-flex items-center justify-center gap-1"
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                                Rimuovi
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             );

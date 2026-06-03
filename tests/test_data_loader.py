@@ -18,7 +18,8 @@ class TestLoadData:
             "Indirizzo": ["Via Roma, 1, Trento"],
             "Partecipanti": [10],
         })
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
 
         assert len(schools) == 1
         assert schools[0]["name"] == "Scuola A"
@@ -33,7 +34,8 @@ class TestLoadData:
             "Partecipanti": [10, 5],
             "Istituto": ["IC Trento 1", "IC Trento 1"],
         })
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
 
         assert schools[0]["institute"] == "IC Trento 1"
         assert schools[1]["institute"] == "IC Trento 1"
@@ -44,7 +46,8 @@ class TestLoadData:
             "Indirizzo": ["Via Roma, 1"],
             "Partecipanti": [10],
         })
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
         assert schools[0]["institute"] is None
 
     def test_raises_on_missing_required_column(self, tmp_path):
@@ -63,7 +66,8 @@ class TestLoadData:
             " Partecipanti ": [10],
         })
         # Should not raise
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
         assert len(schools) == 1
 
     def test_missing_demand_defaults_to_zero(self, tmp_path):
@@ -73,7 +77,8 @@ class TestLoadData:
             "Indirizzo": ["Via Roma, 1"],
             "Partecipanti": [None],
         })
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
         assert schools[0]["demand"] == 0
 
     def test_row_id_matches_dataframe_index(self, tmp_path):
@@ -82,5 +87,6 @@ class TestLoadData:
             "Indirizzo": ["Via 1", "Via 2", "Via 3"],
             "Partecipanti": [1, 2, 3],
         })
-        schools = DataLoader.load_data(path)
+        result = DataLoader.load_data(path)
+        schools = result["schools"]
         assert [s["id"] for s in schools] == [0, 1, 2]
