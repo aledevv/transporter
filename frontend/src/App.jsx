@@ -71,6 +71,7 @@ function App() {
     const [openEditorTrigger, setOpenEditorTrigger] = useState(0);
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: false }); // Global loading state
+    const [processingError, setProcessingError] = useState(null); // Error message string | null
     const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
@@ -257,12 +258,36 @@ function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
+
+            // Check HTTP-level errors (4xx/5xx) before trying to parse
+            if (!resp.ok) {
+                const errData = await resp.json().catch(() => ({}));
+                console.error(`continueProcessing: HTTP ${resp.status} from ${endpoint}:`, errData);
+                setLoadingState({ active: false, progress: 0, message: '' });
+                setProcessingError(errData.error || `Errore del server (HTTP ${resp.status}). Riprova ricaricando il file.`);
+                return;
+            }
+
             const respData = await resp.json();
             const pollId = respData.task_id;
+
+            // Guard: if backend didn't return a task_id stop immediately
+            if (!pollId) {
+                console.error('continueProcessing: no task_id in response', respData);
+                setLoadingState({ active: false, progress: 0, message: '' });
+                return;
+            }
 
             const pollInterval = setInterval(async () => {
                 try {
                     const statusRes = await fetch(`${API_BASE_URL}/api/status/${pollId}`);
+                    if (!statusRes.ok) {
+                        console.error(`continueProcessing poll: HTTP ${statusRes.status} for task ${pollId}`);
+                        clearInterval(pollInterval);
+                        setLoadingState({ active: false, progress: 0, message: '' });
+                        setProcessingError('Il server ha perso lo stato dell\'elaborazione (riavvio?). Ricarica il file per riprovare.');
+                        return;
+                    }
                     const statusData = await statusRes.json();
                     const { status, result, progress, message } = statusData;
                     setLoadingState(prev => ({
@@ -284,10 +309,22 @@ function App() {
                             unresolvedByAI: statusData.unresolved_by_ai ?? [],
                         });
                     } else if (status === 'error') {
+                        console.error('continueProcessing poll: task error:', statusData.message);
+                        clearInterval(pollInterval);
+                        setLoadingState({ active: false, progress: 0, message: '' });
+                        setProcessingError(statusData.message || 'Errore durante l\'elaborazione. Riprova.');
+                    } else if (!status) {
+                        // Unexpected response shape
+                        console.error('continueProcessing poll: unexpected response', statusData);
                         clearInterval(pollInterval);
                         setLoadingState({ active: false, progress: 0, message: '' });
                     }
-                } catch (e) { console.error('Polling error', e); }
+                } catch (e) {
+                    console.error('continueProcessing poll exception:', e);
+                    clearInterval(pollInterval);
+                    setLoadingState({ active: false, progress: 0, message: '' });
+                    setProcessingError('Connessione persa durante l\'elaborazione. Controlla il server e riprova.');
+                }
             }, 1000);
         } catch (e) {
             console.error('continueProcessing error', e);
@@ -346,6 +383,7 @@ function App() {
         setDbMatchList(null);
         setResumeDismissed(false);
         setInputMode('excel');
+        setProcessingError(null);
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
     };
 
@@ -463,10 +501,28 @@ function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ address: newAddress }),
         });
-        const { lat, lon } = await resp.json();
-        setSchools(prev => prev.map(s =>
-            s.name === schoolName ? { ...s, address: newAddress, lat: parseFloat(lat), lon: parseFloat(lon), geocoding_failed: false } : s
-        ));
+        if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            console.error('geocode error:', resp.status, errData);
+            throw new Error(errData.error || `Geocoding fallito (HTTP ${resp.status})`);
+        }
+        const data = await resp.json();
+        const { lat, lon, success } = data;
+        if (!success) {
+            console.warn('geocode: address not found, using fallback coords for', newAddress);
+        }
+        setSchools(prev => prev.map(s => {
+            if (s.name !== schoolName) return s;
+            return {
+                ...s,
+                // Keep original Excel address as display_address if not already set
+                display_address: s.display_address || s.address,
+                address: newAddress,
+                lat: parseFloat(lat),
+                lon: parseFloat(lon),
+                geocoding_failed: !success,
+            };
+        }));
     };
 
     const handleSchoolsFromDB = async (schoolsFromDB) => {
@@ -699,6 +755,22 @@ function App() {
                             </div>
                         )}
 
+                        {processingError && (
+                            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-md border border-red-200 flex items-start gap-3">
+                                <span className="text-xl flex-shrink-0">⚠️</span>
+                                <div>
+                                    <p className="font-semibold">Errore durante l'elaborazione</p>
+                                    <p className="text-sm mt-1">{processingError}</p>
+                                    <button
+                                        onClick={() => { setProcessingError(null); setResetKey(prev => prev + 1); }}
+                                        className="mt-2 text-xs font-medium text-red-700 underline hover:text-red-900"
+                                    >
+                                        Ricarica il file
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {correctionInfo && (correctionInfo.corrections.length > 0 || (correctionInfo.unresolvedByAI ?? []).length > 0 || correctionInfo.status === 'rate_limit' || correctionInfo.status === 'error') && (
                             <AddressCorrectionBanner
                                 corrections={correctionInfo.corrections}
@@ -776,8 +848,15 @@ function App() {
                                                                     <span className="text-gray-300">-</span>
                                                                 )}
                                                             </td>
-                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[200px]" title={school.address}>
-                                                                {school.address.split(',')[0]} {/* Show just street part if comma separated */}
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm max-w-[200px]">
+                                                                <div className="truncate font-medium text-gray-800" title={school.display_address || school.address}>
+                                                                    {(school.display_address || school.address).split(',')[0]}
+                                                                </div>
+                                                                {(school.display_address && school.display_address !== school.address) ? (
+                                                                    <div className="truncate text-xs text-gray-400" title={school.address}>
+                                                                        {school.address.split(',')[0]}
+                                                                    </div>
+                                                                ) : null}
                                                             </td>
                                                             <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
                                                                 {school.demand}

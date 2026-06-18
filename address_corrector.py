@@ -198,6 +198,8 @@ class AddressCorrector:
         result = []
         for school in schools:
             s = school.copy()
+            if "display_address" not in s:
+                s["display_address"] = s.get("original_address", s.get("address", ""))
             if s["name"] in corrections:
                 s["address"] = corrections[s["name"]]
             result.append(s)

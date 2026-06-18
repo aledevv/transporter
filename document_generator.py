@@ -189,7 +189,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                     first_time_cell = current_row.cells[3]
                     last_time = current_time
 
-                _set_cell_val(current_row.cells[4], _shorten_address(stop.get('address', '')))
+                _set_cell_val(current_row.cells[4], _shorten_address(stop.get('display_address') or stop.get('address', '')))
                 _set_cell_val(current_row.cells[5], str(stop.get('count', '0')))
 
                 # Orario Ritorno (colonna 6)

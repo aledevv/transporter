@@ -139,6 +139,12 @@ const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionSt
                     {/* Expandable table */}
                     {expanded && (
                         <div className="border-t border-green-200 overflow-x-auto">
+                            <div className="px-4 py-2 bg-green-50/50 border-b border-green-100 text-xs text-green-800 flex items-start gap-2">
+                                <AlertTriangle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                <span>
+                                    <strong>Nota bene:</strong> Eventuali modifiche manuali a questo indirizzo (o inserimento di coordinate) servono esclusivamente per posizionare la fermata sulla mappa. Nei documenti esportati e in grafica rimarrà il nome originale dell'Excel.
+                                </span>
+                            </div>
                             <table className="min-w-full text-sm">
                                 <thead className="bg-green-100">
                                     <tr>
@@ -225,6 +231,12 @@ const AddressCorrectionBanner = ({ corrections = [], correctedFile, correctionSt
                         </div>
                     </div>
                     <div className="border-t border-orange-200 overflow-x-auto">
+                        <div className="px-4 py-2 bg-orange-50/50 border-b border-orange-100 text-xs text-orange-800 flex items-start gap-2">
+                            <AlertTriangle className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                            <span>
+                                <strong>Nota bene:</strong> L'indirizzo che inserisci qui (o eventuali coordinate) serve esclusivamente per posizionare la fermata sulla mappa. Nei documenti esportati e in grafica rimarrà visibile il nome originale dell'Excel.
+                            </span>
+                        </div>
                         <table className="min-w-full text-sm">
                             <thead className="bg-orange-100">
                                 <tr>

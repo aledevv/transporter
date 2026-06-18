@@ -307,6 +307,8 @@ def continue_file_task(task_id, original_schools, filepath, corrected_path, reso
             if sid in pre_geocoded_ids:
                 # Use coordinates from DB resolution directly
                 school = copy.copy(orig_school)
+                # Preserve original Excel address for display (e.g. Word docs)
+                school['display_address'] = orig_school.get('display_address') or orig_school['address']
                 school['address'] = res['address']
                 school['lat'] = float(res['lat'])
                 school['lon'] = float(res['lon'])
@@ -332,6 +334,10 @@ def continue_file_task(task_id, original_schools, filepath, corrected_path, reso
                     })
             else:
                 school = copy.copy(orig_school)
+
+            # Preserve original Excel address for display purposes (Word docs, UI)
+            if 'display_address' not in school or not school['display_address']:
+                school['display_address'] = orig_school.get('display_address') or orig_school['address']
 
             raw_address = school['address']
             lat, lon, success = smart_geocode(raw_address, school_name=school['name'])
@@ -865,6 +871,7 @@ def optimize():
                         'name': original_school['name'],
                         'original_name': original_school.get('original_name', original_school['name']),
                         'address': original_school['address'],
+                        'display_address': original_school.get('display_address') or original_school['address'],
                         'count': original_school['demand'],
                         'lat': original_school['lat'],
                         'lon': original_school['lon'],
@@ -901,6 +908,7 @@ def optimize():
                             'name': comp_school['name'],
                             'original_name': comp_school.get('original_name', comp_school['name']),
                             'address': comp_school['address'],
+                            'display_address': comp_school.get('display_address') or comp_school['address'],
                             'count': comp_school['demand'],
                             'lat': comp_school['lat'],
                             'lon': comp_school['lon'],
@@ -1359,6 +1367,7 @@ def optimize_v2():
                         'name': original_school['name'],
                         'original_name': original_school.get('original_name', original_school['name']),
                         'address': original_school['address'],
+                        'display_address': original_school.get('display_address') or original_school['address'],
                         'count': original_school['demand'],
                         'lat': original_school['lat'],
                         'lon': original_school['lon'],
@@ -1395,6 +1404,7 @@ def optimize_v2():
                             'name': comp_school['name'],
                             'original_name': comp_school.get('original_name', comp_school['name']),
                             'address': comp_school['address'],
+                            'display_address': comp_school.get('display_address') or comp_school['address'],
                             'count': comp_school['demand'],
                             'lat': comp_school['lat'],
                             'lon': comp_school['lon'],

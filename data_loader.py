@@ -79,6 +79,8 @@ class DataLoader:
                         'id': index,
                         'name': str(row['Nome']).strip(),
                         'address': str(row['Indirizzo']).strip() if pd.notna(row['Indirizzo']) else '',
+                        'original_address': str(row['Indirizzo']).strip() if pd.notna(row['Indirizzo']) else '',
+                        'display_address': str(row['Indirizzo']).strip() if pd.notna(row['Indirizzo']) else '',
                         'demand': demand,
                         'institute': str(row['Istituto']).strip() if 'Istituto' in row and pd.notna(row['Istituto']) else None,
                         'is_autonomous': bool(re.search(r'\b(autonomo|autonomi|autonomia|per conto loro|mezzi propri|con genitori|in proprio)\b', str(row['Nome']) + ' ' + (str(row['Indirizzo']) if pd.notna(row['Indirizzo']) else ''), re.IGNORECASE))

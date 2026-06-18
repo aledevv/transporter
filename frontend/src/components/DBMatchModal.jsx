@@ -79,11 +79,42 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                 address: candidate.address || candidate.description || candidate.name,
                 name: candidate.name || candidate.address || candidate.description,
                 saveToDb: isNew,
-                needsConfirmation: false
+                needsConfirmation: false,
+                isCustom: !fromDbList
             },
         }));
         
         setActiveActions({});
+    };
+
+    const resetSelection = (schoolId, school, candidates) => {
+        setSelections(prev => {
+            const next = { ...prev };
+            const best = getBestDefaultCandidate(school, candidates);
+            const hasTie = candidates.length > 1
+                && Math.abs(candidates[0]._matchScore - candidates[1]._matchScore) < 0.05
+                && candidates[1]._matchScore >= 0.5;
+
+            if (best) {
+                next[schoolId] = {
+                    lat: best.lat,
+                    lon: best.lon,
+                    address: best.address,
+                    name: best.name,
+                    saveToDb: false,
+                    needsConfirmation: hasTie
+                };
+            } else {
+                delete next[schoolId];
+            }
+            return next;
+        });
+        setActiveActions({});
+        setStagedCandidates(prev => {
+            const next = { ...prev };
+            delete next[schoolId];
+            return next;
+        });
     };
 
     const toggleSaveToDb = (schoolId) => {
@@ -422,6 +453,28 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                             >
                                                 <Edit2 className="w-3.5 h-3.5" />
                                                 Scrivi indirizzo o coord.
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Custom Selection Box */}
+                                    {sel && sel.isCustom && !isDiscard && !activeAct && (
+                                        <div className="mt-3 p-3 bg-blue-50/80 border border-blue-200 rounded-lg flex items-center justify-between animate-in fade-in">
+                                            <div className="min-w-0 pr-3">
+                                                <div className="text-[10px] font-bold text-blue-800 uppercase tracking-wide mb-0.5 flex items-center gap-1">
+                                                    <CheckCircle className="w-3 h-3" /> Scelta Personalizzata
+                                                </div>
+                                                <div className="text-sm font-semibold text-gray-900 truncate" title={sel.name}>{sel.name}</div>
+                                                {(sel.address && sel.address !== sel.name) && (
+                                                    <div className="text-xs text-gray-500 truncate" title={sel.address}>{sel.address}</div>
+                                                )}
+                                            </div>
+                                            <button 
+                                                onClick={() => resetSelection(school.id, school, candidates)}
+                                                className="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                title="Elimina inserimento e ripristina default"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     )}
