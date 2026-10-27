@@ -37,7 +37,7 @@ class TestReturnTimesChain:
 def _evaluate(client, time_mode, start_time):
     route = {'vehicle_id': 0, 'outbound': {'stops': [
         {'type': 'pickup', 'name': 'A', 'lat': 46.0, 'lon': 11.0, 'count': 10},
-        {'type': 'pickup', 'name': 'B', 'lat': 46.01, 'lon': 11.01, 'count': 10},
+        {'type': 'pickup', 'name': 'B', 'lat': 46.01, 'lon': 11.01, 'demand': 10},
         {'type': 'destination', 'name': 'D', 'lat': 46.02, 'lon': 11.02},
     ]}}
     geo = {'geometry': None, 'distance': 5000, 'duration': 960,
@@ -68,3 +68,37 @@ class TestOutboundChain:
             assert int(t.split(':')[1]) % 5 == 0
         assert stops[2]['arrival_time'] == '08:00'
         assert times == ['07:35', '07:45', '08:00']
+
+
+class TestOptimizeEndpoint:
+    def test_optimize_returns_rounded_chained_times(self, app_client):
+        schools = [
+            {'name': 'A', 'address': 'a', 'lat': 46.00, 'lon': 11.00, 'demand': 10},
+            {'name': 'B', 'address': 'b', 'lat': 46.01, 'lon': 11.01, 'demand': 10},
+        ]
+
+        def time_matrix(locations):
+            n = len(locations)
+            return [[0 if i == j else 400 for j in range(n)] for i in range(n)]
+
+        geo = {'geometry': None, 'distance': 5000, 'duration': 960,
+               'leg_distances': [2000, 3000], 'leg_durations': [5 * 60 + 30, 10 * 60 + 30]}
+        with patch.object(app_module.geocoder, 'get_time_matrix', side_effect=time_matrix), \
+             patch.object(app_module.geocoder, 'get_route_geometry', return_value=geo), \
+             patch.object(app_module, 'find_bus_overlaps', return_value=[]):
+            resp = app_client.post('/api/optimize', json={
+                'schools': schools, 'destination': 'D', 'capacity': 50,
+                'dest_lat': 46.02, 'dest_lon': 11.02,
+                'start_time': '09:03', 'time_mode': 'departure',
+                'fine_manifestazione': '16:00', 'calculate_return': True,
+            })
+        assert resp.status_code == 200, resp.get_json()
+        routes = resp.get_json()['routes']
+        assert len(routes) == 1
+        stops = routes[0]['outbound']['stops']
+        pickups = [s for s in stops if s['type'] == 'pickup']
+        dest = [s for s in stops if s['type'] == 'destination'][0]
+        assert [s['departure_time'] for s in pickups] == ['09:05', '09:15']
+        assert dest['arrival_time'] == '09:30'
+        # return: 16:00 + 10 (rounded leg) -> 16:10; 16:10 + 3 + 6 -> 16:20
+        assert [s['return_time'] for s in pickups] == ['16:20', '16:10']

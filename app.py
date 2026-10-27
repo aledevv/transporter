@@ -533,6 +533,204 @@ def geocode_single():
     lat, lon, success = smart_geocode(address)
     return jsonify({'lat': lat, 'lon': lon, 'success': success})
 
+AVERAGE_SPEED_KMH = 30  # Urban average speed, used when no road duration is available
+STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
+
+
+def _compute_outbound_times(stops_data, dest_lat, dest_lon, start_minutes):
+    """
+    Mutates the stops of one route in-place: departure_time, dist_to_next_km and
+    time_to_next_min on pickups, arrival_time on the destination.
+    Returns (geometry, distance_m) of the outbound route.
+    """
+    # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
+    pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
+    seg_distances_m = []
+    if pickup_stops:
+        for i, stop in enumerate(pickup_stops):
+            ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
+            seg_distances_m.append(
+                geocoder.haversine_distance(float(stop.get('lat', 0)), float(stop.get('lon', 0)),
+                                            float(ns.get('lat', dest_lat)), float(ns.get('lon', dest_lon)))
+            )
+
+    # Fetch geometry for Outbound (includes real road leg distances + durations)
+    geo_data = geocoder.get_route_geometry(stops_data)
+    outbound_geometry = geo_data['geometry'] if geo_data else None
+    outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
+
+    # Real per-leg distances from Google Directions (leg i = segment stop i → stop i+1)
+    # Using these ensures sum(dist_to_next_km) == total bus distance in the header.
+    leg_distances_m = geo_data.get('leg_distances') if geo_data else None
+    leg_durations_s = geo_data.get('leg_durations') if geo_data else None
+
+    # Calculate times FORWARD from first school departure
+    # start_time = when bus departs from FIRST school
+    if pickup_stops:
+        total_haversine_m = sum(seg_distances_m) or 1
+
+        # Use Google Directions total duration if available, else fall back to speed estimate
+        total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
+
+        cumulative_minutes = start_minutes
+
+        for i, stop in enumerate(pickup_stops):
+            # Round each time to 5 min and chain the next leg from the rounded value
+            cumulative_minutes = round_up_to_5(cumulative_minutes)
+            stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
+
+            # Use real road leg distance/duration from OSRM when available (fallback: haversine)
+            if leg_distances_m and i < len(leg_distances_m):
+                seg_dist_m = leg_distances_m[i]
+                seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+            else:
+                seg_dist_m = seg_distances_m[i]
+                if total_drive_min:
+                    seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
+                else:
+                    seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+
+            stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
+            stop['time_to_next_min'] = round(seg_drive_min)
+            cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
+        cumulative_minutes = round_up_to_5(cumulative_minutes)
+
+        # Destination arrival time
+        for stop in stops_data:
+            if stop['type'] == 'destination':
+                stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
+
+    return outbound_geometry, outbound_dist
+
+
+def _finalize_route_times(formatted_routes, data):
+    """
+    Cross-route post-processing shared by optimize, optimize_v2 and evaluate_plan:
+    synchronizes split schools, shifts routes to the target arrival (arrival mode)
+    and adds return times. Returns (arrival_window, fine_manifestazione, calculate_return).
+    """
+    # POST-PROCESSING: Synchronize pickup times for schools split across buses
+    # Find all schools and their departure times across all routes
+    school_times = {}  # {original_name: [(route_idx, stop_idx, departure_time_minutes)]}
+
+    for route_idx, route in enumerate(formatted_routes):
+        for stop_idx, stop in enumerate(route['outbound']['stops']):
+            if stop['type'] == 'pickup':
+                original_name = stop.get('original_name', stop.get('name'))
+                if original_name not in school_times:
+                    school_times[original_name] = []
+                # Parse the departure time
+                if 'departure_time' in stop:
+                    minutes = parse_time_to_minutes(stop['departure_time'])
+                    school_times[original_name].append({
+                        'route_idx': route_idx,
+                        'stop_idx': stop_idx,
+                        'minutes': minutes
+                    })
+
+    # For schools with multiple entries, synchronize to the LATEST time
+    for school_name, times in school_times.items():
+        if len(times) > 1:
+            # Find the latest departure time
+            latest_minutes = max(t['minutes'] for t in times)
+            latest_time_str = format_time_from_minutes(latest_minutes)
+
+            # Update all stops for this school to use synchronized time
+            for t in times:
+                stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
+                stop['departure_time'] = latest_time_str
+                stop['synchronized'] = True  # Mark as synchronized
+
+    # POST-PROCESSING: Synchronize arrival times (ONLY in arrival mode)
+    # Collect all arrival times
+    time_mode = data.get('time_mode', 'arrival')  # 'departure' or 'arrival'
+    arrival_times_minutes = []
+
+    for route in formatted_routes:
+        for stop in route['outbound']['stops']:
+            if stop['type'] == 'destination' and 'arrival_time' in stop:
+                minutes = parse_time_to_minutes(stop['arrival_time'])
+                arrival_times_minutes.append(minutes)
+
+    if arrival_times_minutes:
+        earliest_arrival = min(arrival_times_minutes)
+        latest_arrival = max(arrival_times_minutes)
+        current_spread = latest_arrival - earliest_arrival
+
+        # ONLY synchronize arrivals if in ARRIVAL mode
+        if time_mode == 'arrival':
+            # User specified ARRIVAL time - all buses should arrive at this time
+            target_time_str = data.get('start_time', '08:00')
+            try:
+                th, tm = map(int, target_time_str.split(':'))
+                target_arrival_minutes = th * 60 + tm
+            except:
+                target_arrival_minutes = 8 * 60  # Default 08:00
+
+            # Recalculate departure times to synchronize arrivals to target time
+            for route in formatted_routes:
+                stops = route['outbound']['stops']
+                dest_stop = None
+                for stop in stops:
+                    if stop['type'] == 'destination':
+                        dest_stop = stop
+                        break
+
+                if dest_stop and 'arrival_time' in dest_stop:
+                    current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
+
+                    # Calculate time shift needed to hit target arrival
+                    # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
+                    # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
+                    # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
+                    delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
+
+                    # Shift all times for this route
+                    for stop in stops:
+                        if stop['type'] == 'pickup' and 'departure_time' in stop:
+                            old_minutes = parse_time_to_minutes(stop['departure_time'])
+                            new_minutes = old_minutes + delay_minutes
+                            stop['departure_time'] = format_time_from_minutes(new_minutes)
+                        elif stop['type'] == 'destination' and 'arrival_time' in stop:
+                            old_minutes = parse_time_to_minutes(stop['arrival_time'])
+                            new_minutes = old_minutes + delay_minutes
+                            stop['arrival_time'] = format_time_from_minutes(new_minutes)
+
+            # Recalculate arrival times after synchronization
+            final_arrival_times = []
+            for route in formatted_routes:
+                for stop in route['outbound']['stops']:
+                    if stop['type'] == 'destination' and 'arrival_time' in stop:
+                        minutes = parse_time_to_minutes(stop['arrival_time'])
+                        final_arrival_times.append(minutes)
+
+            final_earliest = min(final_arrival_times) if final_arrival_times else 0
+            final_latest = max(final_arrival_times) if final_arrival_times else 0
+            final_spread = final_latest - final_earliest
+        else:
+            # DEPARTURE mode: No arrival synchronization, buses arrive naturally
+            final_earliest = earliest_arrival
+            final_latest = latest_arrival
+            final_spread = current_spread
+
+        arrival_window = {
+            'earliest': format_time_from_minutes(final_earliest),
+            'latest': format_time_from_minutes(final_latest),
+            'spread_minutes': final_spread
+        }
+    else:
+        arrival_window = None
+
+    # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
+    fine_manifestazione = data.get('fine_manifestazione', '').strip()
+    calculate_return = data.get('calculate_return', True)
+    if calculate_return and fine_manifestazione:
+        calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+
+    return arrival_window, fine_manifestazione, calculate_return
+
+
 def _make_sub_route(school_nodes, original_route, time_matrix, demands, dest_idx, dummy_idx):
     """Create a route dict from a subset of school node indices."""
     stops = [{'node': dummy_idx, 'load': 0}]
@@ -845,8 +1043,6 @@ def optimize():
             start_hour, start_min = map(int, start_time_str.split(':'))
         except:
             start_hour, start_min = 8, 0
-        AVERAGE_SPEED_KMH = 30  # Urban average speed
-        STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
         
         sorted_routes = sorted(solution['routes'], key=lambda x: x['vehicle_id'])
         
@@ -930,62 +1126,8 @@ def optimize():
             
             stops_data = expanded_stops
             
-            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
-            pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
-            seg_distances_m = []
-            if pickup_stops:
-                for i, stop in enumerate(pickup_stops):
-                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
-                    seg_distances_m.append(
-                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
-                    )
-
-            # Fetch geometry for Outbound (includes real road leg distances + durations)
-            geo_data = geocoder.get_route_geometry(stops_data)
-            outbound_geometry = geo_data['geometry'] if geo_data else None
-            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
-
-            # Real per-leg distances from Google Directions (leg i = segment stop i → stop i+1)
-            # Using these ensures sum(dist_to_next_km) == total bus distance in the header.
-            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
-            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
-
-            # Calculate times FORWARD from first school departure
-            # start_time = when bus departs from FIRST school
-            if pickup_stops:
-                total_haversine_m = sum(seg_distances_m) or 1
-
-                # Use Google Directions total duration if available, else fall back to speed estimate
-                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
-
-                cumulative_minutes = start_hour * 60 + start_min
-
-                for i, stop in enumerate(pickup_stops):
-                    # Round each time to 5 min and chain the next leg from the rounded value
-                    cumulative_minutes = round_up_to_5(cumulative_minutes)
-                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
-
-                    # Use real road leg distance/duration from OSRM when available (fallback: haversine)
-                    if leg_distances_m and i < len(leg_distances_m):
-                        seg_dist_m = leg_distances_m[i]
-                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-                    else:
-                        seg_dist_m = seg_distances_m[i]
-                        if total_drive_min:
-                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
-                        else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-
-                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
-                    stop['time_to_next_min'] = round(seg_drive_min)
-                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
-
-                cumulative_minutes = round_up_to_5(cumulative_minutes)
-
-                # Destination arrival time
-                for stop in stops_data:
-                    if stop['type'] == 'destination':
-                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
+            outbound_geometry, outbound_dist = _compute_outbound_times(
+                stops_data, dest_lat, dest_lon, start_hour * 60 + start_min)
 
             formatted_routes.append({
                 'vehicle_id': current_vehicle_id,
@@ -997,123 +1139,7 @@ def optimize():
                 }
             })
 
-        # POST-PROCESSING: Synchronize pickup times for schools split across buses
-        # Find all schools and their departure times across all routes
-        school_times = {}  # {original_name: [(route_idx, stop_idx, departure_time_minutes)]}
-        
-        for route_idx, route in enumerate(formatted_routes):
-            for stop_idx, stop in enumerate(route['outbound']['stops']):
-                if stop['type'] == 'pickup':
-                    original_name = stop.get('original_name', stop['name'])
-                    if original_name not in school_times:
-                        school_times[original_name] = []
-                    # Parse the departure time
-                    if 'departure_time' in stop:
-                        minutes = parse_time_to_minutes(stop['departure_time'])
-                        school_times[original_name].append({
-                            'route_idx': route_idx,
-                            'stop_idx': stop_idx,
-                            'minutes': minutes
-                        })
-        
-        # For schools with multiple entries, synchronize to the LATEST time
-        for school_name, times in school_times.items():
-            if len(times) > 1:
-                # Find the latest departure time
-                latest_minutes = max(t['minutes'] for t in times)
-                latest_time_str = format_time_from_minutes(latest_minutes)
-                
-                # Update all stops for this school to use synchronized time
-                for t in times:
-                    stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
-                    stop['departure_time'] = latest_time_str
-                    stop['synchronized'] = True  # Mark as synchronized
-
-        # POST-PROCESSING: Synchronize arrival times (ONLY in arrival mode)
-        # Collect all arrival times
-        time_mode = data.get('time_mode', 'arrival')  # 'departure' or 'arrival'
-        arrival_times_minutes = []
-        
-        for route in formatted_routes:
-            for stop in route['outbound']['stops']:
-                if stop['type'] == 'destination' and 'arrival_time' in stop:
-                    minutes = parse_time_to_minutes(stop['arrival_time'])
-                    arrival_times_minutes.append(minutes)
-        
-        if arrival_times_minutes:
-            earliest_arrival = min(arrival_times_minutes)
-            latest_arrival = max(arrival_times_minutes)
-            current_spread = latest_arrival - earliest_arrival
-            
-            # ONLY synchronize arrivals if in ARRIVAL mode
-            if time_mode == 'arrival':
-                # User specified ARRIVAL time - all buses should arrive at this time
-                target_time_str = data.get('start_time', '08:00')
-                try:
-                    th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
-                except:
-                    target_arrival_minutes = 8 * 60  # Default 08:00
-                
-                # Recalculate departure times to synchronize arrivals to target time
-                for route in formatted_routes:
-                    stops = route['outbound']['stops']
-                    dest_stop = None
-                    for stop in stops:
-                        if stop['type'] == 'destination':
-                            dest_stop = stop
-                            break
-                    
-                    if dest_stop and 'arrival_time' in dest_stop:
-                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
-                        
-                        # Calculate time shift needed to hit target arrival
-                        # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
-                        # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
-                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
-                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
-                        
-                        # Shift all times for this route
-                        for stop in stops:
-                            if stop['type'] == 'pickup' and 'departure_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['departure_time'])
-                                new_minutes = old_minutes + delay_minutes
-                                stop['departure_time'] = format_time_from_minutes(new_minutes)
-                            elif stop['type'] == 'destination' and 'arrival_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
-                                new_minutes = old_minutes + delay_minutes
-                                stop['arrival_time'] = format_time_from_minutes(new_minutes)
-                
-                # Recalculate arrival times after synchronization
-                final_arrival_times = []
-                for route in formatted_routes:
-                    for stop in route['outbound']['stops']:
-                        if stop['type'] == 'destination' and 'arrival_time' in stop:
-                            minutes = parse_time_to_minutes(stop['arrival_time'])
-                            final_arrival_times.append(minutes)
-                
-                final_earliest = min(final_arrival_times) if final_arrival_times else 0
-                final_latest = max(final_arrival_times) if final_arrival_times else 0
-                final_spread = final_latest - final_earliest
-            else:
-                # DEPARTURE mode: No arrival synchronization, buses arrive naturally
-                final_earliest = earliest_arrival
-                final_latest = latest_arrival
-                final_spread = current_spread
-            
-            arrival_window = {
-                'earliest': format_time_from_minutes(final_earliest),
-                'latest': format_time_from_minutes(final_latest),
-                'spread_minutes': final_spread
-            }
-        else:
-            arrival_window = None
-
-        # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
-        fine_manifestazione = data.get('fine_manifestazione', '').strip()
-        calculate_return = data.get('calculate_return', True)
-        if calculate_return and fine_manifestazione:
-            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+        arrival_window, fine_manifestazione, calculate_return = _finalize_route_times(formatted_routes, data)
 
         # Calculate Totals
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
@@ -1346,8 +1372,6 @@ def optimize_v2():
             start_hour, start_min = map(int, start_time_str.split(':'))
         except:
             start_hour, start_min = 8, 0
-        AVERAGE_SPEED_KMH = 30  # Urban average speed
-        STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
 
         sorted_routes = sorted(solution['routes'], key=lambda x: x['vehicle_id'])
 
@@ -1431,62 +1455,8 @@ def optimize_v2():
 
             stops_data = expanded_stops
 
-            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
-            pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
-            seg_distances_m = []
-            if pickup_stops:
-                for i, stop in enumerate(pickup_stops):
-                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
-                    seg_distances_m.append(
-                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
-                    )
-
-            # Fetch geometry for Outbound (includes real road leg distances + durations)
-            geo_data = geocoder.get_route_geometry(stops_data)
-            outbound_geometry = geo_data['geometry'] if geo_data else None
-            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
-
-            # Real per-leg distances from Google Directions (leg i = segment stop i → stop i+1)
-            # Using these ensures sum(dist_to_next_km) == total bus distance in the header.
-            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
-            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
-
-            # Calculate times FORWARD from first school departure
-            # start_time = when bus departs from FIRST school
-            if pickup_stops:
-                total_haversine_m = sum(seg_distances_m) or 1
-
-                # Use Google Directions total duration if available, else fall back to speed estimate
-                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
-
-                cumulative_minutes = start_hour * 60 + start_min
-
-                for i, stop in enumerate(pickup_stops):
-                    # Round each time to 5 min and chain the next leg from the rounded value
-                    cumulative_minutes = round_up_to_5(cumulative_minutes)
-                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
-
-                    # Use real road leg distance/duration from Google when available (fallback: haversine)
-                    if leg_distances_m and i < len(leg_distances_m):
-                        seg_dist_m = leg_distances_m[i]
-                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-                    else:
-                        seg_dist_m = seg_distances_m[i]
-                        if total_drive_min:
-                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
-                        else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-
-                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
-                    stop['time_to_next_min'] = round(seg_drive_min)
-                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
-
-                cumulative_minutes = round_up_to_5(cumulative_minutes)
-
-                # Destination arrival time
-                for stop in stops_data:
-                    if stop['type'] == 'destination':
-                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
+            outbound_geometry, outbound_dist = _compute_outbound_times(
+                stops_data, dest_lat, dest_lon, start_hour * 60 + start_min)
 
             formatted_routes.append({
                 'vehicle_id': current_vehicle_id,
@@ -1498,123 +1468,7 @@ def optimize_v2():
                 }
             })
 
-        # POST-PROCESSING: Synchronize pickup times for schools split across buses
-        # Find all schools and their departure times across all routes
-        school_times = {}  # {original_name: [(route_idx, stop_idx, departure_time_minutes)]}
-
-        for route_idx, route in enumerate(formatted_routes):
-            for stop_idx, stop in enumerate(route['outbound']['stops']):
-                if stop['type'] == 'pickup':
-                    original_name = stop.get('original_name', stop['name'])
-                    if original_name not in school_times:
-                        school_times[original_name] = []
-                    # Parse the departure time
-                    if 'departure_time' in stop:
-                        minutes = parse_time_to_minutes(stop['departure_time'])
-                        school_times[original_name].append({
-                            'route_idx': route_idx,
-                            'stop_idx': stop_idx,
-                            'minutes': minutes
-                        })
-
-        # For schools with multiple entries, synchronize to the LATEST time
-        for school_name, times in school_times.items():
-            if len(times) > 1:
-                # Find the latest departure time
-                latest_minutes = max(t['minutes'] for t in times)
-                latest_time_str = format_time_from_minutes(latest_minutes)
-
-                # Update all stops for this school to use synchronized time
-                for t in times:
-                    stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
-                    stop['departure_time'] = latest_time_str
-                    stop['synchronized'] = True  # Mark as synchronized
-
-        # POST-PROCESSING: Synchronize arrival times (ONLY in arrival mode)
-        # Collect all arrival times
-        time_mode = data.get('time_mode', 'arrival')  # 'departure' or 'arrival'
-        arrival_times_minutes = []
-
-        for route in formatted_routes:
-            for stop in route['outbound']['stops']:
-                if stop['type'] == 'destination' and 'arrival_time' in stop:
-                    minutes = parse_time_to_minutes(stop['arrival_time'])
-                    arrival_times_minutes.append(minutes)
-
-        if arrival_times_minutes:
-            earliest_arrival = min(arrival_times_minutes)
-            latest_arrival = max(arrival_times_minutes)
-            current_spread = latest_arrival - earliest_arrival
-
-            # ONLY synchronize arrivals if in ARRIVAL mode
-            if time_mode == 'arrival':
-                # User specified ARRIVAL time - all buses should arrive at this time
-                target_time_str = data.get('start_time', '08:00')
-                try:
-                    th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
-                except:
-                    target_arrival_minutes = 8 * 60  # Default 08:00
-
-                # Recalculate departure times to synchronize arrivals to target time
-                for route in formatted_routes:
-                    stops = route['outbound']['stops']
-                    dest_stop = None
-                    for stop in stops:
-                        if stop['type'] == 'destination':
-                            dest_stop = stop
-                            break
-
-                    if dest_stop and 'arrival_time' in dest_stop:
-                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
-
-                        # Calculate time shift needed to hit target arrival
-                        # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
-                        # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
-                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
-                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
-
-                        # Shift all times for this route
-                        for stop in stops:
-                            if stop['type'] == 'pickup' and 'departure_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['departure_time'])
-                                new_minutes = old_minutes + delay_minutes
-                                stop['departure_time'] = format_time_from_minutes(new_minutes)
-                            elif stop['type'] == 'destination' and 'arrival_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
-                                new_minutes = old_minutes + delay_minutes
-                                stop['arrival_time'] = format_time_from_minutes(new_minutes)
-
-                # Recalculate arrival times after synchronization
-                final_arrival_times = []
-                for route in formatted_routes:
-                    for stop in route['outbound']['stops']:
-                        if stop['type'] == 'destination' and 'arrival_time' in stop:
-                            minutes = parse_time_to_minutes(stop['arrival_time'])
-                            final_arrival_times.append(minutes)
-
-                final_earliest = min(final_arrival_times) if final_arrival_times else 0
-                final_latest = max(final_arrival_times) if final_arrival_times else 0
-                final_spread = final_latest - final_earliest
-            else:
-                # DEPARTURE mode: No arrival synchronization, buses arrive naturally
-                final_earliest = earliest_arrival
-                final_latest = latest_arrival
-                final_spread = current_spread
-
-            arrival_window = {
-                'earliest': format_time_from_minutes(final_earliest),
-                'latest': format_time_from_minutes(final_latest),
-                'spread_minutes': final_spread
-            }
-        else:
-            arrival_window = None
-
-        # POST-PROCESSING: Return times (optional, when fine_manifestazione is provided)
-        fine_manifestazione = data.get('fine_manifestazione', '').strip()
-        calculate_return = data.get('calculate_return', True)
-        if calculate_return and fine_manifestazione:
-            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+        arrival_window, fine_manifestazione, calculate_return = _finalize_route_times(formatted_routes, data)
 
         # Calculate Totals
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
@@ -2497,8 +2351,6 @@ def evaluate_plan():
             start_hour, start_min = map(int, start_time_str.split(':'))
         except:
             start_hour, start_min = 8, 0
-        AVERAGE_SPEED_KMH = 30
-        STOP_DWELL_TIME_MIN = 3
         
         for idx, custom_route in enumerate(custom_routes):
             current_vehicle_id = custom_route.get('vehicle_id', idx)
@@ -2507,55 +2359,11 @@ def evaluate_plan():
             stops_data = original_stops
             pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
             
-            # Recalculating everything based on the given pickup stops.
-            seg_distances_m = []
-            if pickup_stops:
-                for i, stop in enumerate(pickup_stops):
-                    ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
-                    seg_distances_m.append(
-                        geocoder.haversine_distance(float(stop.get('lat', 0)), float(stop.get('lon', 0)), float(ns.get('lat', dest_lat)), float(ns.get('lon', dest_lon)))
-                    )
-            
-            geo_data = geocoder.get_route_geometry(stops_data)
-            outbound_geometry = geo_data['geometry'] if geo_data else None
-            outbound_dist = geo_data['distance'] if geo_data else int(sum(seg_distances_m))
-            
-            leg_distances_m = geo_data.get('leg_distances') if geo_data else None
-            leg_durations_s = geo_data.get('leg_durations') if geo_data else None
-            
             total_load = sum([s.get('count', 0) for s in pickup_stops])
-            
-            if pickup_stops:
-                total_haversine_m = sum(seg_distances_m) or 1
-                total_drive_min = (geo_data['duration'] / 60) if geo_data and geo_data.get('duration') else None
-                cumulative_minutes = start_hour * 60 + start_min
-                
-                for i, stop in enumerate(pickup_stops):
-                    # Round each time to 5 min and chain the next leg from the rounded value
-                    cumulative_minutes = round_up_to_5(cumulative_minutes)
-                    stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
 
-                    if leg_distances_m and i < len(leg_distances_m):
-                        seg_dist_m = leg_distances_m[i]
-                        seg_drive_min = (leg_durations_s[i] / 60) if (leg_durations_s and i < len(leg_durations_s)) else (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
-                    else:
-                        seg_dist_m = seg_distances_m[i]
-                        if total_drive_min:
-                            seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
-                        else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+            outbound_geometry, outbound_dist = _compute_outbound_times(
+                stops_data, dest_lat, dest_lon, start_hour * 60 + start_min)
 
-                    stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
-                    stop['time_to_next_min'] = round(seg_drive_min)
-                    cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
-
-                cumulative_minutes = round_up_to_5(cumulative_minutes)
-
-                # Destination arrival time
-                for stop in stops_data:
-                    if stop['type'] == 'destination':
-                        stop['arrival_time'] = format_time_from_minutes(cumulative_minutes)
-                        
             formatted_routes.append({
                 'vehicle_id': current_vehicle_id,
                 'total_load': total_load,
@@ -2566,93 +2374,7 @@ def evaluate_plan():
                 }
             })
             
-        # POST-PROCESSING: Synchronize pickup times for schools split across buses
-        school_times = {}
-        for route_idx, route in enumerate(formatted_routes):
-            for stop_idx, stop in enumerate(route['outbound']['stops']):
-                if stop['type'] == 'pickup':
-                    original_name = stop.get('original_name', stop.get('name'))
-                    if original_name not in school_times:
-                        school_times[original_name] = []
-                    if 'departure_time' in stop:
-                        minutes = parse_time_to_minutes(stop['departure_time'])
-                        school_times[original_name].append({
-                            'route_idx': route_idx, 'stop_idx': stop_idx, 'minutes': minutes
-                        })
-
-        for school_name, times in school_times.items():
-            if len(times) > 1:
-                latest_minutes = max(t['minutes'] for t in times)
-                latest_time_str = format_time_from_minutes(latest_minutes)
-                for t in times:
-                    stop = formatted_routes[t['route_idx']]['outbound']['stops'][t['stop_idx']]
-                    stop['departure_time'] = latest_time_str
-                    stop['synchronized'] = True
-
-        time_mode = data.get('time_mode', 'arrival')
-        arrival_times_minutes = []
-        for route in formatted_routes:
-            for stop in route['outbound']['stops']:
-                if stop['type'] == 'destination' and 'arrival_time' in stop:
-                    minutes = parse_time_to_minutes(stop['arrival_time'])
-                    arrival_times_minutes.append(minutes)
-
-        if arrival_times_minutes:
-            earliest_arrival = min(arrival_times_minutes)
-            latest_arrival = max(arrival_times_minutes)
-            current_spread = latest_arrival - earliest_arrival
-            if time_mode == 'arrival':
-                target_time_str = data.get('start_time', '08:00')
-                try:
-                    th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
-                except:
-                    target_arrival_minutes = 8 * 60
-                
-                for route in formatted_routes:
-                    stops = route['outbound']['stops']
-                    dest_stop = None
-                    for stop in stops:
-                        if stop['type'] == 'destination': 
-                            dest_stop = stop
-                            break
-                    if dest_stop and 'arrival_time' in dest_stop:
-                        current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
-                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
-                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
-                        for stop in stops:
-                            if stop['type'] == 'pickup' and 'departure_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['departure_time'])
-                                stop['departure_time'] = format_time_from_minutes(old_minutes + delay_minutes)
-                            elif stop['type'] == 'destination' and 'arrival_time' in stop:
-                                old_minutes = parse_time_to_minutes(stop['arrival_time'])
-                                stop['arrival_time'] = format_time_from_minutes(old_minutes + delay_minutes)
-
-                final_arrival_times = []
-                for route in formatted_routes:
-                    for stop in route['outbound']['stops']:
-                        if stop['type'] == 'destination' and 'arrival_time' in stop:
-                            final_arrival_times.append(parse_time_to_minutes(stop['arrival_time']))
-                final_earliest = min(final_arrival_times) if final_arrival_times else 0
-                final_latest = max(final_arrival_times) if final_arrival_times else 0
-                final_spread = final_latest - final_earliest
-            else:
-                final_earliest = earliest_arrival
-                final_latest = latest_arrival
-                final_spread = current_spread
-            
-            arrival_window = {
-                'earliest': format_time_from_minutes(final_earliest),
-                'latest': format_time_from_minutes(final_latest),
-                'spread_minutes': final_spread
-            }
-        else:
-            arrival_window = None
-
-        fine_manifestazione = data.get('fine_manifestazione', '').strip()
-        calculate_return = data.get('calculate_return', True)
-        if calculate_return and fine_manifestazione:
-            calculate_return_times_for_routes(formatted_routes, fine_manifestazione)
+        arrival_window, fine_manifestazione, calculate_return = _finalize_route_times(formatted_routes, data)
 
         total_outbound = sum([r['outbound']['distance'] for r in formatted_routes])
         overlaps = find_bus_overlaps(formatted_routes, min_overlap_meters=30)
