@@ -329,20 +329,16 @@ def continue_file_task(task_id, original_schools, filepath, resolutions):
         if filepath and os.path.exists(filepath):
             os.remove(filepath)
 
-        # Determine corrected_file name for download
-        corrected_filename = None
-        if corrected_path and address_corrections and os.path.exists(corrected_path):
-            corrected_filename = os.path.basename(corrected_path)
-
+        # No AI correction in this version: there is no corrected file to download
         tasks[task_id] = {
             'status': 'completed',
             'progress': 100,
             'message': 'Completato!',
             'result': processed_schools,
-            'corrected_file': corrected_filename,
+            'corrected_file': None,
             'address_corrections': address_corrections,
-            'correction_status': correction_status,
-            'unresolved_by_ai': unresolved_by_ai,
+            'correction_status': None,
+            'unresolved_by_ai': [],
         }
 
     except Exception as e:
