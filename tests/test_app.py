@@ -1,5 +1,6 @@
 """Tests for Flask API routes."""
 import io
+import os
 import json
 from unittest.mock import patch
 
@@ -338,3 +339,27 @@ class TestPlacesSafety:
         for call in post.call_args_list + get.call_args_list:
             assert "googleapis.com" not in str(call)
         assert app_module.tasks.pop("no-google")["status"] == "completed"
+
+class TestCheapHardening:
+    def test_upload_rejects_non_excel(self, app_client):
+        data = {"file": (io.BytesIO(b"x"), "evil.sh")}
+        resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
+        assert resp.status_code == 400
+
+    def test_upload_strips_path_from_filename(self, app_client, sample_excel):
+        with open(sample_excel, "rb") as f:
+            data = {"file": (f, "../../escape.xlsx")}
+            with patch("app.threading.Thread") as mock_thread:
+                mock_thread.return_value.start = lambda: None
+                resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
+        assert resp.status_code == 202
+        args = mock_thread.call_args.kwargs["args"]
+        assert "/" not in args[2] and args[2] == "escape.xlsx"
+        assert os.path.dirname(args[1]) == "uploads"
+
+    def test_fixture_name_cannot_escape_realsuite(self, app_client):
+        from app import _fixture_dir, REALSUITE_DIR
+        assert _fixture_dir("..") is None
+        assert _fixture_dir("../x") is None
+        assert _fixture_dir(".hidden") is None
+        assert _fixture_dir("Evento") == os.path.join(REALSUITE_DIR, "Evento")
