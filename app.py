@@ -21,7 +21,10 @@ import school_cache as _school_cache
 
 # Setup static folder to point to frontend/dist
 app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
-CORS(app)
+# Reject oversized uploads before they hit the disk
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
+# In production the frontend is served from the same origin; CORS is only needed by the Vite dev server
+CORS(app, origins=[r"http://localhost:\d+", r"http://127\.0\.0\.1:\d+"])
 
 tasks = {}
 
@@ -417,8 +420,13 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'Nessun file selezionato'}), 400
     
+    # Keep only the base name so a crafted filename can't write outside uploads/
+    original_name = os.path.basename(file.filename.replace('\\', '/'))
+    if not original_name.lower().endswith(('.xlsx', '.xls')):
+        return jsonify({'error': 'Formato non supportato: carica un file Excel (.xlsx)'}), 400
+
     if file:
-        filename = str(uuid.uuid4()) + "_" + file.filename
+        filename = str(uuid.uuid4()) + "_" + original_name
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
         
@@ -426,7 +434,7 @@ def upload_file():
         task_id = str(uuid.uuid4())
         
         # Start background thread
-        thread = threading.Thread(target=process_file_task, args=(task_id, filepath, file.filename))
+        thread = threading.Thread(target=process_file_task, args=(task_id, filepath, original_name))
         thread.daemon = True
         thread.start()
         
@@ -1503,6 +1511,13 @@ REALSUITE_DIR = os.path.join(os.path.dirname(__file__), 'tests', 'realSuite')
 _institutes_index: dict | None = None
 
 
+def _fixture_dir(fixture_name):
+    """Resolve a fixture folder inside tests/realSuite, or None if the name escapes it."""
+    if not fixture_name or fixture_name.startswith('.') or os.path.basename(fixture_name) != fixture_name:
+        return None
+    return os.path.join(REALSUITE_DIR, fixture_name)
+
+
 def _build_institutes_index() -> dict:
     """Scan all realSuite fixtures once and build a name→address→{lat,lon,count} index."""
     import time as _time
@@ -1629,7 +1644,9 @@ def get_fixture(fixture_name):
     first-seen / compound-key logic as _build_coords_json in prepare_realSuite.py,
     so duplicate-Nome cases are handled correctly even on legacy files.
     """
-    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    ev_dir      = _fixture_dir(fixture_name)
+    if ev_dir is None:
+        return jsonify({'error': 'Fixture not found'}), 404
     input_path  = os.path.join(ev_dir, 'input.xlsx')
     config_path = os.path.join(ev_dir, 'config.json')
     coords_path = os.path.join(ev_dir, 'coords.json')
@@ -1694,7 +1711,9 @@ def update_fixture_stop(fixture_name, idx):
     new_lat     = float(data['lat'])
     new_lon     = float(data['lon'])
 
-    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    ev_dir      = _fixture_dir(fixture_name)
+    if ev_dir is None:
+        return jsonify({'error': 'Fixture not found'}), 404
     input_path  = os.path.join(ev_dir, 'input.xlsx')
     coords_path = os.path.join(ev_dir, 'coords.json')
 
@@ -1753,7 +1772,9 @@ def rebuild_fixture_matrices(fixture_name):
 
     Returns: {"ok": True, "geocoded_new": N, "total": M}
     """
-    ev_dir      = os.path.join(REALSUITE_DIR, fixture_name)
+    ev_dir      = _fixture_dir(fixture_name)
+    if ev_dir is None:
+        return jsonify({'error': 'Fixture not found'}), 404
     input_path  = os.path.join(ev_dir, 'input.xlsx')
     config_path = os.path.join(ev_dir, 'config.json')
     coords_path = os.path.join(ev_dir, 'coords.json')

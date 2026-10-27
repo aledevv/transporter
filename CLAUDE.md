@@ -65,7 +65,7 @@ Single Flask app serving both the API and the built frontend (`frontend/dist/`).
 - `address_corrector.py` — `AddressCorrector`: called in `process_file_task` after loading data. Sends addresses to `call_agent()` from `gemini_agent.py`, parses the JSON response (`{id, normalized_address}`), saves `<name>_corretto.xlsx` with an `AI_Corrected=True` column. If that column is already present and `True` for all rows, the agent call is skipped to avoid unnecessary API costs.
 - `gemini_agent.py` — datapizza-ai agent wrapping Gemini Flash. Exposes `call_agent(user_input: str) -> str`. System prompt lives in `gemini_SYSTEM_PROMPT.py`. Requires `GOOGLE_API_KEY` env var.
 - `geocoder.py` — `GeocodingService`: geocodes via Nominatim (OSM), distance matrices via OSRM Table API, route geometry via OSRM Route API. Falls back to Euclidean distance if OSRM fails. Fallback coordinates: Trento center `(46.0697, 11.1211)`.
-- `optimizer.py` — `VRPSolver` wraps Google OR-Tools. Uses a dummy start node (zero-cost from anywhere) and the destination as the end depot. Supports three strategies: `distance` (PATH_CHEAPEST_ARC), `vehicles` (SAVINGS + high fixed cost), `balanced`. Institute mixing is penalized with a cost of 100,000,000 on cross-institute arcs.
+- `optimizer.py` — `VRPSolver` wraps Google OR-Tools. Uses a dummy start node (zero-cost from anywhere) and the destination as the end depot. Supports three strategies: `distance` (PATH_CHEAPEST_ARC), `vehicles` (SAVINGS + high fixed cost), `balanced`. Institute mixing is a soft constraint: cross-institute arcs cost +600 s and same-institute arcs get a 600 s bonus.
 
 ### Frontend (React/Vite — `frontend/`)
 Single-page app using React 18, Tailwind CSS, Leaflet (react-leaflet) for maps, and jsPDF for PDF export.
@@ -90,3 +90,5 @@ Single-page app using React 18, Tailwind CSS, Leaflet (react-leaflet) for maps, 
 **Time modes:**
 - `arrival` — user specifies when all buses must arrive at destination; departure times are back-calculated.
 - `departure` — user specifies when buses leave the first stop.
+
+**Time rounding:** every computed time (outbound departures, destination arrival, return times) is rounded up to the next 5 minutes, and the next time is computed from the rounded one. Shared logic lives in `_compute_outbound_times` and `_finalize_route_times` in `app.py`, used by `/api/optimize`, `/api/optimize_v2` and `/api/evaluate_plan`.
