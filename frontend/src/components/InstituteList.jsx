@@ -7,6 +7,16 @@ import AddressAutocomplete from './AddressAutocomplete';
 import API_BASE_URL from '../config';
 import { collection, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 
+// An address is saved only together with coordinates picked from the suggestions;
+// the Trento-centre fallback means geocoding failed, so it doesn't count either.
+const FALLBACK_COORDS = [46.0697, 11.1211];
+function hasValidCoords(lat, lon) {
+    if (lat == null || lon == null || isNaN(lat) || isNaN(lon)) return false;
+    return !(Math.abs(lat - FALLBACK_COORDS[0]) < 1e-6 && Math.abs(lon - FALLBACK_COORDS[1]) < 1e-6);
+}
+
+const MISSING_COORDS_HINT = 'Scegli un indirizzo dalla lista dei suggerimenti, oppure incolla le coordinate (lat, lon) e seleziona "Usa coordinate esatte".';
+
 // ─── Pin icon ─────────────────────────────────────────────────────────────────
 
 const _iconCache = new Map();
@@ -601,6 +611,10 @@ export default function InstituteList({ db }) {
                 newFixtureName += ` (${editForm.description.trim()})`;
             }
 
+            if (!hasValidCoords(editForm.lat, editForm.lon)) {
+                throw new Error(MISSING_COORDS_HINT);
+            }
+
             const resp = await fetch(`${API_BASE_URL}/api/fixtures/institutes/update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -662,6 +676,9 @@ export default function InstituteList({ db }) {
         try {
             if (!addForm.name.trim() || !addForm.address.trim()) {
                 throw new Error("Nome e indirizzo sono obbligatori");
+            }
+            if (!hasValidCoords(addForm.lat, addForm.lon)) {
+                throw new Error(MISSING_COORDS_HINT);
             }
             if (!db) {
                 throw new Error("Connessione al database non disponibile");
@@ -876,15 +893,20 @@ export default function InstituteList({ db }) {
                                     }
                                     placeholder="Indirizzo o coordinate (lat, lon)..."
                                 />
-                                {addForm.lat != null && (
+                                {addForm.lat != null ? (
                                     <div className="text-xs text-green-600 font-mono">
                                         {addForm.lat.toFixed(5)}, {addForm.lon.toFixed(5)}
+                                    </div>
+                                ) : addForm.address.trim() && (
+                                    <div className="flex items-start gap-1 text-xs text-amber-700">
+                                        <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                        <span>{MISSING_COORDS_HINT}</span>
                                     </div>
                                 )}
                                 <div className="flex gap-1">
                                     <button
                                         onClick={handleAdd}
-                                        disabled={saving || !addForm.name.trim() || !addForm.address.trim()}
+                                        disabled={saving || !addForm.name.trim() || !addForm.address.trim() || !hasValidCoords(addForm.lat, addForm.lon)}
                                         className="flex-1 flex items-center justify-center gap-1 text-xs bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-1 rounded-md"
                                     >
                                         <Check className="w-3 h-3" />
@@ -926,7 +948,7 @@ export default function InstituteList({ db }) {
                                         const isEdit  = editingKey === key;
                                         const isDel   = deleteKey  === key;
                                         const isHL    = highlighted?.name === inst.name && highlighted?.address === entry.address && highlighted?.uniqueId === uniqueId;
-                                        const hasPt   = entry.lat != null;
+                                        const hasPt   = hasValidCoords(entry.lat, entry.lon);
 
                                         /* ── Edit form ── */
                                         if (isEdit) return (
@@ -951,9 +973,14 @@ export default function InstituteList({ db }) {
                                                     }
                                                     placeholder="Indirizzo..."
                                                 />
-                                                {editForm.lat != null && (
+                                                {editForm.lat != null ? (
                                                     <div className="text-xs text-green-600 font-mono">
                                                         {editForm.lat.toFixed(5)}, {editForm.lon.toFixed(5)}
+                                                    </div>
+                                                ) : editForm.address.trim() && (
+                                                    <div className="flex items-start gap-1 text-xs text-amber-700">
+                                                        <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                                        <span>{MISSING_COORDS_HINT}</span>
                                                     </div>
                                                 )}
                                                 {/* Merge conflict prompt */}
@@ -1006,7 +1033,7 @@ export default function InstituteList({ db }) {
                                                 <div className="flex gap-1">
                                                     <button
                                                         onClick={() => handleSave(inst.name, entry.address, uniqueId)}
-                                                        disabled={saving || !editForm.name.trim() || !editForm.address.trim()}
+                                                        disabled={saving || !editForm.name.trim() || !editForm.address.trim() || !hasValidCoords(editForm.lat, editForm.lon)}
                                                         className="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-1 rounded-md"
                                                     >
                                                         <Check className="w-3 h-3" />
@@ -1093,6 +1120,11 @@ export default function InstituteList({ db }) {
                                                         </div>
                                                     )}
                                                     <div className="text-xs text-gray-500 truncate leading-tight">{entry.address}</div>
+                                                    {!hasPt && (
+                                                        <div className="text-[11px] text-amber-700 leading-tight">
+                                                            Senza posizione: non viene proposto al caricamento. Modifica e scegli un suggerimento.
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 {entry.fixture_count > 1 && (
                                                     <span className="text-xs text-gray-400 flex-shrink-0">×{entry.fixture_count}</span>

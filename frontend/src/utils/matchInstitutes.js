@@ -165,12 +165,23 @@ function scoreMatch(school, dbEntry) {
   return Math.min(baseScore + crossBonus + exactAddressBonus, 1.0);
 }
 
+const FALLBACK_COORDS = [46.0697, 11.1211];
+
+function hasUsableCoords(inst) {
+  const { lat, lon } = inst;
+  if (lat == null || lon == null || isNaN(lat) || isNaN(lon)) return false;
+  return !(Math.abs(lat - FALLBACK_COORDS[0]) < 1e-6 && Math.abs(lon - FALLBACK_COORDS[1]) < 1e-6);
+}
+
 /**
  * Returns up to maxCandidates DB entries that match the given school.
  * Each candidate has an extra `_matchScore` field.
  */
 export function findCandidates(school, dbInstitutes, { maxCandidates = 5, threshold = 0.4 } = {}) {
   return dbInstitutes
+    // Entries saved without coordinates (or with the Trento-centre geocoding
+    // fallback) can't be used as a resolution
+    .filter(hasUsableCoords)
     .map(inst => {
         const score = scoreMatch(school, inst);
         return { ...inst, _matchScore: score, _isPerfect: score >= 0.99 };
