@@ -108,7 +108,9 @@ function App() {
         const matchesToShow = [];
 
         matches.forEach(({ school, candidates }) => {
-            const perfect = candidates.find(c => c._isPerfect);
+            // Skip the review only when exactly one candidate is a sure match
+            const perfects = candidates.filter(c => c._isPerfect);
+            const perfect = perfects.length === 1 && perfects[0] === candidates[0] ? perfects[0] : null;
             if (perfect) {
                 autoResolved[school.id] = {
                     lat: perfect.lat,

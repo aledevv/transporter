@@ -38,6 +38,12 @@ function normalizeName(name) {
     .filter(t => t.length >= 3 && !NAME_TYPE_STOP.has(t));
 }
 
+// Institute numbers ("IC TRENTO 3" vs "IC TRENTO 6") are dropped by normalizeName
+// (too short) but they identify different institutes
+function nameNumbers(name) {
+  return (name || '').replace(/\(.*?\)/g, '').match(/\b\d+\b/g) || [];
+}
+
 function normalizeAddress(addr) {
   return (addr || '')
     .toLowerCase()
@@ -162,7 +168,21 @@ function scoreMatch(school, dbEntry) {
       }
   }
 
-  return Math.min(baseScore + crossBonus + exactAddressBonus, 1.0);
+  // Not capped at 1.0 here: several candidates would tie at 100% and the ranking
+  // would fall back to Firestore order. findCandidates caps it for display.
+  let score = baseScore + crossBonus + exactAddressBonus;
+
+  // Different institute numbers ("IC TRENTO 3" vs "IC TRENTO 6") are different institutes
+  const sNums = nameNumbers(sNameStr);
+  const dNums = nameNumbers(dNameStr);
+  if (sNums.length && dNums.length && !sNums.some(n => dNums.includes(n))) score *= 0.5;
+
+  // The name identifies the institute: a candidate whose name shares nothing with
+  // the stop (it only got here through address/city words like "trento") must not
+  // outrank one with the right name, or the % shown would contradict the choice.
+  if (nameScore === 0 && descScore === 0) score *= 0.6;
+
+  return score;
 }
 
 const FALLBACK_COORDS = [46.0697, 11.1211];
@@ -178,16 +198,22 @@ function hasUsableCoords(inst) {
  * Each candidate has an extra `_matchScore` field.
  */
 export function findCandidates(school, dbInstitutes, { maxCandidates = 5, threshold = 0.4 } = {}) {
+  const sName = normalizeName((school.name || '').replace(/\(.*?\)/g, ''));
   return dbInstitutes
     // Entries saved without coordinates (or with the Trento-centre geocoding
     // fallback) can't be used as a resolution
     .filter(hasUsableCoords)
     .map(inst => {
-        const score = scoreMatch(school, inst);
-        return { ...inst, _matchScore: score, _isPerfect: score >= 0.99 };
+        const raw = scoreMatch(school, inst);
+        const dName = normalizeName((inst.name || '').replace(/\(.*?\)/g, ''));
+        const nameExact = sName.length > 0 && sName.length === dName.length && sName.every(t => dName.includes(t));
+        // Same institute name ranks above another institute at the same address
+        const ranked = nameExact ? raw + 0.25 : raw;
+        return { ...inst, _rawScore: ranked, _matchScore: Math.min(ranked, 1.0), _nameExact: nameExact, _isPerfect: raw >= 0.99 && nameExact };
     })
     .filter(c => c._matchScore >= threshold)
-    .sort((a, b) => b._matchScore - a._matchScore)
+    // Rank by the uncapped score so ties at 100% keep a meaningful order
+    .sort((a, b) => b._rawScore - a._rawScore)
     .slice(0, maxCandidates);
 }
 
@@ -209,27 +235,8 @@ export function buildMatchList(schools, dbInstitutes) {
  * 4. Otherwise, fallback to the first candidate (highest score).
  */
 export function getBestDefaultCandidate(school, candidates) {
+    // Candidates are already ranked by score, so the preselected one is
+    // always the first, with the highest % shown
     if (!candidates || candidates.length === 0) return null;
-    if (candidates.length === 1) return candidates[0];
-
-    const perfectMatches = candidates.filter(c => c._matchScore >= 0.99);
-    if (perfectMatches.length === 1) return perfectMatches[0];
-
-    // The address-token tie-break only chooses among candidates close to the best
-    // score; otherwise a generic word ("enaip") could pick a far worse match
-    const bestScore = candidates[0]._matchScore;
-    const nearBest = candidates.filter(c => c._matchScore >= bestScore - 0.1);
-
-    const sNameTokens = normalizeName(school.name);
-    for (const token of sNameTokens) {
-        const candidatesWithToken = nearBest.filter(c => {
-            const dAddrTokens = normalizeAddress(c.address);
-            return dAddrTokens.includes(token);
-        });
-        if (candidatesWithToken.length === 1) {
-            return candidatesWithToken[0];
-        }
-    }
-
     return candidates[0];
 }
