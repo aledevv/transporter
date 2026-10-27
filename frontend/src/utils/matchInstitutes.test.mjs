@@ -67,3 +67,13 @@ test('learning adds the Excel name only when it is new', () => {
   assert.equal(aliasToLearn('ENAIP TIONE (Via Durone)', entry), null);
   assert.equal(aliasToLearn('  ', entry), null);
 });
+
+test('alias equal to another entry name: both shown, no sure single match', () => {
+  // Real case after the 27/10 merge: Vezzano entry got alias "IC VALLE DEI LAGHI DRO",
+  // which is also the name of the separate Dro entry
+  const vezzano = { id: 'vezzano', name: 'IC VALLE DEI LAGHI DRO - Vallelaghi', address: 'Scuola primaria Vezzano, 3, Via Roma, Lon, Vezzano, Vallelaghi', lat: 46.0779, lon: 11.0002, aliases: ['IC VALLE DEI LAGHI DRO'] };
+  const dro = { id: 'dro', name: 'IC VALLE DEI LAGHI DRO', address: 'Scuola Secondaria di primo grado "Nuova Europa", Via S. Antonio, Dro', lat: 45.9625, lon: 10.9118 };
+  const c = findCandidates({ name: 'IC VALLE DEI LAGHI DRO', address: 'Piazza della Mostra, Arco' }, [vezzano, dro]);
+  assert.equal(c.length, 2);
+  assert.equal(c.filter(x => x._isPerfect).length === 1 && c[0]._isPerfect, false);
+});
