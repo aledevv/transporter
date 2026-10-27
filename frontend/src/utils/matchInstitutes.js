@@ -215,9 +215,14 @@ export function getBestDefaultCandidate(school, candidates) {
     const perfectMatches = candidates.filter(c => c._matchScore >= 0.99);
     if (perfectMatches.length === 1) return perfectMatches[0];
 
+    // The address-token tie-break only chooses among candidates close to the best
+    // score; otherwise a generic word ("enaip") could pick a far worse match
+    const bestScore = candidates[0]._matchScore;
+    const nearBest = candidates.filter(c => c._matchScore >= bestScore - 0.1);
+
     const sNameTokens = normalizeName(school.name);
     for (const token of sNameTokens) {
-        const candidatesWithToken = candidates.filter(c => {
+        const candidatesWithToken = nearBest.filter(c => {
             const dAddrTokens = normalizeAddress(c.address);
             return dAddrTokens.includes(token);
         });
