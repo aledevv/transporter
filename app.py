@@ -235,6 +235,9 @@ def continue_file_task(task_id, original_schools, filepath, resolutions):
                 keep_ids.add(sid)
             elif res == 'keep':
                 keep_ids.add(sid)
+            elif not isinstance(res, dict) or res.get('lat') is None or res.get('lon') is None:
+                # DB entry saved without coordinates: geocode the original address instead
+                keep_ids.add(sid)
             else:
                 pre_geocoded_ids.add(sid)
 
