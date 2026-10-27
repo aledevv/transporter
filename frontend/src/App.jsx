@@ -4,7 +4,6 @@ import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, 
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
-import AddressCorrectionBanner from './components/AddressCorrectionBanner';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import DBMatchModal from './components/DBMatchModal';
 import { buildMatchList } from './utils/matchInstitutes';
@@ -29,9 +28,6 @@ const formatDuration = (seconds) => {
 
 const makeStableId = (name, address) =>
     btoa(unescape(encodeURIComponent(`${name}||${address}`))).replace(/[/+=]/g, '_');
-
-// ~2.5s/address: adjusted from 5s after user feedback (actual ~52s for 22 addresses)
-const AI_SECONDS_PER_ADDRESS = 2.5;
 
 // Simple Loading Overlay Component
 const LoadingOverlay = ({ progress, message }) => {
@@ -70,9 +66,8 @@ function App() {
     const [showDetails, setShowDetails] = useState(false);
     const [openEditorTrigger, setOpenEditorTrigger] = useState(0);
     const [resetKey, setResetKey] = useState(0);
-    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: false }); // Global loading state
+    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
     const [processingError, setProcessingError] = useState(null); // Error message string | null
-    const [correctionInfo, setCorrectionInfo] = useState(null); // { corrections, correctedFile, unresolvedByAI }
     const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
     // null = not yet fetched (Map must not render until this is set)
@@ -212,16 +207,10 @@ function App() {
         }
     };
 
-    const handleUploadComplete = async ({ schools: data, correctedFile, addressCorrections, correctionStatus, unresolvedByAI }) => {
+    const handleUploadComplete = async ({ result: data }) => {
         setSchools(data);
         setResumeDismissed(true);
         setMessage('File caricato con successo! Procedi alla configurazione.');
-        setCorrectionInfo({
-            corrections: addressCorrections ?? [],
-            correctedFile,
-            status: correctionStatus,
-            unresolvedByAI: unresolvedByAI ?? [],
-        });
         const failed = data.filter(s => s.geocoding_failed);
         if (failed.length > 0) setGeocodingFailures(failed);
         if (db) {
@@ -250,7 +239,7 @@ function App() {
     };
 
     const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null) => {
-        setLoadingState({ active: true, progress: 20, message: 'Correzione indirizzi con AI...', totalAddresses: 0, aiExtraSeconds: 0, isAiPhase: true });
+        setLoadingState({ active: true, progress: 20, message: 'Geocoding...' });
         try {
             const requestBody = body ?? { task_id: taskId, resolutions };
             const resp = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -294,19 +283,12 @@ function App() {
                         ...prev,
                         progress: progress || 0,
                         message: message || '',
-                        totalAddresses: statusData.total_addresses || 0,
-                        aiExtraSeconds: statusData.ai_extra_seconds || 0,
-                        isAiPhase: statusData.is_ai_phase || false,
                     }));
                     if (status === 'completed') {
                         clearInterval(pollInterval);
                         setLoadingState({ active: false, progress: 100, message: 'Completato' });
                         await handleUploadComplete({
-                            schools: result,
-                            correctedFile: statusData.corrected_file,
-                            addressCorrections: statusData.address_corrections ?? [],
-                            correctionStatus: statusData.correction_status,
-                            unresolvedByAI: statusData.unresolved_by_ai ?? [],
+                            result: result,
                         });
                     } else if (status === 'error') {
                         console.error('continueProcessing poll: task error:', statusData.message);
@@ -495,35 +477,7 @@ function App() {
         } catch (err) { console.warn('Failed to save pending trip:', err.message); }
     };
 
-    const handleManualAddressCorrect = async (schoolName, newAddress) => {
-        const resp = await fetch(`${API_BASE_URL}/api/geocode`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ address: newAddress }),
-        });
-        if (!resp.ok) {
-            const errData = await resp.json().catch(() => ({}));
-            console.error('geocode error:', resp.status, errData);
-            throw new Error(errData.error || `Geocoding fallito (HTTP ${resp.status})`);
-        }
-        const data = await resp.json();
-        const { lat, lon, success } = data;
-        if (!success) {
-            console.warn('geocode: address not found, using fallback coords for', newAddress);
-        }
-        setSchools(prev => prev.map(s => {
-            if (s.name !== schoolName) return s;
-            return {
-                ...s,
-                // Keep original Excel address as display_address if not already set
-                display_address: s.display_address || s.address,
-                address: newAddress,
-                lat: parseFloat(lat),
-                lon: parseFloat(lon),
-                geocoding_failed: !success,
-            };
-        }));
-    };
+
 
     const handleSchoolsFromDB = async (schoolsFromDB) => {
         setSchools(schoolsFromDB);
@@ -769,16 +723,6 @@ function App() {
                                     </button>
                                 </div>
                             </div>
-                        )}
-
-                        {correctionInfo && (correctionInfo.corrections.length > 0 || (correctionInfo.unresolvedByAI ?? []).length > 0 || correctionInfo.status === 'rate_limit' || correctionInfo.status === 'error') && (
-                            <AddressCorrectionBanner
-                                corrections={correctionInfo.corrections}
-                                correctedFile={correctionInfo.correctedFile}
-                                correctionStatus={correctionInfo.status}
-                                unresolvedByAI={correctionInfo.unresolvedByAI ?? []}
-                                onManualCorrect={handleManualAddressCorrect}
-                            />
                         )}
 
                         {schools.length > 0 && (

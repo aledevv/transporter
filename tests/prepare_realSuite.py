@@ -3,8 +3,7 @@ Prepare realSuite test cases.
 
 Usage:
   python tests/prepare_realSuite.py --extract          # Step 1: extract input.xlsx + groundtruth.xlsx
-  python tests/prepare_realSuite.py --correct          # Step 2: AI-correct addresses (run once)
-  python tests/prepare_realSuite.py --geocode          # Step 3: geocode + build time_matrix.json
+  python tests/prepare_realSuite.py --geocode          # Step 2: geocode + build time_matrix.json
   python tests/prepare_realSuite.py                    # Run all steps in sequence
 """
 import argparse
@@ -165,57 +164,8 @@ def run_extract():
 
 
 # -----------------------------------------------------------------------
-# Phase 2 and 3 stubs (implemented in later tasks)
+# Phase 2 (geocode)
 # -----------------------------------------------------------------------
-
-def run_correct():
-    """Phase 2: AI-correct addresses in each event's input.xlsx.
-
-    Idempotent: skips events where input_corretto.xlsx already has AI_Corrected=True for all rows.
-    Requires GOOGLE_API_KEY environment variable.
-    """
-    sys.path.insert(0, str(TESTS_DIR.parent))
-    from address_corrector import AddressCorrector
-
-    corrector = AddressCorrector()
-    event_dirs = sorted(
-        d for d in REALSUITE_DIR.iterdir()
-        if d.is_dir() and (d / "input.xlsx").exists()
-    )
-
-    for ev_dir in event_dirs:
-        input_path = ev_dir / "input.xlsx"
-        corretto_path = ev_dir / "input_corretto.xlsx"
-
-        # Skip if already fully corrected
-        if corretto_path.exists():
-            try:
-                df_check = pd.read_excel(corretto_path)
-                if "AI_Corrected" in df_check.columns and df_check["AI_Corrected"].astype(bool).all():
-                    print(f"[correct] {ev_dir.name}: already corrected — skipping.")
-                    continue
-            except Exception:
-                pass  # Re-correct if the file is unreadable
-
-        df = pd.read_excel(input_path)
-        schools = [
-            {"name": str(row["Nome"]), "address": str(row["Indirizzo"])}
-            for _, row in df.iterrows()
-        ]
-
-        _, status, unresolved = corrector.correct_addresses(
-            schools, input_path, corretto_path
-        )
-
-        if unresolved:
-            print(
-                f"WARNING [{ev_dir.name}] {len(unresolved)} address(es) not resolved by AI:\n"
-                + "\n".join(f"  - {u}" for u in unresolved)
-            )
-
-        print(f"[correct] {ev_dir.name}: status={status}")
-
-    print("\nCorrection phase complete.")
 
 
 def _haversine_m(lat1, lon1, lat2, lon2):
@@ -252,10 +202,10 @@ def _build_coords_json(schools: list) -> dict:
 
 
 def run_geocode():
-    """Phase 3: geocode schools + destination, sanity-check, write coords.json + time_matrix.json.
+    """Phase 2: geocode schools + destination, sanity-check, write coords.json + time_matrix.json.
 
     Idempotent: skips events where both coords.json and time_matrix.json exist.
-    Uses corrected addresses (input_corretto.xlsx) when available, else raw input.xlsx.
+    Uses input.xlsx.
     """
     sys.path.insert(0, str(TESTS_DIR.parent))
     from geocoder import GeocodingService
@@ -288,12 +238,8 @@ def run_geocode():
             print(f"[geocode] {ev_dir.name}: already done — skipping.")
             continue
 
-        # Use corrected file if available, else raw input
-        input_path = (
-            ev_dir / "input_corretto.xlsx"
-            if (ev_dir / "input_corretto.xlsx").exists()
-            else ev_dir / "input.xlsx"
-        )
+        # Use raw input
+        input_path = ev_dir / "input.xlsx"
         df = pd.read_excel(input_path)
         config = json.loads((ev_dir / "config.json").read_text(encoding="utf-8"))
 
@@ -351,15 +297,12 @@ def run_geocode():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare realSuite test cases")
     parser.add_argument("--extract", action="store_true", help="Extract input.xlsx files")
-    parser.add_argument("--correct", action="store_true", help="AI-correct addresses")
     parser.add_argument("--geocode", action="store_true", help="Geocode + build time matrices")
     args = parser.parse_args()
 
-    run_all = not any([args.extract, args.correct, args.geocode])
+    run_all = not any([args.extract, args.geocode])
 
     if args.extract or run_all:
         run_extract()
-    if args.correct or run_all:
-        run_correct()
     if args.geocode or run_all:
         run_geocode()
