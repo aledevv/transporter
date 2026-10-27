@@ -187,6 +187,24 @@ function scoreMatch(school, dbEntry) {
 
 const FALLBACK_COORDS = [46.0697, 11.1211];
 
+// Case- and accent-insensitive form used to compare names and aliases
+export function normalizeForCompare(text) {
+  return (text || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+/**
+ * The alias to add to a DB entry after a stop named `excelName` was matched to
+ * it, or null when that name is already the entry's name or one of its aliases.
+ */
+export function aliasToLearn(excelName, entry) {
+  const name = (excelName || '').trim();
+  if (!name || !entry) return null;
+  const known = [entry.name, entry.originalName, ...(entry.aliases || [])].map(normalizeForCompare);
+  return known.includes(normalizeForCompare(name)) ? null : name;
+}
+
 function hasUsableCoords(inst) {
   const { lat, lon } = inst;
   if (lat == null || lon == null || isNaN(lat) || isNaN(lon)) return false;
@@ -204,12 +222,30 @@ export function findCandidates(school, dbInstitutes, { maxCandidates = 5, thresh
     // fallback) can't be used as a resolution
     .filter(hasUsableCoords)
     .map(inst => {
-        const raw = scoreMatch(school, inst);
-        const dName = normalizeName((inst.name || '').replace(/\(.*?\)/g, ''));
-        const nameExact = sName.length > 0 && sName.length === dName.length && sName.every(t => dName.includes(t));
-        // Same institute name ranks above another institute at the same address
-        const ranked = nameExact ? raw + 0.25 : raw;
-        return { ...inst, _rawScore: ranked, _matchScore: Math.min(ranked, 1.0), _nameExact: nameExact, _isPerfect: raw >= 0.99 && nameExact };
+        // A point can be known under several names (aliases saved when entries with
+        // the same coordinates were merged, or when a stop was matched to it):
+        // score each name and keep the best one
+        const variants = [
+            { name: inst.name, description: inst.description },
+            ...(inst.aliases || []).filter(Boolean).map(alias => ({ name: alias, description: '', isAlias: true })),
+        ];
+        let best = null;
+        for (const v of variants) {
+            const raw = scoreMatch(school, { ...inst, ...v });
+            const dName = normalizeName((v.name || '').replace(/\(.*?\)/g, ''));
+            const nameExact = sName.length > 0 && sName.length === dName.length && sName.every(t => dName.includes(t));
+            // Same institute name ranks above another institute at the same address
+            const ranked = nameExact ? raw + 0.25 : raw;
+            if (!best || ranked > best.ranked) best = { raw, ranked, nameExact, v };
+        }
+        return {
+            ...inst,
+            _rawScore: best.ranked,
+            _matchScore: Math.min(best.ranked, 1.0),
+            _nameExact: best.nameExact,
+            _isPerfect: best.raw >= 0.99 && best.nameExact,
+            _matchedAlias: best.v.isAlias ? best.v.name : null,
+        };
     })
     .filter(c => c._matchScore >= threshold)
     // Rank by the uncapped score so ties at 100% keep a meaningful order

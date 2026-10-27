@@ -1,7 +1,7 @@
 // Run with: node --test frontend/src/utils/matchInstitutes.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { findCandidates, getBestDefaultCandidate } from './matchInstitutes.js';
+import { findCandidates, getBestDefaultCandidate, aliasToLearn } from './matchInstitutes.js';
 
 // Real entries from the Firestore "institutes" collection (October 2026)
 const PROV = "Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol";
@@ -42,4 +42,28 @@ test('institute numbers are not interchangeable', () => {
 test('entries without usable coordinates are never proposed', () => {
   const c = findCandidates({ name: 'IS ENAIP TIONE', address: 'stazione dei trenti - Tione' }, db);
   assert.ok(c.every(x => x.id !== 'nocoords' && x.id !== 'fallback'));
+});
+
+test('an alias name counts as the same institute, also for auto-assign', () => {
+  const point = { id: 'orsi', name: 'IS DON MILANI ROVERETO', address: 'Rovereto, P.le Orsi', lat: 45.89, lon: 11.04, aliases: ['IC Rovereto Est', 'IC ALTA VALLAGARINA - Besenello'] };
+  const other = { id: 'quercia', name: 'IC ROVERETO NORD', address: 'Stadio Quercia, Via Palestrina, Rovereto', lat: 45.9, lon: 11.05 };
+  const c = findCandidates({ name: 'IC ROVERETO EST', address: 'Piazzale Orsi - Rovereto' }, [other, point]);
+  assert.equal(c[0].id, 'orsi');
+  assert.equal(c[0]._matchedAlias, 'IC Rovereto Est');
+  assert.ok(c[0]._isPerfect);
+});
+
+test('alias numbers follow the same rule as names', () => {
+  const point = { id: 'funivia', name: 'IC TRENTO 3', address: 'Fermata bus Funivia, Trento', lat: 46.07, lon: 11.11, aliases: ['IC TRENTO 5'] };
+  const c = findCandidates({ name: 'IC TRENTO 6', address: 'Fermata bus Funivia, Trento' }, [point]);
+  assert.ok(!c.length || !c[0]._isPerfect);
+});
+
+test('learning adds the Excel name only when it is new', () => {
+  const entry = { name: 'ENAIP TIONE', originalName: 'ENAIP TIONE (Via Durone)', aliases: ['IS Guetti Tione'] };
+  assert.equal(aliasToLearn('IS ENAIP di TIONE', entry), 'IS ENAIP di TIONE');
+  assert.equal(aliasToLearn('enaip tione', entry), null);
+  assert.equal(aliasToLearn('IS GUÈTTI TIONE', entry), null);
+  assert.equal(aliasToLearn('ENAIP TIONE (Via Durone)', entry), null);
+  assert.equal(aliasToLearn('  ', entry), null);
 });

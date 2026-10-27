@@ -41,6 +41,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                     lon: best.lon,
                     address: best.address,
                     name: best.name,
+                    docId: best.id,
                     saveToDb: false,
                     needsConfirmation: hasTie
                 };
@@ -78,6 +79,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                 lon: candidate.lon,
                 address: candidate.address || candidate.description || candidate.name,
                 name: candidate.name || candidate.address || candidate.description,
+                docId: fromDbList ? candidate.id : undefined,
                 saveToDb: isNew,
                 needsConfirmation: false,
                 isCustom: !fromDbList
@@ -101,6 +103,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                     lon: best.lon,
                     address: best.address,
                     name: best.name,
+                    docId: best.id,
                     saveToDb: false,
                     needsConfirmation: hasTie
                 };
@@ -646,6 +649,16 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                                 <span>Verifica tutte le fermate per procedere</span>
                             )}
                         </div>
+                        <div className="flex items-center gap-2">
+                        {resolvedCount < totalCount && (
+                            <button
+                                onClick={scrollToNextUnresolved}
+                                className="px-5 py-2 rounded-lg font-medium transition-all bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-1"
+                            >
+                                <ChevronDown className="w-4 h-4" />
+                                Vai al prossimo
+                            </button>
+                        )}
                         <button
                             onClick={handleConfirm}
                             disabled={!allResolved}
@@ -657,6 +670,7 @@ const DBMatchModal = ({ matchList, onResolved, onClose }) => {
                         >
                             Conferma Selezioni
                         </button>
+                        </div>
                     </div>
                 </div>
             </div>

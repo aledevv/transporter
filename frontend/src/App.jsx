@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Menu, FileSpreadsheet, Database } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs, setDoc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import GeocodingFailuresModal from './components/GeocodingFailuresModal';
 import DBMatchModal from './components/DBMatchModal';
-import { buildMatchList } from './utils/matchInstitutes';
+import { buildMatchList, aliasToLearn } from './utils/matchInstitutes';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
@@ -116,7 +116,8 @@ function App() {
                     lat: perfect.lat,
                     lon: perfect.lon,
                     address: perfect.address,
-                    name: perfect.name
+                    name: perfect.name,
+                    docId: perfect.id,
                 };
             } else {
                 matchesToShow.push({ school, candidates });
@@ -445,6 +446,18 @@ function App() {
                     }
                 });
                 
+                // A stop matched to an existing DB entry under another name: remember
+                // that name as an alias, so the next Excel using it matches directly.
+                // updateDoc only changes `aliases` and never creates a document.
+                Object.entries(finalResolutions).forEach(([schoolId, res]) => {
+                    if (!res || res === 'keep' || res.discard || res.saveToDb || !res.docId) return;
+                    const original = rawSchools.find(s => String(s.id) === String(schoolId));
+                    const entry = allDbInstitutesRef.current.find(i => i.id === res.docId);
+                    const alias = original && aliasToLearn(original.name, entry);
+                    if (!alias) return;
+                    writes.push(updateDoc(doc(db, 'institutes', res.docId), { aliases: arrayUnion(alias) }));
+                });
+
                 if (writes.length > 0) {
                     Promise.all(writes).catch(err => console.error("Error saving to Firestore:", err));
                 }

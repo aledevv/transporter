@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Pencil, Trash2, Check, X, AlertTriangle, MoreVertical, ArrowRightLeft } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import API_BASE_URL from '../config';
-import { collection, getDocs, setDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, setDoc, deleteDoc, updateDoc, arrayRemove, doc, serverTimestamp } from 'firebase/firestore';
 
 // An address is saved only together with coordinates picked from the suggestions;
 // the Trento-centre fallback means geocoding failed, so it doesn't count either.
@@ -82,7 +82,7 @@ const makeStableId = (name, address) =>
 function firestoreDocsToInstitutes(docs) {
     const map = new Map();
     for (const d of docs) {
-        let { id: docId, name, address, lat, lon, type, description, originalName } = d;
+        let { id: docId, name, address, lat, lon, type, description, originalName, aliases } = d;
         let cleanName = name || '';
         let desc = description || '';
 
@@ -101,7 +101,8 @@ function firestoreDocsToInstitutes(docs) {
             address, lat, lon, fixture_count: 1, _docId: docId, 
             type: type || defaultType, 
             description: desc,
-            originalName: originalName || name 
+            originalName: originalName || name,
+            aliases: aliases || [],
         });
     }
     const result = [];
@@ -705,6 +706,16 @@ export default function InstituteList({ db }) {
         }
     };
 
+    const handleRemoveAlias = async (docId, alias) => {
+        if (!db) return;
+        try {
+            await updateDoc(doc(db, 'institutes', docId), { aliases: arrayRemove(alias) });
+            load();
+        } catch (err) {
+            setStatusMsg({ type: 'err', text: err.message });
+        }
+    };
+
     const handleDelete = async (name, address, uniqueId) => {
         setDeleting(true);
         try {
@@ -1120,6 +1131,24 @@ export default function InstituteList({ db }) {
                                                         </div>
                                                     )}
                                                     <div className="text-xs text-gray-500 truncate leading-tight">{entry.address}</div>
+                                                    {entry.aliases?.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-0.5">
+                                                            {entry.aliases.map(alias => (
+                                                                <span key={alias} className="inline-flex items-center gap-0.5 text-[10px] leading-tight bg-gray-100 text-gray-600 rounded px-1.5 py-0.5" title="Nome alternativo usato negli Excel">
+                                                                    {alias}
+                                                                    {!multiSelectMode && entry._docId && (
+                                                                        <button
+                                                                            onClick={e => { e.stopPropagation(); handleRemoveAlias(entry._docId, alias); }}
+                                                                            className="text-gray-400 hover:text-red-600"
+                                                                            title="Rimuovi questo nome alternativo"
+                                                                        >
+                                                                            <X className="w-2.5 h-2.5" />
+                                                                        </button>
+                                                                    )}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                     {!hasPt && (
                                                         <div className="text-[11px] text-amber-700 leading-tight">
                                                             Senza posizione: non viene proposto al caricamento. Modifica e scegli un suggerimento.
