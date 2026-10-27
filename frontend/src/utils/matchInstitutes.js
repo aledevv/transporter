@@ -195,14 +195,33 @@ export function normalizeForCompare(text) {
 }
 
 /**
+ * Whether two names look like the same school written differently: all the
+ * words of the shorter name appear in the longer one and the numbers agree
+ * ("IS ENAIP di TIONE" / "ENAIP TIONE", "ANDALO (SM)" / "IC MEZZOLOMBARDO
+ * PAGANELLA - Andalo"). Different schools that share a meeting point
+ * ("IS FILZI ROVERETO" / "IC DAME INGLESI ROVERETO") are not.
+ */
+export function looksLikeSameSchool(a, b) {
+  const ta = normalizeName((a || '').replace(/\(.*?\)/g, ''));
+  const tb = normalizeName((b || '').replace(/\(.*?\)/g, ''));
+  if (!ta.length || !tb.length) return false;
+  const [short, long] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
+  if (!short.every(t => long.some(u => u === t || (t.length >= 5 && (u.startsWith(t) || t.startsWith(u)))))) return false;
+  const na = nameNumbers(a), nb = nameNumbers(b);
+  return !(na.length && nb.length && !na.some(x => nb.includes(x)));
+}
+
+/**
  * The alias to add to a DB entry after a stop named `excelName` was matched to
- * it, or null when that name is already the entry's name or one of its aliases.
+ * it, or null when that name is already known for the entry, or when it is a
+ * different school that only shares the entry's meeting point.
  */
 export function aliasToLearn(excelName, entry) {
   const name = (excelName || '').trim();
   if (!name || !entry) return null;
-  const known = [entry.name, entry.originalName, ...(entry.aliases || [])].map(normalizeForCompare);
-  return known.includes(normalizeForCompare(name)) ? null : name;
+  const known = [entry.name, entry.originalName, ...(entry.aliases || [])];
+  if (known.map(normalizeForCompare).includes(normalizeForCompare(name))) return null;
+  return known.some(k => looksLikeSameSchool(name, k)) ? name : null;
 }
 
 function hasUsableCoords(inst) {

@@ -68,6 +68,19 @@ test('learning adds the Excel name only when it is new', () => {
   assert.equal(aliasToLearn('  ', entry), null);
 });
 
+test('learning never mixes different schools that share a meeting point', () => {
+  const quercia = { name: 'IC ARCIVESCOVILE DAME INGLESI ROVERETO', aliases: [] };
+  assert.equal(aliasToLearn('IS FILZI ROVERETO', quercia), null);
+  assert.equal(aliasToLearn('IS MARCONI ROVERETO', quercia), null);
+  assert.equal(aliasToLearn('IC DAME INGLESI ROVERETO', quercia), 'IC DAME INGLESI ROVERETO');
+  const andalo = { name: 'IC MEZZOLOMBARDO PAGANELLA - Andalo' };
+  assert.equal(aliasToLearn('ANDALO (SM)', andalo), 'ANDALO (SM)');
+  const trento3 = { name: 'IC TRENTO 3' };
+  assert.equal(aliasToLearn('IC TRENTO 5', trento3), null);
+  const borgo = { name: 'IS BORGO VALSUGANA' };
+  assert.equal(aliasToLearn('IS Degasperi Borgo Valsugana', borgo), 'IS Degasperi Borgo Valsugana');
+});
+
 test('alias equal to another entry name: both shown, no sure single match', () => {
   // Real case after the 27/10 merge: Vezzano entry got alias "IC VALLE DEI LAGHI DRO",
   // which is also the name of the separate Dro entry
