@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 import pandas as pd
 import os
+import math
 import uuid
 import copy
 import json
@@ -51,6 +52,11 @@ def format_time_from_minutes(total_minutes):
     else:
         return f"{hours:02d}:{minutes:02d}"
 
+def round_up_to_5(total_minutes):
+    """Round minutes up to the next multiple of 5 (9:03 -> 9:05, 9:05 stays 9:05)."""
+    # round() strips float noise so an exact 9:05 isn't pushed to 9:10
+    return int(math.ceil(round(total_minutes, 6) / 5) * 5)
+
 def parse_time_to_minutes(time_str):
     """Parse a time string (HH:MM or HH:MM (+Ng)) to total minutes."""
     # Remove any day suffix like (+1g)
@@ -86,7 +92,7 @@ def calculate_return_times_for_routes(formatted_routes, fine_manifestazione: str
         cumulative = base_minutes
         for i in range(n - 1, -1, -1):
             leg_min = pickup_stops[i].get('time_to_next_min', 0)
-            cumulative += leg_min
+            cumulative = round_up_to_5(cumulative + leg_min)
             pickup_stops[i]['return_time'] = format_time_from_minutes(cumulative)
             if i > 0:
                 cumulative += DWELL
@@ -955,6 +961,8 @@ def optimize():
                 cumulative_minutes = start_hour * 60 + start_min
 
                 for i, stop in enumerate(pickup_stops):
+                    # Round each time to 5 min and chain the next leg from the rounded value
+                    cumulative_minutes = round_up_to_5(cumulative_minutes)
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
 
                     # Use real road leg distance/duration from OSRM when available (fallback: haversine)
@@ -971,6 +979,8 @@ def optimize():
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
+                cumulative_minutes = round_up_to_5(cumulative_minutes)
 
                 # Destination arrival time
                 for stop in stops_data:
@@ -1060,7 +1070,8 @@ def optimize():
                         # Calculate time shift needed to hit target arrival
                         # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
                         # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
-                        delay_minutes = target_arrival_minutes - current_arrival
+                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
+                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
                         
                         # Shift all times for this route
                         for stop in stops:
@@ -1451,6 +1462,8 @@ def optimize_v2():
                 cumulative_minutes = start_hour * 60 + start_min
 
                 for i, stop in enumerate(pickup_stops):
+                    # Round each time to 5 min and chain the next leg from the rounded value
+                    cumulative_minutes = round_up_to_5(cumulative_minutes)
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
 
                     # Use real road leg distance/duration from Google when available (fallback: haversine)
@@ -1467,6 +1480,8 @@ def optimize_v2():
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
+                cumulative_minutes = round_up_to_5(cumulative_minutes)
 
                 # Destination arrival time
                 for stop in stops_data:
@@ -1556,7 +1571,8 @@ def optimize_v2():
                         # Calculate time shift needed to hit target arrival
                         # If Current is 08:15 and Target is 08:00 -> Shift is -15 (shift backwards)
                         # If Current is 07:45 and Target is 08:00 -> Shift is +15 (shift forwards)
-                        delay_minutes = target_arrival_minutes - current_arrival
+                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
+                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
 
                         # Shift all times for this route
                         for stop in stops:
@@ -2515,6 +2531,8 @@ def evaluate_plan():
                 cumulative_minutes = start_hour * 60 + start_min
                 
                 for i, stop in enumerate(pickup_stops):
+                    # Round each time to 5 min and chain the next leg from the rounded value
+                    cumulative_minutes = round_up_to_5(cumulative_minutes)
                     stop['departure_time'] = format_time_from_minutes(cumulative_minutes)
 
                     if leg_distances_m and i < len(leg_distances_m):
@@ -2530,6 +2548,8 @@ def evaluate_plan():
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
                     cumulative_minutes += STOP_DWELL_TIME_MIN + seg_drive_min
+
+                cumulative_minutes = round_up_to_5(cumulative_minutes)
 
                 # Destination arrival time
                 for stop in stops_data:
@@ -2598,7 +2618,8 @@ def evaluate_plan():
                             break
                     if dest_stop and 'arrival_time' in dest_stop:
                         current_arrival = parse_time_to_minutes(dest_stop['arrival_time'])
-                        delay_minutes = target_arrival_minutes - current_arrival
+                        # Floor to a multiple of 5 so times stay on the 5-min grid (never later than target)
+                        delay_minutes = ((target_arrival_minutes - current_arrival) // 5) * 5
                         for stop in stops:
                             if stop['type'] == 'pickup' and 'departure_time' in stop:
                                 old_minutes = parse_time_to_minutes(stop['departure_time'])
