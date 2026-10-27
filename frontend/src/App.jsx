@@ -81,12 +81,28 @@ function App() {
     const [currentTripId, setCurrentTripId] = useState(null);
     const [resumeDismissed, setResumeDismissed] = useState(false);
     const [allDbInstitutes, setAllDbInstitutes] = useState([]);
+    // FileUpload keeps the callback from the render when the upload started, so
+    // read the latest institutes and db through refs instead of the closure
+    const allDbInstitutesRef = useRef([]);
+    const dbRef = useRef(null);
+    useEffect(() => { allDbInstitutesRef.current = allDbInstitutes; }, [allDbInstitutes]);
+    useEffect(() => { dbRef.current = db; }, [db]);
     const [dbMatchList, setDbMatchList] = useState(null); // null = not showing
     const [pendingRaw, setPendingRaw] = useState(null); // { rawSchools, taskId, matchList }
     const [validationPending, setValidationPending] = useState(null); // { schools, errors, taskId }
 
-    const handleRawSchoolsReady = ({ rawSchools, taskId }) => {
-        const matches = allDbInstitutes.length > 0 ? buildMatchList(rawSchools, allDbInstitutes) : [];
+    const handleRawSchoolsReady = async ({ rawSchools, taskId }) => {
+        let institutes = allDbInstitutesRef.current;
+        // The live subscription may not have delivered yet: load once before matching
+        if (institutes.length === 0 && dbRef.current) {
+            try {
+                const snap = await getDocs(collection(dbRef.current, 'institutes'));
+                institutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (err) {
+                console.warn('Failed to load institutes for matching:', err);
+            }
+        }
+        const matches = institutes.length > 0 ? buildMatchList(rawSchools, institutes) : [];
         
         const autoResolved = {};
         const matchesToShow = [];
