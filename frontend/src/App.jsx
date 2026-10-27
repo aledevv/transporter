@@ -400,7 +400,7 @@ function App() {
             if (db) {
                 const writes = [];
                 Object.entries(resolutions || {}).forEach(([schoolId, res]) => {
-                    if (res && res !== 'keep' && !res.discard && res.saveToDb) {
+                    if (res && res !== 'keep' && !res.discard && res.saveToDb && res.lat != null && res.lon != null) {
                         const original = rawSchools.find(s => String(s.id) === String(schoolId));
                         if (original) {
                             const name = original.name.replace(/\(.*?\)/g, '').replace(/["']/g, '').trim();

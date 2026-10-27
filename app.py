@@ -2280,6 +2280,7 @@ def places_autocomplete():
 
     import requests as req
     import nominatim_cache as _nc
+    search_status = 'OK'
     cached = _nc.get(query, 5)
     if cached:
         results = cached
@@ -2297,13 +2298,19 @@ def places_autocomplete():
                     'addressdetails': 1,
                 },
                 headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
-                timeout=5,
+                timeout=8,
             )
-            results = resp.json() if resp.status_code == 200 else []
+            if resp.status_code == 200:
+                results = resp.json()
+            else:
+                print(f"[Autocomplete] Nominatim HTTP {resp.status_code}")
+                search_status = 'UNAVAILABLE'
+                results = []
             if results:
                 _nc.store(query, 5, results)
         except Exception as e:
             print(f"[Autocomplete] Nominatim error: {e}")
+            search_status = 'UNAVAILABLE'
             results = []
 
     # Map OSM class/type to a simplified icon type the frontend understands
@@ -2334,7 +2341,7 @@ def places_autocomplete():
             'lon': float(r['lon']),
         })
 
-    return jsonify({'predictions': predictions, 'status': 'OK'}), 200
+    return jsonify({'predictions': predictions, 'status': search_status}), 200
 
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'template_documents')

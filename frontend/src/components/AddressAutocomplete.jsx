@@ -16,6 +16,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const [searchFailed, setSearchFailed] = useState(false);
 
     const lastSearchedRef = useRef(null); // last value we actually searched for
     const inputRef = useRef(null);
@@ -29,41 +30,45 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                 setIsOpen(false);
                 return;
             }
+            // Pasted coordinates are offered even when the address search is down
+            const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)\s*$/);
+            let customSuggestion = null;
+            if (coordMatch) {
+                const lat = parseFloat(coordMatch[1]);
+                const lon = parseFloat(coordMatch[2]);
+                if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+                    customSuggestion = {
+                        place_id: `coord_${lat}_${lon}`,
+                        description: `${lat}, ${lon}`,
+                        structured_formatting: {
+                            main_text: 'Usa coordinate esatte',
+                            secondary_text: `${lat}, ${lon}`
+                        },
+                        types: ['geocode'],
+                        lat: lat,
+                        lon: lon
+                    };
+                }
+            }
+
             setLoading(true);
+            let raw = [];
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/places/autocomplete`, {
                     params: { q: query },
                 });
-                const raw = response.data?.predictions ?? [];
-                
-                const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)\s*$/);
-                let customSuggestion = null;
-                if (coordMatch) {
-                    const lat = parseFloat(coordMatch[1]);
-                    const lon = parseFloat(coordMatch[2]);
-                    if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-                        customSuggestion = {
-                            place_id: `coord_${lat}_${lon}`,
-                            description: `${lat}, ${lon}`,
-                            structured_formatting: {
-                                main_text: 'Usa coordinate esatte',
-                                secondary_text: `${lat}, ${lon}`
-                            },
-                            types: ['geocode'],
-                            lat: lat,
-                            lon: lon
-                        };
-                    }
-                }
-                
-                const finalSuggestions = customSuggestion ? [customSuggestion, ...raw] : raw;
-                setSuggestions(finalSuggestions);
-                setIsOpen(finalSuggestions.length > 0);
+                raw = response.data?.predictions ?? [];
+                setSearchFailed(response.data?.status === 'UNAVAILABLE');
             } catch (error) {
                 console.error('Autocomplete error:', error);
+                setSearchFailed(true);
             } finally {
                 setLoading(false);
             }
+
+            const finalSuggestions = customSuggestion ? [customSuggestion, ...raw] : raw;
+            setSuggestions(finalSuggestions);
+            setIsOpen(finalSuggestions.length > 0);
         }, 250),
         []
     );
@@ -175,6 +180,11 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                     })}
                 </ul>,
                 document.body
+            )}
+            {searchFailed && (
+                <div className="mt-1 text-xs text-amber-700">
+                    Ricerca indirizzi non disponibile al momento: riprova tra poco o incolla le coordinate (lat, lon).
+                </div>
             )}
         </div>
     );

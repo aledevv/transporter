@@ -107,3 +107,54 @@ class TestDownload:
         finally:
             if os.path.exists(dummy):
                 os.remove(dummy)
+
+
+# ---------------------------------------------------------------------------
+# continue_file_task: DB resolutions saved without coordinates
+# ---------------------------------------------------------------------------
+
+class TestContinueWithoutCoords:
+    def test_resolution_without_coords_is_geocoded_instead_of_failing(self):
+        import app as app_module
+        schools = [
+            {"id": 0, "name": "IS ENAIP TIONE", "address": "Via Durone 57, Tione di Trento"},
+            {"id": 1, "name": "ITET Fontana", "address": "Via Teatro 4, Rovereto"},
+        ]
+        resolutions = {
+            "0": {"lat": None, "lon": None, "address": "stazione dei trenti - Tione", "name": "IS ENAIP TIONE"},
+            "1": {"lat": 45.8937076, "lon": 11.0420967, "address": "Via del Teatro 4, Rovereto", "name": "ITET Fontana"},
+        }
+        app_module.tasks["null-coords"] = {"status": "awaiting_db_match"}
+        with patch("app.smart_geocode", return_value=(46.0364673, 10.7311417, True)) as geocode:
+            app_module.continue_file_task("null-coords", schools, None, resolutions)
+
+        task = app_module.tasks.pop("null-coords")
+        assert task["status"] == "completed"
+        by_name = {s["name"]: s for s in task["result"]}
+        assert by_name["IS ENAIP TIONE"]["lat"] == pytest.approx(46.0364673, abs=1e-3)
+        assert by_name["ITET Fontana"]["lat"] == pytest.approx(45.8937076)
+        # Only the entry without coordinates goes through geocoding
+        assert geocode.call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# /api/places/autocomplete
+# ---------------------------------------------------------------------------
+
+class TestAutocompleteUnavailable:
+    def test_nominatim_error_returns_unavailable_status(self, app_client):
+        import requests
+        with patch("nominatim_cache.get", return_value=None), \
+             patch("requests.get", side_effect=requests.exceptions.ReadTimeout("timed out")):
+            resp = app_client.get("/api/places/autocomplete?q=Via Durone Tione")
+        assert resp.status_code == 200
+        body = resp.get_json()
+        assert body["status"] == "UNAVAILABLE"
+        assert body["predictions"] == []
+
+    def test_nominatim_http_error_returns_unavailable_status(self, app_client):
+        from unittest.mock import MagicMock
+        fake = MagicMock(status_code=429)
+        with patch("nominatim_cache.get", return_value=None), patch("requests.get", return_value=fake):
+            resp = app_client.get("/api/places/autocomplete?q=Via Biasi")
+        assert resp.get_json()["status"] == "UNAVAILABLE"

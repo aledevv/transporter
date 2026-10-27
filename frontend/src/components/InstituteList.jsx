@@ -895,7 +895,7 @@ export default function InstituteList({ db }) {
                                 />
                                 {addForm.lat != null ? (
                                     <div className="text-xs text-green-600 font-mono">
-                                        {addForm.lat.toFixed(5)}, {addForm.lon.toFixed(5)}
+                                        ✓ {addForm.lat.toFixed(5)}, {addForm.lon.toFixed(5)}
                                     </div>
                                 ) : addForm.address.trim() && (
                                     <div className="flex items-start gap-1 text-xs text-amber-700">
@@ -975,7 +975,7 @@ export default function InstituteList({ db }) {
                                                 />
                                                 {editForm.lat != null ? (
                                                     <div className="text-xs text-green-600 font-mono">
-                                                        {editForm.lat.toFixed(5)}, {editForm.lon.toFixed(5)}
+                                                        ✓ {editForm.lat.toFixed(5)}, {editForm.lon.toFixed(5)}
                                                     </div>
                                                 ) : editForm.address.trim() && (
                                                     <div className="flex items-start gap-1 text-xs text-amber-700">
