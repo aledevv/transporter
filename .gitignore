@@ -73,3 +73,18 @@ venv/
 .nominatim_cache.json
 .worktrees/
 .superpowers/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Frontend build output (rebuilt by the Dockerfile)
+frontend/dist/
+
+# OS / editor junk
+.DS_Store
+~$*
+.claude/scheduled_tasks.lock
+
+# Runtime uploads
+uploads/
