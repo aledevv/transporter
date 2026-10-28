@@ -4,6 +4,10 @@ import copy
 from datetime import datetime
 from docx import Document
 from docx.table import Table
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # Administrative parts Nominatim appends that mean nothing on a transport plan
 _ADMIN_PARTS = re.compile(
@@ -67,6 +71,55 @@ def _replace_text_in_paragraph(paragraph, search_text, replace_text):
         new_run.font.size = target_size
     if target_bold is not None:
         new_run.font.bold = target_bold
+
+
+def _use_one_font(doc, font):
+    """
+    The client's template uses one font everywhere: set it on every run (template
+    text and generated text), on every style and on the document defaults, for
+    all scripts, so nothing falls back to another font.
+    """
+    def fix(rpr_parent):
+        rpr = rpr_parent.find(qn('w:rPr'))
+        if rpr is None:
+            rpr = OxmlElement('w:rPr')
+            if rpr_parent.tag == qn('w:style'):
+                # In a style rPr comes after pPr and before the table properties
+                after = next((c for c in rpr_parent if c.tag in (qn('w:tblPr'), qn('w:trPr'), qn('w:tcPr'), qn('w:tblStylePr'))), None)
+                if after is not None:
+                    after.addprevious(rpr)
+                else:
+                    rpr_parent.append(rpr)
+            else:
+                rpr_parent.insert(0, rpr)
+        fonts = rpr.find(qn('w:rFonts'))
+        if fonts is None:
+            fonts = OxmlElement('w:rFonts')
+            rpr.insert(0, fonts)
+        for attr in ('w:ascii', 'w:hAnsi', 'w:cs', 'w:eastAsia'):
+            fonts.set(qn(attr), font)
+        for attr in ('w:asciiTheme', 'w:hAnsiTheme', 'w:cstheme', 'w:eastAsiaTheme'):
+            fonts.attrib.pop(qn(attr), None)
+
+    parts = [doc.element.body] + [s.header._element for s in doc.sections] + [s.footer._element for s in doc.sections]
+    for part in parts:
+        for run in part.iter(qn('w:r')):
+            fix(run)
+    styles = doc.styles.element
+    for style in styles.iter(qn('w:style')):
+        fix(style)
+    # Font declarations elsewhere too (paragraph marks, table styles…)
+    for part in parts + [styles]:
+        for fonts in part.iter(qn('w:rFonts')):
+            for attr in ('w:ascii', 'w:hAnsi', 'w:cs', 'w:eastAsia'):
+                fonts.set(qn(attr), font)
+            for attr in ('w:asciiTheme', 'w:hAnsiTheme', 'w:cstheme', 'w:eastAsiaTheme'):
+                fonts.attrib.pop(qn(attr), None)
+    defaults = styles.find(qn('w:docDefaults'))
+    if defaults is not None:
+        rpr_default = defaults.find(qn('w:rPrDefault'))
+        if rpr_default is not None:
+            fix(rpr_default)
 
 
 def generate_piano_viaggi(template_path, out_docx_path, data):
@@ -230,7 +283,14 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
             new_tbl_element.append(totals_row_template)
             temp_t = Table(new_tbl_element, doc)
             totals_row = temp_t.rows[-1]
-            _set_cell_val(totals_row.cells[-2], str(total_pax), size=11)
+            # Passenger total: bold and centred in its own cell, so it doesn't run into "TOTALE PAX"
+            pax_cell = totals_row.cells[-2]
+            _set_cell_val(pax_cell, str(total_pax), size=11)
+            pax_par = pax_cell.paragraphs[0]
+            pax_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            pax_par.paragraph_format.left_indent = Cm(0.15)
+            for run in pax_par.runs:
+                run.bold = True
             
             # Insert table immediately after the previous element (no gap)
             last_inserted.addnext(new_tbl_element)
@@ -250,6 +310,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                     p_element = p._element
                     p_element.getparent().remove(p_element)
 
+    _use_one_font(doc, 'Arial')
     doc.save(out_docx_path)
     return out_docx_path
 

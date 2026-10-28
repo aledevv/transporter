@@ -47,3 +47,23 @@ def test_generated_plan(tmp_path):
     assert 'ALA, Via Betta, Scuola primaria' in text
     # The template's base style must name a real font (it used to say "Helvetica, Arial")
     assert 'Helvetica, Arial' not in xml
+
+
+def test_one_font_everywhere_and_bold_total(tmp_path):
+    import re
+    out = tmp_path / 'piano.docx'
+    route = {'vehicle_id': 0, 'outbound': {'distance': 10_000, 'stops': [
+        {'type': 'pickup', 'name': 'IC ALA', 'departure_time': '10:20', 'return_time': '17:38', 'count': 52, 'display_address': 'Ala'},
+        {'type': 'destination', 'arrival_time': '11:45'},
+    ]}}
+    generate_piano_viaggi(TEMPLATE, str(out), {'event_name': 'Prova', 'date': '1 dicembre 2026', 'destination': 'Rovereto',
+                                               'start_time': '9:00', 'end_time': '12:00', 'exclude_autonomia': True, 'routes': [route]})
+    with zipfile.ZipFile(out) as z:
+        xml = z.read('word/document.xml').decode() + z.read('word/styles.xml').decode()
+    fonts = set()
+    for tag in re.findall(r'<w:rFonts[^>]*/>', xml):
+        fonts |= set(re.findall(r'w:(?:ascii|hAnsi|cs|eastAsia)="([^"]+)"', tag))
+    assert fonts == {'Arial'}
+    # The passenger total is bold
+    doc_xml = zipfile.ZipFile(out).read('word/document.xml').decode()
+    assert re.search(r'<w:b/>.{0,400}?<w:t[^>]*>52</w:t>', doc_xml, re.S)
