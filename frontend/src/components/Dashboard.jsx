@@ -506,64 +506,36 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
             {/* Results Riepilogo — full width, below config+map */}
             {!supervisionMode && results && (
                 <div ref={resultsRef} className="bg-white rounded-xl border border-gray-200 shadow-sm animate-fade-in overflow-hidden">
-                    {/* Header */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-center gap-2">
-                        <div className="w-1 h-4 rounded-full bg-indigo-500"></div>
+                    <div className="px-5 py-3 border-b border-gray-100">
                         <h3 className="font-semibold text-sm text-gray-700">Riepilogo</h3>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row sm:divide-x sm:divide-gray-100">
-                        {/* Bus + Passengers */}
-                        <div className="flex divide-x divide-gray-100 flex-1">
-                            <div className="flex-1 p-4 flex flex-col items-center justify-center gap-0.5">
-                                <Bus className="w-5 h-5 text-blue-400 mb-1" />
-                                <div className="text-2xl font-extrabold text-blue-600 leading-none">{results.stats.total_buses}</div>
-                                <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Bus attivi</div>
-                            </div>
-                            <div className="flex-1 p-4 flex flex-col items-center justify-center gap-0.5">
-                                <Users className="w-5 h-5 text-purple-400 mb-1" />
-                                <div className="text-2xl font-extrabold text-purple-600 leading-none">{results.stats.total_passengers}</div>
-                                <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Passeggeri</div>
-                            </div>
-                        </div>
-
-                        {/* Distances */}
-                        <div className="flex-1 border-t sm:border-t-0 px-5 py-4 flex flex-col justify-center gap-2">
-                            <div className="flex items-center justify-between">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 divide-gray-100 sm:divide-x">
+                        {[
+                            ['Bus', results.stats.total_buses, Bus, true],
+                            ['Passeggeri', results.stats.total_passengers, Users, false],
+                            ['Km andata', (results.stats.total_distance / 1000).toFixed(1), Navigation, false],
+                            ['Km andata + ritorno', (results.stats.total_distance / 1000 * 2).toFixed(1), ArrowRight, false],
+                        ].map(([label, value, Icon, accent]) => (
+                            <div key={label} className="px-5 py-4">
                                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                                    <Navigation className="w-3.5 h-3.5 text-green-500" />
-                                    <span>Distanza andata</span>
+                                    <Icon className="w-3.5 h-3.5 text-gray-400" /> {label}
                                 </div>
-                                <span className="text-sm font-bold text-green-700">{(results.stats.total_distance / 1000).toFixed(1)} km</span>
+                                <div className={`mt-1 text-2xl font-semibold tabular-nums leading-none ${accent ? 'text-blue-600' : 'text-gray-900'}`}>{value}</div>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                                    <ArrowRight className="w-3.5 h-3.5 text-green-400" />
-                                    <span>Andata + ritorno</span>
-                                </div>
-                                <span className="text-sm font-bold text-green-600">{(results.stats.total_distance / 1000 * 2).toFixed(1)} km</span>
-                            </div>
-                        </div>
-
-                        {/* Arrival window */}
-                        {results.stats.arrival_window && (
-                            <div className="flex-1 border-t sm:border-t-0 bg-orange-50 px-5 py-4 flex flex-col justify-center">
-                                <div className="flex items-center gap-1.5 mb-1.5">
-                                    <Clock className="w-3.5 h-3.5 text-orange-500" />
-                                    <span className="text-[10px] font-semibold text-orange-600 uppercase tracking-wide">Arrivo a destinazione</span>
-                                </div>
-                                {results.stats.arrival_window.spread_minutes === 0
-                                    ? <div className="text-base font-bold text-orange-700">Tutti alle {results.stats.arrival_window.earliest}</div>
-                                    : <div className="flex items-baseline gap-1 flex-wrap">
-                                        <span className="text-base font-bold text-orange-700">{results.stats.arrival_window.earliest}</span>
-                                        <span className="text-xs text-orange-400">→</span>
-                                        <span className="text-base font-bold text-orange-700">{results.stats.arrival_window.latest}</span>
-                                        <span className="text-[11px] text-orange-400 ml-1">({results.stats.arrival_window.spread_minutes} min di scarto)</span>
-                                    </div>
-                                }
-                            </div>
-                        )}
+                        ))}
                     </div>
+                    {results.stats.arrival_window && (
+                        <div className="flex items-center gap-2 border-t border-gray-100 px-5 py-3 text-sm text-gray-600">
+                            <Clock className="w-4 h-4 text-gray-400" />
+                            <span>Arrivo a destinazione:</span>
+                            {results.stats.arrival_window.spread_minutes === 0
+                                ? <span className="font-semibold text-gray-900">tutti alle {results.stats.arrival_window.earliest}</span>
+                                : <>
+                                    <span className="font-semibold text-gray-900">{results.stats.arrival_window.earliest} – {results.stats.arrival_window.latest}</span>
+                                    <span className="text-gray-400">({results.stats.arrival_window.spread_minutes} min di scarto)</span>
+                                </>}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -572,10 +544,9 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                 <div className="w-full mt-6">
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         {/* Section header */}
-                        <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-1 h-5 rounded-full bg-blue-500"></div>
-                                <Bus className="w-4 h-4 text-blue-500" />
+                        <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <Bus className="w-4 h-4 text-gray-400" />
                                 <span className="text-sm font-semibold text-gray-700">Dettagli Percorsi</span>
                             </div>
                             <div className="flex items-center gap-3">
@@ -632,19 +603,19 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 return (
                                     <div
                                         key={idx}
-                                        className="bg-white rounded-xl border border-gray-150 shadow-sm overflow-hidden hover:shadow-md transition-all"
-                                        style={{ borderLeft: `4px solid ${routeColor}` }}
+                                        className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-sm transition-shadow"
+                                        style={{ borderLeft: `3px solid ${routeColor}` }}
                                     >
                                         {/* Bus header */}
-                                        <div className="px-4 pt-4 pb-3" style={{ background: `linear-gradient(135deg, ${routeColor}0d 0%, transparent 60%)` }}>
+                                        <div className="px-4 pt-4 pb-3">
                                             {/* Row 1: bus name + load */}
                                             <div className="flex items-center justify-between mb-2">
                                                 <div className="flex items-center gap-2">
-                                                    <Bus className="w-4 h-4" style={{ color: routeColor }} />
-                                                    <span className="font-bold text-base" style={{ color: routeColor }}>Bus #{route.vehicle_id + 1}</span>
+                                                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: routeColor }} />
+                                                    <span className="font-semibold text-base text-gray-900">Bus #{route.vehicle_id + 1}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+                                                    <span className="flex items-center gap-1 text-xs font-medium text-gray-600 tabular-nums">
                                                         <Users className="w-3 h-3" />{route.total_load}/{capacity} pax
                                                     </span>
                                                 </div>
@@ -655,7 +626,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                     <MapPin className="w-3 h-3" />{distKm.toFixed(1)} km
                                                 </span>
                                                 {tripDurationMin != null && (
-                                                    <span className="flex items-center gap-1 text-[11px] text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
+                                                    <span className="flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                                                         <Clock className="w-3 h-3" />{tripDurationMin}′ totali
                                                     </span>
                                                 )}
@@ -759,14 +730,14 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                             <button
                                                                                 onClick={() => subStopShift(route.vehicle_id, curIdx)}
                                                                                 title="-5 min a questa e alle successive fermate"
-                                                                                className="flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 font-medium px-1.5 py-0.5 rounded-full border border-blue-200 hover:bg-blue-50 transition-colors"
+                                                                                className="flex items-center gap-0.5 text-[10px] text-gray-500 hover:text-gray-800 font-medium px-1.5 py-0.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
                                                                             >
                                                                                 −5′
                                                                             </button>
                                                                             <button
                                                                                 onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
                                                                                 title={`+${bufIncrement} min a questa e alle successive fermate`}
-                                                                                className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1.5 py-0.5 rounded-full border border-orange-200 hover:bg-orange-50 transition-colors"
+                                                                                className="flex items-center gap-0.5 text-[10px] text-gray-500 hover:text-gray-800 font-medium px-1.5 py-0.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
                                                                             >
                                                                                 <PlusCircle className="w-2.5 h-2.5" />+{bufIncrement}′
                                                                             </button>
