@@ -583,8 +583,7 @@ function App() {
                 </div>
 
                 {activeTab === 'institutes' && (
-                    <section className="h-[calc(100vh-10rem)] min-h-[480px] flex-shrink-0 bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex-shrink-0">Database</h2>
+                    <section className="h-[calc(100vh-9.5rem)] min-h-[560px] flex-shrink-0 bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden">
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <InstituteList db={db} />
                         </div>

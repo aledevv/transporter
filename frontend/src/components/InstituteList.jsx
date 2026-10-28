@@ -1171,11 +1171,11 @@ export default function InstituteList({ db }) {
                             + Aggiungi
                         </button>
                     </div>
-                    <div className="flex-1 rounded-xl overflow-hidden border border-gray-200" style={{ minHeight: 560 }}>
+                    <div className="flex-1 min-h-[420px] rounded-xl overflow-hidden border border-gray-200">
                         <MapContainer
                             center={[46.07, 11.12]}
                             zoom={8}
-                            style={{ width: '100%', height: '100%', minHeight: 560 }}
+                            style={{ width: '100%', height: '100%' }}
                         >
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
