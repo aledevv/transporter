@@ -356,7 +356,7 @@ export default function PlanSupervisor({
             <button
                 onClick={handleSave}
                 disabled={isEvaluating}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors disabled:opacity-50"
             >
                 {isEvaluating
                     ? <><RefreshCw className="w-4 h-4 animate-spin" /> Ricalcolo...</>
@@ -367,7 +367,7 @@ export default function PlanSupervisor({
     );
 
     return (
-        <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border border-blue-200 shadow-md flex flex-col gap-6 animate-fade-in">
+        <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border border-gray-200 flex flex-col gap-6 animate-fade-in">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                 <div>
@@ -409,14 +409,14 @@ export default function PlanSupervisor({
                         return (
                             <div
                                 key={`bus-${route.vehicle_id}-${busIndex}`}
-                                className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-visible"
-                                style={{ borderLeft: `4px solid ${routeColor}` }}
+                                className="bg-white rounded-xl border border-gray-200 overflow-visible"
+                                style={{ borderLeft: `3px solid ${routeColor}` }}
                             >
                                 {/* Bus header */}
-                                <div className="px-4 py-3 flex items-center justify-between bg-gray-50 border-b border-gray-100 rounded-tr-xl">
+                                <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 rounded-tr-xl">
                                     <div className="flex items-center gap-2">
-                                        <Bus className="w-4 h-4" style={{ color: routeColor }} />
-                                        <span className="font-bold" style={{ color: routeColor }}>Bus #{route.vehicle_id + 1}</span>
+                                        <span className="h-2.5 w-2.5 rounded-full" style={{ background: routeColor }} />
+                                        <span className="font-semibold text-gray-900">Bus #{route.vehicle_id + 1}</span>
                                         {hasAnyShift && (
                                             <div className="flex items-center gap-1">
                                                 <span className="text-[11px] text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100 font-medium">
@@ -432,7 +432,7 @@ export default function PlanSupervisor({
                                             </div>
                                         )}
                                     </div>
-                                    <span className={`text-xs font-bold px-2 py-1 rounded-full border ${isOverCapacity ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full border ${isOverCapacity ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-gray-600 border-gray-200'}`}>
                                         {totalLoad}/{capacity} pax
                                     </span>
                                 </div>
@@ -499,24 +499,24 @@ export default function PlanSupervisor({
                                                             {/* Times + shift buttons row */}
                                                             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                                                 <div className="flex items-center gap-1">
-                                                                    <Clock className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                                                                    <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
                                                                     <span className="text-[11px] text-gray-500">Partenza:</span>
                                                                     {isEvaluating ? (
                                                                         <div className="w-10 h-3.5 bg-gray-200 animate-pulse rounded" />
                                                                     ) : (
-                                                                        <span className={`text-[11px] font-bold ${cumShift > 0 ? 'text-orange-500' : 'text-blue-700'}`}>
+                                                                        <span className={`text-[11px] font-bold ${cumShift > 0 ? 'text-orange-500' : 'text-gray-900'}`}>
                                                                             {displayedTime}
                                                                         </span>
                                                                     )}
                                                                 </div>
                                                                 {showReturnTimes && stop.return_time && (
                                                                     <div className="flex items-center gap-1">
-                                                                        <RotateCcw className="w-3 h-3 text-orange-400 flex-shrink-0" />
+                                                                        <RotateCcw className="w-3 h-3 text-gray-400 flex-shrink-0" />
                                                                         <span className="text-[11px] text-gray-500">Ritorno:</span>
                                                                         {isEvaluating ? (
                                                                             <div className="w-10 h-3.5 bg-gray-200 animate-pulse rounded" />
                                                                         ) : (
-                                                                            <span className="text-[11px] font-bold text-orange-600">{stop.return_time}</span>
+                                                                            <span className="text-[11px] font-bold text-gray-900">{stop.return_time}</span>
                                                                         )}
                                                                     </div>
                                                                 )}
@@ -527,14 +527,14 @@ export default function PlanSupervisor({
                                                                 <button
                                                                     onClick={() => subStopShift(route.vehicle_id, curIdx)}
                                                                     title="-5 min a questa e alle successive fermate"
-                                                                    className="flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 font-medium px-1.5 py-0.5 rounded-full border border-blue-200 hover:bg-blue-50 transition-colors"
+                                                                    className="flex items-center gap-0.5 text-[10px] text-gray-500 hover:text-gray-800 font-medium px-1.5 py-0.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
                                                                 >
                                                                     −5′
                                                                 </button>
                                                                 <button
                                                                     onClick={() => addStopShift(route.vehicle_id, curIdx, prevDist)}
                                                                     title={`+${bufIncrement} min a questa e alle successive fermate`}
-                                                                    className="flex items-center gap-0.5 text-[10px] text-orange-500 hover:text-orange-700 font-medium px-1.5 py-0.5 rounded-full border border-orange-200 hover:bg-orange-50 transition-colors"
+                                                                    className="flex items-center gap-0.5 text-[10px] text-gray-500 hover:text-gray-800 font-medium px-1.5 py-0.5 rounded-full border border-gray-200 hover:bg-orange-50 transition-colors"
                                                                 >
                                                                     +{bufIncrement}′
                                                                 </button>
@@ -624,7 +624,7 @@ export default function PlanSupervisor({
                                     {/* Destination arrival */}
                                     {destStop && pickupStops.length > 0 && (
                                         <div className="mt-3 ml-2 pl-4 border-l-2 border-gray-200 pt-2 relative">
-                                            <div className="absolute left-0 bottom-2.5 -translate-x-[9px] w-4 h-4 rounded-full bg-green-500 border-2 border-white flex items-center justify-center">
+                                            <div className="absolute left-0 bottom-2.5 -translate-x-[9px] w-4 h-4 rounded-full bg-gray-800 border-2 border-white flex items-center justify-center">
                                                 <Navigation className="w-2 h-2 text-white" />
                                             </div>
                                             <div className="flex items-center gap-2 flex-wrap">
@@ -632,12 +632,12 @@ export default function PlanSupervisor({
                                                 {isEvaluating ? (
                                                     <div className="w-20 h-6 bg-gray-200 animate-pulse rounded inline-block"></div>
                                                 ) : (
-                                                    <div className={`text-xs border rounded px-2 py-1 inline-block font-bold shadow-sm ${totalShift > 0 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-green-50 text-green-800 border-green-100'}`}>
+                                                    <div className={`text-xs border rounded px-2 py-1 inline-block font-bold shadow-sm ${totalShift > 0 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-white text-gray-900 border-gray-200'}`}>
                                                         {shiftTime(destStop.arrival_time, totalShift) || destStop.arrival_time || '--:--'}
                                                     </div>
                                                 )}
                                                 {route.outbound?.distance > 0 && (
-                                                    <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">
+                                                    <span className="text-[11px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full font-medium">
                                                         {(route.outbound.distance / 1000).toFixed(1)} km
                                                     </span>
                                                 )}
@@ -666,12 +666,12 @@ export default function PlanSupervisor({
             {stats && (
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-wrap gap-4 shadow-sm items-center justify-around">
                     <div className="flex flex-col items-center min-w-[80px]">
-                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Bus Attivi</span>
+                        <span className="text-gray-500 text-xs font-medium">Bus Attivi</span>
                         {isEvaluating ? (
                             <div className="w-12 h-7 bg-gray-200 animate-pulse rounded mt-1"></div>
                         ) : (
                             <div className="flex items-end gap-2 mt-1">
-                                <span className="text-lg font-bold text-gray-800">{stats.total_buses}</span>
+                                <span className="text-lg font-semibold text-blue-600 tabular-nums">{stats.total_buses}</span>
                                 {stats.total_buses !== initialResults.stats.total_buses && (
                                     <span className="text-xs text-gray-400 line-through mb-1">({initialResults.stats.total_buses})</span>
                                 )}
@@ -680,12 +680,12 @@ export default function PlanSupervisor({
                     </div>
                     <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
                     <div className="flex flex-col items-center min-w-[80px]">
-                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Km Andata</span>
+                        <span className="text-gray-500 text-xs font-medium">Km Andata</span>
                         {isEvaluating ? (
                             <div className="w-16 h-7 bg-gray-200 animate-pulse rounded mt-1"></div>
                         ) : (
                             <div className="flex items-end gap-2 mt-1">
-                                <span className="text-lg font-bold text-blue-600">{(stats.total_distance / 1000).toFixed(1)}</span>
+                                <span className="text-lg font-semibold text-gray-900 tabular-nums">{(stats.total_distance / 1000).toFixed(1)}</span>
                                 {stats.total_distance !== initialResults.stats.total_distance && (
                                     <span className="text-xs text-gray-400 line-through mb-1">({(initialResults.stats.total_distance / 1000).toFixed(1)})</span>
                                 )}
@@ -694,12 +694,12 @@ export default function PlanSupervisor({
                     </div>
                     <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
                     <div className="flex flex-col items-center min-w-[80px]">
-                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Passeggeri</span>
+                        <span className="text-gray-500 text-xs font-medium">Passeggeri</span>
                         {isEvaluating ? (
                             <div className="w-12 h-7 bg-gray-200 animate-pulse rounded mt-1"></div>
                         ) : (
                             <div className="flex items-end gap-2 mt-1">
-                                <span className="text-lg font-bold text-purple-600">{stats.total_passengers}</span>
+                                <span className="text-lg font-semibold text-gray-900 tabular-nums">{stats.total_passengers}</span>
                                 {stats.total_passengers !== initialResults.stats.total_passengers && (
                                     <span className="text-xs text-gray-400 line-through mb-1">({initialResults.stats.total_passengers})</span>
                                 )}
@@ -708,12 +708,12 @@ export default function PlanSupervisor({
                     </div>
                     <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
                     <div className="flex flex-col items-center min-w-[80px]">
-                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Prima Partenza</span>
+                        <span className="text-gray-500 text-xs font-medium">Prima Partenza</span>
                         {isEvaluating ? (
                             <div className="w-14 h-7 bg-gray-200 animate-pulse rounded mt-1"></div>
                         ) : (
                             <div className="flex items-end gap-2 mt-1">
-                                <span className="text-lg font-bold text-teal-600">{summaryStats.earliestDeparture || '--:--'}</span>
+                                <span className="text-lg font-semibold text-gray-900 tabular-nums">{summaryStats.earliestDeparture || '--:--'}</span>
                                 {summaryStats.earliestDeparture !== originalSummaryStats.earliestDeparture && originalSummaryStats.earliestDeparture && (
                                     <span className="text-xs text-gray-400 line-through mb-1">({originalSummaryStats.earliestDeparture})</span>
                                 )}
@@ -722,12 +722,12 @@ export default function PlanSupervisor({
                     </div>
                     <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
                     <div className="flex flex-col items-center min-w-[80px]">
-                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Durata Massima</span>
+                        <span className="text-gray-500 text-xs font-medium">Durata Massima</span>
                         {isEvaluating ? (
                             <div className="w-14 h-7 bg-gray-200 animate-pulse rounded mt-1"></div>
                         ) : (
                             <div className="flex items-end gap-2 mt-1">
-                                <span className="text-lg font-bold text-orange-500">{summaryStats.duration || '--'}</span>
+                                <span className="text-lg font-semibold text-gray-900 tabular-nums">{summaryStats.duration || '--'}</span>
                                 {summaryStats.duration !== originalSummaryStats.duration && originalSummaryStats.duration && (
                                     <span className="text-xs text-gray-400 line-through mb-1">({originalSummaryStats.duration})</span>
                                 )}
