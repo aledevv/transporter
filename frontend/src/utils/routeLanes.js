@@ -12,11 +12,20 @@
 
 const keyOf = c => `${c[0].toFixed(5)},${c[1].toFixed(5)}`;
 
+// Points of a route: the road geometry, or straight lines between the stops
+// when the router gave none (drawn dashed)
+function routeCoords(r) {
+    const geom = (r.outbound || r).geometry?.coordinates;
+    if (geom?.length >= 2) return { coords: geom, straight: false };
+    const stops = ((r.outbound || r).stops || []).filter(s => s.lat != null && s.lon != null);
+    return { coords: stops.map(s => [Number(s.lon), Number(s.lat)]), straight: true };
+}
+
 export function buildRouteLanes(routes, colors) {
     const edges = new Map(); // canonical edge key -> Set(vehicle ids)
     const prepared = routes.map(r => {
-        const coords = (r.geometry?.coordinates || []).filter((c, i, a) => i === 0 || keyOf(c) !== keyOf(a[i - 1]));
-        return { id: r.vehicle_id, coords };
+        const { coords, straight } = routeCoords(r);
+        return { id: r.vehicle_id, color: r._color, straight, coords: coords.filter((c, i, a) => i === 0 || keyOf(c) !== keyOf(a[i - 1])) };
     });
 
     prepared.forEach(({ id, coords }) => {
@@ -29,8 +38,8 @@ export function buildRouteLanes(routes, colors) {
     });
 
     const features = [];
-    prepared.forEach(({ id, coords }, routeIdx) => {
-        const color = colors[routeIdx % colors.length];
+    prepared.forEach(({ id, coords, color: own, straight }, routeIdx) => {
+        const color = own || colors[routeIdx % colors.length];
         let current = null;
         for (let i = 0; i < coords.length - 1; i++) {
             const a = keyOf(coords[i]), b = keyOf(coords[i + 1]);
@@ -40,7 +49,7 @@ export function buildRouteLanes(routes, colors) {
             if (!current || current.properties.slot !== slot) {
                 current = {
                     type: 'Feature',
-                    properties: { vid: id, color, slot, shared: users.length },
+                    properties: { vid: id, color, slot, shared: users.length, straight },
                     geometry: { type: 'LineString', coordinates: [coords[i]] },
                 };
                 features.push(current);
@@ -56,7 +65,7 @@ export function buildRouteLanes(routes, colors) {
 export function buildStops(routes, colors) {
     const features = [];
     routes.forEach((r, idx) => {
-        (r.stops || []).forEach((s, n) => {
+        ((r.outbound || r).stops || []).forEach((s, n) => {
             if (s.lat == null || s.lon == null) return;
             features.push({
                 type: 'Feature',
