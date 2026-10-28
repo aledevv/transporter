@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Pencil, Trash2, Check, X, AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import useDatasetImport from './useDatasetImport';
+import PointsMapGL from './PointsMapGL';
 import { NewStopDialog } from './NewStopForm';
 import API_BASE_URL from '../config';
 import { collection, getDocs, setDoc, deleteDoc, updateDoc, arrayRemove, doc, serverTimestamp } from 'firebase/firestore';
@@ -19,59 +17,6 @@ function hasValidCoords(lat, lon) {
 
 const MISSING_COORDS_HINT = 'Scegli un indirizzo dalla lista dei suggerimenti, oppure incolla le coordinate (lat, lon) e seleziona "Usa coordinate esatte".';
 
-// ─── Pin icon ─────────────────────────────────────────────────────────────────
-
-const _iconCache = new Map();
-function makePin(color, selected = false) {
-    const key = `${color}-${selected}`;
-    if (_iconCache.has(key)) return _iconCache.get(key);
-    const size = selected ? 30 : 20;
-    const html = `<div style="
-        width:${size}px;height:${size}px;
-        border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);
-        background:${color};
-        border:2px solid white;
-        box-shadow:${selected
-            ? '0 0 0 3px rgba(59,130,246,0.6),0 2px 8px rgba(0,0,0,0.3)'
-            : '0 1px 5px rgba(0,0,0,0.25)'};
-    "></div>`;
-    const icon = L.divIcon({ html, className: '', iconSize: [size, size], iconAnchor: [size / 2, size], popupAnchor: [0, -size] });
-    _iconCache.set(key, icon);
-    return icon;
-}
-
-// ─── Map helpers ──────────────────────────────────────────────────────────────
-
-// Only fit bounds once on first valid load — never again (prevents gray flash on re-renders)
-function FitAll({ points }) {
-    const map = useMap();
-    const fittedRef = useRef(false);
-    useEffect(() => {
-        if (fittedRef.current) return;
-        const valid = points.filter(p => p.lat != null && p.lon != null);
-        if (!valid.length) return;
-        const bounds = L.latLngBounds(valid.map(p => [p.lat, p.lon]));
-        if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [30, 30] });
-            fittedRef.current = true;
-        }
-    }, [points, map]);
-    return null;
-}
-
-function FlyTo({ target }) {
-    const map = useMap();
-    const prevRef = useRef(null);
-    useEffect(() => {
-        if (!target) return;
-        const key = `${target.lat},${target.lon}`;
-        if (prevRef.current === key) return;   // same target, don't re-fly
-        prevRef.current = key;
-        map.flyTo([target.lat, target.lon], 13, { duration: 0.7 });
-    }, [target, map]);
-    return null;
-}
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -1172,38 +1117,14 @@ export default function InstituteList({ db }) {
                         </button>
                     </div>
                     <div className="flex-1 min-h-[420px] rounded-xl overflow-hidden border border-gray-200">
-                        <MapContainer
-                            center={[46.07, 11.12]}
-                            zoom={8}
-                            style={{ width: '100%', height: '100%' }}
-                        >
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <FitAll points={allPoints} />
-                            {highlighted && <FlyTo target={highlighted} />}
-                            {allPoints.map((pt, i) => {
-                                const isHL = highlighted?.name === pt.name && highlighted?.address === pt.address && highlighted?.uniqueId === pt.uniqueId;
-                                return (
-                                    <Marker
-                                        key={i}
-                                        position={[pt.lat, pt.lon]}
-                                        icon={makePin(isHL ? '#3b82f6' : '#6b7280', isHL)}
-                                        zIndexOffset={isHL ? 1000 : 0}
-                                        eventHandlers={{ click: () => handleSelect(pt.name, pt, pt.uniqueId) }}
-                                    >
-                                        <Popup>
-                                            <strong>{pt.name}</strong><br />
-                                            {pt.address}
-                                            {pt.fixture_count > 1 && (
-                                                <><br /><span style={{ color: '#6b7280', fontSize: '0.75em' }}>×{pt.fixture_count} eventi</span></>
-                                            )}
-                                        </Popup>
-                                    </Marker>
-                                );
-                            })}
-                        </MapContainer>
+                        <PointsMapGL
+                            points={allPoints}
+                            selectedIndex={(() => {
+                                const i = allPoints.findIndex(pt => highlighted?.name === pt.name && highlighted?.address === pt.address && highlighted?.uniqueId === pt.uniqueId);
+                                return i === -1 ? null : i;
+                            })()}
+                            onSelect={pt => handleSelect(pt.name, pt, pt.uniqueId)}
+                        />
                     </div>
                     </div>
                 </div>

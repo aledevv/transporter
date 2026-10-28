@@ -11,7 +11,6 @@ import { analyzeTripRows, buildTripPayload } from './utils/sheetIssues';
 import { destinationPlaces } from './utils/placeMatch';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
-import FixtureTool from './components/FixtureTool';
 import InstituteList from './components/InstituteList';
 import NuovoPiano from './components/NuovoPiano';
 import { getInstituteColorMap } from './utils/colors';
