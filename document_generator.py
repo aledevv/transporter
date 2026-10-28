@@ -5,16 +5,38 @@ from datetime import datetime
 from docx import Document
 from docx.table import Table
 
+# Administrative parts Nominatim appends that mean nothing on a transport plan
+_ADMIN_PARTS = re.compile(
+    r'^(Comunit[aà]|Comun General|Magnifica Comunit[aà]|Provincia|Territorio|Trentino|Alto Adige|'
+    r'S[üu]dtirol|South Tyrol|Sud Tirol|Italia|Italy|Veneto|Lombardia)\b', re.IGNORECASE)
+
+
 def _shorten_address(address):
-    """Strip redundant parts from a Nominatim address for display in documents."""
+    """Strip the administrative tail of a Nominatim address for display in documents."""
     if not address:
         return address
-    addr = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
-    addr = re.sub(r',\s*Trentino[^,]*', '', addr, flags=re.IGNORECASE).strip()
-    addr = re.sub(r',\s*(Alto Adige|S[üu]dtirol|South Tyrol|Sud Tirol)[^,]*', '', addr, flags=re.IGNORECASE).strip()
-    addr = re.sub(r',\s*\d{5}\b', '', addr).strip()
-    addr = re.sub(r',\s*[A-Z]{2}(?=,|$)', '', addr).strip()
-    return addr.rstrip(',').strip()
+    parts = [p.strip() for p in address.split(',')]
+    kept = [p for p in parts if p and not _ADMIN_PARTS.match(p)
+            and not re.fullmatch(r'\d{5}', p) and not re.fullmatch(r'[A-Z]{2}', p)]
+    return ', '.join(kept) if kept else address.strip()
+
+
+def _doc_place(address):
+    """Meeting place for the table: short street, never bare coordinates."""
+    if re.fullmatch(r'\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*', address or ''):
+        return ''
+    return _shorten_address(address)
+
+
+def _doc_time(value, default):
+    """Times as the templates write them: '8,30' (no leading zero, comma)."""
+    m = re.fullmatch(r'\s*(\d{1,2})[:.,](\d{2})\s*', value or '')
+    return f"{int(m.group(1))},{m.group(2)}" if m else (value or default)
+
+
+def _doc_km(meters):
+    """Distance as the documents write it: '132,7 km'."""
+    return f"{meters / 1000:.1f}".replace('.', ',') + ' km'
 
 
 def _replace_text_in_paragraph(paragraph, search_text, replace_text):
@@ -68,18 +90,18 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
     # 1. Replace Placeholders in Headers
     for p in doc.paragraphs:
         _replace_text_in_paragraph(p, 'NOME EVENTO  dell’ DATA', event_str)
-        _replace_text_in_paragraph(p, 'SEDE', data.get('destination', ''))
-        _replace_text_in_paragraph(p, '8,30', data.get('start_time', '8:30'))
-        _replace_text_in_paragraph(p, '16,00', data.get('end_time', '16:00'))
+        _replace_text_in_paragraph(p, 'SEDE', _shorten_address(data.get('destination', '')))
+        _replace_text_in_paragraph(p, '8,30', _doc_time(data.get('start_time'), '8,30'))
+        _replace_text_in_paragraph(p, '16,00', _doc_time(data.get('end_time'), '16,00'))
         
     for t in doc.tables:
         for r in t.rows:
             for c in r.cells:
                 for p in c.paragraphs:
                     _replace_text_in_paragraph(p, 'NOME EVENTO  dell’ DATA', event_str)
-                    _replace_text_in_paragraph(p, 'SEDE', data.get('destination', ''))
-                    _replace_text_in_paragraph(p, '8,30', data.get('start_time', '8:30'))
-                    _replace_text_in_paragraph(p, '16,00', data.get('end_time', '16:00'))
+                    _replace_text_in_paragraph(p, 'SEDE', _shorten_address(data.get('destination', '')))
+                    _replace_text_in_paragraph(p, '8,30', _doc_time(data.get('start_time'), '8,30'))
+                    _replace_text_in_paragraph(p, '16,00', _doc_time(data.get('end_time'), '16,00'))
 
     # 2. Find the marker where to insert dynamic tables
     # and find the Header Table
@@ -160,7 +182,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
 
                 if i == 0:
                     _set_cell_val(current_row.cells[0], f"Fin {route.get('vehicle_id', route_idx) + 1}", size=9)
-                    _set_cell_val(current_row.cells[1], f"{route.get('outbound', {}).get('distance', 0) / 500:.1f} KM", size=11)
+                    _set_cell_val(current_row.cells[1], _doc_km(route.get('outbound', {}).get('distance', 0) * 2), size=11)
                     first_fin_cell = current_row.cells[0]
                     first_km_cell = current_row.cells[1]
                 else:
@@ -189,7 +211,7 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
                     first_time_cell = current_row.cells[3]
                     last_time = current_time
 
-                _set_cell_val(current_row.cells[4], _shorten_address(stop.get('display_address') or stop.get('address', '')))
+                _set_cell_val(current_row.cells[4], _doc_place(stop.get('display_address') or stop.get('address', '')))
                 _set_cell_val(current_row.cells[5], str(stop.get('count', '0')))
 
                 # Orario Ritorno (colonna 6)
