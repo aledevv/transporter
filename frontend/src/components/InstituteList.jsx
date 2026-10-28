@@ -260,6 +260,13 @@ export default function InstituteList({ db }) {
                 .map(e => ({ name: inst.name, address: e.address, lat: e.lat, lon: e.lon, fixture_count: e.fixture_count, uniqueId: e._docId || e.originalIndex }))
         ), [institutes, activeTab]);
 
+    // Map shows what the list shows: the same tab and the same search
+    const mapPoints = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return allPoints;
+        return allPoints.filter(pt => `${pt.name} ${pt.address || ''}`.toLowerCase().includes(q));
+    }, [allPoints, search]);
+
     const filtered = useMemo(() => {
         const result = [];
         institutes.forEach(inst => {
@@ -1118,9 +1125,10 @@ export default function InstituteList({ db }) {
                     </div>
                     <div className="flex-1 min-h-[420px] rounded-xl overflow-hidden border border-gray-200">
                         <PointsMapGL
-                            points={allPoints}
+                            points={mapPoints}
+                            fitKey={`${activeTab}|${search.trim().toLowerCase()}`}
                             selectedIndex={(() => {
-                                const i = allPoints.findIndex(pt => highlighted?.name === pt.name && highlighted?.address === pt.address && highlighted?.uniqueId === pt.uniqueId);
+                                const i = mapPoints.findIndex(pt => highlighted?.name === pt.name && highlighted?.address === pt.address && highlighted?.uniqueId === pt.uniqueId);
                                 return i === -1 ? null : i;
                             })()}
                             onSelect={pt => handleSelect(pt.name, pt, pt.uniqueId)}

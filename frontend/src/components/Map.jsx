@@ -116,6 +116,8 @@ const BusMap = React.forwardRef(({ schools, routes, destination, focusBounds, hi
     const [showDemand, setShowDemand] = useState(true);
     const [showArrows, setShowArrows] = useState(false);
     const [flash, setFlash] = useState(null); // vehicle id highlighted for a few seconds after a click
+    const focusRef = useRef(null);
+    focusRef.current = focusBounds;
     const flashTimer = useRef(null);
 
     useEffect(() => { setHiddenRouteIds(new Set()); }, [routes]);
@@ -167,8 +169,13 @@ const BusMap = React.forwardRef(({ schools, routes, destination, focusBounds, hi
             setReady(true);
         });
         mapRef.current = map;
+        // Until the user pans or zooms, a size change re-frames the whole trip
+        ['dragstart', 'zoomstart', 'rotatestart'].forEach(ev => map.on(ev, e => { if (e.originalEvent) userMovedRef.current = true; }));
         // Follow the size of the box (stretched next to the configuration, fullscreen…)
-        const ro = new ResizeObserver(() => map.resize());
+        const ro = new ResizeObserver(() => {
+            map.resize();
+            if (!userMovedRef.current && !focusRef.current) fitAllRef.current();
+        });
         ro.observe(mapDivRef.current);
         return () => { ro.disconnect(); if (flashTimer.current) clearTimeout(flashTimer.current); map.remove(); mapRef.current = null; };
     }, []);
@@ -234,6 +241,20 @@ const BusMap = React.forwardRef(({ schools, routes, destination, focusBounds, hi
     }, [ready, schools, destination, instituteColorMap]);
 
     // --- view --------------------------------------------------------------
+    // Whole trip in view: route geometry + stops + destination, with room for the
+    // buttons (top) and the bus toggles (bottom-left)
+    const userMovedRef = useRef(false);
+    const fitAll = useCallback(() => {
+        const map = mapRef.current;
+        if (!map) return;
+        const b = boundsOf(schools, destination, routes);
+        if (!b) return;
+        const hasToggles = routes && routes.length > 0;
+        map.fitBounds(b, { padding: { top: 60, right: 50, bottom: hasToggles ? 50 : 40, left: hasToggles ? 110 : 50 }, maxZoom: 14, duration: 0 });
+    }, [schools, destination, routes]);
+    const fitAllRef = useRef(fitAll);
+    fitAllRef.current = fitAll;
+
     useEffect(() => {
         const map = mapRef.current;
         if (!ready || !map) return;
@@ -244,9 +265,9 @@ const BusMap = React.forwardRef(({ schools, routes, destination, focusBounds, hi
             return;
         }
         map.getSource('focus').setData(EMPTY);
-        const b = boundsOf(schools, destination, null);
-        if (b) map.fitBounds(b, { padding: 50, maxZoom: 15 });
-    }, [ready, schools, destination, focusBounds, fitKey]);
+        userMovedRef.current = false;
+        fitAll();
+    }, [ready, schools, destination, routes, focusBounds, fitKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- export image -------------------------------------------------------
     React.useImperativeHandle(ref, () => ({

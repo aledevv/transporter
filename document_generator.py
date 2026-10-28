@@ -7,7 +7,6 @@ from docx.table import Table
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # Administrative parts Nominatim appends that mean nothing on a transport plan
 _ADMIN_PARTS = re.compile(
@@ -283,14 +282,28 @@ def generate_piano_viaggi(template_path, out_docx_path, data):
             new_tbl_element.append(totals_row_template)
             temp_t = Table(new_tbl_element, doc)
             totals_row = temp_t.rows[-1]
-            # Passenger total: bold and centred in its own cell, so it doesn't run into "TOTALE PAX"
+            # Passenger total: bold, aligned like the numbers above it; the "TOTALE PAX"
+            # label keeps a little room from its cell's right edge
             pax_cell = totals_row.cells[-2]
             _set_cell_val(pax_cell, str(total_pax), size=11)
             pax_par = pax_cell.paragraphs[0]
-            pax_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            pax_par.paragraph_format.left_indent = Cm(0.15)
+            count_par = current_row.cells[5].paragraphs[0] if pickup_stops else None
+            if count_par is not None:
+                pax_par.alignment = count_par.alignment
+                pax_par.paragraph_format.left_indent = count_par.paragraph_format.left_indent
+                pax_par.paragraph_format.right_indent = count_par.paragraph_format.right_indent
+                # Same cell margins as the numbers above
+                src_mar = current_row.cells[5]._tc.tcPr.find(qn('w:tcMar')) if current_row.cells[5]._tc.tcPr is not None else None
+                if src_mar is not None:
+                    tcpr = pax_cell._tc.get_or_add_tcPr()
+                    old_mar = tcpr.find(qn('w:tcMar'))
+                    if old_mar is not None:
+                        tcpr.remove(old_mar)
+                    tcpr.append(copy.deepcopy(src_mar))
             for run in pax_par.runs:
                 run.bold = True
+            for par in totals_row.cells[0].paragraphs:
+                par.paragraph_format.right_indent = Cm(0.2)
             
             # Insert table immediately after the previous element (no gap)
             last_inserted.addnext(new_tbl_element)
