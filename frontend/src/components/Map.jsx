@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import '../utils/maplibreWorker';
 import { addCollapsedAttribution } from '../utils/mapAttribution';
 import { X, Maximize2, Minimize2, Bus, Users, UserX, Navigation2, Flag, GraduationCap } from 'lucide-react';
 import html2canvas from 'html2canvas';

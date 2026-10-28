@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import '../utils/maplibreWorker';
 import { addCollapsedAttribution } from '../utils/mapAttribution';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
