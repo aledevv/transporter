@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { addCollapsedAttribution } from '../utils/mapAttribution';
 import { X, Maximize2, Minimize2, Bus, Users, UserX, Navigation2, Flag, GraduationCap } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { buildRouteLanes } from '../utils/routeLanes';
@@ -132,11 +133,9 @@ const BusMap = React.forwardRef(({ schools, routes, destination, focusBounds, hi
             attributionControl: false,
             canvasContextAttributes: { preserveDrawingBuffer: true }, // lets the PDF export read the map
         });
-        // Attribution starts collapsed (an "i" button) on every screen size
-        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+        addCollapsedAttribution(map);
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
         map.on('load', () => {
-            map.getContainer().querySelectorAll('.maplibregl-compact-show').forEach(n => n.classList.remove('maplibregl-compact-show'));
             map.addImage('chevron', chevronImage(), { pixelRatio: 2 });
             map.addSource('lanes', { type: 'geojson', data: EMPTY });
             map.addSource('focus', { type: 'geojson', data: EMPTY });

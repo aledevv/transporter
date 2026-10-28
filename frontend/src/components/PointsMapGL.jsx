@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { addCollapsedAttribution } from '../utils/mapAttribution';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
@@ -24,10 +25,9 @@ export default function PointsMapGL({ points, selectedIndex, onSelect, fitKey = 
     useEffect(() => {
         const map = new maplibregl.Map({ container: divRef.current, style: MAP_STYLE, center: [11.12, 46.07], zoom: 8, attributionControl: false });
         map.on('error', e => console.warn('[PointsMapGL]', e.error?.message || e));
-        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+        addCollapsedAttribution(map);
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
         map.on('load', () => {
-            map.getContainer().querySelectorAll('.maplibregl-compact-show').forEach(n => n.classList.remove('maplibregl-compact-show'));
             map.addSource('places', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
             map.addLayer({ id: 'places', type: 'circle', source: 'places', paint: {
                 // zoom must be the outer expression: the selected dot is bigger at every zoom
