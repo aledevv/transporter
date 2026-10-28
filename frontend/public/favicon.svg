@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <!-- Badge -->
   <rect width="64" height="64" rx="16" fill="#2563EB"/>
-  <!-- Bus: body, windshield, two wheels -->
+  <!-- Bus: body, windshield, headlights, two wheels -->
   <rect x="15" y="12" width="34" height="34" rx="8" fill="#fff"/>
   <rect x="20" y="18" width="24" height="13" rx="3" fill="#2563EB"/>
+  <circle cx="22.5" cy="38.5" r="2.75" fill="#2563EB"/>
+  <circle cx="41.5" cy="38.5" r="2.75" fill="#2563EB"/>
   <rect x="18" y="44" width="9" height="8" rx="3" fill="#fff"/>
   <rect x="37" y="44" width="9" height="8" rx="3" fill="#fff"/>
 </svg>
