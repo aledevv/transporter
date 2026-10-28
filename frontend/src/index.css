@@ -21,6 +21,8 @@
 .sr-window-out { animation: sr-window-out .16s ease-in both }
 .sr-panel-in { animation: sr-panel-in .2s cubic-bezier(.2,.8,.2,1) both }
 .sr-rise-in { animation: sr-rise-in .25s cubic-bezier(.2,.8,.2,1) both }
+@keyframes sr-cell-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+.sr-cell-pulse { animation: sr-cell-pulse 2.4s ease-in-out infinite }
 @media (prefers-reduced-motion: reduce) {
-    .sr-backdrop-in, .sr-backdrop-out, .sr-window-in, .sr-window-out, .sr-panel-in, .sr-rise-in { animation: none }
+    .sr-backdrop-in, .sr-backdrop-out, .sr-window-in, .sr-window-out, .sr-panel-in, .sr-rise-in, .sr-cell-pulse { animation: none }
 }

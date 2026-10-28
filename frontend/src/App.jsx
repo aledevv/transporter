@@ -63,8 +63,6 @@ function App() {
     const [activeTab, setActiveTab] = useState('app'); // 'app' | 'institutes'
     const [inputMode, setInputMode] = useState('excel'); // 'excel' | 'database'
     const [message, setMessage] = useState('');
-    const [showDetails, setShowDetails] = useState(false);
-    const [openEditorTrigger, setOpenEditorTrigger] = useState(0);
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
     const [processingError, setProcessingError] = useState(null); // Error message string | null
@@ -384,6 +382,7 @@ function App() {
             handleSheetRead({ fileName: trip.label || 'Viaggio salvato', columns: ['Nome', 'Indirizzo', 'Partecipanti'], rows });
             return;
         }
+        setReview(null);
         const restored = {
             ...trip,
             results: typeof trip.results === 'string' ? JSON.parse(trip.results) : trip.results,
@@ -408,7 +407,6 @@ function App() {
     const handleReset = () => {
         setSchools([]);
         setMessage('');
-        setShowDetails(false);
         setCurrentTripId(null);
         setTripToRestore(null);
         setReview(null);
@@ -532,7 +530,7 @@ function App() {
                             <Menu className="w-5 h-5 text-gray-600" />
                         </button>
                         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                            <img src="/favicon.svg" alt="BusPlan Logo" className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+                            <img src="/favicon.svg" alt="BusPlan Logo" className="w-9 h-9 md:w-10 md:h-10 drop-shadow-sm" />
                             BusPlan
                             <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
                         </h1>
@@ -667,96 +665,6 @@ function App() {
                             </div>
                         )}
 
-                        {schools.length > 0 && (
-                            <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-gray-200">
-                                <h3 className="font-semibold text-gray-700 mb-3 flex justify-between items-center">
-                                    <span>Riepilogo Dati Caricati</span>
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            onClick={() => {
-                                                setOpenEditorTrigger(c => c + 1);
-                                                setTimeout(() => dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                                            }}
-                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                                        >
-                                            ✏️ Modifica Dati
-                                        </button>
-                                        <button
-                                            onClick={() => setShowDetails(!showDetails)}
-                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
-                                        >
-                                            {showDetails ? 'Nascondi Dettagli' : 'Mostra Dettagli'}
-                                        </button>
-                                    </div>
-                                </h3>
-
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
-                                        <div className="text-gray-500 text-xs uppercase font-bold tracking-wide">Fermate</div>
-                                        <div className="text-2xl font-bold text-gray-800">{schools.length}</div>
-                                    </div>
-                                    <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
-                                        <div className="text-gray-500 text-xs uppercase font-bold tracking-wide">Passeggeri Totali</div>
-                                        <div className="text-2xl font-bold text-blue-600">
-                                            {schools.reduce((sum, s) => sum + (parseInt(s.demand) || 0), 0)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {showDetails && (
-                                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-fade-in mt-4">
-                                        <div className="max-h-60 overflow-y-auto">
-                                            <table className="min-w-full divide-y divide-gray-200">
-                                                <thead className="bg-gray-50 sticky top-0">
-                                                    <tr>
-                                                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Istituto</th>
-                                                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indirizzo</th>
-                                                        <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pax</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {schools.map((school) => (
-                                                        <tr key={school.id} className="hover:bg-gray-50">
-                                                            <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{school.name}</td>
-                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                                {school.institute ? (
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div
-                                                                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                                                            style={{ backgroundColor: instituteColorMap[school.institute] || '#ccc' }}
-                                                                        ></div>
-                                                                        <span className="truncate max-w-[120px]" title={school.institute}>
-                                                                            {school.institute}
-                                                                        </span>
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-gray-300">-</span>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-4 py-2 whitespace-nowrap text-sm max-w-[200px]">
-                                                                <div className="truncate font-medium text-gray-800" title={school.display_address || school.address}>
-                                                                    {(school.display_address || school.address).split(',')[0]}
-                                                                </div>
-                                                                {(school.display_address && school.display_address !== school.address) ? (
-                                                                    <div className="truncate text-xs text-gray-400" title={school.address}>
-                                                                        {school.address.split(',')[0]}
-                                                                    </div>
-                                                                ) : null}
-                                                            </td>
-                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
-                                                                {school.demand}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )
-                        }
                     </section>
                     {/* Section 2: Dashboard (Map + Controls) */}
                     {schools.length > 0 && (
@@ -774,7 +682,6 @@ function App() {
                                 onTripRenamed={handleTripRenamed}
                                 onTripUpdated={handleTripUpdated}
                                 tripToRestore={tripToRestore}
-                                openEditorTrigger={openEditorTrigger}
                                 allDbInstitutes={allDbInstitutes}
                             />
                         </section>
