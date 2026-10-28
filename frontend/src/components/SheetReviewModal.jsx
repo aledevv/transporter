@@ -91,7 +91,7 @@ function CoordinateField({ value, onChange }) {
     );
 }
 
-function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, institutes, initialCandidates, current, onResolve, onUndo, onClose }) {
+function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, institutes, initialCandidates, current, onResolve, onClose }) {
     const rowName = String(row[nameCol] ?? '').trim();
     const rowAddr = String(row[addrCol] ?? '').trim();
     const [tab, setTab] = useState(mode === 'dataset' ? 'new' : 'db');
@@ -239,57 +239,23 @@ function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, institutes
                 )}
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
+            <div className="border-t border-slate-100 px-5 py-3">
                 <button onClick={() => onResolve({ type: 'skip' })}
                     className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-rose-600">
                     <Trash2 className="h-3.5 w-3.5" /> {mode === 'trip' ? 'Escludi questa fermata dal viaggio' : 'Non importare questa riga'}
                 </button>
-                {onUndo && (
-                    <button onClick={onUndo} className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-blue-700">
-                        <Undo2 className="h-3.5 w-3.5" /> Annulla scelta
-                    </button>
-                )}
             </div>
         </aside>
     );
 }
 
-// Cell being edited in place, Excel style: Enter/Tab/blur commit, Esc cancels.
-function CellEditor({ initial, numeric, mono, onCommit, onCancel, onNext }) {
-    const [v, setV] = useState(initial ?? '');
-    return (
-        <input
-            autoFocus
-            value={v}
-            inputMode={numeric ? 'numeric' : undefined}
-            onChange={e => setV(e.target.value)}
-            onFocus={e => e.target.select()}
-            onBlur={() => onCommit(v)}
-            onKeyDown={e => {
-                if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); }
-                if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
-                if (e.key === 'Tab') { e.preventDefault(); onCommit(v); onNext(e.shiftKey ? -1 : 1); }
-            }}
-            className={`-mx-1 w-[calc(100%+0.5rem)] rounded border border-blue-500 bg-white px-1 py-0 text-[13px] text-slate-900 outline-none ring-2 ring-blue-200 ${mono ? 'font-mono text-[12px]' : ''}`}
-        />
-    );
-}
-
-// Small input inside an issue tag (e.g. missing participants): commits on blur/Enter
-function TagInput({ onCommit }) {
-    const [v, setV] = useState('');
-    return (
-        <input
-            value={v}
-            placeholder="n."
-            inputMode="numeric"
-            onClick={e => e.stopPropagation()}
-            onChange={e => setV(e.target.value)}
-            onBlur={() => v !== '' && onCommit(v)}
-            onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-            className="w-12 rounded bg-white px-1.5 py-0.5 text-[11.5px] font-semibold text-slate-800 outline-none"
-        />
-    );
+function resolutionLabel(res) {
+    if (!res) return null;
+    if (res.type === 'db') return res.entry.name;
+    if (res.type === 'new') return `Nuova: ${res.name}`;
+    if (res.type === 'edit') return formatCoordinates(res.lat, res.lon);
+    if (res.type === 'skip') return 'Esclusa';
+    return null;
 }
 
 export default function SheetReviewModal({
@@ -297,68 +263,46 @@ export default function SheetReviewModal({
     title,
     fileName,
     columns,
-    rows: initialRows,
-    analyze, // (rows) => { issues, resolutions, candidatesByRow, nameCol, addrCol, coordCol }
+    rows,
+    issues,
+    initialResolutions = {},
+    candidatesByRow = {},
     institutes = [],
+    nameCol, addrCol, coordCol,
     onConfirm,
     onClose,
 }) {
-    // Editable copy of the sheet: every edit re-runs the checks
-    const [rows, setRows] = useState(initialRows);
-    const [edited, setEdited] = useState(() => new Set()); // `${row}|${col}` changed by the user
-    const [editing, setEditing] = useState(null);          // `${row}|${col}` being edited
     // Rows the user resolved by hand (overrides the preselection)
     const [resolutions, setResolutions] = useState({});
     const [openRow, setOpenRow] = useState(null);
     const [onlyProblems, setOnlyProblems] = useState(false);
 
-    const { issues, resolutions: initialResolutions = {}, candidatesByRow = {}, nameCol, addrCol, coordCol } = useMemo(() => analyze(rows), [analyze, rows]);
     const effective = { ...initialResolutions, ...resolutions };
     const issuesByCell = useMemo(() => {
         const m = {};
         issues.forEach(i => { (m[`${i.row}|${i.col}`] ||= []).push(i); });
         return m;
     }, [issues]);
-    // Kept visible under "only problems" once shown, so a row doesn't vanish while being fixed
-    const [problemRows] = useState(() => new Set(analyze(initialRows).issues.map(i => i.row)));
+    const rowsWithIssues = useMemo(() => new Set(issues.map(i => i.row)), [issues]);
 
-    // Value problems (fix in the cell) disappear on their own once the value is valid;
-    // matching problems are solved by picking a stop (or excluding the row)
-    const isResolved = (i) => resolutions[i.row]?.type === 'skip' || (!i.fix && resolutions[i.row] !== undefined);
+    // Cell values typed in place (issues with fix: 'number', e.g. missing participants)
+    const [edits, setEdits] = useState({});
+    const editOk = (i) => {
+        const v = edits[`${i.row}|${i.col}`];
+        return v !== undefined && v !== '' && !isNaN(Number(v)) && Number(v) > 0;
+    };
+    const isResolved = (i) => (i.fix === 'number' ? editOk(i) : resolutions[i.row] !== undefined);
     const openErrors = issues.filter(i => i.severity === 'error' && !isResolved(i));
     const openWarnings = issues.filter(i => i.severity === 'warning' && !isResolved(i));
     const okCount = rows.length - new Set([...openErrors, ...openWarnings].map(i => i.row)).size;
 
-    const setCell = (row, col, value) => {
-        setRows(rs => {
-            if (String(rs[row][col] ?? '') === String(value)) return rs;
-            const next = [...rs];
-            next[row] = { ...next[row], [col]: value };
-            return next;
-        });
-        setEdited(e => new Set(e).add(`${row}|${col}`));
-    };
-    const commitCell = (row, col, raw) => {
-        const v = String(raw).trim();
-        const numeric = typeof initialRows[row]?.[col] === 'number' || /partecipanti|passeggeri|pax/i.test(col);
-        setCell(row, col, numeric && v !== '' && !isNaN(Number(v)) ? Number(v) : v);
-        setEditing(null);
-    };
-
     const resolve = (row, res) => {
-        if (res.type === 'edit') {
-            // Dataset fix from the side panel: written into the cells like a manual edit
-            setCell(row, nameCol, res.name);
-            setCell(row, addrCol, res.address);
-            setCell(row, coordCol, formatCoordinates(res.lat, res.lon));
-        } else {
-            setResolutions(r => ({ ...r, [row]: res }));
-        }
+        setResolutions(r => ({ ...r, [row]: res }));
         setOpenRow(null);
     };
     const undo = (row) => setResolutions(r => { const n = { ...r }; delete n[row]; return n; });
 
-    const visibleRows = rows.map((r, i) => i).filter(i => !onlyProblems || problemRows.has(i));
+    const visibleRows = rows.map((r, i) => i).filter(i => !onlyProblems || rowsWithIssues.has(i));
     const showMatchCol = mode === 'trip';
 
     return (
@@ -427,56 +371,62 @@ export default function SheetReviewModal({
                                                 {ri + 2}
                                             </td>
                                             {columns.map(c => {
-                                                const key = `${ri}|${c}`;
-                                                const cellIssues = issuesByCell[key] || [];
-                                                const shown = cellIssues.filter(i => !isResolved(i));
-                                                const issue = shown.find(i => i.severity === 'error') || shown[0];
-                                                const value = r[c];
+                                                const cellIssues = issuesByCell[`${ri}|${c}`] || [];
+                                                const issue = cellIssues.find(i => i.severity === 'error') || cellIssues[0];
+                                                const fixInPlace = issue?.fix === 'number';
+                                                const cellResolved = issue && (fixInPlace ? editOk(issue) : !!userRes);
+                                                const tone = issue ? (cellResolved ? 'resolved' : issue.severity) : null;
+                                                let value = r[c];
+                                                if (mode === 'dataset' && userRes?.type === 'edit') {
+                                                    if (c === nameCol) value = userRes.name;
+                                                    if (c === addrCol) value = userRes.address;
+                                                    if (c === coordCol) value = formatCoordinates(userRes.lat, userRes.lon);
+                                                }
                                                 const isCoord = c === coordCol;
-                                                const isEditing = editing === key;
-                                                // A stop picked from the database: discreet mark instead of a tag
-                                                const picked = !issue && cellIssues.length > 0 && userRes && userRes.type !== 'skip';
                                                 return (
                                                     <td
                                                         key={c}
-                                                        onClick={() => !isEditing && !skipped && setEditing(key)}
-                                                        className={`relative h-9 max-w-[380px] cursor-cell border-b border-r border-slate-200 px-3 py-1.5 align-top ${issue ? TONE[issue.severity].cell : isEditing ? 'shadow-[inset_0_0_0_2px_#3b82f6]' : 'hover:bg-slate-50'} ${isCoord ? 'font-mono text-[12px]' : ''}`}
+                                                        className={`h-9 max-w-[380px] border-b border-r border-slate-200 px-3 py-1.5 align-top ${tone ? TONE[tone].cell : ''} ${isCoord ? 'font-mono text-[12px]' : ''}`}
                                                     >
-                                                        {edited.has(key) && (
-                                                            <span title="Modificata" className="absolute right-0 top-0 h-0 w-0 border-l-[7px] border-t-[7px] border-l-transparent border-t-blue-500" />
-                                                        )}
-                                                        {picked && <span className="absolute inset-y-1 left-0 w-[3px] rounded-r bg-emerald-500" />}
-                                                        {isEditing ? (
-                                                            <CellEditor
-                                                                initial={value}
-                                                                mono={isCoord}
-                                                                numeric={typeof value === 'number'}
-                                                                onCommit={v => commitCell(ri, c, v)}
-                                                                onCancel={() => setEditing(null)}
-                                                                onNext={step => {
-                                                                    const ci = columns.indexOf(c) + step;
-                                                                    if (ci >= 0 && ci < columns.length) setEditing(`${ri}|${columns[ci]}`);
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <div className={`truncate ${skipped ? 'line-through' : ''}`}>
-                                                                {value === '' || value == null ? <span className="italic text-slate-300">vuoto</span> : String(value)}
+                                                        <div className={`truncate ${skipped ? 'line-through' : ''}`}>
+                                                            {value === '' || value == null ? <span className="italic text-slate-300">vuoto</span> : String(value)}
+                                                        </div>
+                                                        {fixInPlace && (
+                                                            <div className="flex flex-col items-start">
+                                                                <CellTag tone={tone} active={active}>
+                                                                    {cellResolved ? <Check className="h-3 w-3 flex-shrink-0" /> : <AlertTriangle className="h-3 w-3 flex-shrink-0" />}
+                                                                    <span>{cellResolved ? 'Corretto' : issue.message}</span>
+                                                                    <input
+                                                                        type="number" min="1" placeholder="n."
+                                                                        value={edits[`${ri}|${c}`] ?? ''}
+                                                                        onChange={e => setEdits(x => ({ ...x, [`${ri}|${c}`]: e.target.value }))}
+                                                                        className="w-14 rounded bg-white px-1.5 py-0.5 text-[11.5px] font-semibold text-slate-800 outline-none"
+                                                                    />
+                                                                </CellTag>
                                                             </div>
                                                         )}
-                                                        {issue && !isEditing && !skipped && (
-                                                            <div className="flex flex-col items-start" onClick={e => e.stopPropagation()}>
+                                                        {issue && !fixInPlace && !userRes && (
+                                                            <div className="flex flex-col items-start">
                                                                 <CellTag tone={issue.severity} active={active}>
                                                                     {issue.severity === 'error'
                                                                         ? <AlertTriangle className="h-3 w-3 flex-shrink-0" />
                                                                         : <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/90" />}
-                                                                    <span>{shown.map(i => i.message).join(' · ')}</span>
-                                                                    {issue.fix === 'number' ? (
-                                                                        <TagInput onCommit={v => commitCell(ri, c, v)} />
-                                                                    ) : mode === 'trip' && !issue.fix ? (
-                                                                        <ChipButton onClick={() => setOpenRow(ri)}><Database className="h-3 w-3" /> Seleziona da database</ChipButton>
-                                                                    ) : (
-                                                                        <ChipButton onClick={() => (mode === 'dataset' ? setOpenRow(ri) : setEditing(key))}>Correggi</ChipButton>
-                                                                    )}
+                                                                    <span>{cellIssues.map(i => i.message).join(' · ')}</span>
+                                                                    <ChipButton onClick={() => setOpenRow(ri)}>
+                                                                        {mode === 'trip' ? <><Database className="h-3 w-3" /> Seleziona da database</> : 'Correggi'}
+                                                                    </ChipButton>
+                                                                </CellTag>
+                                                            </div>
+                                                        )}
+                                                        {issue && !fixInPlace && userRes && (
+                                                            <div className="flex flex-col items-start">
+                                                                <CellTag tone="resolved" active={active}>
+                                                                    <Check className="h-3 w-3 flex-shrink-0" />
+                                                                    <span className="max-w-[220px] truncate">{resolutionLabel(userRes)}</span>
+                                                                    <ChipButton onClick={() => setOpenRow(ri)}>Cambia</ChipButton>
+                                                                    <button onClick={() => undo(ri)} title="Annulla" className="rounded-full p-0.5 hover:bg-white/30">
+                                                                        <Undo2 className="h-3 w-3" />
+                                                                    </button>
                                                                 </CellTag>
                                                             </div>
                                                         )}
@@ -487,15 +437,10 @@ export default function SheetReviewModal({
                                                 <td className="h-9 max-w-[320px] border-b border-slate-200 bg-blue-50/40 px-3 py-1.5 align-top">
                                                     {res && res.type !== 'skip' ? (
                                                         <button onClick={() => setOpenRow(ri)} className="flex w-full min-w-0 items-center gap-2 text-left hover:text-blue-700">
-                                                            {userRes && <Check className="h-3.5 w-3.5 flex-shrink-0 text-emerald-600" />}
                                                             <span className="truncate text-slate-700">{res.type === 'db' ? res.entry.name : res.name}</span>
                                                             <span className="flex-shrink-0 font-mono text-[11px] text-slate-400">
                                                                 {Number(res.type === 'db' ? res.entry.lat : res.lat).toFixed(4)}, {Number(res.type === 'db' ? res.entry.lon : res.lon).toFixed(4)}
                                                             </span>
-                                                        </button>
-                                                    ) : skipped ? (
-                                                        <button onClick={() => undo(ri)} className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-blue-700">
-                                                            <Undo2 className="h-3 w-3" /> Esclusa · ripristina
                                                         </button>
                                                     ) : (
                                                         <span className="text-slate-300">—</span>
@@ -522,7 +467,6 @@ export default function SheetReviewModal({
                             initialCandidates={candidatesByRow[openRow]}
                             current={effective[openRow]}
                             onResolve={res => resolve(openRow, res)}
-                            onUndo={resolutions[openRow] !== undefined ? () => { undo(openRow); setOpenRow(null); } : null}
                             onClose={() => setOpenRow(null)}
                         />
                     )}
@@ -543,7 +487,7 @@ export default function SheetReviewModal({
                     <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200/70">Annulla</button>
                     <button
                         disabled={openErrors.length > 0}
-                        onClick={() => onConfirm?.({ rows, resolutions: effective, edited: [...edited] })}
+                        onClick={() => onConfirm?.({ resolutions: effective, edits })}
                         className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
                     >
                         {mode === 'trip' ? 'Conferma e continua' : 'Importa nel database'}

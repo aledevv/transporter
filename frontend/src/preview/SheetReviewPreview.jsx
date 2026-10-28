@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import SheetReviewModal from '../components/SheetReviewModal';
 import { analyzeTripRows, analyzeDatasetRows } from '../utils/sheetIssues';
 
@@ -15,11 +15,11 @@ export default function SheetReviewPreview() {
             .then(([institutes, trip, dataset]) => setData({ institutes, trip, dataset }));
     }, []);
 
-    const analyze = useCallback(rows => (
-        mode === 'trip'
-            ? analyzeTripRows(rows, data.trip.columns, data.institutes)
-            : analyzeDatasetRows(rows, data.dataset.columns)
-    ), [data, mode]);
+    const analysis = useMemo(() => {
+        if (!data) return null;
+        if (mode === 'trip') return analyzeTripRows(data.trip.rows, data.trip.columns, data.institutes);
+        return analyzeDatasetRows(data.dataset.rows, data.dataset.columns);
+    }, [data, mode]);
 
     if (!data) return <div className="p-10 text-slate-500">Caricamento anteprima…</div>;
     const sheet = mode === 'trip' ? data.trip : data.dataset;
@@ -50,8 +50,13 @@ export default function SheetReviewPreview() {
                     fileName={sheet.fileName}
                     columns={sheet.columns}
                     rows={sheet.rows}
-                    analyze={analyze}
+                    issues={analysis.issues}
+                    initialResolutions={analysis.resolutions}
+                    candidatesByRow={analysis.candidatesByRow}
                     institutes={data.institutes}
+                    nameCol={analysis.nameCol}
+                    addrCol={analysis.addrCol}
+                    coordCol={analysis.coordCol}
                     onClose={() => setOpen(false)}
                     onConfirm={res => { setResult(res); setOpen(false); }}
                 />

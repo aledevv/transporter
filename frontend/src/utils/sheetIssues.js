@@ -4,8 +4,6 @@ import { parseCoordinates } from './coordinates';
 // An issue points at one cell of the sheet:
 //   { row, col, severity: 'error' | 'warning', message }
 // fix: 'number' -> fixed by typing the value in the cell's tag (no dataset lookup)
-// fix: 'value'  -> fixed by editing the cell; the issue goes away once the value is valid
-// no fix        -> matching problem, solved by picking a stop from the dataset
 // error   -> must be resolved before confirming
 // warning -> pre-resolved with the best guess, shown so the user can check it
 
@@ -39,7 +37,7 @@ export function analyzeTripRows(rows, columns, institutes) {
             issues.push({ row, col: paxCol, severity: 'error', message: 'Partecipanti mancanti', fix: 'number' });
         }
         if (!name && !address) {
-            issues.push({ row, col: nameCol, severity: 'error', message: 'Riga senza nome né via', fix: 'value' });
+            issues.push({ row, col: nameCol, severity: 'error', message: 'Riga senza nome né via' });
             return;
         }
 
@@ -86,21 +84,21 @@ export function analyzeDatasetRows(rows, columns) {
         const address = String(r[addrCol] ?? '').trim();
         if (!name && !address && !(coordCol ? r[coordCol] : r[latCol])) return; // blank line
         let ok = true;
-        if (!name) { issues.push({ row, col: nameCol, severity: 'error', message: 'Nome mancante', fix: 'value' }); ok = false; }
-        if (!address) { issues.push({ row, col: addrCol, severity: 'error', message: 'Via mancante', fix: 'value' }); ok = false; }
+        if (!name) { issues.push({ row, col: nameCol, severity: 'error', message: 'Nome mancante' }); ok = false; }
+        if (!address) { issues.push({ row, col: addrCol, severity: 'error', message: 'Via mancante' }); ok = false; }
 
         const c = coordCol ? parseCoordinates(r[coordCol]) : parseCoordinates(r[latCol], r[lonCol]);
         const cCol = coordCol || latCol;
         if (!c.ok) {
-            issues.push({ row, col: cCol, severity: 'error', message: c.error, fix: 'value' });
+            issues.push({ row, col: cCol, severity: 'error', message: c.error });
             ok = false;
         } else if (c.warning) {
-            issues.push({ row, col: cCol, severity: 'warning', message: `${c.warning}: corrette`, fix: 'value' });
+            issues.push({ row, col: cCol, severity: 'warning', message: `${c.warning}: corrette` });
         }
 
         const key = `${normalizeForCompare(name)}|${normalizeForCompare(address)}`;
         if (name && address && seen.has(key)) {
-            issues.push({ row, col: nameCol, severity: 'warning', message: `Doppione della riga ${seen.get(key) + 2}`, fix: 'value' });
+            issues.push({ row, col: nameCol, severity: 'warning', message: `Doppione della riga ${seen.get(key) + 2}` });
         } else {
             seen.set(key, row);
         }
