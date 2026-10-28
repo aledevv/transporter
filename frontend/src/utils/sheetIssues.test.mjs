@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeTripRows, buildTripPayload, analyzeDatasetRows, diffDataset, parsePax } from './sheetIssues.js';
+import { analyzeTripRows, buildTripPayload, analyzeDatasetRows, diffDataset, applyDatasetDiff, normalizeStreet, parsePax } from './sheetIssues.js';
 
 const institutes = [
     { id: 'ala', name: 'IC ALA', description: 'ALA, Via Betta, Scuola primaria', address: 'Via Betta, Ala', lat: 45.7562, lon: 11.0015 },
@@ -93,4 +93,76 @@ test('trip sheets read the old headers and aliases, show only planner columns, s
     assert.equal(a.tableRows, 1);
     assert.equal(a.resolutions[2].type, 'skip');
     assert.ok(!a.issues.some(i => i.row >= 1));
+});
+
+const datasetCols = ['Nome', 'Via', 'Coordinate'];
+const parse = rows => Object.values(analyzeDatasetRows(rows, datasetCols).parsed);
+const fileRows = [
+    { Nome: 'IC ALA', Via: 'ALA, Via Betta, Scuola primaria', Coordinate: '45.7562, 11.0015' },
+    { Nome: 'IC CEMBRA - SSPG Cembra', Via: 'CEMBRA, Via Negritelle - SSPG', Coordinate: '46.1726, 11.2227' },
+    { Nome: 'IC ROVERETO NORD', Via: 'Rovereto, Corso Bettini 67', Coordinate: '45.8936, 11.0436' },
+    { Nome: 'IC ROVERETO NORD', Via: 'Rovereto, V.le Trento - Fermata bus', Coordinate: '45.8991, 11.0423' },
+];
+
+test('importing the same file twice: the second time nothing is new or changed', () => {
+    const first = diffDataset(parse(fileRows), institutes);
+    const after = applyDatasetDiff(institutes, first);
+    const second = diffDataset(parse(fileRows), after);
+    assert.equal(second.added.length, 0);
+    assert.equal(second.changed.length, 0);
+    assert.equal(second.unchanged, fileRows.length);
+});
+
+test('the same file with 2 more rows adds exactly those 2', () => {
+    const after = applyDatasetDiff(institutes, diffDataset(parse(fileRows), institutes));
+    const more = [...fileRows,
+        { Nome: 'IC MORI', Via: 'Mori, Via Giovanni XXIII 64', Coordinate: '45.8522, 10.9856' },
+        { Nome: 'IC AVIO', Via: 'Avio, Viale Degasperi 69', Coordinate: '45.7388, 10.9531' }];
+    const d = diffDataset(parse(more), after);
+    assert.deepEqual(d.added.map(a => a.name), ['IC MORI', 'IC AVIO']);
+    assert.equal(d.changed.length, 0);
+});
+
+test('case, spaces, accents, punctuation and street abbreviations do not make a row different', () => {
+    const after = applyDatasetDiff(institutes, diffDataset(parse(fileRows), institutes));
+    const variant = [
+        { Nome: '  ic  ala ', Via: 'Ala,  via betta  -  scuola primaria', Coordinate: '45.7562,11.0015' },
+        { Nome: 'IC Rovereto Nord', Via: 'ROVERETO CORSO BETTINI N. 67', Coordinate: '45,8936; 11,0436' },
+        { Nome: 'IC ROVERETO NORD', Via: 'Rovereto, Viale Trento - fermata bus', Coordinate: '45.8991, 11.0423' },
+    ];
+    const d = diffDataset(parse(variant), after);
+    assert.equal(d.added.length, 0);
+    assert.equal(d.changed.length, 0);
+    assert.equal(d.unchanged, 3);
+    assert.equal(normalizeStreet('P.zza Duomo, 1'), normalizeStreet('Piazza Duomo 1'));
+    assert.equal(normalizeStreet('C.so Rosmini n. 24'), normalizeStreet('Corso Rosmini 24'));
+});
+
+test('rows repeated in the file are inserted once', () => {
+    const rows = [
+        { Nome: 'IC NUOVO', Via: 'Via Roma 1', Coordinate: '46.0, 11.0' },
+        { Nome: 'ic nuovo', Via: 'via roma 1', Coordinate: '46.0, 11.0' },
+    ];
+    assert.equal(diffDataset(parse(rows), institutes).added.length, 1);
+});
+
+test('same name within 30 m with a reworded street is a change, not a new entry', () => {
+    const rows = [{ Nome: 'IC ALA', Via: 'Ala, Via Abramo Betta 10', Coordinate: '45.75625, 11.00152' }];
+    const d = diffDataset(parse(rows), institutes);
+    assert.equal(d.added.length, 0);
+    assert.equal(d.changed.length, 1);
+    assert.equal(d.changed[0].before.address, 'ALA, Via Betta, Scuola primaria');
+    assert.ok(d.changed[0].renamed);
+});
+
+test('two stops of one school at the same point stay two entries and re-import cleanly', () => {
+    const rows = [
+        { Nome: 'IC ROVERETO SUD', Via: 'Rovereto, Via Benacense, 27', Coordinate: '45.8704688, 11.0307145' },
+        { Nome: 'IC ROVERETO SUD', Via: 'Rovereto/Lizzana, Via Livenza, 1 - SSPG', Coordinate: '45.8704688, 11.0307145' },
+    ];
+    const first = diffDataset(parse(rows), institutes);
+    assert.equal(first.added.length, 2);
+    const second = diffDataset(parse(rows), applyDatasetDiff(institutes, first));
+    assert.equal(second.added.length + second.changed.length, 0);
+    assert.equal(second.unchanged, 2);
 });

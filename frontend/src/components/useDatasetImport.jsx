@@ -45,13 +45,21 @@ function ImportSummary({ diff, writing, onWrite, onCancel }) {
                             </div>
                         ))}
                         {diff.changed.map(c => (
-                            <div key={`c-${c.entry.id}`} className="flex gap-2 py-1">
+                            <div key={`c-${c.entry.id}`} className="flex gap-2 py-1.5">
                                 <span className="font-semibold text-amber-600">~</span>
-                                <span className="truncate">
-                                    <b className="font-medium">{c.next.name}</b>
-                                    {c.renamed && <> · {c.next.address}</>}
-                                    {c.moved && <span className="font-mono text-[11px] text-slate-500"> · {formatCoordinates(c.next.lat, c.next.lon)}</span>}
-                                </span>
+                                <div className="min-w-0">
+                                    <div className="truncate font-medium">{c.next.name}</div>
+                                    {c.renamed && (
+                                        <div className="truncate text-xs text-slate-500">
+                                            <span className="line-through decoration-slate-300">{c.before.address}</span> → <span className="text-slate-800">{c.next.address}</span>
+                                        </div>
+                                    )}
+                                    {c.moved && (
+                                        <div className="truncate font-mono text-[11px] text-slate-500">
+                                            <span className="line-through decoration-slate-300">{formatCoordinates(c.before.lat, c.before.lon)}</span> → <span className="text-slate-800">{formatCoordinates(c.next.lat, c.next.lon)}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

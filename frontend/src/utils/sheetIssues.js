@@ -194,7 +194,7 @@ export function analyzeDatasetRows(rows, columns) {
             issues.push({ row, col: cCol, severity: 'warning', message: `${c.warning}: corrette` });
         }
 
-        const key = `${normalizeForCompare(name)}|${normalizeForCompare(address)}`;
+        const key = `${normalizeForCompare(name)}|${normalizeStreet(address)}`;
         if (name && address && seen.has(key)) {
             issues.push({ row, col: nameCol, severity: 'warning', message: `Doppione della riga ${seen.get(key) + 2}` });
         } else {
@@ -213,7 +213,22 @@ export function analyzeDatasetRows(rows, columns) {
     return { issues, parsed, nameCol, addrCol, coordCol: coordCol || latCol, rowAddress };
 }
 
-const sameStop = (a, b) => `${normalizeForCompare(a.name)}|${normalizeForCompare(a.via)}` === `${normalizeForCompare(b.name)}|${normalizeForCompare(b.via)}`;
+// Street abbreviations written in different ways by different people
+const STREET_ABBREVIATIONS = [
+    [/\bv\.?\s*le\b\.?/g, 'viale'], [/\bvle\b\.?/g, 'viale'],
+    [/\bp\.?\s*zza\b\.?/g, 'piazza'], [/\bp\.?\s*za\b\.?/g, 'piazza'], [/\bpza\b\.?/g, 'piazza'],
+    [/\bp\.?\s*le\b\.?/g, 'piazzale'], [/\bp\.?\s*zzale\b\.?/g, 'piazzale'],
+    [/\bc\.?\s*so\b\.?/g, 'corso'], [/\bloc\b\.?/g, 'localita'], [/\bfraz\b\.?/g, 'frazione'],
+    [/\bv\.(?=\s)/g, 'via'], [/\bn\.\s*(?=\d)/g, ''], [/\bnr?\s+(?=\d)/g, ''],
+];
+
+// Name / street as compared by the import: case, accents, spaces, punctuation
+// and the usual abbreviations don't make two entries different
+export function normalizeStreet(text) {
+    let t = String(text ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    STREET_ABBREVIATIONS.forEach(([re, rep]) => { t = t.replace(re, rep); });
+    return normalizeForCompare(t);
+}
 
 function metersBetween(a, b) {
     const R = 6371000, toRad = d => (d * Math.PI) / 180;
@@ -222,31 +237,86 @@ function metersBetween(a, b) {
     return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+// Same place when the name matches and the street matches, or the point is within 30 m
+const SAME_PLACE_METERS = 30;
+
 /**
- * Compares the imported dataset rows with the institutes in Firestore.
+ * Compares the imported dataset rows with the institutes in Firestore, so the
+ * same file can be imported again and again without creating duplicates.
  * The import never deletes: entries missing from the file are left alone.
- *   added     -> no entry with the same name and street
- *   changed   -> same name and street (or same name within 50 m) but different street text or coordinates
- *   unchanged -> same name, street and coordinates (within 1 m)
+ *   added     -> no entry with the same name and (same street or within 30 m)
+ *   changed   -> same entry, but the street text or the coordinates (more than 1 m) differ
+ *   unchanged -> everything else
+ * Rows repeated in the file count once.
  */
 export function diffDataset(parsedRows, institutes) {
-    const existing = institutes.map(i => ({ entry: i, name: i.name, via: i.description || i.address, lat: Number(i.lat), lon: Number(i.lon) }));
+    const existing = institutes.map(i => ({
+        entry: i, name: normalizeForCompare(i.name), via: normalizeStreet(i.description || i.address),
+        rawVia: i.description || i.address, lat: Number(i.lat), lon: Number(i.lon),
+    }));
     const added = [], changed = [];
     let unchanged = 0;
 
+    // Rows repeated in the file count once
+    const seen = new Set();
+    const rows = [];
     parsedRows.forEach(p => {
-        const row = { name: p.name, via: p.address, lat: p.lat, lon: p.lon };
-        let match = existing.find(e => sameStop(e, row));
-        if (!match) {
-            const near = existing.filter(e => normalizeForCompare(e.name) === normalizeForCompare(row.name) && metersBetween(e, row) < 50);
-            if (near.length === 1) match = near[0];
-        }
-        if (!match) { added.push(p); return; }
+        const row = { p, name: normalizeForCompare(p.name), via: normalizeStreet(p.address), lat: p.lat, lon: p.lon };
+        const key = `${row.name}|${row.via}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        rows.push(row);
+    });
+
+    // Pass 1: same name and street. Pass 2: same name within 30 m, only among the
+    // entries no other row claimed, so two stops of one school sharing a point
+    // (e.g. two meeting places with the same coordinates) stay two entries.
+    const claimed = new Set();
+    const matchOf = new Map();
+    rows.forEach(row => {
+        const m = existing.find(e => !claimed.has(e) && e.name === row.name && e.via === row.via);
+        if (m) { claimed.add(m); matchOf.set(row, m); }
+    });
+    rows.forEach(row => {
+        if (matchOf.has(row)) return;
+        const near = existing
+            .filter(e => !claimed.has(e) && e.name === row.name)
+            .map(e => ({ e, d: metersBetween(e, row) }))
+            .filter(x => x.d <= SAME_PLACE_METERS)
+            .sort((x, y) => x.d - y.d);
+        if (near.length) { claimed.add(near[0].e); matchOf.set(row, near[0].e); }
+    });
+
+    rows.forEach(row => {
+        const match = matchOf.get(row);
+        if (!match) { added.push(row.p); return; }
         const moved = metersBetween(match, row) > 1;
-        const renamed = normalizeForCompare(match.via) !== normalizeForCompare(row.via);
-        if (moved || renamed) changed.push({ entry: match.entry, next: p, moved, renamed });
-        else unchanged += 1;
+        const renamed = match.via !== row.via;
+        if (moved || renamed) {
+            changed.push({
+                entry: match.entry, next: row.p, moved, renamed,
+                before: { address: match.rawVia, lat: match.lat, lon: match.lon },
+            });
+        } else {
+            unchanged += 1;
+        }
     });
 
     return { added, changed, unchanged };
+}
+
+/**
+ * The institutes as they are after writing `diff` (what the import writes:
+ * new entries with name / street / coordinates, changed ones get the new
+ * street and coordinates). Used to check that a second import changes nothing.
+ */
+export function applyDatasetDiff(institutes, diff) {
+    const byId = new Map(institutes.map(i => [i.id, { ...i }]));
+    diff.changed.forEach(c => {
+        Object.assign(byId.get(c.entry.id), { description: c.next.address, lat: c.next.lat, lon: c.next.lon });
+    });
+    diff.added.forEach((a, n) => {
+        byId.set(`new-${n}-${a.name}`, { id: `new-${n}-${a.name}`, name: a.name, description: a.address, address: a.address, lat: a.lat, lon: a.lon });
+    });
+    return [...byId.values()];
 }
