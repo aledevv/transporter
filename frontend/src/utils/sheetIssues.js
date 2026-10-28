@@ -3,6 +3,7 @@ import { parseCoordinates } from './coordinates';
 
 // An issue points at one cell of the sheet:
 //   { row, col, severity: 'error' | 'warning', message }
+// fix: 'number' -> fixed by typing the value in the cell's tag (no dataset lookup)
 // error   -> must be resolved before confirming
 // warning -> pre-resolved with the best guess, shown so the user can check it
 
@@ -33,7 +34,7 @@ export function analyzeTripRows(rows, columns, institutes) {
         const pax = r[paxCol];
 
         if (paxCol && (pax === '' || pax == null || isNaN(Number(pax)) || Number(pax) <= 0)) {
-            issues.push({ row, col: paxCol, severity: 'error', message: 'Partecipanti mancanti' });
+            issues.push({ row, col: paxCol, severity: 'error', message: 'Partecipanti mancanti', fix: 'number' });
         }
         if (!name && !address) {
             issues.push({ row, col: nameCol, severity: 'error', message: 'Riga senza nome né via' });

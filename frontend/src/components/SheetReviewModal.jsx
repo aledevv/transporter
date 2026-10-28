@@ -20,38 +20,25 @@ const TONE = {
     error: {
         cell: 'bg-rose-50 shadow-[inset_0_0_0_2px_#f43f5e]',
         chip: 'bg-rose-500',
-        cursor: '#f43f5e',
     },
     warning: {
         cell: 'bg-amber-50 shadow-[inset_0_0_0_2px_#f59e0b]',
         chip: 'bg-amber-500',
-        cursor: '#f59e0b',
     },
     resolved: {
         cell: 'bg-emerald-50 shadow-[inset_0_0_0_2px_#10b981]',
         chip: 'bg-emerald-600',
-        cursor: '#059669',
     },
 };
 
-// side 'right': the chip hangs off the cell's top-right corner, over the next column.
-// side 'left' (last column, nothing to its right): it hangs off the top-left corner.
-function CursorChip({ tone, children, active, side = 'right' }) {
-    const t = TONE[tone];
-    const left = side === 'left';
+// The tag lives inside its cell, under the value: the row grows to fit it, so
+// tags of different cells (same row or consecutive rows) never overlap.
+function CellTag({ tone, children, active }) {
     return (
         <div
-            className={`absolute z-20 flex items-start pointer-events-none ${left ? 'flex-row-reverse' : ''} ${active ? 'z-30' : ''}`}
-            style={left ? { right: 'calc(100% - 7px)', top: '-11px' } : { left: 'calc(100% - 7px)', top: '-11px' }}
+            className={`mt-1 inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-md py-[3px] pl-2 pr-1 font-sans text-[11.5px] font-medium leading-snug text-white shadow-sm ${TONE[tone].chip} ${active ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
         >
-            <svg width="14" height="16" viewBox="0 0 14 16" className="flex-shrink-0 drop-shadow-sm" style={left ? { transform: 'scaleX(-1)' } : undefined}>
-                <path d="M1 1 L13 7 L7.5 8.5 L5 14.5 Z" fill={t.cursor} stroke="white" strokeWidth="1.2" strokeLinejoin="round" />
-            </svg>
-            <div
-                className={`pointer-events-auto mt-[9px] flex items-center font-sans gap-1.5 whitespace-nowrap rounded-full pl-2.5 pr-1 py-[3px] text-[11.5px] font-medium text-white shadow-md ${left ? '-mr-[3px] rounded-tr-sm' : '-ml-[3px] rounded-tl-sm'} ${t.chip} ${active ? 'ring-2 ring-offset-1 ring-blue-500' : ''}`}
-            >
-                {children}
-            </div>
+            {children}
         </div>
     );
 }
@@ -293,14 +280,20 @@ export default function SheetReviewModal({
     const effective = { ...initialResolutions, ...resolutions };
     const issuesByCell = useMemo(() => {
         const m = {};
-        issues.forEach(i => { m[`${i.row}|${i.col}`] = i; });
+        issues.forEach(i => { (m[`${i.row}|${i.col}`] ||= []).push(i); });
         return m;
     }, [issues]);
     const rowsWithIssues = useMemo(() => new Set(issues.map(i => i.row)), [issues]);
 
-    const isResolved = (row) => resolutions[row] !== undefined;
-    const openErrors = issues.filter(i => i.severity === 'error' && !isResolved(i.row));
-    const openWarnings = issues.filter(i => i.severity === 'warning' && !isResolved(i.row));
+    // Cell values typed in place (issues with fix: 'number', e.g. missing participants)
+    const [edits, setEdits] = useState({});
+    const editOk = (i) => {
+        const v = edits[`${i.row}|${i.col}`];
+        return v !== undefined && v !== '' && !isNaN(Number(v)) && Number(v) > 0;
+    };
+    const isResolved = (i) => (i.fix === 'number' ? editOk(i) : resolutions[i.row] !== undefined);
+    const openErrors = issues.filter(i => i.severity === 'error' && !isResolved(i));
+    const openWarnings = issues.filter(i => i.severity === 'warning' && !isResolved(i));
     const okCount = rows.length - new Set([...openErrors, ...openWarnings].map(i => i.row)).size;
 
     const resolve = (row, res) => {
@@ -344,7 +337,7 @@ export default function SheetReviewModal({
                 {/* Body */}
                 <div className="flex min-h-0 flex-1">
                     <div className="min-w-0 flex-1 overflow-auto bg-slate-100/60">
-                        <table className="border-separate border-spacing-0 bg-white text-[13px] text-slate-800" style={{ marginRight: showMatchCol ? 320 : 0 }}>
+                        <table className="min-w-full border-separate border-spacing-0 bg-white text-[13px] text-slate-800">
                             <thead className="sticky top-0 z-40">
                                 <tr>
                                     <th className="sticky left-0 z-10 h-6 w-11 border-b border-r border-slate-200 bg-slate-100" />
@@ -374,13 +367,15 @@ export default function SheetReviewModal({
                                     const active = openRow === ri;
                                     return (
                                         <tr key={ri} className={`${active ? 'bg-blue-50/70' : ''} ${skipped ? 'opacity-45' : ''}`}>
-                                            <td className={`sticky left-0 z-10 border-b border-r border-slate-200 px-2 text-center text-[11px] tabular-nums ${active ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-slate-50 text-slate-400'}`}>
+                                            <td className={`sticky left-0 z-10 border-b border-r border-slate-200 px-2 pt-2.5 align-top text-center text-[11px] tabular-nums ${active ? 'bg-blue-100 text-blue-700 font-semibold' : 'bg-slate-50 text-slate-400'}`}>
                                                 {ri + 2}
                                             </td>
-                                            {columns.map((c, ci) => {
-                                                const chipSide = !showMatchCol && ci === columns.length - 1 ? 'left' : 'right';
-                                                const issue = issuesByCell[`${ri}|${c}`];
-                                                const tone = issue ? (userRes ? 'resolved' : issue.severity) : null;
+                                            {columns.map(c => {
+                                                const cellIssues = issuesByCell[`${ri}|${c}`] || [];
+                                                const issue = cellIssues.find(i => i.severity === 'error') || cellIssues[0];
+                                                const fixInPlace = issue?.fix === 'number';
+                                                const cellResolved = issue && (fixInPlace ? editOk(issue) : !!userRes);
+                                                const tone = issue ? (cellResolved ? 'resolved' : issue.severity) : null;
                                                 let value = r[c];
                                                 if (mode === 'dataset' && userRes?.type === 'edit') {
                                                     if (c === nameCol) value = userRes.name;
@@ -391,37 +386,55 @@ export default function SheetReviewModal({
                                                 return (
                                                     <td
                                                         key={c}
-                                                        className={`relative h-9 max-w-[380px] border-b border-r border-slate-200 px-3 ${tone ? TONE[tone].cell : ''} ${isCoord ? 'font-mono text-[12px]' : ''}`}
+                                                        className={`h-9 max-w-[380px] border-b border-r border-slate-200 px-3 py-1.5 align-top ${tone ? TONE[tone].cell : ''} ${isCoord ? 'font-mono text-[12px]' : ''}`}
                                                     >
                                                         <div className={`truncate ${skipped ? 'line-through' : ''}`}>
                                                             {value === '' || value == null ? <span className="italic text-slate-300">vuoto</span> : String(value)}
                                                         </div>
-                                                        {issue && !userRes && (
-                                                            <CursorChip tone={issue.severity} active={active} side={chipSide}>
-                                                                {issue.severity === 'error'
-                                                                    ? <AlertTriangle className="h-3 w-3 flex-shrink-0" />
-                                                                    : <span className="h-1.5 w-1.5 rounded-full bg-white/90" />}
-                                                                <span>{issue.message}</span>
-                                                                <ChipButton onClick={() => setOpenRow(ri)}>
-                                                                    {mode === 'trip' ? <><Database className="h-3 w-3" /> Seleziona da database</> : 'Correggi'}
-                                                                </ChipButton>
-                                                            </CursorChip>
+                                                        {fixInPlace && (
+                                                            <div className="flex flex-col items-start">
+                                                                <CellTag tone={tone} active={active}>
+                                                                    {cellResolved ? <Check className="h-3 w-3 flex-shrink-0" /> : <AlertTriangle className="h-3 w-3 flex-shrink-0" />}
+                                                                    <span>{cellResolved ? 'Corretto' : issue.message}</span>
+                                                                    <input
+                                                                        type="number" min="1" placeholder="n."
+                                                                        value={edits[`${ri}|${c}`] ?? ''}
+                                                                        onChange={e => setEdits(x => ({ ...x, [`${ri}|${c}`]: e.target.value }))}
+                                                                        className="w-14 rounded bg-white px-1.5 py-0.5 text-[11.5px] font-semibold text-slate-800 outline-none"
+                                                                    />
+                                                                </CellTag>
+                                                            </div>
                                                         )}
-                                                        {issue && userRes && (
-                                                            <CursorChip tone="resolved" active={active} side={chipSide}>
-                                                                <Check className="h-3 w-3 flex-shrink-0" />
-                                                                <span className="max-w-[240px] truncate">{resolutionLabel(userRes)}</span>
-                                                                <ChipButton onClick={() => setOpenRow(ri)}>Cambia</ChipButton>
-                                                                <button onClick={() => undo(ri)} title="Annulla" className="rounded-full p-0.5 hover:bg-white/30">
-                                                                    <Undo2 className="h-3 w-3" />
-                                                                </button>
-                                                            </CursorChip>
+                                                        {issue && !fixInPlace && !userRes && (
+                                                            <div className="flex flex-col items-start">
+                                                                <CellTag tone={issue.severity} active={active}>
+                                                                    {issue.severity === 'error'
+                                                                        ? <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+                                                                        : <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-white/90" />}
+                                                                    <span>{cellIssues.map(i => i.message).join(' · ')}</span>
+                                                                    <ChipButton onClick={() => setOpenRow(ri)}>
+                                                                        {mode === 'trip' ? <><Database className="h-3 w-3" /> Seleziona da database</> : 'Correggi'}
+                                                                    </ChipButton>
+                                                                </CellTag>
+                                                            </div>
+                                                        )}
+                                                        {issue && !fixInPlace && userRes && (
+                                                            <div className="flex flex-col items-start">
+                                                                <CellTag tone="resolved" active={active}>
+                                                                    <Check className="h-3 w-3 flex-shrink-0" />
+                                                                    <span className="max-w-[220px] truncate">{resolutionLabel(userRes)}</span>
+                                                                    <ChipButton onClick={() => setOpenRow(ri)}>Cambia</ChipButton>
+                                                                    <button onClick={() => undo(ri)} title="Annulla" className="rounded-full p-0.5 hover:bg-white/30">
+                                                                        <Undo2 className="h-3 w-3" />
+                                                                    </button>
+                                                                </CellTag>
+                                                            </div>
                                                         )}
                                                     </td>
                                                 );
                                             })}
                                             {showMatchCol && (
-                                                <td className="h-9 max-w-[320px] border-b border-slate-200 bg-blue-50/40 px-3">
+                                                <td className="h-9 max-w-[320px] border-b border-slate-200 bg-blue-50/40 px-3 py-1.5 align-top">
                                                     {res && res.type !== 'skip' ? (
                                                         <button onClick={() => setOpenRow(ri)} className="flex w-full min-w-0 items-center gap-2 text-left hover:text-blue-700">
                                                             <span className="truncate text-slate-700">{res.type === 'db' ? res.entry.name : res.name}</span>
@@ -474,7 +487,7 @@ export default function SheetReviewModal({
                     <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200/70">Annulla</button>
                     <button
                         disabled={openErrors.length > 0}
-                        onClick={() => onConfirm?.(effective)}
+                        onClick={() => onConfirm?.({ resolutions: effective, edits })}
                         className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
                     >
                         {mode === 'trip' ? 'Conferma e continua' : 'Importa nel database'}
