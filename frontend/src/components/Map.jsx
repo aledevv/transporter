@@ -170,6 +170,23 @@ const MapResizer = ({ trigger }) => {
     return null;
 };
 
+// Keeps the tile grid right whenever the map's box changes size (e.g. it follows
+// the height of the configuration panel next to it): no grey tiles
+const SizeObserver = () => {
+    const map = useMap();
+    useEffect(() => {
+        if (typeof ResizeObserver === 'undefined') return undefined;
+        let frame = null;
+        const ro = new ResizeObserver(() => {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+        });
+        ro.observe(map.getContainer());
+        return () => { cancelAnimationFrame(frame); ro.disconnect(); };
+    }, [map]);
+    return null;
+};
+
 const MapEventTracker = ({ onZoomChange }) => {
     const map = useMap();
     useEffect(() => {
@@ -699,6 +716,7 @@ const BusMap = React.forwardRef(({ schools, routes, overlaps = [], destination, 
                 </div>
 
                 <MapContainer ref={mapRef} center={defaultCenter} zoom={14} style={{ height: '100%', width: '100%' }} preferCanvas={true}>
+                    <SizeObserver />
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'

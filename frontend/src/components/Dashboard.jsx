@@ -496,7 +496,8 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
 
                 {/* Map */}
                 <div ref={mapContainerRef} className="w-full flex-1 min-w-0">
-                    <div className="relative h-[70vh] min-h-[400px]">
+                    {/* Stacked: fixed height. Side by side: as tall as the configuration panel */}
+                    <div className="relative h-[60vh] min-h-[360px] lg:h-full lg:min-h-[480px]">
                         <Map ref={mapRef} schools={schools} routes={mapRoutes} overlaps={activeResults?.overlaps || []} destination={mapDestination} focusBounds={focusBounds} highlightedRouteId={highlightedRouteId} onResetFocus={handleResetFocus} instituteColorMap={instituteColorMap} fitKey={mapFitKey} sizeTrigger={mapSizeTrigger} />
                     </div>
                 </div>
