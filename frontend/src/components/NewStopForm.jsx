@@ -63,7 +63,7 @@ export default function NewStopForm({ initial = {}, submitLabel = 'Aggiungi', bu
                 <AddressAutocomplete
                     value={form.search ?? ''}
                     onChange={v => setForm(f => ({ ...f, search: v }))}
-                    onSelect={({ lat, lon }) => setForm(f => ({ ...f, coords: formatCoordinates(lat, lon) }))}
+                    onSelect={({ lat, lon }) => setForm(f => ({ ...f, coords: formatCoordinates(+lat.toFixed(7), +lon.toFixed(7)) }))}
                     placeholder="es. Palazzetto dello sport Rovereto"
                 />
             </div>
