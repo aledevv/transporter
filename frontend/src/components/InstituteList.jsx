@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Pencil, Trash2, Check, X, AlertTriangle, MoreVertical, ArrowRightLeft } from 'lucide-react';
+import { Pencil, Trash2, Check, X, AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
 import useDatasetImport from './useDatasetImport';
 import { NewStopDialog } from './NewStopForm';
@@ -122,7 +122,6 @@ export default function InstituteList({ db }) {
     const [highlighted, setHighlighted] = useState(null); // {name, address, lat, lon}
     const [firestoreCount, setFirestoreCount] = useState(null); // null = unknown, number = known
     const [activeTab, setActiveTab] = useState('istituto'); // 'istituto' or 'destinazione'
-    const [menuOpen, setMenuOpen] = useState(false);
 
     // Edit state
     const [editingKey, setEditingKey]   = useState(null);
@@ -838,39 +837,6 @@ export default function InstituteList({ db }) {
                                     </button>
                                 )}
                             </div>
-                            {datasetImport.button}
-                            <button
-                                onClick={() => setIsAdding(true)}
-                                className="px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg border border-transparent whitespace-nowrap shadow-sm"
-                            >
-                                + Aggiungi
-                            </button>
-                            {/* Secondary sync button when Firestore has data */}
-                            {db && firestoreCount !== null && firestoreCount > 0 && (
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setMenuOpen(!menuOpen)}
-                                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
-                                        title="Altre azioni"
-                                    >
-                                        <MoreVertical className="w-4 h-4" />
-                                    </button>
-                                    {menuOpen && (
-                                        <>
-                                            <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)}></div>
-                                            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50 py-1">
-                                                <button
-                                                    onClick={() => { setMenuOpen(false); handleSyncFromFixtures(); }}
-                                                    disabled={syncing || loading}
-                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                                >
-                                                    {syncing ? 'Sincronizzazione...' : 'Aggiorna da Fixture'}
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
                         </div>
 
                         {datasetImport.callout}
@@ -1194,7 +1160,17 @@ export default function InstituteList({ db }) {
                         </div>
                     )}
 
-                    {/* ── Right: map ──────────────────────────────────────────── */}
+                    {/* ── Right: actions + map ────────────────────────────────── */}
+                    <div className="flex-1 min-w-0 flex flex-col gap-2">
+                    <div className="flex items-center justify-end gap-2">
+                        {datasetImport.button}
+                        <button
+                            onClick={() => setIsAdding(true)}
+                            className="px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg border border-transparent whitespace-nowrap shadow-sm"
+                        >
+                            + Aggiungi
+                        </button>
+                    </div>
                     <div className="flex-1 rounded-xl overflow-hidden border border-gray-200" style={{ minHeight: 560 }}>
                         <MapContainer
                             center={[46.07, 11.12]}
@@ -1228,6 +1204,7 @@ export default function InstituteList({ db }) {
                                 );
                             })}
                         </MapContainer>
+                    </div>
                     </div>
                 </div>
             </div>
