@@ -1,16 +1,80 @@
 
+import math
+import threading
 import time
 import requests
 import nominatim_cache
 import nominatim_rate_limiter
 
 NOMINATIM_BASE = 'https://nominatim.openstreetmap.org'
-OSRM_BASE = 'http://router.project-osrm.org'
+# Public OSRM servers (car profile), tried in order. The FOSSGIS one is a mirror
+# of the same OSM data, used when the demo server is down or rate-limits us.
+OSRM_SERVERS = (
+    'https://router.project-osrm.org',
+    'https://routing.openstreetmap.de/routed-car',
+)
+OSRM_BASE = OSRM_SERVERS[0]
 FALLBACK_COORDS = (46.0697, 11.1211)  # Trento center
+
+# Used only when no OSRM server answers. Fitted on ~27k OSRM pairs of the
+# Trentino fixtures (tests/realSuite): road km are a median 1.58x the straight
+# line, and car minutes are about 4 + 0.94 per road km.
+ROAD_DETOUR_FACTOR = 1.55
+FALLBACK_MIN_BASE = 4.0
+FALLBACK_MIN_PER_KM = 0.94
 _USER_AGENT = 'BusPlan/1.0 (bus route optimizer for Trentino schools)'
 
 
+def estimate_road_m(lat1, lon1, lat2, lon2):
+    """Road distance estimate (meters) from the straight line, for when OSRM is unreachable."""
+    return haversine_m(lat1, lon1, lat2, lon2) * ROAD_DETOUR_FACTOR
+
+
+def estimate_drive_s(road_m):
+    """Car travel time estimate (seconds) for a road distance, for when OSRM is unreachable."""
+    if road_m <= 0:
+        return 0
+    return (FALLBACK_MIN_BASE + FALLBACK_MIN_PER_KM * road_m / 1000) * 60
+
+
+def haversine_m(lat1, lon1, lat2, lon2):
+    """Great-circle distance between two points (meters)."""
+    R = 6371000
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    a = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    return R * 2 * math.asin(math.sqrt(a))
+
+
+def _osrm_get(service, coords, params, timeout=15):
+    """GET an OSRM service on the first server that answers 'Ok'; None if none does."""
+    for base in OSRM_SERVERS:
+        for attempt in range(2):
+            try:
+                resp = requests.get(f'{base}/{service}/v1/driving/{coords}', params=params,
+                                    headers={'User-Agent': _USER_AGENT}, timeout=timeout)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data.get('code') == 'Ok':
+                        return data
+                    print(f"OSRM {service} on {base}: {data.get('code')} {data.get('message', '')}")
+                    break  # a bad request will not get better on retry
+                print(f"OSRM {service} on {base}: HTTP {resp.status_code}")
+            except Exception as e:
+                print(f"OSRM {service} on {base} error: {e}")
+            if attempt == 0:
+                time.sleep(1)
+    return None
+
+
 class GeocodingService:
+
+    def __init__(self):
+        self._local = threading.local()
+
+    @property
+    def last_matrix_estimated(self):
+        """True if the last matrix built on this thread used straight-line estimates."""
+        return getattr(self._local, 'estimated', False)
 
     def get_coordinates(self, address):
         """Geocodes address using Nominatim (OSM). Returns (lat, lon)."""
@@ -44,64 +108,50 @@ class GeocodingService:
         print(f"Warning: Address '{address}' not found. Using Trento fallback.")
         return FALLBACK_COORDS
 
+    def _table(self, locations):
+        """(durations s, distances m) from the OSRM Table API, holes filled with estimates.
+        Falls back to straight-line estimates if no server answers. Cached per thread
+        for the last set of locations, since callers often ask for both matrices."""
+        key = tuple((round(lat, 6), round(lon, 6)) for lat, lon in locations)
+        cached = getattr(self._local, 'table', None)
+        if cached and cached[0] == key:
+            self._local.estimated = cached[3]
+            return cached[1], cached[2]
+        n = len(locations)
+        coords = ';'.join(f"{lon},{lat}" for lat, lon in locations)
+        data = _osrm_get('table', coords, {'annotations': 'duration,distance'})
+        estimated = data is None
+        if estimated:
+            print(f"Warning: no OSRM server answered, using straight-line estimates for {n} points")
+        durations = [[0] * n for _ in range(n)]
+        distances = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                d = data['distances'][i][j] if data else None
+                t = data['durations'][i][j] if data else None
+                if d is None or t is None:
+                    estimated = True
+                    d = estimate_road_m(*locations[i], *locations[j])
+                    t = estimate_drive_s(d)
+                distances[i][j] = int(d)
+                durations[i][j] = int(t)
+        self._local.table = (key, durations, distances, estimated)
+        self._local.estimated = estimated
+        return durations, distances
+
     def get_distance_matrix(self, locations):
-        """Returns distance matrix (meters) using OSRM Table API. Falls back to Euclidean."""
+        """Returns road distance matrix (meters) using OSRM Table API."""
         if not locations:
             return []
-        try:
-            coords = ';'.join(f"{lon},{lat}" for lat, lon in locations)
-            resp = requests.get(
-                f'{OSRM_BASE}/table/v1/driving/{coords}',
-                params={'annotations': 'distance'},
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get('code') == 'Ok':
-                    matrix = data['distances']
-                    n = len(locations)
-                    for i in range(n):
-                        for j in range(n):
-                            if matrix[i][j] is None:
-                                lat1, lon1 = locations[i]
-                                lat2, lon2 = locations[j]
-                                matrix[i][j] = int(((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000)
-                            else:
-                                matrix[i][j] = int(matrix[i][j])
-                    return matrix
-        except Exception as e:
-            print(f"OSRM distance matrix error: {e}")
-        return self._euclidean_matrix(locations)
+        return self._table(locations)[1]
 
     def get_time_matrix(self, locations):
-        """Returns travel time matrix (seconds) using OSRM Table API. Falls back to Euclidean."""
+        """Returns car travel time matrix (seconds) using OSRM Table API."""
         if not locations:
             return []
-        try:
-            coords = ';'.join(f"{lon},{lat}" for lat, lon in locations)
-            resp = requests.get(
-                f'{OSRM_BASE}/table/v1/driving/{coords}',
-                params={'annotations': 'duration'},
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get('code') == 'Ok':
-                    matrix = data['durations']
-                    n = len(locations)
-                    for i in range(n):
-                        for j in range(n):
-                            if matrix[i][j] is None:
-                                lat1, lon1 = locations[i]
-                                lat2, lon2 = locations[j]
-                                dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
-                                matrix[i][j] = int(dist_m / (30 / 3.6))
-                            else:
-                                matrix[i][j] = int(matrix[i][j])
-                    return matrix
-        except Exception as e:
-            print(f"OSRM time matrix error: {e}")
-        return self._euclidean_time_matrix(locations)
+        return self._table(locations)[0]
 
     def get_route_geometry(self, stops):
         """Get real route geometry using OSRM Route API.
@@ -112,13 +162,8 @@ class GeocodingService:
             return None
         try:
             coords = ';'.join(f"{s['lon']},{s['lat']}" for s in stops)
-            resp = requests.get(
-                f'{OSRM_BASE}/route/v1/driving/{coords}',
-                params={'overview': 'full', 'geometries': 'geojson', 'steps': 'false'},
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
+            data = _osrm_get('route', coords, {'overview': 'full', 'geometries': 'geojson', 'steps': 'false'})
+            if data:
                 routes = data.get('routes', [])
                 if routes:
                     route = routes[0]
@@ -136,36 +181,4 @@ class GeocodingService:
 
     def haversine_distance(self, lat1, lon1, lat2, lon2):
         """Great-circle distance between two points (meters)."""
-        from math import radians, cos, sin, asin, sqrt
-        R = 6371000
-        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-        return R * 2 * asin(sqrt(a))
-
-    def _euclidean_matrix(self, locations):
-        n = len(locations)
-        matrix = [[0] * n for _ in range(n)]
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    continue
-                lat1, lon1 = locations[i]
-                lat2, lon2 = locations[j]
-                matrix[i][j] = int(((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000)
-        return matrix
-
-    def _euclidean_time_matrix(self, locations):
-        """Fallback time matrix using Euclidean distance / 30 km/h (seconds)."""
-        n = len(locations)
-        matrix = [[0] * n for _ in range(n)]
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    continue
-                lat1, lon1 = locations[i]
-                lat2, lon2 = locations[j]
-                dist_m = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5 * 111000
-                matrix[i][j] = int(dist_m / (30 / 3.6))
-        return matrix
+        return haversine_m(lat1, lon1, lat2, lon2)

@@ -351,3 +351,32 @@ class TestRateLimit:
         for _ in range(121):
             app_client.get("/api/places/autocomplete?q=a")
         assert app_client.post("/api/optimize", json={}).status_code != 429
+
+
+class TestBusTiming:
+    """Departure times = OSRM car legs + BUS_STOP_DWELL_MIN per pickup, arriving ARRIVAL_MARGIN_MIN early."""
+
+    def test_arrival_mode_times(self, app_client, monkeypatch):
+        import app as app_module
+        g = app_module.geocoder
+        monkeypatch.setattr(g, 'get_time_matrix', lambda locs: [[0 if i == j else 1200 for j in range(len(locs))] for i in range(len(locs))])
+        monkeypatch.setattr(g, 'get_distance_matrix', lambda locs: [[0 if i == j else 20000 for j in range(len(locs))] for i in range(len(locs))])
+        monkeypatch.setattr(g, 'get_route_geometry', lambda stops: {
+            'geometry': None, 'distance': 20000.0 * (len(stops) - 1), 'duration': 1200.0 * (len(stops) - 1),
+            'leg_distances': [20000.0] * (len(stops) - 1), 'leg_durations': [1200.0] * (len(stops) - 1)})
+        payload = {
+            'schools': [{'name': 'A', 'address': 'a', 'demand': 10, 'lat': 46.1, 'lon': 11.1}],
+            'destination': 'D', 'dest_lat': 46.0, 'dest_lon': 11.0,
+            'capacity': 54, 'start_time': '09:00', 'time_mode': 'arrival',
+        }
+        res = app_client.post('/api/optimize', json=payload)
+        assert res.status_code == 200, res.get_json()
+        body = res.get_json()
+        stops = body['routes'][0]['outbound']['stops']
+        pickup = [s for s in stops if s['type'] == 'pickup'][0]
+        dest = [s for s in stops if s['type'] == 'destination'][0]
+        # 09:00 meeting - 10 min margin = 08:50 arrival; 20 min drive + 5 min dwell -> 08:25
+        assert dest['arrival_time'] == '08:50'
+        assert pickup['departure_time'] == '08:25'
+        assert body['stats']['round_trip_distance'] == 2 * body['stats']['total_distance']
+        assert body['stats']['distance_estimated'] is False
