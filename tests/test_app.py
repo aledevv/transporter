@@ -363,3 +363,11 @@ class TestCheapHardening:
         assert _fixture_dir("../x") is None
         assert _fixture_dir(".hidden") is None
         assert _fixture_dir("Evento") == os.path.join(REALSUITE_DIR, "Evento")
+
+
+class TestDownloadTraversal:
+    def test_names_outside_uploads_are_refused_and_nothing_is_deleted(self, app_client, tmp_path):
+        import app as app_module
+        assert app_client.get("/api/download/../app.py").status_code == 404
+        assert app_client.get("/api/download/..%2Fapp.py").status_code == 404
+        assert os.path.exists(os.path.join(os.path.dirname(app_module.__file__), "app.py"))

@@ -41,7 +41,7 @@ export default function RouteMapGL({ routes, destCoords, styleUrl, className = '
             zoom: 9,
             attributionControl: { compact: true },
             // Lets screenshots / PDF export read the canvas
-            preserveDrawingBuffer: true,
+            canvasContextAttributes: { preserveDrawingBuffer: true },
         });
         map.on('error', e => console.warn('[RouteMapGL]', e.error?.message || e));
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');

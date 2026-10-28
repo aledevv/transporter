@@ -2576,8 +2576,10 @@ def export_document():
 @app.route('/api/download/<path:filename>', methods=['GET'])
 def download_corrected_file(filename):
     """Serves a corrected Excel file from the uploads folder, then deletes it."""
-    safe_path = os.path.join(UPLOAD_FOLDER, filename)
-    if not os.path.exists(safe_path):
+    from werkzeug.utils import safe_join
+    # safe_join returns None for names that would leave uploads/ (e.g. '../app.py')
+    safe_path = safe_join(UPLOAD_FOLDER, filename)
+    if not safe_path or not os.path.isfile(safe_path):
         return jsonify({'error': 'File non trovato'}), 404
     response = send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
     # Delete after sending so the folder stays clean
