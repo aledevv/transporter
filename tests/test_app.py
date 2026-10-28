@@ -233,3 +233,42 @@ class TestResolvedStops:
         # Same arguments continue_file_task accepts (it used to get one too many)
         args = mock_thread.call_args.kwargs["args"]
         assert len(args) == 4
+
+
+class TestPlacesGoogle:
+    def test_uses_google_when_key_is_set(self, app_client, monkeypatch):
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        payload = {"suggestions": [{"placePrediction": {
+            "placeId": "abc", "text": {"text": "Villa Lagarina, TN, Italia"},
+            "structuredFormat": {"mainText": {"text": "Villa Lagarina"}, "secondaryText": {"text": "TN, Italia"}},
+            "types": ["locality"]}}]}
+        with patch("requests.post") as post:
+            post.return_value.status_code = 200
+            post.return_value.json.return_value = payload
+            body = app_client.get("/api/places/autocomplete?q=villa lag&session=s1").get_json()
+        assert body["source"] == "google"
+        assert body["predictions"][0]["place_id"] == "g_abc"
+        sent = post.call_args.kwargs["json"]
+        assert sent["sessionToken"] == "s1" and sent["includedRegionCodes"] == ["it"]
+        # The key stays on the server
+        assert post.call_args.kwargs["headers"]["X-Goog-Api-Key"] == "test-key"
+
+    def test_falls_back_to_nominatim_when_google_fails(self, app_client, monkeypatch):
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        with patch("requests.post") as post, patch("requests.get") as get, patch("nominatim_cache.get", return_value=None), patch("nominatim_cache.store"):
+            post.return_value.status_code = 429
+            post.return_value.text = "quota"
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = [{"display_name": "Villa Lagarina, Trento, Italia", "lat": "45.9", "lon": "11.0", "osm_id": 1}]
+            body = app_client.get("/api/places/autocomplete?q=villa lag").get_json()
+        assert body.get("source") != "google"
+        assert body["predictions"][0]["lat"] == 45.9
+
+    def test_details_returns_coordinates(self, app_client, monkeypatch):
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        with patch("requests.get") as get:
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = {"location": {"latitude": 45.94, "longitude": 11.02}, "formattedAddress": "38060 Villa Lagarina TN", "displayName": {"text": "Villa Lagarina"}}
+            body = app_client.get("/api/places/details?place_id=g_abc&session=s1").get_json()
+        assert (body["lat"], body["lon"]) == (45.94, 11.02)
+        assert get.call_args.kwargs["params"]["sessionToken"] == "s1"

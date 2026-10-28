@@ -2317,12 +2317,89 @@ def ai_suggest():
     return jsonify({'suggestions': suggestions})
 
 
+# Google Places API (New), used only when GOOGLE_PLACES_API_KEY is set (server-side only,
+# never sent to the browser). Autocomplete + details share a session token so Google
+# bills the pair as one session.
+_PLACES_BIAS = {'rectangle': {'low': {'latitude': 45.6, 'longitude': 10.4}, 'high': {'latitude': 46.95, 'longitude': 12.2}}}
+
+
+def _google_autocomplete(query, session):
+    """Predictions from Google Places Autocomplete, or None when unavailable (no key, error, quota)."""
+    key = os.environ.get('GOOGLE_PLACES_API_KEY')
+    if not key:
+        return None
+    import requests as req
+    body = {'input': query, 'languageCode': 'it', 'includedRegionCodes': ['it'], 'locationBias': _PLACES_BIAS}
+    if session:
+        body['sessionToken'] = session
+    try:
+        resp = req.post('https://places.googleapis.com/v1/places:autocomplete', json=body,
+                        headers={'X-Goog-Api-Key': key}, timeout=6)
+        if resp.status_code != 200:
+            print(f"[Autocomplete] Google HTTP {resp.status_code}: {resp.text[:200]}")
+            return None
+        out = []
+        for sug in resp.json().get('suggestions', []):
+            p = sug.get('placePrediction')
+            if not p:
+                continue
+            fmt = p.get('structuredFormat', {})
+            out.append({
+                'place_id': f"g_{p['placeId']}",
+                'description': p.get('text', {}).get('text', ''),
+                'structured_formatting': {
+                    'main_text': fmt.get('mainText', {}).get('text', ''),
+                    'secondary_text': fmt.get('secondaryText', {}).get('text', ''),
+                },
+                'types': ['establishment' if 'establishment' in p.get('types', []) else 'geocode'],
+                'source': 'google',
+            })
+        return out
+    except Exception as e:
+        print(f"[Autocomplete] Google error: {e}")
+        return None
+
+
+@app.route('/api/places/details', methods=['GET'])
+def places_details():
+    """Coordinates of a Google place picked from the suggestions."""
+    place_id = request.args.get('place_id', '')
+    session = request.args.get('session', '')
+    key = os.environ.get('GOOGLE_PLACES_API_KEY')
+    if not key or not place_id.startswith('g_'):
+        return jsonify({'error': 'Dettagli non disponibili'}), 400
+    import requests as req
+    params = {'languageCode': 'it'}
+    if session:
+        params['sessionToken'] = session
+    try:
+        resp = req.get(f"https://places.googleapis.com/v1/places/{place_id[2:]}", params=params,
+                       headers={'X-Goog-Api-Key': key, 'X-Goog-FieldMask': 'location,formattedAddress,displayName'},
+                       timeout=6)
+        if resp.status_code != 200:
+            print(f"[Places details] Google HTTP {resp.status_code}: {resp.text[:200]}")
+            return jsonify({'error': 'Dettagli non disponibili'}), 502
+        d = resp.json()
+        loc = d.get('location', {})
+        return jsonify({
+            'lat': loc.get('latitude'), 'lon': loc.get('longitude'),
+            'address': d.get('formattedAddress', ''), 'name': d.get('displayName', {}).get('text', ''),
+        })
+    except Exception as e:
+        print(f"[Places details] Google error: {e}")
+        return jsonify({'error': 'Dettagli non disponibili'}), 502
+
+
 @app.route('/api/places/autocomplete', methods=['GET'])
 def places_autocomplete():
-    """Address autocomplete via Nominatim (OSM)."""
+    """Address autocomplete: Google Places when configured, else (or on failure) Nominatim (OSM)."""
     query = request.args.get('q', '').strip()
     if len(query) < 2:
         return jsonify({'predictions': [], 'status': 'OK'})
+
+    google = _google_autocomplete(query, request.args.get('session', '').strip()) if len(query) >= 3 else None
+    if google is not None:
+        return jsonify({'predictions': google, 'status': 'OK', 'source': 'google'}), 200
 
     import requests as req
     import nominatim_cache as _nc

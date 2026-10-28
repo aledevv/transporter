@@ -432,6 +432,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Indirizzo Destinazione</label>
                                 <AddressAutocomplete
                                     value={destination}
+                                    localPlaces={allDbInstitutes}
                                     onChange={setDestination}
                                     onSelect={(data) => { setDestination(data.address); setDestCoords({ lat: data.lat, lon: data.lon }); }}
                                 />

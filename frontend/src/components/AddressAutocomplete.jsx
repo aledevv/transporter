@@ -1,17 +1,49 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { MapPin, Loader2, Navigation, Building2, MapPinned } from 'lucide-react';
+import { MapPin, Loader2, Navigation, Building2, MapPinned, Database } from 'lucide-react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import API_BASE_URL from '../config';
+import { normalizeForCompare } from '../utils/matchInstitutes';
+
+// Places already in the database matching what's typed (all words, in name or street)
+function matchLocalPlaces(query, places, max = 4) {
+    const words = normalizeForCompare(query).split(' ').filter(w => w.length >= 2);
+    if (!words.length || !places?.length) return [];
+    return places
+        .filter(p => p.lat != null && p.lon != null)
+        .map(p => {
+            const name = normalizeForCompare(p.name);
+            const text = `${name} ${normalizeForCompare(p.description || '')} ${normalizeForCompare(p.address || '')}`;
+            if (!words.every(w => text.includes(w))) return null;
+            // Name starting with what's typed, then destinations, first
+            const score = (name.startsWith(words[0]) ? 2 : 0) + (p.type === 'destinazione' ? 1 : 0);
+            return { p, score };
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, max)
+        .map(({ p }) => ({
+            place_id: `db_${p.id}`,
+            description: p.name,
+            structured_formatting: { main_text: p.name, secondary_text: p.description || p.address || '' },
+            types: ['database'],
+            source: 'database',
+            lat: Number(p.lat),
+            lon: Number(p.lon),
+        }));
+}
+
+const newSessionToken = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
 
 function SuggestionIcon({ type }) {
+    if (type === 'database') return <Database className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />;
     if (type === 'route' || type === 'street_address') return <Navigation className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />;
     if (type === 'establishment' || type === 'point_of_interest') return <Building2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />;
     return <MapPinned className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />;
 }
 
-const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca indirizzo...' }) => {
+const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca indirizzo...', localPlaces = [] }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +51,10 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
     const [searchFailed, setSearchFailed] = useState(false);
 
     const lastSearchedRef = useRef(null); // last value we actually searched for
+    // One Google session from the first keystroke to the place picked (billed as one)
+    const sessionRef = useRef(newSessionToken());
+    const localPlacesRef = useRef(localPlaces);
+    localPlacesRef.current = localPlaces;
     const inputRef = useRef(null);
     const dropdownRef = useRef(null);
     const [dropdownStyle, setDropdownStyle] = useState({});
@@ -51,22 +87,30 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                 }
             }
 
-            setLoading(true);
-            let raw = [];
-            try {
-                const response = await axios.get(`${API_BASE_URL}/api/places/autocomplete`, {
-                    params: { q: query },
-                });
-                raw = response.data?.predictions ?? [];
-                setSearchFailed(response.data?.status === 'UNAVAILABLE');
-            } catch (error) {
-                console.error('Autocomplete error:', error);
-                setSearchFailed(true);
-            } finally {
-                setLoading(false);
+            const local = matchLocalPlaces(query, localPlacesRef.current);
+            if (local.length) {
+                setSuggestions(customSuggestion ? [customSuggestion, ...local] : local);
+                setIsOpen(true);
             }
 
-            const finalSuggestions = customSuggestion ? [customSuggestion, ...raw] : raw;
+            let raw = [];
+            if (query.length >= 3) {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${API_BASE_URL}/api/places/autocomplete`, {
+                        params: { q: query, session: sessionRef.current },
+                    });
+                    raw = response.data?.predictions ?? [];
+                    setSearchFailed(response.data?.status === 'UNAVAILABLE');
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    setSearchFailed(true);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            const finalSuggestions = [...(customSuggestion ? [customSuggestion] : []), ...local, ...raw];
             setSuggestions(finalSuggestions);
             setIsOpen(finalSuggestions.length > 0);
         }, 250),
@@ -109,7 +153,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleSelect = (suggestion) => {
+    const handleSelect = async (suggestion) => {
         const mainText = suggestion.structured_formatting?.main_text ?? suggestion.description ?? '';
         const secondaryText = suggestion.structured_formatting?.secondary_text ?? '';
         let displayValue = secondaryText ? `${mainText}, ${secondaryText}` : mainText;
@@ -124,7 +168,22 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
 
         if (onSelect && suggestion.lat != null && suggestion.lon != null) {
             onSelect({ address: displayValue, lat: suggestion.lat, lon: suggestion.lon });
+        } else if (onSelect && suggestion.source === 'google') {
+            // Google suggestions carry no coordinates: ask for them, closing the session
+            setLoading(true);
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/places/details`, {
+                    params: { place_id: suggestion.place_id, session: sessionRef.current },
+                });
+                if (data.lat != null) onSelect({ address: displayValue, lat: data.lat, lon: data.lon });
+            } catch (error) {
+                console.error('Place details error:', error);
+                setSearchFailed(true);
+            } finally {
+                setLoading(false);
+            }
         }
+        sessionRef.current = newSessionToken();
     };
 
     return (
@@ -157,14 +216,18 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
             )}
 
             {isOpen && suggestions.length > 0 && createPortal(
-                <ul ref={dropdownRef} style={dropdownStyle} className="bg-white border border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto">
-                    {suggestions.map((item) => {
+                <ul ref={dropdownRef} style={dropdownStyle} className="bg-white border border-gray-200 rounded-xl shadow-xl max-h-80 overflow-y-auto">
+                    {suggestions.map((item, i) => {
                         const main = item.structured_formatting?.main_text ?? item.description ?? '';
                         const secondary = item.structured_formatting?.secondary_text ?? '';
                         const type = item.types?.[0] ?? '';
+                        const firstOfSource = item.source && suggestions.findIndex(s => s.source === item.source) === i;
                         return (
+                            <React.Fragment key={item.place_id}>
+                            {firstOfSource && item.source === 'database' && (
+                                <li className="px-4 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-600">Dal database</li>
+                            )}
                             <li
-                                key={item.place_id}
                                 className="flex items-start gap-3 px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors"
                                 onMouseDown={(e) => { e.preventDefault(); handleSelect(item); }}
                             >
@@ -176,8 +239,14 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
                                     )}
                                 </div>
                             </li>
+                            </React.Fragment>
                         );
                     })}
+                    {suggestions.some(s => s.source === 'google') && (
+                        <li className="flex justify-end px-3 py-1.5">
+                            <img src="https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3_hdpi.png" alt="Powered by Google" className="h-[18px]" />
+                        </li>
+                    )}
                 </ul>,
                 document.body
             )}
