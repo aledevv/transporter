@@ -26,18 +26,19 @@ export default function SheetReviewPreview() {
 
     return (
         <div className="min-h-screen bg-slate-100 p-8">
-            <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-                <span className="text-sm font-semibold text-slate-700">Anteprima finestra di revisione</span>
+            {/* Above the modal backdrop (z-2000) so the switch stays clickable while the window is open */}
+            <div className="fixed left-1/2 top-1.5 z-[2100] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/95 px-2 py-1 shadow-lg ring-1 ring-slate-200">
+                <span className="pl-2 text-xs font-semibold text-slate-500">Anteprima</span>
                 {[['trip', 'Excel viaggio (G1)'], ['dataset', 'Excel dataset']].map(([k, l]) => (
                     <button key={k} onClick={() => { setMode(k); setOpen(true); setResult(null); }}
-                        className={`rounded-lg px-3 py-1.5 text-sm font-medium ${mode === k ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${mode === k ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
                         {l}
                     </button>
                 ))}
-                {!open && <button onClick={() => setOpen(true)} className="ml-auto text-sm font-medium text-blue-600">Riapri</button>}
+                {!open && <button onClick={() => setOpen(true)} className="px-2 text-xs font-medium text-blue-600">Riapri</button>}
             </div>
             {result && (
-                <pre className="mx-auto mt-4 max-w-3xl overflow-auto rounded-xl bg-white p-4 text-xs text-slate-600 shadow-sm">
+                <pre className="mx-auto mt-12 max-w-3xl overflow-auto rounded-xl bg-white p-4 text-xs text-slate-600 shadow-sm">
                     {JSON.stringify(result, null, 1).slice(0, 4000)}
                 </pre>
             )}
