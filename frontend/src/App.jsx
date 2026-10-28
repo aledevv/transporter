@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Sparkles, Menu, FileSpreadsheet, Database } from 'lucide-react';
 import { collection, query, orderBy, limit, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocs, setDoc, arrayUnion } from 'firebase/firestore';
 import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
-import GeocodingFailuresModal from './components/GeocodingFailuresModal';
-import DBMatchModal from './components/DBMatchModal';
-import { buildMatchList, aliasToLearn } from './utils/matchInstitutes';
+import SheetReviewModal from './components/SheetReviewModal';
+import SheetReviewCallout from './components/SheetReviewCallout';
+import { aliasToLearn } from './utils/matchInstitutes';
+import { analyzeTripRows, buildTripPayload } from './utils/sheetIssues';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
 import InstituteList from './components/InstituteList';
 import NuovoPiano from './components/NuovoPiano';
-import ValidationPreview from './components/ValidationPreview';
 import { getInstituteColorMap } from './utils/colors';
 import API_BASE_URL from './config';
 
@@ -68,7 +68,6 @@ function App() {
     const [resetKey, setResetKey] = useState(0);
     const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
     const [processingError, setProcessingError] = useState(null); // Error message string | null
-    const [geocodingFailures, setGeocodingFailures] = useState(null); // schools with geocoding_failed:true
     const [version, setVersion] = useState('');
     // null = not yet fetched (Map must not render until this is set)
     const [mapsKey, setMapsKey] = useState(null);
@@ -87,49 +86,92 @@ function App() {
     const dbRef = useRef(null);
     useEffect(() => { allDbInstitutesRef.current = allDbInstitutes; }, [allDbInstitutes]);
     useEffect(() => { dbRef.current = db; }, [db]);
-    const [dbMatchList, setDbMatchList] = useState(null); // null = not showing
-    const [pendingRaw, setPendingRaw] = useState(null); // { rawSchools, taskId, matchList }
-    const [validationPending, setValidationPending] = useState(null); // { schools, errors, taskId }
+    // Excel under review: { fileName, columns, rows, saved: {resolutions, edits}, processed, open }
+    const [review, setReview] = useState(null);
 
-    const handleRawSchoolsReady = async ({ rawSchools, taskId }) => {
+    const loadInstitutes = async () => {
         let institutes = allDbInstitutesRef.current;
         // The live subscription may not have delivered yet: load once before matching
         if (institutes.length === 0 && dbRef.current) {
             try {
                 const snap = await getDocs(collection(dbRef.current, 'institutes'));
                 institutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                setAllDbInstitutes(institutes);
             } catch (err) {
                 console.warn('Failed to load institutes for matching:', err);
             }
         }
-        const matches = institutes.length > 0 ? buildMatchList(rawSchools, institutes) : [];
-        
-        const autoResolved = {};
-        const matchesToShow = [];
+        return institutes;
+    };
 
-        matches.forEach(({ school, candidates }) => {
-            // Skip the review only when exactly one candidate is a sure match
-            const perfects = candidates.filter(c => c._isPerfect);
-            const perfect = perfects.length === 1 && perfects[0] === candidates[0] ? perfects[0] : null;
-            if (perfect) {
-                autoResolved[school.id] = {
-                    lat: perfect.lat,
-                    lon: perfect.lon,
-                    address: perfect.address,
-                    name: perfect.name,
-                    docId: perfect.id,
-                };
-            } else {
-                matchesToShow.push({ school, candidates });
-            }
+    const handleSheetRead = async ({ fileName, columns, rows }) => {
+        await loadInstitutes();
+        setProcessingError(null);
+        setReview({ fileName, columns, rows, saved: null, processed: false, open: true });
+    };
+
+    const reviewAnalysis = useMemo(
+        () => (review ? analyzeTripRows(review.rows, review.columns, allDbInstitutes) : null),
+        [review?.rows, review?.columns, allDbInstitutes], // eslint-disable-line react-hooks/exhaustive-deps
+    );
+
+    // Problems still open with the choices saved when the window was closed (for the callout)
+    const reviewCounts = useMemo(() => {
+        if (!reviewAnalysis) return { errors: 0, warnings: 0 };
+        const res = review?.saved?.resolutions || {};
+        const edits = review?.saved?.edits || {};
+        const open = reviewAnalysis.issues.filter(i => {
+            if (res[i.row]?.type === 'skip') return false;
+            if (i.fix === 'number') return !(Number(edits[`${i.row}|${i.col}`]) > 0);
+            return res[i.row] === undefined;
         });
+        return {
+            errors: open.filter(i => i.severity === 'error').length + (reviewAnalysis.missingColumns?.length ? 1 : 0),
+            warnings: open.filter(i => i.severity === 'warning').length,
+        };
+    }, [reviewAnalysis, review?.saved]);
 
-        setPendingRaw({ rawSchools, taskId, matchList: matchesToShow, autoResolved });
-        if (matchesToShow.length > 0) {
-            setDbMatchList(matchesToShow);
-        } else {
-            continueProcessing(taskId, autoResolved);
+    const handleReviewConfirm = async ({ resolutions, userResolutions, edits }) => {
+        setReview(r => ({ ...r, open: false, processed: true, saved: { resolutions: userResolutions, edits } }));
+        const { rawSchools, resolutions: backendResolutions, newStops } = buildTripPayload(review.rows, reviewAnalysis, resolutions, edits);
+        if (rawSchools.length === 0) {
+            setProcessingError('Nessuna fermata da pianificare: sono state escluse tutte.');
+            return;
         }
+
+        if (db) {
+            const writes = [];
+            // New stops go into the dataset as name / street / coordinates
+            newStops.forEach(n => {
+                const type = /(ic\b|istituto|scuola|liceo|polo|primaria|secondaria)/i.test(n.name) ? 'istituto' : 'destinazione';
+                writes.push(setDoc(doc(db, 'institutes', makeStableId(n.name, n.address)), {
+                    name: n.name,
+                    description: n.address,
+                    originalName: n.excelName,
+                    address: n.address,
+                    lat: n.lat,
+                    lon: n.lon,
+                    type,
+                    updatedAt: serverTimestamp(),
+                }, { merge: true }));
+            });
+            // A stop matched to an existing entry under another name: remember that
+            // name as an alias, so the next Excel using it matches directly
+            Object.entries(userResolutions || {}).forEach(([row, res]) => {
+                if (res?.type !== 'db') return;
+                const excelName = String(review.rows[row]?.[reviewAnalysis.nameCol] ?? '');
+                const alias = aliasToLearn(excelName, res.entry);
+                if (alias) writes.push(updateDoc(doc(db, 'institutes', res.entry.id), { aliases: arrayUnion(alias) }));
+            });
+            if (writes.length > 0) {
+                Promise.all(writes).catch(err => console.error('Error saving to Firestore:', err));
+            }
+        }
+
+        await continueProcessing(null, backendResolutions, '/api/start-processing', {
+            raw_schools: rawSchools,
+            resolutions: backendResolutions,
+        }, { keepSettings: review.processed });
     };
 
     useEffect(() => {
@@ -226,12 +268,12 @@ function App() {
         }
     };
 
-    const handleUploadComplete = async ({ result: data }) => {
+    // keepSettings: the stops were re-reviewed after the trip was already set up,
+    // so only the stops change (destination, times... stay as they are)
+    const handleUploadComplete = async ({ result: data, keepSettings = false }) => {
         setSchools(data);
         setResumeDismissed(true);
         setMessage('File caricato con successo! Procedi alla configurazione.');
-        const failed = data.filter(s => s.geocoding_failed);
-        if (failed.length > 0) setGeocodingFailures(failed);
         if (db) {
             try {
                 const totalPax = data.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
@@ -239,7 +281,9 @@ function App() {
                 const label = data.length > 0
                     ? `${data.length} fermate, ${totalPax} passeggeri - ${dateStr}`
                     : `Nuovo lavoro - ${dateStr}`;
-                if (currentTripId) {
+                if (currentTripId && keepSettings) {
+                    await updateDoc(doc(db, 'trips', currentTripId), { schools: data, updatedAt: serverTimestamp() });
+                } else if (currentTripId) {
                     await updateDoc(doc(db, 'trips', currentTripId), {
                         label, stage: 'uploaded', schools: data,
                         destination: '', destCoords: null,
@@ -257,7 +301,7 @@ function App() {
         }
     };
 
-    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null) => {
+    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null, { keepSettings = false } = {}) => {
         setLoadingState({ active: true, progress: 20, message: 'Geocoding...' });
         try {
             const requestBody = body ?? { task_id: taskId, resolutions };
@@ -306,9 +350,7 @@ function App() {
                     if (status === 'completed') {
                         clearInterval(pollInterval);
                         setLoadingState({ active: false, progress: 100, message: 'Completato' });
-                        await handleUploadComplete({
-                            result: result,
-                        });
+                        await handleUploadComplete({ result, keepSettings });
                     } else if (status === 'error') {
                         console.error('continueProcessing poll: task error:', statusData.message);
                         clearInterval(pollInterval);
@@ -336,18 +378,10 @@ function App() {
     const handleTripRestore = (trip) => {
         setSidebarOpen(false);
         if (trip.stage === 'db_match_pending') {
-            // Re-open the DB match modal with saved partial resolutions
-            const matchList = trip.dbMatchList || [];
-            setPendingRaw({ rawSchools: trip.schools, taskId: null, matchList });
+            // Saved by the old address check before it was finished: review its stops again
             setCurrentTripId(trip.id);
-            setDbMatchList(matchList.length > 0 ? matchList : null);
-            if (matchList.length === 0) {
-                // No candidates: just continue processing with partial resolutions
-                continueProcessing(null, trip.partialResolutions || {}, '/api/start-processing', {
-                    raw_schools: trip.schools,
-                    resolutions: trip.partialResolutions || {},
-                });
-            }
+            const rows = (trip.schools || []).map(s => ({ Nome: s.name, Indirizzo: s.display_address || s.address, Partecipanti: s.demand ?? '' }));
+            handleSheetRead({ fileName: trip.label || 'Viaggio salvato', columns: ['Nome', 'Indirizzo', 'Partecipanti'], rows });
             return;
         }
         const restored = {
@@ -375,147 +409,19 @@ function App() {
         setSchools([]);
         setMessage('');
         setShowDetails(false);
-        setCorrectionInfo(null);
-        setGeocodingFailures(null);
         setCurrentTripId(null);
         setTripToRestore(null);
-        setPendingRaw(null);
-        setValidationPending(null);
-        setDbMatchList(null);
+        setReview(null);
         setResumeDismissed(false);
         setInputMode('excel');
         setProcessingError(null);
         setResetKey(prev => prev + 1); // Force FileUpload to remount and clear input
     };
 
-    // Called when user resolves failed addresses in the modal
-    const handleGeocodingResolved = (corrections) => {
-        // corrections: { [id]: { lat, lon } }
-        setSchools(prev => prev.map(s => {
-            const fix = corrections[s.id];
-            if (!fix) return s;
-            return { ...s, lat: parseFloat(fix.lat), lon: parseFloat(fix.lon), geocoding_failed: false };
-        }));
-        setGeocodingFailures(null);
-    };
-
-    const handleDbMatchResolved = async (resolutions) => {
-        setDbMatchList(null);
-        if (pendingRaw) {
-            const { taskId, rawSchools, autoResolved } = pendingRaw;
-            setPendingRaw(null);
-            
-            const finalResolutions = { ...(autoResolved || {}), ...(resolutions || {}) };
-            
-            // Filter out discarded schools
-            const discardedIds = new Set(
-                Object.entries(finalResolutions)
-                    .filter(([, res]) => res && res.discard)
-                    .map(([id]) => id)
-            );
-            const filteredRawSchools = rawSchools.filter(s => !discardedIds.has(String(s.id)));
-            
-            // Save manual/AI resolutions to Firestore if requested
-            if (db) {
-                const writes = [];
-                Object.entries(resolutions || {}).forEach(([schoolId, res]) => {
-                    if (res && res !== 'keep' && !res.discard && res.saveToDb && res.lat != null && res.lon != null) {
-                        const original = rawSchools.find(s => String(s.id) === String(schoolId));
-                        if (original) {
-                            const name = original.name.replace(/\(.*?\)/g, '').replace(/["']/g, '').trim();
-                            let desc = '';
-                            if (original.name.includes('(')) {
-                                const m = original.name.match(/\((.*?)\)/);
-                                if (m) desc = m[1].replace(/["']/g, '').trim();
-                            }
-                            
-                            const stableId = makeStableId(original.name, res.address);
-                            const type = /(ic\b|istituto|scuola|liceo|polo|primaria|secondaria)/i.test(name) ? 'istituto' : 'destinazione';
-                            
-                            writes.push(setDoc(doc(db, 'institutes', stableId), {
-                                name: name,
-                                description: desc,
-                                originalName: original.name,
-                                address: res.address,
-                                lat: res.lat,
-                                lon: res.lon,
-                                type: type,
-                                updatedAt: serverTimestamp(),
-                            }, { merge: true }));
-                        }
-                    }
-                });
-                
-                // A stop matched to an existing DB entry under another name: remember
-                // that name as an alias, so the next Excel using it matches directly.
-                // updateDoc only changes `aliases` and never creates a document.
-                Object.entries(finalResolutions).forEach(([schoolId, res]) => {
-                    if (!res || res === 'keep' || res.discard || res.saveToDb || !res.docId) return;
-                    const original = rawSchools.find(s => String(s.id) === String(schoolId));
-                    const entry = allDbInstitutesRef.current.find(i => i.id === res.docId);
-                    const alias = original && aliasToLearn(original.name, entry);
-                    if (!alias) return;
-                    writes.push(updateDoc(doc(db, 'institutes', res.docId), { aliases: arrayUnion(alias) }));
-                });
-
-                if (writes.length > 0) {
-                    Promise.all(writes).catch(err => console.error("Error saving to Firestore:", err));
-                }
-            }
-            
-            if (taskId) {
-                await continueProcessing(taskId, finalResolutions);
-            } else {
-                // Resume from Firestore: no backend task, use start-processing
-                await continueProcessing(null, finalResolutions, '/api/start-processing', { raw_schools: filteredRawSchools, resolutions: finalResolutions });
-            }
-        }
-    };
-
-    const handleDbMatchEscape = async (partialSelections) => {
-        setDbMatchList(null);
-        if (!pendingRaw || !db) {
-            setPendingRaw(null);
-            return;
-        }
-        const { rawSchools, matchList } = pendingRaw;
-        setPendingRaw(null);
-        
-        // Filter out discarded schools from rawSchools and matchList
-        const filteredSchools = rawSchools.filter(s => {
-            const res = partialSelections && partialSelections[s.id];
-            return !(res && res.discard);
-        });
-        const filteredMatchList = (matchList || []).filter(({ school }) => {
-            const res = partialSelections && partialSelections[school.id];
-            return !(res && res.discard);
-        });
-
-        try {
-            const totalPax = filteredSchools.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
-            const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            const label = `${filteredSchools.length} fermate, ${totalPax} passeggeri - ${dateStr} (in verifica)`;
-            await addDoc(collection(db, 'trips'), {
-                label,
-                stage: 'db_match_pending',
-                schools: filteredSchools,
-                dbMatchList: filteredMatchList.map(({ school, candidates }) => ({ school, candidates })),
-                partialResolutions: partialSelections,
-                destination: '', destCoords: null, capacity: 56, startTime: '08:00',
-                timeMode: 'arrival', results: null,
-                savedAt: serverTimestamp(), updatedAt: serverTimestamp(),
-            });
-        } catch (err) { console.warn('Failed to save pending trip:', err.message); }
-    };
-
-
-
     const handleSchoolsFromDB = async (schoolsFromDB) => {
         setSchools(schoolsFromDB);
         setResumeDismissed(true);
         setMessage('Lista fermate caricata dal database!');
-        setCorrectionInfo(null);
-        setGeocodingFailures(null);
         setInputMode('excel');
         // Create Firestore trip doc (same as onUploadSuccess does)
         if (db) {
@@ -593,17 +499,24 @@ function App() {
                 onClose={() => setSidebarOpen(false)}
             />
             {loadingState.active && <LoadingOverlay progress={loadingState.progress} message={loadingState.message} />}
-            {geocodingFailures && (
-                <GeocodingFailuresModal
-                    failures={geocodingFailures}
-                    onResolve={handleGeocodingResolved}
-                />
-            )}
-            {dbMatchList && (
-                <DBMatchModal
-                    matchList={dbMatchList}
-                    onResolved={handleDbMatchResolved}
-                    onClose={(partialSelections) => handleDbMatchEscape(partialSelections)}
+            {review?.open && reviewAnalysis && (
+                <SheetReviewModal
+                    mode="trip"
+                    title="Controlla le fermate del viaggio"
+                    fileName={review.fileName}
+                    columns={review.columns}
+                    rows={review.rows}
+                    issues={reviewAnalysis.issues}
+                    initialResolutions={reviewAnalysis.resolutions}
+                    candidatesByRow={reviewAnalysis.candidatesByRow}
+                    institutes={allDbInstitutes}
+                    nameCol={reviewAnalysis.nameCol}
+                    addrCol={reviewAnalysis.addrCol}
+                    missingColumns={reviewAnalysis.missingColumns}
+                    savedState={review.saved}
+                    confirmLabel={review.processed ? 'Aggiorna le fermate' : undefined}
+                    onConfirm={handleReviewConfirm}
+                    onClose={saved => setReview(r => ({ ...r, open: false, saved }))}
                 />
             )}
 
@@ -712,27 +625,25 @@ function App() {
 
                         {inputMode === 'database' ? (
                             <NuovoPiano db={db} onSchoolsReady={handleSchoolsFromDB} />
-                        ) : validationPending ? (
-                            <ValidationPreview
-                                data={validationPending}
-                                onConfirm={(data) => {
-                                    setValidationPending(null);
-                                    handleRawSchoolsReady(data);
-                                }}
-                                onCancel={() => {
-                                    setValidationPending(null);
-                                    handleReset();
-                                }}
-                            />
                         ) : (
+                        <>
                         <FileUpload
                             key={resetKey}
-                            onRawSchoolsReady={handleRawSchoolsReady}
-                            onValidationNeeded={(data) => setValidationPending(data)}
-                            onLoadStart={() => setLoadingState({ active: true, progress: 0, message: 'Inizio caricamento...' })}
-                            onLoadProgress={(toUpdate) => setLoadingState(prev => ({ ...prev, ...toUpdate }))}
-                            onLoadEnd={() => setLoadingState({ active: false, progress: 100, message: 'Completato' })}
+                            onSheetRead={handleSheetRead}
+                            onLoadStart={() => setLoadingState({ active: true, progress: 10, message: 'Lettura del foglio Excel...' })}
+                            onLoadEnd={() => setLoadingState({ active: false, progress: 100, message: '' })}
                         />
+                        {review && !review.open && (
+                            <SheetReviewCallout
+                                fileName={review.fileName}
+                                rowCount={review.rows.length}
+                                openErrors={reviewCounts.errors}
+                                openWarnings={reviewCounts.warnings}
+                                processed={review.processed}
+                                onOpen={() => setReview(r => ({ ...r, open: true }))}
+                            />
+                        )}
+                        </>
                         )}
                         {message && (
                             <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100 flex items-center gap-2">

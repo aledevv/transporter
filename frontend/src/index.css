@@ -7,3 +7,20 @@
     @apply bg-gray-50 text-gray-900;
   }
 }
+
+/* Sheet review window */
+@keyframes sr-fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sr-fade-out { from { opacity: 1 } to { opacity: 0 } }
+@keyframes sr-window-in { from { opacity: 0; transform: translateY(8px) scale(.985) } to { opacity: 1; transform: none } }
+@keyframes sr-window-out { from { opacity: 1; transform: none } to { opacity: 0; transform: translateY(6px) scale(.99) } }
+@keyframes sr-panel-in { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: none } }
+@keyframes sr-rise-in { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+.sr-backdrop-in { animation: sr-fade-in .18s ease-out both }
+.sr-backdrop-out { animation: sr-fade-out .16s ease-in both }
+.sr-window-in { animation: sr-window-in .22s cubic-bezier(.2,.8,.2,1) both }
+.sr-window-out { animation: sr-window-out .16s ease-in both }
+.sr-panel-in { animation: sr-panel-in .2s cubic-bezier(.2,.8,.2,1) both }
+.sr-rise-in { animation: sr-rise-in .25s cubic-bezier(.2,.8,.2,1) both }
+@media (prefers-reduced-motion: reduce) {
+    .sr-backdrop-in, .sr-backdrop-out, .sr-window-in, .sr-window-out, .sr-panel-in, .sr-rise-in { animation: none }
+}

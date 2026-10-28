@@ -158,3 +158,71 @@ class TestAutocompleteUnavailable:
         with patch("nominatim_cache.get", return_value=None), patch("requests.get", return_value=fake):
             resp = app_client.get("/api/places/autocomplete?q=Via Biasi")
         assert resp.get_json()["status"] == "UNAVAILABLE"
+
+
+# ---------------------------------------------------------------------------
+# /api/sheet/read
+# ---------------------------------------------------------------------------
+
+def _xlsx(df):
+    import pandas as pd  # noqa: F401
+    buf = io.BytesIO()
+    df.to_excel(buf, index=False)
+    buf.seek(0)
+    return buf
+
+
+class TestReadSheet:
+    def test_returns_first_sheet_as_is(self, app_client):
+        import pandas as pd
+        df = pd.DataFrame({
+            "Nome": ["IC Ala", "IC Cembra", None],
+            "Indirizzo": ["Via Betta 10", "", None],
+            "Partecipanti": [18, None, None],
+        })
+        data = {"file": (_xlsx(df), "viaggio.xlsx")}
+        resp = app_client.post("/api/sheet/read", data=data, content_type="multipart/form-data")
+        assert resp.status_code == 200
+        body = resp.get_json()
+        assert body["columns"] == ["Nome", "Indirizzo", "Partecipanti"]
+        # Fully empty rows are dropped, empty cells become "", whole numbers stay ints
+        assert body["rows"] == [
+            {"Nome": "IC Ala", "Indirizzo": "Via Betta 10", "Partecipanti": 18},
+            {"Nome": "IC Cembra", "Indirizzo": "", "Partecipanti": ""},
+        ]
+
+    def test_rejects_non_xlsx(self, app_client):
+        data = {"file": (io.BytesIO(b"a,b"), "dati.csv")}
+        resp = app_client.post("/api/sheet/read", data=data, content_type="multipart/form-data")
+        assert resp.status_code == 400
+
+    def test_missing_file_returns_400(self, app_client):
+        assert app_client.post("/api/sheet/read").status_code == 400
+
+
+class TestResolvedStops:
+    def test_dataset_street_and_corrected_demand_are_used(self):
+        """A stop resolved against the dataset shows the dataset street and the participants fixed in review."""
+        import app as app_module
+        task_id = "t-resolved"
+        app_module.tasks[task_id] = {"status": "processing"}
+        school = {"id": 0, "name": "IC Ala", "address": "Ala (TN) - Via Betta, 10", "display_address": "Ala (TN) - Via Betta, 10", "demand": 0}
+        resolutions = {"0": {"lat": 45.7562, "lon": 11.0015, "address": "Via Betta, Ala", "name": "IC ALA",
+                             "display_address": "Via Betta, Scuola primaria", "demand": 18}}
+        app_module.continue_file_task(task_id, [school], None, resolutions)
+        result = app_module.tasks[task_id]["result"][0]
+        assert app_module.tasks[task_id]["status"] == "completed"
+        assert result["display_address"] == "Via Betta, Scuola primaria"
+        assert result["demand"] == 18
+        assert (result["lat"], result["lon"]) == (45.7562, 11.0015)
+
+    def test_start_processing_runs_without_uploaded_file(self, app_client):
+        with patch("app.threading.Thread") as mock_thread:
+            resp = app_client.post("/api/start-processing", json={
+                "raw_schools": [{"id": 0, "name": "IC Ala", "address": "x", "demand": 3}],
+                "resolutions": {"0": {"lat": 45.7, "lon": 11.0, "address": "x", "name": "IC ALA"}},
+            })
+        assert resp.status_code == 202
+        # Same arguments continue_file_task accepts (it used to get one too many)
+        args = mock_thread.call_args.kwargs["args"]
+        assert len(args) == 4

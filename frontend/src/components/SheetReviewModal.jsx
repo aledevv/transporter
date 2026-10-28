@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     X, Database, Plus, Search, Check, AlertTriangle, ExternalLink, Trash2,
     FileSpreadsheet, MapPin, Undo2,
@@ -36,7 +37,7 @@ const TONE = {
 function CellTag({ tone, children, active }) {
     return (
         <div
-            className={`mt-1 inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-md py-[3px] pl-2 pr-1 font-sans text-[11.5px] font-medium leading-snug text-white shadow-sm ${TONE[tone].chip} ${active ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+            className={`sr-tag mt-1 inline-flex max-w-full flex-wrap transition-colors duration-300 items-center gap-x-1.5 gap-y-1 rounded-md py-[3px] pl-2 pr-1 font-sans text-[11.5px] font-medium leading-snug text-white shadow-sm ${TONE[tone].chip} ${active ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
         >
             {children}
         </div>
@@ -91,9 +92,9 @@ function CoordinateField({ value, onChange }) {
     );
 }
 
-function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, institutes, initialCandidates, current, onResolve, onClose }) {
+function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, rowAddress, institutes, initialCandidates, current, onResolve, onClose }) {
     const rowName = String(row[nameCol] ?? '').trim();
-    const rowAddr = String(row[addrCol] ?? '').trim();
+    const rowAddr = rowAddress ? rowAddress(row) : String(row[addrCol] ?? '').trim();
     const [tab, setTab] = useState(mode === 'dataset' ? 'new' : 'db');
     const [query, setQuery] = useState('');
     const [form, setForm] = useState({
@@ -116,7 +117,7 @@ function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, institutes
     const selectedId = current?.type === 'db' ? current.entry?.id : null;
 
     return (
-        <aside className="flex w-[400px] flex-shrink-0 flex-col border-l border-slate-200 bg-white animate-[slideIn_.18s_ease-out]">
+        <aside className="flex w-[400px] flex-shrink-0 flex-col border-l border-slate-200 bg-white sr-panel-in">
             <div className="flex items-start gap-3 border-b border-slate-100 px-5 py-4">
                 <div className="min-w-0 flex-1">
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Riga {rowIndex + 2}</div>
@@ -269,11 +270,22 @@ export default function SheetReviewModal({
     candidatesByRow = {},
     institutes = [],
     nameCol, addrCol, coordCol,
+    missingColumns,
+    rowAddress, // (row) => street as it will be saved, when it is built from more than one column
+    // Choices made in an earlier opening of the window (reopened from the callout)
+    savedState,
+    confirmLabel,
     onConfirm,
     onClose,
 }) {
     // Rows the user resolved by hand (overrides the preselection)
-    const [resolutions, setResolutions] = useState({});
+    const [resolutions, setResolutions] = useState(savedState?.resolutions || {});
+    // Plays the closing animation before the parent unmounts the window
+    const [leaving, setLeaving] = useState(false);
+    const leave = (fn) => {
+        setLeaving(true);
+        setTimeout(fn, 160);
+    };
     const [openRow, setOpenRow] = useState(null);
     const [onlyProblems, setOnlyProblems] = useState(false);
 
@@ -286,12 +298,12 @@ export default function SheetReviewModal({
     const rowsWithIssues = useMemo(() => new Set(issues.map(i => i.row)), [issues]);
 
     // Cell values typed in place (issues with fix: 'number', e.g. missing participants)
-    const [edits, setEdits] = useState({});
+    const [edits, setEdits] = useState(savedState?.edits || {});
     const editOk = (i) => {
         const v = edits[`${i.row}|${i.col}`];
         return v !== undefined && v !== '' && !isNaN(Number(v)) && Number(v) > 0;
     };
-    const isResolved = (i) => (i.fix === 'number' ? editOk(i) : resolutions[i.row] !== undefined);
+    const isResolved = (i) => resolutions[i.row]?.type === 'skip' || (i.fix === 'number' ? editOk(i) : resolutions[i.row] !== undefined);
     const openErrors = issues.filter(i => i.severity === 'error' && !isResolved(i));
     const openWarnings = issues.filter(i => i.severity === 'warning' && !isResolved(i));
     const okCount = rows.length - new Set([...openErrors, ...openWarnings].map(i => i.row)).size;
@@ -305,10 +317,10 @@ export default function SheetReviewModal({
     const visibleRows = rows.map((r, i) => i).filter(i => !onlyProblems || rowsWithIssues.has(i));
     const showMatchCol = mode === 'trip';
 
-    return (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[2px]">
-            <style>{'@keyframes slideIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}'}</style>
-            <div className="flex h-[90vh] w-full max-w-[1480px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+    // Portal: the window must sit above maps and panels whatever its parent is
+    return createPortal(
+        <div className={`fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[2px] ${leaving ? 'sr-backdrop-out' : 'sr-backdrop-in'}`}>
+            <div className={`flex h-[90vh] w-full max-w-[1480px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ${leaving ? 'sr-window-out' : 'sr-window-in'}`}>
                 {/* Header */}
                 <div className="flex items-center gap-4 border-b border-slate-200 px-6 py-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
@@ -329,7 +341,7 @@ export default function SheetReviewModal({
                             <span className="h-2 w-2 rounded-full bg-emerald-500" /> {okCount} ok
                         </span>
                     </div>
-                    <button onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                    <button onClick={() => leave(() => onClose?.({ resolutions, edits }))} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
                         <X className="h-5 w-5" />
                     </button>
                 </div>
@@ -337,6 +349,12 @@ export default function SheetReviewModal({
                 {/* Body */}
                 <div className="flex min-h-0 flex-1">
                     <div className="min-w-0 flex-1 overflow-auto bg-slate-100/60">
+                        {missingColumns?.length > 0 && (
+                            <div className="m-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-800">
+                                <div className="font-semibold">Mancano delle colonne nel primo foglio: {missingColumns.join(', ')}</div>
+                                <div className="mt-1 text-rose-700">Colonne trovate: {columns.join(', ') || 'nessuna'}. Rinomina le intestazioni nell'Excel e ricaricalo.</div>
+                            </div>
+                        )}
                         <table className="min-w-full border-separate border-spacing-0 bg-white text-[13px] text-slate-800">
                             <thead className="sticky top-0 z-40">
                                 <tr>
@@ -388,12 +406,12 @@ export default function SheetReviewModal({
                                                     value = userRes.type === 'db' ? (userRes.entry.description || userRes.entry.address) : userRes.address;
                                                 }
                                                 if (fixInPlace && editOk(issue)) value = Number(edits[`${ri}|${c}`]);
-                                                const replaced = String(value ?? '') !== String(original ?? '');
+                                                const replaced = String(value ?? '').trim() !== String(original ?? '').trim();
                                                 const isCoord = c === coordCol;
                                                 return (
                                                     <td
                                                         key={c}
-                                                        className={`h-9 max-w-[380px] border-b border-r border-slate-200 px-3 py-1.5 align-top ${tone ? TONE[tone].cell : ''} ${isCoord ? 'font-mono text-[12px]' : ''}`}
+                                                        className={`h-9 max-w-[380px] border-b border-r border-slate-200 px-3 py-1.5 align-top transition-[background-color,box-shadow] duration-300 ${tone ? TONE[tone].cell : ''} ${isCoord ? 'font-mono text-[12px]' : ''}`}
                                                     >
                                                         <div className={`truncate ${skipped ? 'line-through' : ''}`}>
                                                             {value === '' || value == null ? <span className="italic text-slate-300">vuoto</span> : String(value)}
@@ -473,6 +491,7 @@ export default function SheetReviewModal({
                             nameCol={nameCol}
                             addrCol={addrCol}
                             coordCol={coordCol}
+                            rowAddress={rowAddress}
                             institutes={institutes}
                             initialCandidates={candidatesByRow[openRow]}
                             current={effective[openRow]}
@@ -494,16 +513,17 @@ export default function SheetReviewModal({
                             ? `Risolvi ${openErrors.length === 1 ? 'la cella rossa' : `le ${openErrors.length} celle rosse`} per continuare`
                             : 'Tutto pronto'}
                     </div>
-                    <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200/70">Annulla</button>
+                    <button onClick={() => leave(() => onClose?.({ resolutions, edits }))} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200/70">Chiudi</button>
                     <button
-                        disabled={openErrors.length > 0}
-                        onClick={() => onConfirm?.({ resolutions: effective, edits })}
+                        disabled={openErrors.length > 0 || missingColumns?.length > 0}
+                        onClick={() => leave(() => onConfirm?.({ resolutions: effective, userResolutions: resolutions, edits }))}
                         className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
                     >
-                        {mode === 'trip' ? 'Conferma e continua' : 'Importa nel database'}
+                        {confirmLabel || (mode === 'trip' ? 'Conferma e continua' : 'Importa nel database')}
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }

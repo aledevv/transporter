@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Pencil, Trash2, Check, X, AlertTriangle, MoreVertical, ArrowRightLeft } from 'lucide-react';
 import AddressAutocomplete from './AddressAutocomplete';
+import useDatasetImport from './useDatasetImport';
 import API_BASE_URL from '../config';
 import { collection, getDocs, setDoc, deleteDoc, updateDoc, arrayRemove, doc, serverTimestamp } from 'firebase/firestore';
 
@@ -173,6 +174,12 @@ export default function InstituteList({ db }) {
         }
         return docs.length;
     };
+
+    const datasetImport = useDatasetImport({
+        db,
+        onImported: () => loadFromFirestore().catch(err => console.warn('Reload after import failed:', err)),
+        onStatus: setStatusMsg,
+    });
 
     const loadFromApi = () => {
         return fetch(`${API_BASE_URL}/api/fixtures/institutes`)
@@ -762,6 +769,7 @@ export default function InstituteList({ db }) {
 
     return (
         <div className="flex flex-col h-full min-h-0">
+            {datasetImport.windows}
 
             {statusMsg && (
                 <div
@@ -837,6 +845,7 @@ export default function InstituteList({ db }) {
                                     </button>
                                 )}
                             </div>
+                            {datasetImport.button}
                             <button
                                 onClick={() => {
                                     setIsAdding(true);
@@ -873,6 +882,8 @@ export default function InstituteList({ db }) {
                                 </div>
                             )}
                         </div>
+
+                        {datasetImport.callout}
 
                         {!loading && (
                             <div className="text-xs text-gray-400">

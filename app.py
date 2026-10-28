@@ -269,8 +269,11 @@ def continue_file_task(task_id, original_schools, filepath, resolutions):
             if sid in pre_geocoded_ids:
                 # Use coordinates from DB resolution directly
                 school = copy.copy(orig_school)
-                # Preserve original Excel address for display (e.g. Word docs)
-                school['display_address'] = orig_school.get('display_address') or orig_school['address']
+                # Address shown in the UI and documents: the dataset's short street when
+                # the stop was resolved against the dataset, else the Excel one
+                school['display_address'] = res.get('display_address') or orig_school.get('display_address') or orig_school['address']
+                if res.get('demand') is not None:
+                    school['demand'] = int(res['demand'])
                 school['address'] = res['address']
                 school['lat'] = float(res['lat'])
                 school['lon'] = float(res['lon'])
@@ -373,6 +376,46 @@ def upload_file():
         
         return jsonify({'task_id': task_id, 'message': 'Elaborazione iniziata'}), 202
 
+def _sheet_cell(value):
+    """JSON-friendly cell value: empty for NaN, ints for whole numbers, text for dates."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return ''
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, (int, float, str, bool)):
+        return value
+    if pd.isna(value):
+        return ''
+    return str(value)
+
+
+@app.route('/api/sheet/read', methods=['POST'])
+def read_sheet():
+    """
+    Returns the first sheet of an uploaded .xlsx as {columns, rows}, unchanged:
+    the review window shows it as a spreadsheet and does every check client-side.
+    Nothing is saved on the server.
+    """
+    file = request.files.get('file')
+    if not file or not file.filename:
+        return jsonify({'error': 'Nessun file inviato'}), 400
+    if not file.filename.lower().endswith('.xlsx'):
+        return jsonify({'error': 'Sono ammessi solo file .xlsx'}), 400
+    try:
+        df = pd.read_excel(file, sheet_name=0, dtype=object)
+    except Exception as e:
+        return jsonify({'error': f'File Excel non leggibile: {e}'}), 400
+
+    df.columns = [str(c).strip() for c in df.columns]
+    df = df.loc[:, [c for c in df.columns if not c.startswith('Unnamed')]]
+    df = df.dropna(how='all')
+    if len(df) > 2000:
+        return jsonify({'error': 'Il foglio ha troppe righe (massimo 2000)'}), 400
+
+    rows = [{c: _sheet_cell(v) for c, v in zip(df.columns, r)} for r in df.itertuples(index=False, name=None)]
+    return jsonify({'fileName': file.filename, 'columns': list(df.columns), 'rows': rows})
+
+
 @app.route('/api/status/<task_id>', methods=['GET'])
 def get_task_status(task_id):
     task = tasks.get(task_id)
@@ -455,7 +498,7 @@ def start_processing():
 
     thread = threading.Thread(
         target=continue_file_task,
-        args=(task_id, raw_schools, None, None, resolutions),
+        args=(task_id, raw_schools, None, resolutions),
     )
     thread.daemon = True
     thread.start()

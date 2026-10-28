@@ -1,12 +1,34 @@
 import React, { useCallback, useState } from 'react';
 import axios from 'axios';
-import { Upload, FileType, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, AlertCircle } from 'lucide-react';
 import API_BASE_URL from '../config';
 
-const FileUpload = ({ onUploadSuccess, onRawSchoolsReady, onValidationNeeded, onLoadStart, onLoadProgress, onLoadEnd }) => {
+// Reads the first sheet of the Excel as it is; every check happens in the review window
+const FileUpload = ({ onSheetRead, onLoadStart, onLoadEnd }) => {
     const [dragActive, setDragActive] = useState(false);
-    // const [loading, setLoading] = useState(false); // Using parent state
     const [error, setError] = useState(null);
+
+    const handleFiles = async (file) => {
+        setError(null);
+        if (!file.name.toLowerCase().endsWith('.xlsx')) {
+            setError("Sono ammessi solo file .xlsx");
+            return;
+        }
+        if (onLoadStart) onLoadStart();
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/sheet/read`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (onSheetRead) await onSheetRead(response.data);
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.error || "Caricamento fallito.");
+        } finally {
+            if (onLoadEnd) onLoadEnd();
+        }
+    };
 
     const handleDrag = useCallback((e) => {
         e.preventDefault();
@@ -18,89 +40,20 @@ const FileUpload = ({ onUploadSuccess, onRawSchoolsReady, onValidationNeeded, on
         }
     }, []);
 
-    const handleDrop = useCallback((e) => {
+    const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             handleFiles(e.dataTransfer.files[0]);
         }
-    }, []);
+    };
 
     const handleChange = (e) => {
         e.preventDefault();
         if (e.target.files && e.target.files[0]) {
             handleFiles(e.target.files[0]);
-        }
-    };
-
-    const handleFiles = async (file) => {
-        setError(null);
-        if (onLoadStart) onLoadStart();
-
-        // Validations
-        if (!file.name.endsWith('.xlsx')) {
-            setError("Sono ammessi solo file .xlsx");
-            if (onLoadEnd) onLoadEnd();
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            // 1. Start Upload
-            const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            const taskId = response.data.task_id;
-
-            // 2. Poll Status
-            const pollInterval = setInterval(async () => {
-                try {
-                    const statusRes = await axios.get(`${API_BASE_URL}/api/status/${taskId}`);
-                    const { status, progress, message, result, error: taskError } = statusRes.data;
-
-                    if (onLoadProgress) onLoadProgress({ progress, message, totalAddresses: statusRes.data.total_addresses, aiExtraSeconds: statusRes.data.ai_extra_seconds || 0, isAiPhase: statusRes.data.is_ai_phase || false });
-
-                    if (status === 'completed') {
-                        clearInterval(pollInterval);
-                        if (onUploadSuccess) onUploadSuccess({
-                            schools: result,
-                            correctedFile: statusRes.data.corrected_file,
-                            addressCorrections: statusRes.data.address_corrections ?? [],
-                            correctionStatus: statusRes.data.correction_status,
-                            unresolvedByAI: statusRes.data.unresolved_by_ai ?? [],
-                        });
-                        if (onLoadEnd) onLoadEnd();
-                    } else if (status === 'validation_needed') {
-                        clearInterval(pollInterval);
-                        if (onValidationNeeded) onValidationNeeded({
-                            schools: statusRes.data.raw_schools,
-                            errors: statusRes.data.errors,
-                            taskId: taskId
-                        });
-                        if (onLoadEnd) onLoadEnd();
-                    } else if (status === 'awaiting_db_match') {
-                        clearInterval(pollInterval);
-                        if (onRawSchoolsReady) onRawSchoolsReady({ rawSchools: statusRes.data.raw_schools, taskId });
-                        if (onLoadEnd) onLoadEnd();
-                    } else if (status === 'error') {
-                        clearInterval(pollInterval);
-                        setError(taskError || "Errore durante l'elaborazione");
-                        if (onLoadEnd) onLoadEnd();
-                    }
-                } catch (e) {
-                    console.error("Polling error", e);
-                    // Don't clear interval immediately on network blip, but maybe handle max retries
-                }
-            }, 1000);
-
-        } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.error || "Caricamento fallito.");
-            if (onLoadEnd) onLoadEnd();
+            e.target.value = '';
         }
     };
 
