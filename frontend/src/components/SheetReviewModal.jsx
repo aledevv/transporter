@@ -377,11 +377,18 @@ export default function SheetReviewModal({
                                                 const cellResolved = issue && (fixInPlace ? editOk(issue) : !!userRes);
                                                 const tone = issue ? (cellResolved ? 'resolved' : issue.severity) : null;
                                                 let value = r[c];
+                                                // Corrected cells show the resulting value; the Excel one stays below in grey
+                                                const original = value;
                                                 if (mode === 'dataset' && userRes?.type === 'edit') {
                                                     if (c === nameCol) value = userRes.name;
                                                     if (c === addrCol) value = userRes.address;
                                                     if (c === coordCol) value = formatCoordinates(userRes.lat, userRes.lon);
                                                 }
+                                                if (mode === 'trip' && issue && c === addrCol && (userRes?.type === 'db' || userRes?.type === 'new')) {
+                                                    value = userRes.type === 'db' ? (userRes.entry.description || userRes.entry.address) : userRes.address;
+                                                }
+                                                if (fixInPlace && editOk(issue)) value = Number(edits[`${ri}|${c}`]);
+                                                const replaced = String(value ?? '') !== String(original ?? '');
                                                 const isCoord = c === coordCol;
                                                 return (
                                                     <td
@@ -391,6 +398,9 @@ export default function SheetReviewModal({
                                                         <div className={`truncate ${skipped ? 'line-through' : ''}`}>
                                                             {value === '' || value == null ? <span className="italic text-slate-300">vuoto</span> : String(value)}
                                                         </div>
+                                                        {replaced && original !== '' && original != null && (
+                                                            <div className="truncate text-[11px] text-slate-400 line-through decoration-slate-300">{String(original)}</div>
+                                                        )}
                                                         {fixInPlace && (
                                                             <div className="flex flex-col items-start">
                                                                 <CellTag tone={tone} active={active}>
