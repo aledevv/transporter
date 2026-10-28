@@ -4,7 +4,7 @@ import { Check, ExternalLink, X } from 'lucide-react';
 import { parseCoordinates, formatCoordinates } from '../utils/coordinates';
 import AddressAutocomplete from './AddressAutocomplete';
 
-export const STREET_HINT = 'Il nome che appare in grafica e nei documenti, scritto in breve';
+export const STREET_HINT = 'Come apparirà su mappa e documenti, es. Rovereto, Corso Bettini 67';
 
 function googleMapsUrl(query) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
@@ -52,9 +52,9 @@ export default function NewStopForm({ initial = {}, submitLabel = 'Aggiungi', bu
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" />
             </label>
             <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-600">Via</span>
+                <span className="mb-1 block text-xs font-semibold text-slate-600">Indirizzo da mostrare</span>
                 <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                    placeholder="es. Rovereto, Corso Bettini 67"
+                    placeholder="Rovereto, Corso Bettini 67"
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" />
                 <span className="mt-1 block text-xs text-slate-400">{STREET_HINT}</span>
             </label>
@@ -101,7 +101,7 @@ export function NewStopDialog({ title = 'Nuova fermata', busy, onSubmit, onClose
                 <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4">
                     <div>
                         <h3 className="text-[16px] font-semibold text-slate-900">{title}</h3>
-                        <p className="mt-0.5 text-sm text-slate-500">Nome, via e coordinate, come nell'Excel del database.</p>
+                        <p className="mt-0.5 text-sm text-slate-500">Nome, indirizzo da mostrare e coordinate, come nell'Excel del database.</p>
                     </div>
                     <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"><X className="h-4 w-4" /></button>
                 </div>

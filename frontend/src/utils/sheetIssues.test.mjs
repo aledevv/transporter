@@ -166,3 +166,12 @@ test('two stops of one school at the same point stay two entries and re-import c
     assert.equal(second.added.length + second.changed.length, 0);
     assert.equal(second.unchanged, 2);
 });
+
+test('dataset sheets accept the "Indirizzo da mostrare" column as well as Via / Indirizzo', () => {
+    const rows = [{ Nome: 'IC MORI', 'Indirizzo da mostrare': 'Mori, Via Giovanni XXIII 64', Coordinate: '45.8522, 10.9856' }];
+    const a = analyzeDatasetRows(rows, Object.keys(rows[0]));
+    assert.equal(a.addrCol, 'Indirizzo da mostrare');
+    assert.equal(a.parsed[0].address, 'Mori, Via Giovanni XXIII 64');
+    const missing = analyzeDatasetRows([{ Nome: 'X', 'Indirizzo da mostrare': '', Coordinate: '46, 11' }], ['Nome', 'Indirizzo da mostrare', 'Coordinate']);
+    assert.ok(missing.issues.some(i => i.message === 'Indirizzo da mostrare mancante'));
+});

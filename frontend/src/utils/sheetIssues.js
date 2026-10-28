@@ -159,13 +159,13 @@ export function buildTripPayload(rows, analysis, resolutions, edits = {}) {
 }
 
 /**
- * Dataset sheet (Nome / Via / Coordinate): coordinates are sanitized, rows
+ * Dataset sheet (Nome / Indirizzo da mostrare / Coordinate): coordinates are sanitized, rows
  * without a name, a street or usable coordinates are flagged.
  * Returns { issues, parsed } where parsed[row] = { name, address, lat, lon } for valid rows.
  */
 export function analyzeDatasetRows(rows, columns) {
     const nameCol = findColumn(columns, ['Nome', 'Nome fermata', 'Istituto', 'Istituto / Fermata', 'Fermata']);
-    const addrCol = findColumn(columns, ['Via', 'Indirizzo']);
+    const addrCol = findColumn(columns, ['Indirizzo da mostrare', 'Via', 'Indirizzo']);
     const coordCol = findColumn(columns, ['Coordinate', 'Coordinate (lat, lon)', 'Coord']);
     // A separate town column is joined to the street: "Rovereto" + "Corso Bettini 67"
     const locCol = findColumn(columns, ['Località', 'Localita', 'Comune', 'Paese']);
@@ -183,7 +183,7 @@ export function analyzeDatasetRows(rows, columns) {
         if (!name && !street && !(coordCol ? r[coordCol] : r[latCol])) return; // blank line
         let ok = true;
         if (!name) { issues.push({ row, col: nameCol, severity: 'error', message: 'Nome mancante' }); ok = false; }
-        if (!street) { issues.push({ row, col: addrCol, severity: 'error', message: 'Via mancante' }); ok = false; }
+        if (!street) { issues.push({ row, col: addrCol, severity: 'error', message: 'Indirizzo da mostrare mancante' }); ok = false; }
 
         const c = coordCol ? parseCoordinates(r[coordCol]) : parseCoordinates(r[latCol], r[lonCol]);
         const cCol = coordCol || latCol;

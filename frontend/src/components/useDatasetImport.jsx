@@ -110,7 +110,7 @@ export default function useDatasetImport({ db, onImported, onStatus }) {
         }
     };
 
-    const missingColumns = analysis && [!analysis.nameCol && 'Nome', !analysis.addrCol && 'Via', !analysis.coordCol && 'Coordinate'].filter(Boolean);
+    const missingColumns = analysis && [!analysis.nameCol && 'Nome', !analysis.addrCol && 'Indirizzo da mostrare', !analysis.coordCol && 'Coordinate'].filter(Boolean);
 
     const handleConfirm = async ({ userResolutions, edits }) => {
         setSheet(s => ({ ...s, open: false, saved: { resolutions: userResolutions, edits } }));
@@ -174,7 +174,7 @@ export default function useDatasetImport({ db, onImported, onStatus }) {
             <button
                 onClick={() => inputRef.current?.click()}
                 disabled={!db || reading}
-                title="Aggiorna il database da un Excel con nome, via e coordinate"
+                title="Aggiorna il database da un Excel con nome, indirizzo da mostrare e coordinate"
                 className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
             >
                 {reading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />}

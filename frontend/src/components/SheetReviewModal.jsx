@@ -174,7 +174,7 @@ function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, rowAddress
                     <div className="space-y-4">
                         {mode === 'trip' && (
                             <p className="text-[13px] leading-relaxed text-slate-500">
-                                La fermata viene aggiunta al database e usata per questo viaggio. Nome e via arrivano dall'Excel: correggili se serve.
+                                La fermata viene aggiunta al database e usata per questo viaggio. Nome e indirizzo da mostrare arrivano dall'Excel: correggili se serve.
                             </p>
                         )}
                         <NewStopForm
