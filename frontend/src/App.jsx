@@ -192,7 +192,7 @@ function App() {
             .then(d => {
                 setMapsKey('');
                 if (d.firebase?.projectId) {
-                    setDb(initFirebase(d.firebase));
+                    setDb(initFirebase(d.firebase, d.appCheckSiteKey));
                 }
             })
             .catch(err => {
@@ -311,7 +311,7 @@ function App() {
     };
 
     // silent: no full-screen overlay (after the review window, which shows the work in its card)
-    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null, { keepSettings = false, silent = false } = {}) => {
+    const continueProcessing = async (taskId, resolutions, endpoint = '/api/start-processing', body = null, { keepSettings = false, silent = false } = {}) => {
         const setLoadingState = silent ? () => {} : setGlobalLoading;
         setLoadingState({ active: true, progress: 20, message: 'Geocoding...' });
         try {

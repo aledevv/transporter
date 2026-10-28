@@ -1,6 +1,6 @@
 """
 Run once to generate all test fixtures for real datasets, mirroring the full UI pipeline:
-  1. AI address correction  (AddressCorrector — needs GOOGLE_API_KEY)
+  1. Read the stops from the Excel
   2. Geocoding              (smart_geocode via Nominatim — needs network)
   3. Spiral jitter          (same logic as app.py process_file_task)
   4. Travel-time matrix     (GeocodingService.get_time_matrix — needs GOOGLE_MAPS_API_KEY)
@@ -31,7 +31,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from app import smart_geocode
 from data_loader import DataLoader
 from geocoder import GeocodingService
-from address_corrector import AddressCorrector, FLAG_COL
 
 TESTS_DIR = Path(__file__).parent.parent / "tests"
 TRENTO_LAT = 46.0707
@@ -62,7 +61,6 @@ def _apply_jitter(lat, lon, used_coordinates):
 def run_dataset(dataset_name):
     dataset_dir = TESTS_DIR / dataset_name
     input_path = dataset_dir / "input.xlsx"
-    corrected_path = dataset_dir / "input_corretto.xlsx"
     coords_out = dataset_dir / "coords.json"
     matrix_out = dataset_dir / "time_matrix.json"
 
@@ -71,53 +69,14 @@ def run_dataset(dataset_name):
     print(f"{'=' * 60}")
 
     # ------------------------------------------------------------------
-    # Step 1: Address correction
+    # Step 1: Read the stops (AI address correction was removed: addresses
+    # come from the stop dataset now)
     # ------------------------------------------------------------------
-    skip_ai = False
-    if corrected_path.exists():
-        df_check = pd.read_excel(corrected_path)
-        if FLAG_COL in df_check.columns and df_check[FLAG_COL].astype(bool).all():
-            print(f"\n[Step 1] Reusing {corrected_path.name} (all rows AI_Corrected=True)")
-            skip_ai = True
-
-    if skip_ai:
-        df_corrected = pd.read_excel(corrected_path)
-        schools = [
-            {
-                "name": str(row["Nome"]).strip(),
-                "address": str(row["Indirizzo"]).strip(),
-                "demand": int(row["Partecipanti"]) if pd.notna(row["Partecipanti"]) else 0,
-            }
-            for _, row in df_corrected.iterrows()
-        ]
-    else:
-        print(f"\n[Step 1] Running AddressCorrector on {input_path.name}...")
-        original_data = DataLoader.load_data(str(input_path))
-        original_schools = original_data["schools"]
-        corrector = AddressCorrector()
-        corrected_schools, status = corrector.correct_addresses(
-            original_schools, str(input_path), str(corrected_path)
-        )
-        print(f"  Status: {status}")
-
-        orig_map = {s["name"].strip(): s["address"] for s in original_schools}
-        changed = 0
-        for s in corrected_schools:
-            name = s["name"].strip()
-            orig = orig_map.get(name, "")
-            if s["address"] != orig:
-                changed += 1
-                print(f"  CHANGED  {name}")
-                print(f"    before: {orig}")
-                print(f"    after:  {s['address']}")
-        if changed == 0:
-            print("  No address changes made.")
-
-        # Strip names so they match what _load_dataset() looks up in coords.json
-        schools = [
-            {"name": s["name"].strip(), "address": s["address"], "demand": s["demand"]}
-            for s in corrected_schools
-        ]
+    print(f"\n[Step 1] Reading {input_path.name}...")
+    schools = [
+        {"name": s["name"].strip(), "address": s["address"], "demand": s["demand"]}
+        for s in DataLoader.load_data(str(input_path))["schools"]
+    ]
 
     # ------------------------------------------------------------------
     # Step 2 + 3: Geocode corrected addresses + apply spiral jitter

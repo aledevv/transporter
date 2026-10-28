@@ -40,7 +40,7 @@ python3 run_tests.py
 
 # Directly with pytest (more options)
 pytest tests/ -v
-pytest tests/test_address_corrector.py -v
+pytest tests/test_app.py -v
 pytest tests/test_optimizer.py::TestStrategies::test_distance_strategy_uses_two_buses -v
 ```
 
@@ -56,25 +56,27 @@ The Dockerfile builds the frontend, copies the dist into the Python image, and s
 Single Flask app serving both the API and the built frontend (`frontend/dist/`).
 
 **Request flow for optimization:**
-1. **`/api/upload`** — Accepts Excel file, starts a background thread (`process_file_task`) that reads it via `DataLoader`, geocodes each address via `smart_geocode()`, and stores results in the `tasks` dict.
-2. **`/api/status/<task_id>`** — Polls the background task for progress/result.
-3. **`/api/optimize`** — Takes geocoded schools + destination, pre-groups schools by `institute` into meta-nodes, builds a distance matrix via OSRM, then calls `VRPSolver`. Post-processes routes to expand meta-nodes back to individual schools and synchronize departure/arrival times.
+1. **`/api/sheet/read`** — Reads the uploaded trip Excel and returns its rows; the frontend's review window (`SheetReviewModal`) matches them against the Firestore stop database and lets the user fix missing stops/passengers.
+2. **`/api/start-processing`** — Takes the reviewed rows, resolves coordinates (DB coordinates first, then `smart_geocode()`) in a background task stored in the `tasks` dict.
+3. **`/api/status/<task_id>`** — Polls the background task for progress/result.
+4. **`/api/optimize`** — Takes geocoded schools + destination, pre-groups schools by `institute` into meta-nodes, builds a distance matrix via OSRM, then calls `VRPSolver`. Post-processes routes to expand meta-nodes back to individual schools and synchronize departure/arrival times.
+
+Costly endpoints carry a generous per-IP limit (`@rate_limit(n)` per minute, client IP from `X-Forwarded-For` behind Cloud Run) and answer 429 when exceeded.
 
 **Key modules:**
 - `data_loader.py` — Reads Excel; requires columns `Nome`, `Indirizzo`, `Partecipanti`; optional `Istituto` column for institute grouping.
-- `address_corrector.py` — `AddressCorrector`: called in `process_file_task` after loading data. Sends addresses to `call_agent()` from `gemini_agent.py`, parses the JSON response (`{id, normalized_address}`), saves `<name>_corretto.xlsx` with an `AI_Corrected=True` column. If that column is already present and `True` for all rows, the agent call is skipped to avoid unnecessary API costs.
-- `gemini_agent.py` — datapizza-ai agent wrapping Gemini Flash. Exposes `call_agent(user_input: str) -> str`. System prompt lives in `gemini_SYSTEM_PROMPT.py`. Requires `GOOGLE_API_KEY` env var.
+- `places_usage.py` — Monthly Firestore counter capping Google Places calls; destination/new-stop autocomplete falls back to Nominatim when the cap or key is missing.
 - `geocoder.py` — `GeocodingService`: geocodes via Nominatim (OSM), distance matrices via OSRM Table API, route geometry via OSRM Route API. Falls back to Euclidean distance if OSRM fails. Fallback coordinates: Trento center `(46.0697, 11.1211)`.
 - `optimizer.py` — `VRPSolver` wraps Google OR-Tools. Uses a dummy start node (zero-cost from anywhere) and the destination as the end depot. Supports three strategies: `distance` (PATH_CHEAPEST_ARC), `vehicles` (SAVINGS + high fixed cost), `balanced`. Institute mixing is penalized with a cost of 100,000,000 on cross-institute arcs.
 
 ### Frontend (React/Vite — `frontend/`)
-Single-page app using React 18, Tailwind CSS, Leaflet (react-leaflet) for maps, and jsPDF for PDF export.
+Single-page app using React 18, Tailwind CSS, MapLibre GL (OpenFreeMap Liberty style) for maps, and jsPDF for PDF export.
 
 **Component flow:**
 - `App.jsx` — Top-level state: `schools` array, loading overlay. Two sections: FileUpload → Dashboard.
 - `FileUpload.jsx` — Handles Excel upload, polls `/api/status` for geocoding progress.
 - `Dashboard.jsx` — Main control panel: destination input (with `AddressAutocomplete`), optimization settings (capacity, strategy, time mode), calls `/api/optimize`, displays results.
-- `Map.jsx` — Leaflet map displaying school markers and route polylines.
+- `Map.jsx` — MapLibre map displaying school markers and route polylines.
 - `SchoolEditor.jsx` — Inline table editor for adding/editing/deleting stops manually.
 
 **API URL configuration (`src/config.js`):**
@@ -83,7 +85,7 @@ Single-page app using React 18, Tailwind CSS, Leaflet (react-leaflet) for maps, 
 
 ## Key Data Shapes
 
-**Excel input columns:** `Nome` (stop name), `Indirizzo` (address), `Partecipanti` (passenger count), `Istituto` (optional, groups stops onto same bus), `AI_Corrected` (bool, added by `AddressCorrector` — presence prevents redundant agent calls).
+**Excel input columns:** `Nome` (stop name), `Indirizzo` (address), `Partecipanti` (passenger count), `Istituto` (optional, groups stops onto same bus).
 
 **Institute grouping logic:** Schools sharing an `Istituto` value are pre-grouped into meta-nodes before VRP. If total demand exceeds bus capacity, the group is split into sub-batches. Meta-nodes are expanded back to individual schools in the response.
 

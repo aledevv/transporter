@@ -61,8 +61,9 @@ def clear_nominatim_cache():
 def app_client():
     """Flask test client with testing mode enabled."""
     # Import here so that the sys.modules stubs above are already in place.
-    from app import app  # noqa: PLC0415
+    from app import app, _rate_hits  # noqa: PLC0415
     app.config["TESTING"] = True
+    _rate_hits.clear()
     with app.test_client() as client:
         yield client
 

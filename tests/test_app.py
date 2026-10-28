@@ -11,31 +11,6 @@ import pytest
 # /api/upload
 # ---------------------------------------------------------------------------
 
-class TestUpload:
-    def test_missing_file_field_returns_400(self, app_client):
-        resp = app_client.post("/api/upload")
-        assert resp.status_code == 400
-        assert "error" in resp.get_json()
-
-    def test_empty_filename_returns_400(self, app_client):
-        data = {"file": (io.BytesIO(b""), "")}
-        resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
-        assert resp.status_code == 400
-
-    def test_valid_upload_returns_task_id(self, app_client, sample_excel):
-        """A valid Excel upload starts a background task and returns a task_id."""
-        with open(sample_excel, "rb") as f:
-            data = {"file": (f, "test.xlsx")}
-            # Patch the background thread so it doesn't actually run geocoding.
-            with patch("app.threading.Thread") as mock_thread:
-                mock_thread.return_value.start = lambda: None
-                resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
-
-        assert resp.status_code == 202
-        body = resp.get_json()
-        assert "task_id" in body
-
-
 # ---------------------------------------------------------------------------
 # /api/status
 # ---------------------------------------------------------------------------
@@ -340,23 +315,15 @@ class TestPlacesSafety:
             assert "googleapis.com" not in str(call)
         assert app_module.tasks.pop("no-google")["status"] == "completed"
 
-class TestCheapHardening:
-    def test_upload_rejects_non_excel(self, app_client):
-        data = {"file": (io.BytesIO(b"x"), "evil.sh")}
-        resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
-        assert resp.status_code == 400
+class TestDownloadTraversal:
+    def test_names_outside_uploads_are_refused_and_nothing_is_deleted(self, app_client, tmp_path):
+        import app as app_module
+        assert app_client.get("/api/download/../app.py").status_code == 404
+        assert app_client.get("/api/download/..%2Fapp.py").status_code == 404
+        assert os.path.exists(os.path.join(os.path.dirname(app_module.__file__), "app.py"))
 
-    def test_upload_strips_path_from_filename(self, app_client, sample_excel):
-        with open(sample_excel, "rb") as f:
-            data = {"file": (f, "../../escape.xlsx")}
-            with patch("app.threading.Thread") as mock_thread:
-                mock_thread.return_value.start = lambda: None
-                resp = app_client.post("/api/upload", data=data, content_type="multipart/form-data")
-        assert resp.status_code == 202
-        args = mock_thread.call_args.kwargs["args"]
-        assert "/" not in args[2] and args[2] == "escape.xlsx"
-        assert os.path.dirname(args[1]) == "uploads"
 
+class TestFixturePaths:
     def test_fixture_name_cannot_escape_realsuite(self, app_client):
         from app import _fixture_dir, REALSUITE_DIR
         assert _fixture_dir("..") is None
@@ -365,9 +332,22 @@ class TestCheapHardening:
         assert _fixture_dir("Evento") == os.path.join(REALSUITE_DIR, "Evento")
 
 
-class TestDownloadTraversal:
-    def test_names_outside_uploads_are_refused_and_nothing_is_deleted(self, app_client, tmp_path):
-        import app as app_module
-        assert app_client.get("/api/download/../app.py").status_code == 404
-        assert app_client.get("/api/download/..%2Fapp.py").status_code == 404
-        assert os.path.exists(os.path.join(os.path.dirname(app_module.__file__), "app.py"))
+class TestRateLimit:
+    def test_over_limit_gets_429_with_message(self, app_client):
+        for _ in range(120):
+            assert app_client.get("/api/places/autocomplete?q=a").status_code == 200
+        r = app_client.get("/api/places/autocomplete?q=a")
+        assert r.status_code == 429
+        assert "Troppe richieste" in r.get_json()["error"]
+        assert int(r.headers["Retry-After"]) >= 1
+
+    def test_counted_per_forwarded_ip(self, app_client):
+        for _ in range(120):
+            app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "1.1.1.1, 10.0.0.1"})
+        assert app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
+        assert app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200
+
+    def test_limits_are_per_endpoint(self, app_client):
+        for _ in range(121):
+            app_client.get("/api/places/autocomplete?q=a")
+        assert app_client.post("/api/optimize", json={}).status_code != 429

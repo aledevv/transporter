@@ -6,7 +6,6 @@ import os
 import uuid
 import copy
 import json
-from data_loader import DataLoader
 from geocoder import GeocodingService
 from optimizer import VRPSolver
 import tempfile
@@ -22,6 +21,46 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 CORS(app, origins=[r"http://localhost:\d+", r"http://127\.0\.0\.1:\d+"])
 
 tasks = {}
+
+
+# --- Per-IP rate limit -------------------------------------------------------
+# Generous thresholds that normal use never reaches; they only stop scripted
+# abuse of the costly endpoints. Counted per instance, in memory.
+import collections as _collections
+import functools as _functools
+import threading as _threading
+import time as _time
+
+_rate_hits = _collections.defaultdict(_collections.deque)
+_rate_lock = _threading.Lock()
+
+
+def _client_ip():
+    # Behind Cloud Run the client is the first address of X-Forwarded-For
+    fwd = request.headers.get('X-Forwarded-For', '')
+    return fwd.split(',')[0].strip() if fwd else (request.remote_addr or '?')
+
+
+def rate_limit(per_minute):
+    def wrap(view):
+        @_functools.wraps(view)
+        def limited(*args, **kwargs):
+            key = (view.__name__, _client_ip())
+            now = _time.monotonic()
+            with _rate_lock:
+                hits = _rate_hits[key]
+                while hits and now - hits[0] > 60:
+                    hits.popleft()
+                if len(hits) >= per_minute:
+                    retry = max(1, int(60 - (now - hits[0])))
+                    resp = jsonify({'error': f'Troppe richieste in poco tempo: riprova tra {retry} secondi.'})
+                    resp.status_code = 429
+                    resp.headers['Retry-After'] = str(retry)
+                    return resp
+                hits.append(now)
+            return view(*args, **kwargs)
+        return limited
+    return wrap
 
 import random
 
@@ -163,46 +202,6 @@ def smart_geocode(address, school_name=None, default_city="Trento"):
         return lat, lon, True
 
     return FALLBACK_COORDS[0], FALLBACK_COORDS[1], False
-
-def process_file_task(task_id, filepath, original_filename):
-    """
-    Background task: loads schools from Excel and sets status to awaiting_db_match.
-    AI correction and geocoding are deferred to continue_file_task.
-    """
-    try:
-        tasks[task_id] = {'status': 'processing', 'progress': 0, 'message': 'Inizializzazione...'}
-
-        # 1. Load Data
-        time.sleep(0.5)  # UX Delay
-        tasks[task_id].update({'progress': 5, 'message': 'Lettura file Excel...'})
-
-        original_schools = DataLoader.load_data(filepath)
-        schools = original_schools.get('schools', [])
-        errors = original_schools.get('errors', [])
-
-        if errors:
-            tasks[task_id] = {
-                'status': 'validation_needed',
-                'progress': 15,
-                'message': f'Trovate {len(schools)} fermate. {len(errors)} errori.',
-                'raw_schools': schools,
-                'errors': errors,
-                'filepath': filepath,
-            }
-        else:
-            tasks[task_id] = {
-                'status': 'awaiting_db_match',
-                'progress': 15,
-                'message': f'Trovate {len(schools)} fermate. Verifica indirizzi in corso...',
-                'raw_schools': schools,
-                'filepath': filepath,
-            }
-
-    except Exception as e:
-        tasks[task_id] = {'status': 'error', 'progress': 0, 'message': f'Errore: {str(e)}'}
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
 
 def continue_file_task(task_id, original_schools, filepath, resolutions):
     """
@@ -356,34 +355,6 @@ def continue_file_task(task_id, original_schools, filepath, resolutions):
         if filepath and os.path.exists(filepath):
             os.remove(filepath)
 
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'Nessun file inviato'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'Nessun file selezionato'}), 400
-    
-    # Keep only the base name so a crafted filename can't write outside uploads/
-    original_name = os.path.basename(file.filename.replace('\\', '/'))
-    if not original_name.lower().endswith(('.xlsx', '.xls')):
-        return jsonify({'error': 'Formato non supportato: carica un file Excel (.xlsx)'}), 400
-
-    if file:
-        filename = str(uuid.uuid4()) + "_" + original_name
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
-        
-        # Create Task ID
-        task_id = str(uuid.uuid4())
-        
-        # Start background thread
-        thread = threading.Thread(target=process_file_task, args=(task_id, filepath, original_name))
-        thread.daemon = True
-        thread.start()
-        
-        return jsonify({'task_id': task_id, 'message': 'Elaborazione iniziata'}), 202
-
 def _sheet_cell(value):
     """JSON-friendly cell value: empty for NaN, ints for whole numbers, text for dates."""
     if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -398,6 +369,7 @@ def _sheet_cell(value):
 
 
 @app.route('/api/sheet/read', methods=['POST'])
+@rate_limit(30)
 def read_sheet():
     """
     Returns the first sheet of an uploaded .xlsx as {columns, rows}, unchanged:
@@ -435,66 +407,12 @@ def get_task_status(task_id):
     return jsonify(task)
 
 
-@app.route('/api/continue-processing', methods=['POST'])
-def continue_processing():
-    """
-    Called after the frontend resolves DB matches.
-    Resumes the task (runs geocoding) with the provided resolutions.
-    """
-    data = request.json or {}
-    task_id = data.get('task_id')
-    resolutions = data.get('resolutions', {})
-
-    if not task_id:
-        return jsonify({'error': 'task_id required'}), 400
-
-    task = tasks.get(task_id)
-    if not task:
-        return jsonify({'error': 'Task not found'}), 404
-    if task.get('status') != 'awaiting_db_match':
-        return jsonify({'error': f"Task status is '{task.get('status')}', expected 'awaiting_db_match'"}), 400
-
-    raw_schools = task['raw_schools']
-    filepath = task.get('filepath')
-
-    thread = threading.Thread(
-        target=continue_file_task,
-        args=(task_id, raw_schools, filepath, resolutions),
-    )
-    thread.daemon = True
-    thread.start()
-
-    return jsonify({'task_id': task_id}), 202
-
-
-@app.route('/api/confirm-validation', methods=['POST'])
-def confirm_validation():
-    """
-    Called when the user confirms to proceed despite validation errors.
-    Transitions the task state from 'validation_needed' to 'awaiting_db_match'.
-    """
-    data = request.json or {}
-    task_id = data.get('task_id')
-
-    if not task_id:
-        return jsonify({'error': 'task_id required'}), 400
-
-    task = tasks.get(task_id)
-    if not task:
-        return jsonify({'error': 'Task not found'}), 404
-    if task.get('status') != 'validation_needed':
-        return jsonify({'error': f"Task status is '{task.get('status')}', expected 'validation_needed'"}), 400
-
-    task['status'] = 'awaiting_db_match'
-    task['message'] = f"Trovate {len(task.get('raw_schools', []))} fermate. Verifica indirizzi in corso..."
-    return jsonify({'ok': True}), 200
-
-
 @app.route('/api/start-processing', methods=['POST'])
+@rate_limit(30)
 def start_processing():
     """
-    Called when resuming a db_match_pending trip from Firestore.
-    Accepts raw_schools + resolutions directly (no uploaded file).
+    Runs the reviewed stops: raw_schools + resolutions (coordinates from the
+    stop dataset) straight from the review window, no uploaded file.
     Creates a new task and runs continue_file_task.
     """
     data = request.json or {}
@@ -518,6 +436,7 @@ def start_processing():
 
 
 @app.route('/api/geocode', methods=['POST'])
+@rate_limit(60)
 def geocode_single():
     """Geocode a single address. Used by the frontend address correction UI."""
     data = request.json or {}
@@ -606,6 +525,7 @@ def _validate_and_split_routes(solution_routes, time_matrix, dest_idx, dummy_idx
 
 
 @app.route('/api/optimize', methods=['POST'])
+@rate_limit(60)
 def optimize():
     data = request.json
     schools = data.get('schools', [])
@@ -1129,6 +1049,7 @@ def optimize():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/optimize_v2', methods=['POST'])
+@rate_limit(60)
 def optimize_v2():
     data = request.json
     cluster_threshold_minutes = int(data.get('cluster_threshold_minutes', 25))
@@ -2263,81 +2184,6 @@ def suggest_school_address():
     return jsonify({'suggestions': candidates[:5]}), 200
 
 
-@app.route('/api/ai_suggest', methods=['POST'])
-def ai_suggest():
-    """
-    Uses AI (or smart normalization) to clean the raw address,
-    then returns up to 5 Nominatim autocomplete suggestions for the cleaned address.
-    """
-    data = request.json or {}
-    address = data.get('address', '').strip()
-    if not address:
-        return jsonify({'suggestions': []}), 400
-
-    import requests as req
-    import nominatim_cache as _nc
-    
-    # Simple heuristic to clean the address (strips country/province like smart_geocode does)
-    clean_addr = re.sub(r',\s*(Italy|Italia)\s*$', '', address, flags=re.IGNORECASE).strip()
-    clean_addr = re.sub(r',\s*[A-Z]{2}\s*$', '', clean_addr).strip()
-    
-    query = clean_addr
-    if not query:
-        return jsonify({'suggestions': []})
-
-    cached = _nc.get(query, 5)
-    if cached:
-        results = cached
-    else:
-        try:
-            resp = req.get(
-                'https://nominatim.openstreetmap.org/search',
-                params={
-                    'q': query,
-                    'format': 'json',
-                    'countrycodes': 'it',
-                    'limit': 5,
-                    'viewbox': '10.4,45.6,12.2,46.95',
-                    'bounded': 0,
-                    'addressdetails': 1,
-                },
-                headers={'User-Agent': 'BusPlan/1.0 (bus route optimizer for Trentino schools)'},
-                timeout=5,
-            )
-            results = resp.json() if resp.status_code == 200 else []
-            if results:
-                _nc.store(query, 5, results)
-        except Exception as e:
-            print(f"[AI Suggest] Nominatim error: {e}")
-            results = []
-            
-    def _osm_type(r):
-        osm_class = r.get('class', '')
-        if osm_class == 'highway': return 'route'
-        if osm_class in ('amenity', 'building', 'shop', 'tourism'): return 'establishment'
-        return 'geocode'
-
-    suggestions = []
-    for r in results:
-        display = r.get('display_name', '')
-        parts = [p.strip() for p in display.split(',')]
-        main_text = ', '.join(parts[:2]) if len(parts) >= 2 else display
-        secondary_text = ', '.join(parts[2:]) if len(parts) > 2 else ''
-        suggestions.append({
-            'place_id': f"osm_{r.get('osm_type', 'node')}_{r.get('osm_id', '')}",
-            'description': display,
-            'structured_formatting': {
-                'main_text': main_text,
-                'secondary_text': secondary_text,
-            },
-            'types': [_osm_type(r)],
-            'lat': float(r['lat']),
-            'lon': float(r['lon']),
-        })
-        
-    return jsonify({'suggestions': suggestions})
-
-
 # Google Places API (New), used only when GOOGLE_PLACES_API_KEY is set (server-side only,
 # never sent to the browser). Autocomplete + details share a session token so Google
 # bills the pair as one session.
@@ -2409,6 +2255,7 @@ def _google_autocomplete(query, session):
 
 
 @app.route('/api/places/details', methods=['GET'])
+@rate_limit(60)
 def places_details():
     """Coordinates of a Google place picked from the suggestions."""
     place_id = request.args.get('place_id', '')
@@ -2442,6 +2289,7 @@ def places_details():
 
 
 @app.route('/api/places/autocomplete', methods=['GET'])
+@rate_limit(120)
 def places_autocomplete():
     """Address autocomplete: Google Places when configured, else (or on failure) Nominatim (OSM)."""
     query = request.args.get('q', '').strip()
@@ -2524,6 +2372,7 @@ RICHIESTA_TEMPLATE      = os.path.join(TEMPLATES_DIR, 'Richiesta servizioTIPO_no
 
 
 @app.route('/api/export_document', methods=['POST'])
+@rate_limit(30)
 def export_document():
     """
     Generate a Word document from a template and return it as a download.
@@ -2593,6 +2442,7 @@ def download_corrected_file(filename):
 
 
 @app.route('/api/evaluate_plan', methods=['POST'])
+@rate_limit(60)
 def evaluate_plan():
     data = request.json
     custom_routes = data.get('routes', [])
@@ -2795,7 +2645,9 @@ def get_config():
             'storageBucket':     os.environ.get('FIREBASE_STORAGE_BUCKET', ''),
             'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID', ''),
             'appId':             os.environ.get('FIREBASE_APP_ID', ''),
-        }
+        },
+        # reCAPTCHA Enterprise site key for Firebase App Check; empty = App Check off
+        'appCheckSiteKey': os.environ.get('FIREBASE_APPCHECK_SITE_KEY', ''),
     })
 
 
