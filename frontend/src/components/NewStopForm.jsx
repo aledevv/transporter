@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ExternalLink, X } from 'lucide-react';
 import { parseCoordinates, formatCoordinates } from '../utils/coordinates';
+import AddressAutocomplete from './AddressAutocomplete';
 
 export const STREET_HINT = 'Il nome che appare in grafica e nei documenti, scritto in breve';
 
@@ -57,6 +58,15 @@ export default function NewStopForm({ initial = {}, submitLabel = 'Aggiungi', bu
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" />
                 <span className="mt-1 block text-xs text-slate-400">{STREET_HINT}</span>
             </label>
+            <div>
+                <span className="mb-1 block text-xs font-semibold text-slate-600">Cerca il luogo <span className="font-normal text-slate-400">(riempie le coordinate)</span></span>
+                <AddressAutocomplete
+                    value={form.search ?? ''}
+                    onChange={v => setForm(f => ({ ...f, search: v }))}
+                    onSelect={({ lat, lon }) => setForm(f => ({ ...f, coords: formatCoordinates(lat, lon) }))}
+                    placeholder="es. Palazzetto dello sport Rovereto"
+                />
+            </div>
             <div>
                 <div className="mb-1 flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-600">Coordinate</span>

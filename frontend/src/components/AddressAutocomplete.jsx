@@ -113,7 +113,7 @@ const AddressAutocomplete = ({ value, onChange, onSelect, placeholder = 'Cerca i
             const finalSuggestions = [...(customSuggestion ? [customSuggestion] : []), ...local, ...raw];
             setSuggestions(finalSuggestions);
             setIsOpen(finalSuggestions.length > 0);
-        }, 250),
+        }, 300),
         []
     );
 

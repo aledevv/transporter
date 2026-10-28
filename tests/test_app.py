@@ -236,6 +236,12 @@ class TestResolvedStops:
 
 
 class TestPlacesGoogle:
+    @pytest.fixture(autouse=True)
+    def _counter_allows(self, monkeypatch):
+        import app as app_module
+        app_module._PLACES_CACHE.clear()
+        monkeypatch.setattr("places_usage.allow", lambda kind: True)
+
     def test_uses_google_when_key_is_set(self, app_client, monkeypatch):
         monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
         payload = {"suggestions": [{"placePrediction": {
@@ -272,3 +278,63 @@ class TestPlacesGoogle:
             body = app_client.get("/api/places/details?place_id=g_abc&session=s1").get_json()
         assert (body["lat"], body["lon"]) == (45.94, 11.02)
         assert get.call_args.kwargs["params"]["sessionToken"] == "s1"
+
+
+class TestPlacesSafety:
+    def test_monthly_cap_reached_uses_nominatim(self, app_client, monkeypatch):
+        import app as app_module
+        app_module._PLACES_CACHE.clear()
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        monkeypatch.setattr("places_usage.allow", lambda kind: False)
+        with patch("requests.post") as post, patch("requests.get") as get, patch("nominatim_cache.get", return_value=None), patch("nominatim_cache.store"):
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = []
+            body = app_client.get("/api/places/autocomplete?q=villa lag").get_json()
+        assert post.call_count == 0
+        assert body.get("source") != "google"
+
+    def test_repeated_query_is_served_from_cache(self, app_client, monkeypatch):
+        import app as app_module
+        app_module._PLACES_CACHE.clear()
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        monkeypatch.setattr("places_usage.allow", lambda kind: True)
+        with patch("requests.post") as post:
+            post.return_value.status_code = 200
+            post.return_value.json.return_value = {"suggestions": []}
+            app_client.get("/api/places/autocomplete?q=palazzetto")
+            app_client.get("/api/places/autocomplete?q=Palazzetto")
+        assert post.call_count == 1
+
+    def test_counter_unreachable_means_no_google(self, monkeypatch):
+        import places_usage
+        monkeypatch.setenv("FIREBASE_PROJECT_ID", "p")
+        monkeypatch.setenv("FIRESTORE_EMULATOR_HOST", "127.0.0.1:1")
+        assert places_usage.allow("autocomplete") is False
+
+    def test_counter_stops_at_the_monthly_cap(self, monkeypatch):
+        import places_usage
+        monkeypatch.setenv("FIREBASE_PROJECT_ID", "p")
+        monkeypatch.setenv("FIRESTORE_EMULATOR_HOST", "emu:8080")
+        monkeypatch.setitem(places_usage.LIMITS, "details", 2)
+        with patch("places_usage.requests.get") as get, patch("places_usage.requests.post") as post:
+            get.return_value.status_code = 200
+            get.return_value.json.return_value = {"fields": {"details": {"integerValue": "2"}}}
+            assert places_usage.allow("details") is False
+            get.return_value.json.return_value = {"fields": {"details": {"integerValue": "1"}}}
+            post.return_value.status_code = 200
+            assert places_usage.allow("details") is True
+            assert post.call_args.kwargs["json"]["writes"][0]["transform"]["fieldTransforms"][0]["increment"] == {"integerValue": "1"}
+
+    def test_upload_geocoding_never_calls_google(self, monkeypatch):
+        """Stops without coordinates are geocoded with Nominatim even when a Google key is set."""
+        import app as app_module
+        monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "test-key")
+        app_module.tasks["no-google"] = {"status": "processing"}
+        schools = [{"id": 0, "name": "IC Ala", "address": "Via Betta 10, Ala", "demand": 5}]
+        with patch("app.smart_geocode", return_value=(45.75, 11.0, True)) as geocode, \
+             patch("requests.post") as post, patch("requests.get") as get:
+            app_module.continue_file_task("no-google", schools, None, {})
+        assert geocode.call_count == 1
+        for call in post.call_args_list + get.call_args_list:
+            assert "googleapis.com" not in str(call)
+        assert app_module.tasks.pop("no-google")["status"] == "completed"

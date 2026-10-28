@@ -2323,10 +2323,34 @@ def ai_suggest():
 _PLACES_BIAS = {'rectangle': {'low': {'latitude': 45.6, 'longitude': 10.4}, 'high': {'latitude': 46.95, 'longitude': 12.2}}}
 
 
+def _places_key():
+    # GOOGLE_MAPS_API_KEY is the key already configured locally and on Cloud Run
+    return os.environ.get('GOOGLE_PLACES_API_KEY') or os.environ.get('GOOGLE_MAPS_API_KEY')
+
+
+# Recent Google predictions per query (in memory): repeated searches don't cost again
+_PLACES_CACHE = {}
+_PLACES_CACHE_MAX = 300
+_PLACES_CACHE_TTL = 3600
+
+
 def _google_autocomplete(query, session):
-    """Predictions from Google Places Autocomplete, or None when unavailable (no key, error, quota)."""
-    key = os.environ.get('GOOGLE_PLACES_API_KEY')
+    """
+    Predictions from Google Places Autocomplete, or None when Google must not or
+    can't be used: no key, monthly cap reached, counter unreachable, error, 429,
+    timeout. The caller then falls back to Nominatim.
+    Only the typed destination / new-stop search reaches here; geocoding of
+    uploads, imports and recalculations never uses Google.
+    """
+    key = _places_key()
     if not key:
+        return None
+    cache_key = query.lower()
+    hit = _PLACES_CACHE.get(cache_key)
+    if hit and hit[0] > time.time():
+        return hit[1]
+    import places_usage
+    if not places_usage.allow('autocomplete'):
         return None
     import requests as req
     body = {'input': query, 'languageCode': 'it', 'includedRegionCodes': ['it'], 'locationBias': _PLACES_BIAS}
@@ -2354,6 +2378,9 @@ def _google_autocomplete(query, session):
                 'types': ['establishment' if 'establishment' in p.get('types', []) else 'geocode'],
                 'source': 'google',
             })
+        if len(_PLACES_CACHE) >= _PLACES_CACHE_MAX:
+            _PLACES_CACHE.pop(next(iter(_PLACES_CACHE)))
+        _PLACES_CACHE[cache_key] = (time.time() + _PLACES_CACHE_TTL, out)
         return out
     except Exception as e:
         print(f"[Autocomplete] Google error: {e}")
@@ -2365,9 +2392,12 @@ def places_details():
     """Coordinates of a Google place picked from the suggestions."""
     place_id = request.args.get('place_id', '')
     session = request.args.get('session', '')
-    key = os.environ.get('GOOGLE_PLACES_API_KEY')
+    key = _places_key()
     if not key or not place_id.startswith('g_'):
         return jsonify({'error': 'Dettagli non disponibili'}), 400
+    import places_usage
+    if not places_usage.allow('details'):
+        return jsonify({'error': 'Limite mensile raggiunto'}), 429
     import requests as req
     params = {'languageCode': 'it'}
     if session:
