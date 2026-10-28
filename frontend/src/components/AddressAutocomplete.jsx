@@ -4,35 +4,7 @@ import { MapPin, Loader2, Navigation, Building2, MapPinned, Database } from 'luc
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import API_BASE_URL from '../config';
-import { normalizeForCompare } from '../utils/matchInstitutes';
-
-// Places already in the database matching what's typed (all words, in name or street)
-function matchLocalPlaces(query, places, max = 4) {
-    const words = normalizeForCompare(query).split(' ').filter(w => w.length >= 2);
-    if (!words.length || !places?.length) return [];
-    return places
-        .filter(p => p.lat != null && p.lon != null)
-        .map(p => {
-            const name = normalizeForCompare(p.name);
-            const text = `${name} ${normalizeForCompare(p.description || '')} ${normalizeForCompare(p.address || '')}`;
-            if (!words.every(w => text.includes(w))) return null;
-            // Name starting with what's typed, then destinations, first
-            const score = (name.startsWith(words[0]) ? 2 : 0) + (p.type === 'destinazione' ? 1 : 0);
-            return { p, score };
-        })
-        .filter(Boolean)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, max)
-        .map(({ p }) => ({
-            place_id: `db_${p.id}`,
-            description: p.name,
-            structured_formatting: { main_text: p.name, secondary_text: p.description || p.address || '' },
-            types: ['database'],
-            source: 'database',
-            lat: Number(p.lat),
-            lon: Number(p.lon),
-        }));
-}
+import { matchLocalPlaces } from '../utils/placeMatch';
 
 const newSessionToken = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
 

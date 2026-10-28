@@ -21,7 +21,7 @@ const ROUTE_COLORS = [
 ];
 
 // ─── Dashboard ───
-const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore, openEditorTrigger = 0, allDbInstitutes = [] }) => {
+const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColorMap = {}, mapsKey = '', currentTripId, onTripSaved, onTripRenamed, onTripUpdated, tripToRestore, openEditorTrigger = 0, allDbInstitutes = [], destinationPlaces = [] }) => {
     const [destination, setDestination] = useState('');
     const [destCoords, setDestCoords] = useState(null);
     const [capacity, setCapacity] = useState(56);
@@ -432,7 +432,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Indirizzo Destinazione</label>
                                 <AddressAutocomplete
                                     value={destination}
-                                    localPlaces={allDbInstitutes}
+                                    localPlaces={destinationPlaces}
                                     onChange={setDestination}
                                     onSelect={(data) => { setDestination(data.address); setDestCoords({ lat: data.lat, lon: data.lon }); }}
                                 />

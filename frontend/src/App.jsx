@@ -8,6 +8,7 @@ import SheetReviewModal from './components/SheetReviewModal';
 import SheetReviewCallout, { ReadyCard } from './components/SheetReviewCallout';
 import { aliasToLearn } from './utils/matchInstitutes';
 import { analyzeTripRows, buildTripPayload } from './utils/sheetIssues';
+import { destinationPlaces } from './utils/placeMatch';
 import TripSidebar from './components/TripSidebar';
 import ResumeWorkBanner from './components/ResumeWorkBanner';
 import FixtureTool from './components/FixtureTool';
@@ -108,6 +109,9 @@ function App() {
         setProcessingError(null);
         setReview({ fileName, columns, rows, saved: null, processed: false, open: true });
     };
+
+    // Destination dropdown: saved trips' destinations and non-school database places
+    const destinationSuggestions = useMemo(() => destinationPlaces(allDbInstitutes, trips), [allDbInstitutes, trips]);
 
     const reviewAnalysis = useMemo(
         () => (review ? analyzeTripRows(review.rows, review.columns, allDbInstitutes) : null),
@@ -699,6 +703,7 @@ function App() {
                                 onTripUpdated={handleTripUpdated}
                                 tripToRestore={tripToRestore}
                                 allDbInstitutes={allDbInstitutes}
+                                destinationPlaces={destinationSuggestions}
                             />
                         </section>
                     )}
