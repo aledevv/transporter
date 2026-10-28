@@ -23,11 +23,13 @@ export function findColumn(columns, names) {
 // Same words the backend used to mark stops that don't need the bus
 const AUTONOMOUS_RE = /\b(autonomo|autonomi|autonomia|per conto loro|mezzi propri|con genitori|in proprio|no pullman|senza pullman)\b/i;
 
+// Trip sheets keep the format read by data_loader.py: Nome / Indirizzo /
+// Partecipanti (+ optional Istituto), with the same header aliases
 export const TRIP_COLUMNS = {
-    name: ['Nome', 'Nome Scuola', 'Istituto Scolastico', 'Nome fermata', 'Fermata'],
-    address: ['Indirizzo', 'Indirizzi', 'Indirizzo di ritiro', 'Via'],
-    pax: ['Partecipanti', 'Passeggeri', 'Num Partecipanti', 'Pax'],
-    institute: ['Istituto'],
+    name: ['Nome', 'Nome Scuola', 'Istituto Scolastico'],
+    address: ['Indirizzo', 'Indirizzi', 'Indirizzo di ritiro'],
+    pax: ['Partecipanti', 'Passeggeri', 'Num Partecipanti'],
+    institute: ['Istituto', 'Istituzione'],
 };
 
 // Participants as the backend read them: digits only, so "18 alunni" -> 18
@@ -48,7 +50,7 @@ export function analyzeTripRows(rows, columns, institutes) {
     const nameCol = findColumn(columns, TRIP_COLUMNS.name);
     const addrCol = findColumn(columns, TRIP_COLUMNS.address);
     const paxCol = findColumn(columns, TRIP_COLUMNS.pax);
-    const instCol = columns.find(c => normalizeForCompare(c) === 'istituto' && c !== nameCol) || null;
+    const instCol = [findColumn(columns.filter(c => c !== nameCol), TRIP_COLUMNS.institute)].find(Boolean) || null;
     const issues = [];
     const resolutions = {};
     const candidatesByRow = {};
@@ -58,12 +60,20 @@ export function analyzeTripRows(rows, columns, institutes) {
         return { issues: [], resolutions, candidatesByRow, nameCol, addrCol, paxCol, instCol, missingColumns: missing };
     }
 
+    // Like data_loader.py: the table ends at the first row with no name, address or participants
+    const end = rows.findIndex(r => [nameCol, addrCol, paxCol].every(c => String(r[c] ?? '').trim() === ''));
+    const tableRows = end === -1 ? rows.length : end;
+
     rows.forEach((r, row) => {
+        if (row >= tableRows) {
+            resolutions[row] = { type: 'skip' };
+            return;
+        }
         const name = String(r[nameCol] ?? '').trim();
         const address = String(r[addrCol] ?? '').trim();
 
-        if (!name && !address) {
-            issues.push({ row, col: nameCol, severity: 'error', message: 'Riga senza nome né via' });
+        if (!name) {
+            issues.push({ row, col: nameCol, severity: 'error', message: 'Nome mancante' });
             return;
         }
         if (AUTONOMOUS_RE.test(`${name} ${address}`)) {
@@ -95,7 +105,9 @@ export function analyzeTripRows(rows, columns, institutes) {
         resolutions[row] = { type: 'db', entry: best };
     });
 
-    return { issues, resolutions, candidatesByRow, nameCol, addrCol, paxCol, instCol };
+    // The review shows only the columns the planner reads (the file may carry contacts and notes)
+    const shownColumns = [nameCol, addrCol, paxCol, instCol].filter(Boolean);
+    return { issues, resolutions, candidatesByRow, nameCol, addrCol, paxCol, instCol, shownColumns, tableRows };
 }
 
 /**

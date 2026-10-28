@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-    X, Database, Plus, Search, Check, AlertTriangle, ExternalLink, Trash2,
+    X, Database, Plus, Search, Check, AlertTriangle, Trash2,
     FileSpreadsheet, MapPin, Undo2,
 } from 'lucide-react';
 import { findCandidates, normalizeForCompare } from '../utils/matchInstitutes';
-import { parseCoordinates, formatCoordinates } from '../utils/coordinates';
+import NewStopForm from './NewStopForm';
+import { formatCoordinates } from '../utils/coordinates';
 
 // Spreadsheet-style review of an uploaded Excel. Problem cells are coloured and
 // carry a "cursor chip" (like the name tags of collaborators in a shared doc)
@@ -61,43 +62,12 @@ function scoreColor(score) {
     return 'bg-slate-300';
 }
 
-function googleMapsUrl(query) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-
-function CoordinateField({ value, onChange }) {
-    const parsed = value.trim() ? parseCoordinates(value) : null;
-    return (
-        <div>
-            <input
-                value={value}
-                onChange={e => onChange(e.target.value)}
-                placeholder="46.0697, 11.1211"
-                className={`w-full rounded-lg border px-3 py-2 font-mono text-sm outline-none transition-colors ${
-                    !parsed ? 'border-slate-200 focus:border-blue-400'
-                        : parsed.ok ? 'border-emerald-300 focus:border-emerald-500' : 'border-rose-300 focus:border-rose-500'
-                }`}
-            />
-            <div className="mt-1 min-h-[18px] text-xs">
-                {!parsed && <span className="text-slate-400">Incolla le coordinate copiate da Google Maps</span>}
-                {parsed && parsed.ok && (
-                    <span className="inline-flex items-center gap-1 text-emerald-700">
-                        <Check className="h-3 w-3" /> {formatCoordinates(parsed.lat, parsed.lon)}
-                        {parsed.warning && <span className="text-amber-600"> · {parsed.warning}, corrette</span>}
-                    </span>
-                )}
-                {parsed && !parsed.ok && <span className="text-rose-600">{parsed.error}</span>}
-            </div>
-        </div>
-    );
-}
-
 function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, rowAddress, institutes, initialCandidates, current, onResolve, onClose }) {
     const rowName = String(row[nameCol] ?? '').trim();
     const rowAddr = rowAddress ? rowAddress(row) : String(row[addrCol] ?? '').trim();
     const [tab, setTab] = useState(mode === 'dataset' ? 'new' : 'db');
     const [query, setQuery] = useState('');
-    const [form, setForm] = useState({
+    const [form] = useState({
         name: current?.name ?? rowName,
         address: current?.address ?? rowAddr,
         coords: current?.lat != null ? formatCoordinates(current.lat, current.lon)
@@ -112,8 +82,6 @@ function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, rowAddress
             .slice(0, 20);
     }, [query, institutes, initialCandidates, rowName, rowAddr]);
 
-    const parsed = parseCoordinates(form.coords);
-    const canAdd = form.name.trim() && form.address.trim() && parsed.ok;
     const selectedId = current?.type === 'db' ? current.entry?.id : null;
 
     return (
@@ -209,33 +177,11 @@ function SidePanel({ mode, row, rowIndex, nameCol, addrCol, coordCol, rowAddress
                                 La fermata viene aggiunta al database e usata per questo viaggio. Nome e via arrivano dall'Excel: correggili se serve.
                             </p>
                         )}
-                        <label className="block">
-                            <span className="mb-1 block text-xs font-semibold text-slate-600">Nome fermata</span>
-                            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" />
-                        </label>
-                        <label className="block">
-                            <span className="mb-1 block text-xs font-semibold text-slate-600">Via <span className="font-normal text-slate-400">(come apparirà nei documenti)</span></span>
-                            <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" />
-                        </label>
-                        <div>
-                            <div className="mb-1 flex items-center justify-between">
-                                <span className="text-xs font-semibold text-slate-600">Coordinate</span>
-                                <a href={googleMapsUrl(`${form.address} ${form.name}`)} target="_blank" rel="noreferrer"
-                                    className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
-                                    Cerca su Google Maps <ExternalLink className="h-3 w-3" />
-                                </a>
-                            </div>
-                            <CoordinateField value={form.coords} onChange={v => setForm(f => ({ ...f, coords: v }))} />
-                        </div>
-                        <button
-                            disabled={!canAdd}
-                            onClick={() => onResolve({ type: mode === 'trip' ? 'new' : 'edit', name: form.name.trim(), address: form.address.trim(), lat: parsed.lat, lon: parsed.lon })}
-                            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
-                        >
-                            {mode === 'trip' ? 'Aggiungi al database e usa' : 'Applica correzione'}
-                        </button>
+                        <NewStopForm
+                            initial={form}
+                            submitLabel={mode === 'trip' ? 'Aggiungi al database e usa' : 'Applica correzione'}
+                            onSubmit={stop => onResolve({ type: mode === 'trip' ? 'new' : 'edit', ...stop })}
+                        />
                     </div>
                 )}
             </div>

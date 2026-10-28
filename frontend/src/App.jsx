@@ -504,8 +504,8 @@ function App() {
                     mode="trip"
                     title="Controlla le fermate del viaggio"
                     fileName={review.fileName}
-                    columns={review.columns}
-                    rows={review.rows}
+                    columns={reviewAnalysis.shownColumns || review.columns}
+                    rows={review.rows.slice(0, reviewAnalysis.tableRows ?? review.rows.length)}
                     issues={reviewAnalysis.issues}
                     initialResolutions={reviewAnalysis.resolutions}
                     candidatesByRow={reviewAnalysis.candidatesByRow}
@@ -575,7 +575,7 @@ function App() {
                 </div>
 
                 {activeTab === 'institutes' && (
-                    <section className="flex-1 min-h-0 bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+                    <section className="h-[calc(100vh-10rem)] min-h-[480px] flex-shrink-0 bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800 flex-shrink-0">Database</h2>
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <InstituteList db={db} />
@@ -636,7 +636,7 @@ function App() {
                         {review && !review.open && (
                             <SheetReviewCallout
                                 fileName={review.fileName}
-                                rowCount={review.rows.length}
+                                rowCount={reviewAnalysis?.tableRows ?? review.rows.length}
                                 openErrors={reviewCounts.errors}
                                 openWarnings={reviewCounts.warnings}
                                 processed={review.processed}
@@ -780,29 +780,30 @@ function App() {
                         </section>
                     )}
                 </div>}
+
+                {/* Footer: last thing on the page, scrolls with the content */}
+                <footer className="mt-10 border-t border-gray-200 flex-shrink-0">
+                    <div className="py-6 flex flex-col items-center gap-1 text-gray-500">
+                        <div>BusPlan — Pianificazione trasporti</div>
+                        {version && <div className="text-[10px] text-gray-400 font-mono">{version}</div>}
+                        <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 text-[11px] text-gray-400">
+                            <span>Sviluppato da</span>
+                            <a
+                                href="https://aledevv.github.io"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                            >
+                                Ale Dev
+                            </a>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5 text-blue-600">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                            </svg>
+                        </div>
+                    </div>
+                </footer>
             </main>
 
-            {/* Footer */}
-            <footer className="bg-white border-t border-gray-200 mt-auto">
-                <div className="max-w-7xl mx-auto py-6 px-4 flex flex-col items-center gap-1 text-gray-500">
-                    <div>BusPlan — Pianificazione trasporti</div>
-                    {version && <div className="text-[10px] text-gray-400 font-mono">{version}</div>}
-                    <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 text-[11px] text-gray-400">
-                        <span>Sviluppato da</span>
-                        <a
-                            href="https://aledevv.github.io"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                        >
-                            Ale Dev
-                        </a>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5 text-blue-600">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

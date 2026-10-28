@@ -185,11 +185,18 @@ class TestReadSheet:
         assert resp.status_code == 200
         body = resp.get_json()
         assert body["columns"] == ["Nome", "Indirizzo", "Partecipanti"]
-        # Fully empty rows are dropped, empty cells become "", whole numbers stay ints
+        # Trailing empty rows are dropped, empty cells become "", whole numbers stay ints
         assert body["rows"] == [
             {"Nome": "IC Ala", "Indirizzo": "Via Betta 10", "Partecipanti": 18},
             {"Nome": "IC Cembra", "Indirizzo": "", "Partecipanti": ""},
         ]
+
+    def test_keeps_empty_rows_inside_the_table(self, app_client):
+        import pandas as pd
+        df = pd.DataFrame({"Nome": ["IC Ala", None, "Totale"], "Partecipanti": [18, None, 18]})
+        data = {"file": (_xlsx(df), "viaggio.xlsx")}
+        body = app_client.post("/api/sheet/read", data=data, content_type="multipart/form-data").get_json()
+        assert [r["Nome"] for r in body["rows"]] == ["IC Ala", "", "Totale"]
 
     def test_rejects_non_xlsx(self, app_client):
         data = {"file": (io.BytesIO(b"a,b"), "dati.csv")}

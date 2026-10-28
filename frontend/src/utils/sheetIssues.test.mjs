@@ -75,3 +75,22 @@ test('a separate town column is joined to the street', () => {
     assert.equal(parsed[0].address, 'Rovereto, Corso Bettini 67');
     assert.equal(parsed[0].lat, 45.8936);
 });
+
+test('trip sheets read the old headers and aliases, show only planner columns, stop at the first blank row', () => {
+    const columns = ['Informazioni cronologiche', 'Indirizzo email', 'Nome Scuola', 'Indirizzo di ritiro', 'Passeggeri', 'Istituzione', 'N. telefono'];
+    const rows = [
+        { 'Nome Scuola': 'IC Ala', 'Indirizzo email': 'x@y.it', 'Indirizzo di ritiro': 'Ala (TN) - Via Betta, 10', Passeggeri: 18, Istituzione: 'IC Ala', 'N. telefono': '0464' },
+        { 'Nome Scuola': '', 'Indirizzo di ritiro': '', Passeggeri: '' },
+        { 'Nome Scuola': 'Totale', 'Indirizzo di ritiro': '', Passeggeri: 18 },
+    ];
+    const a = analyzeTripRows(rows, columns, institutes);
+    assert.equal(a.nameCol, 'Nome Scuola');
+    assert.equal(a.addrCol, 'Indirizzo di ritiro');
+    assert.equal(a.paxCol, 'Passeggeri');
+    assert.equal(a.instCol, 'Istituzione');
+    assert.deepEqual(a.shownColumns, ['Nome Scuola', 'Indirizzo di ritiro', 'Passeggeri', 'Istituzione']);
+    assert.equal(a.resolutions[0].entry.id, 'ala');
+    assert.equal(a.tableRows, 1);
+    assert.equal(a.resolutions[2].type, 'skip');
+    assert.ok(!a.issues.some(i => i.row >= 1));
+});

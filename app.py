@@ -408,7 +408,10 @@ def read_sheet():
 
     df.columns = [str(c).strip() for c in df.columns]
     df = df.loc[:, [c for c in df.columns if not c.startswith('Unnamed')]]
-    df = df.dropna(how='all')
+    # Trailing empty rows go; empty rows inside the table stay, because a trip
+    # sheet ends at its first empty row (as data_loader.py reads it)
+    filled = df.notna().any(axis=1)
+    df = df.loc[: filled[filled].index.max()] if filled.any() else df.iloc[0:0]
     if len(df) > 2000:
         return jsonify({'error': 'Il foglio ha troppe righe (massimo 2000)'}), 400
 
