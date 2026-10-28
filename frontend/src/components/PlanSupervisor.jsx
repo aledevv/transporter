@@ -638,7 +638,7 @@ export default function PlanSupervisor({
                                                 )}
                                                 {route.outbound?.distance > 0 && (
                                                     <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">
-                                                        {(route.outbound.distance / 1000).toFixed(1)} km
+                                                        {route.outbound.distance_estimated ? '~' : ''}{(route.outbound.distance / 1000).toFixed(1)} km andata · {(route.outbound.distance / 500).toFixed(1)} km A/R
                                                     </span>
                                                 )}
                                             </div>

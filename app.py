@@ -7,7 +7,7 @@ import uuid
 import copy
 import json
 from data_loader import DataLoader
-from geocoder import GeocodingService
+from geocoder import GeocodingService, estimate_road_m, estimate_drive_s
 from optimizer import VRPSolver
 from address_corrector import AddressCorrector
 import gemini_agent as _gemini_agent
@@ -37,6 +37,14 @@ for _f in os.listdir(UPLOAD_FOLDER):
         pass
 
 geocoder = GeocodingService()
+
+# Bus timing on top of OSRM car times, fitted on the departure times of 218
+# hand-made plans in tests/realSuite: buses keep car speed (fit slope 1.03) but
+# lose ~5 min per pickup (boarding, manoeuvres) and arrive ~10 min before the
+# meeting time. With these, the planned trip length is off by 0.6 min on
+# average (it was 16 min too short with 3 min per stop and no margin).
+BUS_STOP_DWELL_MIN = 5
+ARRIVAL_MARGIN_MIN = 10
 
 def format_time_from_minutes(total_minutes):
     """Format minutes to HH:MM, handling times past midnight."""
@@ -73,7 +81,7 @@ def calculate_return_times_for_routes(formatted_routes, fine_manifestazione: str
     except Exception:
         return  # Invalid format — skip silently
 
-    DWELL = 3  # minutes per stop (same as STOP_DWELL_TIME_MIN in optimize())
+    DWELL = BUS_STOP_DWELL_MIN
     base_minutes = base_h * 60 + base_m
 
     for route in formatted_routes:
@@ -840,7 +848,7 @@ def optimize():
         except:
             start_hour, start_min = 8, 0
         AVERAGE_SPEED_KMH = 30  # Urban average speed
-        STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
+        STOP_DWELL_TIME_MIN = BUS_STOP_DWELL_MIN
         
         sorted_routes = sorted(solution['routes'], key=lambda x: x['vehicle_id'])
         
@@ -924,14 +932,14 @@ def optimize():
             
             stops_data = expanded_stops
             
-            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
+            # Pre-compute estimated road distances (fallback if OSRM routing fails)
             pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
             seg_distances_m = []
             if pickup_stops:
                 for i, stop in enumerate(pickup_stops):
                     ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
                     seg_distances_m.append(
-                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
+                        estimate_road_m(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
                     )
 
             # Fetch geometry for Outbound (includes real road leg distances + durations)
@@ -966,7 +974,7 @@ def optimize():
                         if total_drive_min:
                             seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
                         else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                            seg_drive_min = estimate_drive_s(seg_dist_m) / 60
 
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
@@ -983,7 +991,8 @@ def optimize():
                 'outbound': {
                     'stops': stops_data,
                     'geometry': outbound_geometry,
-                    'distance': outbound_dist
+                    'distance': outbound_dist,
+                    'distance_estimated': geo_data is None,
                 }
             })
 
@@ -1041,9 +1050,9 @@ def optimize():
                 target_time_str = data.get('start_time', '08:00')
                 try:
                     th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
+                    target_arrival_minutes = th * 60 + tm - ARRIVAL_MARGIN_MIN
                 except:
-                    target_arrival_minutes = 8 * 60  # Default 08:00
+                    target_arrival_minutes = 8 * 60 - ARRIVAL_MARGIN_MIN  # Default 08:00
                 
                 # Recalculate departure times to synchronize arrivals to target time
                 for route in formatted_routes:
@@ -1118,6 +1127,9 @@ def optimize():
                 'total_passengers': solution['total_load'],
                 'outbound_distance': total_outbound,
                 'total_distance': total_outbound,
+                'round_trip_distance': total_outbound * 2,
+                'distance_estimated': any(r['outbound'].get('distance_estimated') for r in formatted_routes),
+                'arrival_margin_min': ARRIVAL_MARGIN_MIN if time_mode == 'arrival' else 0,
                 'arrival_window': arrival_window,
                 'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
             }
@@ -1336,7 +1348,7 @@ def optimize_v2():
         except:
             start_hour, start_min = 8, 0
         AVERAGE_SPEED_KMH = 30  # Urban average speed
-        STOP_DWELL_TIME_MIN = 3  # Minutes per pickup stop
+        STOP_DWELL_TIME_MIN = BUS_STOP_DWELL_MIN
 
         sorted_routes = sorted(solution['routes'], key=lambda x: x['vehicle_id'])
 
@@ -1420,14 +1432,14 @@ def optimize_v2():
 
             stops_data = expanded_stops
 
-            # Pre-compute haversine segment distances (needed for time estimates and dist fallback)
+            # Pre-compute estimated road distances (fallback if OSRM routing fails)
             pickup_stops = [s for s in stops_data if s['type'] == 'pickup']
             seg_distances_m = []
             if pickup_stops:
                 for i, stop in enumerate(pickup_stops):
                     ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
                     seg_distances_m.append(
-                        geocoder.haversine_distance(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
+                        estimate_road_m(stop['lat'], stop['lon'], ns['lat'], ns['lon'])
                     )
 
             # Fetch geometry for Outbound (includes real road leg distances + durations)
@@ -1462,7 +1474,7 @@ def optimize_v2():
                         if total_drive_min:
                             seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
                         else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                            seg_drive_min = estimate_drive_s(seg_dist_m) / 60
 
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
@@ -1479,7 +1491,8 @@ def optimize_v2():
                 'outbound': {
                     'stops': stops_data,
                     'geometry': outbound_geometry,
-                    'distance': outbound_dist
+                    'distance': outbound_dist,
+                    'distance_estimated': geo_data is None,
                 }
             })
 
@@ -1537,9 +1550,9 @@ def optimize_v2():
                 target_time_str = data.get('start_time', '08:00')
                 try:
                     th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
+                    target_arrival_minutes = th * 60 + tm - ARRIVAL_MARGIN_MIN
                 except:
-                    target_arrival_minutes = 8 * 60  # Default 08:00
+                    target_arrival_minutes = 8 * 60 - ARRIVAL_MARGIN_MIN  # Default 08:00
 
                 # Recalculate departure times to synchronize arrivals to target time
                 for route in formatted_routes:
@@ -1614,6 +1627,9 @@ def optimize_v2():
                 'total_passengers': solution['total_load'],
                 'outbound_distance': total_outbound,
                 'total_distance': total_outbound,
+                'round_trip_distance': total_outbound * 2,
+                'distance_estimated': any(r['outbound'].get('distance_estimated') for r in formatted_routes),
+                'arrival_margin_min': ARRIVAL_MARGIN_MIN if time_mode == 'arrival' else 0,
                 'arrival_window': arrival_window,
                 'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
             }
@@ -2482,7 +2498,7 @@ def evaluate_plan():
         except:
             start_hour, start_min = 8, 0
         AVERAGE_SPEED_KMH = 30
-        STOP_DWELL_TIME_MIN = 3
+        STOP_DWELL_TIME_MIN = BUS_STOP_DWELL_MIN
         
         for idx, custom_route in enumerate(custom_routes):
             current_vehicle_id = custom_route.get('vehicle_id', idx)
@@ -2497,7 +2513,7 @@ def evaluate_plan():
                 for i, stop in enumerate(pickup_stops):
                     ns = pickup_stops[i + 1] if i < len(pickup_stops) - 1 else {'lat': dest_lat, 'lon': dest_lon}
                     seg_distances_m.append(
-                        geocoder.haversine_distance(float(stop.get('lat', 0)), float(stop.get('lon', 0)), float(ns.get('lat', dest_lat)), float(ns.get('lon', dest_lon)))
+                        estimate_road_m(float(stop.get('lat', 0)), float(stop.get('lon', 0)), float(ns.get('lat', dest_lat)), float(ns.get('lon', dest_lon)))
                     )
             
             geo_data = geocoder.get_route_geometry(stops_data)
@@ -2525,7 +2541,7 @@ def evaluate_plan():
                         if total_drive_min:
                             seg_drive_min = total_drive_min * (seg_dist_m / total_haversine_m)
                         else:
-                            seg_drive_min = (seg_dist_m / 1000 / AVERAGE_SPEED_KMH) * 60
+                            seg_drive_min = estimate_drive_s(seg_dist_m) / 60
 
                     stop['dist_to_next_km'] = round(seg_dist_m / 1000, 2)
                     stop['time_to_next_min'] = round(seg_drive_min)
@@ -2542,7 +2558,8 @@ def evaluate_plan():
                 'outbound': {
                     'stops': stops_data,
                     'geometry': outbound_geometry,
-                    'distance': outbound_dist
+                    'distance': outbound_dist,
+                    'distance_estimated': geo_data is None,
                 }
             })
             
@@ -2585,9 +2602,9 @@ def evaluate_plan():
                 target_time_str = data.get('start_time', '08:00')
                 try:
                     th, tm = map(int, target_time_str.split(':'))
-                    target_arrival_minutes = th * 60 + tm
+                    target_arrival_minutes = th * 60 + tm - ARRIVAL_MARGIN_MIN
                 except:
-                    target_arrival_minutes = 8 * 60
+                    target_arrival_minutes = 8 * 60 - ARRIVAL_MARGIN_MIN
                 
                 for route in formatted_routes:
                     stops = route['outbound']['stops']
@@ -2645,6 +2662,9 @@ def evaluate_plan():
                 'total_passengers': total_passengers,
                 'outbound_distance': total_outbound,
                 'total_distance': total_outbound,
+                'round_trip_distance': total_outbound * 2,
+                'distance_estimated': any(r['outbound'].get('distance_estimated') for r in formatted_routes),
+                'arrival_margin_min': ARRIVAL_MARGIN_MIN if time_mode == 'arrival' else 0,
                 'arrival_window': arrival_window,
                 'fine_manifestazione': fine_manifestazione if (calculate_return and fine_manifestazione) else None,
             }

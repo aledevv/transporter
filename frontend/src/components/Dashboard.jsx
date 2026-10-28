@@ -544,6 +544,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                 </div>
                                 <span className="text-sm font-bold text-green-600">{(results.stats.total_distance / 1000 * 2).toFixed(1)} km</span>
                             </div>
+                            {results.stats.distance_estimated && (
+                                <div className="text-[11px] text-amber-600">
+                                    Alcuni km sono stimati in linea d&apos;aria (servizio strade non raggiungibile): ricalcola il piano.
+                                </div>
+                            )}
                         </div>
 
                         {/* Arrival window */}
@@ -652,8 +657,11 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                             </div>
                                             {/* Row 2: stats + controls */}
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                                                    <MapPin className="w-3 h-3" />{distKm.toFixed(1)} km
+                                                <span
+                                                    className="flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"
+                                                    title={activeData.distance_estimated ? 'Km stimati: il servizio di calcolo strade non ha risposto' : undefined}
+                                                >
+                                                    <MapPin className="w-3 h-3" />{activeData.distance_estimated ? '~' : ''}{distKm.toFixed(1)} km andata · {(distKm * 2).toFixed(1)} km A/R
                                                 </span>
                                                 {tripDurationMin != null && (
                                                     <span className="flex items-center gap-1 text-[11px] text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
@@ -687,7 +695,7 @@ const Dashboard = ({ schools, setSchools, startInEditMode = false, instituteColo
                                                                 <div className="ml-3 flex items-center justify-between bg-green-50 rounded-lg px-3 py-2 border border-green-100">
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="text-sm font-semibold text-green-800">Arrivo a destinazione</span>
-                                                                        <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">{distKm.toFixed(1)} km</span>
+                                                                        <span className="text-[11px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full font-medium">{distKm.toFixed(1)} km andata</span>
                                                                     </div>
                                                                     <span className="text-sm font-bold text-green-700 font-mono tabular-nums">
                                                                         {shiftTime(stop.arrival_time, totalShiftForBus + advance)}
