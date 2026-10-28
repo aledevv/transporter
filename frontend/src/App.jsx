@@ -5,7 +5,7 @@ import { initFirebase } from './firebase';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import SheetReviewModal from './components/SheetReviewModal';
-import SheetReviewCallout from './components/SheetReviewCallout';
+import SheetReviewCallout, { ReadyCard } from './components/SheetReviewCallout';
 import { aliasToLearn } from './utils/matchInstitutes';
 import { analyzeTripRows, buildTripPayload } from './utils/sheetIssues';
 import TripSidebar from './components/TripSidebar';
@@ -64,7 +64,8 @@ function App() {
     const [inputMode, setInputMode] = useState('excel'); // 'excel' | 'database'
     const [message, setMessage] = useState('');
     const [resetKey, setResetKey] = useState(0);
-    const [loadingState, setLoadingState] = useState({ active: false, progress: 0, message: '' }); // Global loading state
+    const [loadingState, setGlobalLoading] = useState({ active: false, progress: 0, message: '' }); // Global loading state
+    const setLoadingState = setGlobalLoading;
     const [processingError, setProcessingError] = useState(null); // Error message string | null
     const [version, setVersion] = useState('');
     // null = not yet fetched (Map must not render until this is set)
@@ -130,9 +131,10 @@ function App() {
     }, [reviewAnalysis, review?.saved]);
 
     const handleReviewConfirm = async ({ resolutions, userResolutions, edits }) => {
-        setReview(r => ({ ...r, open: false, processed: true, saved: { resolutions: userResolutions, edits } }));
+        setReview(r => ({ ...r, open: false, processed: true, processing: true, saved: { resolutions: userResolutions, edits } }));
         const { rawSchools, resolutions: backendResolutions, newStops } = buildTripPayload(review.rows, reviewAnalysis, resolutions, edits);
         if (rawSchools.length === 0) {
+            setReview(r => ({ ...r, processing: false }));
             setProcessingError('Nessuna fermata da pianificare: sono state escluse tutte.');
             return;
         }
@@ -169,8 +171,13 @@ function App() {
         await continueProcessing(null, backendResolutions, '/api/start-processing', {
             raw_schools: rawSchools,
             resolutions: backendResolutions,
-        }, { keepSettings: review.processed });
+        }, { keepSettings: review.processed, silent: true });
     };
+
+    // The review card stops showing "in preparazione" when processing ends, either way
+    useEffect(() => {
+        if (processingError) setReview(r => (r?.processing ? { ...r, processing: false } : r));
+    }, [processingError]);
 
     useEffect(() => {
         fetch('/version.txt')
@@ -271,7 +278,8 @@ function App() {
     const handleUploadComplete = async ({ result: data, keepSettings = false }) => {
         setSchools(data);
         setResumeDismissed(true);
-        setMessage('File caricato con successo! Procedi alla configurazione.');
+        setReview(r => (r?.processing ? { ...r, processing: false } : r));
+        setMessage('Fermate pronte: ora scegli destinazione e orari.');
         if (db) {
             try {
                 const totalPax = data.reduce((s, sc) => s + (parseInt(sc.demand) || 0), 0);
@@ -299,7 +307,9 @@ function App() {
         }
     };
 
-    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null, { keepSettings = false } = {}) => {
+    // silent: no full-screen overlay (after the review window, which shows the work in its card)
+    const continueProcessing = async (taskId, resolutions, endpoint = '/api/continue-processing', body = null, { keepSettings = false, silent = false } = {}) => {
+        const setLoadingState = silent ? () => {} : setGlobalLoading;
         setLoadingState({ active: true, progress: 20, message: 'Geocoding...' });
         try {
             const requestBody = body ?? { task_id: taskId, resolutions };
@@ -419,7 +429,7 @@ function App() {
     const handleSchoolsFromDB = async (schoolsFromDB) => {
         setSchools(schoolsFromDB);
         setResumeDismissed(true);
-        setMessage('Lista fermate caricata dal database!');
+        setMessage('Fermate caricate dal database: ora scegli destinazione e orari.');
         setInputMode('excel');
         // Create Firestore trip doc (same as onUploadSuccess does)
         if (db) {
@@ -530,7 +540,7 @@ function App() {
                             <Menu className="w-5 h-5 text-gray-600" />
                         </button>
                         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                            <img src="/favicon.svg" alt="BusPlan Logo" className="w-9 h-9 md:w-10 md:h-10 drop-shadow-sm" />
+                            <img src="/favicon.svg" alt="BusPlan Logo" className="w-9 h-9 md:w-10 md:h-10" />
                             BusPlan
                             <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Beta</span>
                         </h1>
@@ -633,6 +643,10 @@ function App() {
                         />
                         {review && !review.open && (
                             <SheetReviewCallout
+                                processing={review.processing}
+                                stops={review.processed && !review.processing ? schools.length : null}
+                                passengers={schools.reduce((n, sc) => n + (parseInt(sc.demand) || 0), 0)}
+                                onNext={() => dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                                 fileName={review.fileName}
                                 rowCount={reviewAnalysis?.tableRows ?? review.rows.length}
                                 openErrors={reviewCounts.errors}
@@ -643,10 +657,13 @@ function App() {
                         )}
                         </>
                         )}
-                        {message && (
-                            <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-md border border-blue-100 flex items-center gap-2">
-                                <span className="text-xl">✅</span> {message}
-                            </div>
+                        {message && schools.length > 0 && !review && (
+                            <ReadyCard
+                                stops={schools.length}
+                                passengers={schools.reduce((n, sc) => n + (parseInt(sc.demand) || 0), 0)}
+                                text={message}
+                                onNext={() => dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                            />
                         )}
 
                         {processingError && (

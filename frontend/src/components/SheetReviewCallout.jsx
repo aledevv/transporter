@@ -1,9 +1,9 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowDown, Loader2 } from 'lucide-react';
 
 const TONES = {
     pending: { accent: '#f43f5e', soft: '#ffe4e6', ring: 'ring-rose-100', text: 'text-rose-700', button: 'bg-rose-600 hover:bg-rose-700 text-white' },
-    done: { accent: '#10b981', soft: '#d1fae5', ring: 'ring-emerald-100', text: 'text-emerald-700', button: 'bg-white hover:bg-slate-50 text-slate-700 ring-1 ring-slate-200' },
+    done: { accent: '#10b981', soft: '#d1fae5', ring: 'ring-emerald-100', text: 'text-emerald-700', button: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
     ready: { accent: '#3b82f6', soft: '#dbeafe', ring: 'ring-blue-100', text: 'text-blue-700', button: 'bg-blue-600 hover:bg-blue-700 text-white' },
 };
 
@@ -33,38 +33,86 @@ function SheetIllustration({ tone, state }) {
     );
 }
 
-// Card under the upload area to reopen the review window once it's closed
-export default function SheetReviewCallout({ fileName, rowCount, openErrors, openWarnings, processed, onOpen }) {
-    const state = openErrors > 0 ? 'pending' : processed ? 'done' : 'ready';
-    const tone = state;
+function Card({ tone, state, title, subtitle, meta, children }) {
     const t = TONES[tone];
-    const title = state === 'pending'
-        ? `${openErrors} ${openErrors === 1 ? 'fermata da rivedere' : 'fermate da rivedere'}`
-        : state === 'done' ? 'Revisione completata' : 'Revisione pronta';
-    const subtitle = state === 'pending'
-        ? 'Abbina le fermate segnate per continuare con il piano.'
-        : state === 'done' ? 'Le fermate sono state abbinate al database.' : 'Controlla le fermate prima di continuare.';
-
     return (
         <div className={`sr-rise-in mt-4 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm ring-4 ${t.ring}`}>
             <SheetIllustration tone={tone} state={state} />
             <div className="min-w-0 flex-1">
                 <div className={`text-[15px] font-semibold ${t.text}`}>{title}</div>
                 <div className="mt-0.5 text-sm text-slate-600">{subtitle}</div>
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
-                    <span className="max-w-[340px] truncate">{fileName}</span>
-                    <span>·</span>
-                    <span>{rowCount} righe</span>
-                    {openWarnings > 0 && <><span>·</span><span className="font-medium text-amber-600">{openWarnings} da verificare</span></>}
-                </div>
+                {meta && <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">{meta}</div>}
             </div>
-            <button
-                onClick={onOpen}
-                className={`group inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-all ${t.button}`}
-            >
-                {state === 'pending' ? 'Apri revisione' : 'Riapri'}
+            <div className="flex flex-shrink-0 flex-col items-end gap-1.5">{children}</div>
+        </div>
+    );
+}
+
+function NextButton({ tone, onClick }) {
+    return (
+        <button onClick={onClick} className={`group inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-all ${TONES[tone].button}`}>
+            Vai alla configurazione
+            <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+        </button>
+    );
+}
+
+const stopsLine = (stops, passengers) =>
+    `${stops} ${stops === 1 ? 'fermata pronta' : 'fermate pronte'}${passengers ? ` · ${passengers} passeggeri` : ''}`;
+
+// Card under the upload area: reopens the review window once it's closed,
+// and once the stops are processed points to the next step
+export default function SheetReviewCallout({ fileName, rowCount, openErrors, openWarnings, processed, processing, stops, passengers, onOpen, onNext }) {
+    const meta = (
+        <>
+            <span className="max-w-[340px] truncate">{fileName}</span>
+            <span>·</span>
+            <span>{rowCount} righe</span>
+            {openWarnings > 0 && <><span>·</span><span className="font-medium text-amber-600">{openWarnings} da verificare</span></>}
+        </>
+    );
+
+    if (processing) {
+        return (
+            <Card tone="ready" state="ready" title="Preparazione delle fermate…" subtitle="Un attimo: assegno le coordinate del database." meta={meta}>
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+            </Card>
+        );
+    }
+    if (openErrors > 0) {
+        return (
+            <Card tone="pending" state="pending" title={`${openErrors} ${openErrors === 1 ? 'fermata da rivedere' : 'fermate da rivedere'}`}
+                subtitle="Abbina le fermate segnate per continuare con il piano." meta={meta}>
+                <button onClick={onOpen} className={`group inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-all ${TONES.pending.button}`}>
+                    Apri revisione
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+            </Card>
+        );
+    }
+    if (processed && stops) {
+        return (
+            <Card tone="done" state="done" title={stopsLine(stops, passengers)} subtitle="Ora scegli destinazione e orari." meta={meta}>
+                {onNext && <NextButton tone="done" onClick={onNext} />}
+                <button onClick={onOpen} className="text-xs font-medium text-slate-500 hover:text-slate-700">Riapri revisione</button>
+            </Card>
+        );
+    }
+    return (
+        <Card tone="ready" state="ready" title="Revisione pronta" subtitle="Controlla le fermate prima di continuare." meta={meta}>
+            <button onClick={onOpen} className={`group inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-all ${TONES.ready.button}`}>
+                Apri revisione
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
-        </div>
+        </Card>
+    );
+}
+
+// Same card for stops that didn't come from an Excel review (database list, restored trip)
+export function ReadyCard({ stops, passengers, text, onNext }) {
+    return (
+        <Card tone="done" state="done" title={stopsLine(stops, passengers)} subtitle={text}>
+            {onNext && <NextButton tone="done" onClick={onNext} />}
+        </Card>
     );
 }
