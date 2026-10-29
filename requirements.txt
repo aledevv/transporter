@@ -12,3 +12,4 @@ scipy
 numpy
 python-docx
 docxtpl
+google-auth
