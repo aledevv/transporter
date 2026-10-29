@@ -36,9 +36,10 @@ _rate_lock = _threading.Lock()
 
 
 def _client_ip():
-    # Behind Cloud Run the client is the first address of X-Forwarded-For
+    # Cloud Run appends the real client address as the LAST X-Forwarded-For
+    # entry; earlier entries come from the client and can be forged
     fwd = request.headers.get('X-Forwarded-For', '')
-    return fwd.split(',')[0].strip() if fwd else (request.remote_addr or '?')
+    return fwd.split(',')[-1].strip() if fwd else (request.remote_addr or '?')
 
 
 def rate_limit(per_minute):
@@ -48,6 +49,10 @@ def rate_limit(per_minute):
             key = (view.__name__, _client_ip())
             now = _time.monotonic()
             with _rate_lock:
+                # Drop clients idle for a minute so the table can't grow forever
+                if len(_rate_hits) > 5000:
+                    for k in [k for k, h in _rate_hits.items() if not h or now - h[-1] > 60]:
+                        del _rate_hits[k]
                 hits = _rate_hits[key]
                 while hits and now - hits[0] > 60:
                     hits.popleft()

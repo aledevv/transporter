@@ -343,8 +343,9 @@ class TestRateLimit:
 
     def test_counted_per_forwarded_ip(self, app_client):
         for _ in range(120):
-            app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "1.1.1.1, 10.0.0.1"})
-        assert app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
+            app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "9.9.9.9, 1.1.1.1"})
+        # a forged first entry doesn't give a fresh quota: Cloud Run's appended address counts
+        assert app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "8.8.8.8, 1.1.1.1"}).status_code == 429
         assert app_client.get("/api/places/autocomplete?q=a", headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200
 
     def test_limits_are_per_endpoint(self, app_client):
